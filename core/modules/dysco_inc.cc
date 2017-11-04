@@ -3,7 +3,7 @@
 
 const Commands DyscoInc::cmds = {
     {"set_burst", "PortIncCommandSetBurstArg",
-     MODULE_CMD_FUNC(&PortInc::CommandSetBurst), Command::THREAD_SAFE},
+     MODULE_CMD_FUNC(&DyscoInc::CommandSetBurst), Command::THREAD_SAFE},
 };
 
 CommandResponse DyscoInc::Init(const bess::pb::PortIncArg &arg) {
