@@ -1092,3 +1092,13 @@ message MplsPopArg {
 message WorkerSplitArg {
   map<uint32, uint32> worker_gates = 1; // ogate -> worker mask
 }
+
+//DYSCO
+message DyscoOutArg {
+  string port = 1;
+}
+
+message DyscoIncArg {
+  string port = 1;
+  bool prefetch = 2;
+}

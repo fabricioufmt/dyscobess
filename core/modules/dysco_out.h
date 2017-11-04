@@ -13,7 +13,7 @@ class DyscoOut final : public Module {
 
   DyscoOut() : Module(), port_(), available_queues_(), worker_queues_() {}
 
-  CommandResponse Init(const bess::pb::PortOutArg &arg);
+  CommandResponse Init(const bess::pb::DyscoOutArg &arg);
 
   void DeInit() override;
 

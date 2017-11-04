@@ -1,7 +1,7 @@
 #include "dysco_out.h"
 #include "../utils/format.h"
 
-CommandResponse DyscoOut::Init(const bess::pb::PortOutArg &arg) {
+CommandResponse DyscoOut::Init(const bess::pb::DyscoOutArg &arg) {
   const char *port_name;
   int ret;
 
