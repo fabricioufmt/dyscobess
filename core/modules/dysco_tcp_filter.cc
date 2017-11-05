@@ -1,6 +1,7 @@
 #include "dysco_tcp_filter.h"
 
-DyscoTcpFilter::DyscoTcpFilter() : Module() {
+DyscoTcpFilter::DyscoTcpFilter() {
+  Module();
   /*
     Create BPF module
    */
