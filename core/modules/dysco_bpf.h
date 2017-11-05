@@ -1,6 +1,7 @@
 #ifndef BESS_MODULES_DYSCOBPF_H_
 #define BESS_MODULES_DYSCOBPF_H_
 
+#include <pcap.h>
 #include <vector>
 #include <string>
 #include "../module.h"
