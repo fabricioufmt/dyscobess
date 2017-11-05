@@ -13,9 +13,18 @@ void DyscoTcpFilter::ProcessBatch(bess::PacketBatch* batch) {
   f2->set_priority(4);
   f2->set_filter("not ip or not tcp");
   f2->set_gate(1);
-  bpf.DeInit();
-  bpf.Init(arg);
+  bpf = new BPF();
+  bpf->DeInit();
+  bpf->Init(arg);
 
+  bess::bp::CreateModuleRequest request;
+  bess::bp::CreateModuleRequest response;
+
+  request.set_name("dyscobpf0");
+  request.set_mclass("BPF");
+  
+  CreateModule(NULL, &request, &response);
+  
   /*
     Disconnect BPF gates
   */
@@ -56,7 +65,7 @@ void DyscoTcpFilter::ProcessBatch(bess::PacketBatch* batch) {
     modules[i]->ConnectModules(ogates[i], &bpf, 0);
   }
 */
-  bpf.ProcessBatch(batch);
+  bpf->ProcessBatch(batch);
 }
 
 ADD_MODULE(DyscoTcpFilter, "dysco_tcp_filter", "classifies packet as TCP or non-TCP")
