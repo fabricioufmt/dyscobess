@@ -19,9 +19,10 @@ void DyscoTcpFilter::ProcessBatch(bess::PacketBatch* batch) {
   /*
     Disconnect BPF gates
   */
-  bpf.DisconnectModules(0);
-  bpf.DisconnectModules(1);
-  bpf.DisconnectModulesUpstream(0); 
+  printf("%d\n", bpf.ogates.size());
+  //bpf.DisconnectModules(0);
+  //bpf.DisconnectModules(1);
+  //bpf.DisconnectModulesUpstream(0); 
   
   /*
     Disconnect and new connect ogate 0
