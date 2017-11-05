@@ -28,7 +28,7 @@ class DyscoBPF final {
     std::string exp;  // original filter expression string
   };
 
-  int* ProcessBatch1Filter(bess::PacketBatch*) {
+  int* ProcessBatch1Filter(bess::PacketBatch*);
   static bool Match(const Filter &, u_char *, u_int, u_int);
 
   std::vector<Filter> filters_;
