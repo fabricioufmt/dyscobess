@@ -47,7 +47,7 @@ DyscoTcpFilter::DyscoTcpFilter() : Module() {
   }
   DisconnectModulesUpstream(0);
   for(unsigned int i = 0; i < modules.size(); i++) {
-    modules[i].ConnectModules(ogates[i], &bpf, 0);
+    modules[i]->ConnectModules(ogates[i], &bpf, 0);
   }
 }
 
