@@ -3,11 +3,8 @@
 DyscoSynP::DyscoSynP() : Module() {
   
 }
-
+/*
 void process_packet(bess::Packet* pkt) {
-  Ipv4* ip = reinterpret_cast<Ipv4*>(pkt->head_data<Ethernet*>() + 1);
-  ip = nullptr;
-  /*
   Ipv4* ip = reinterpret_cast<Ipv4*>(pkt->head_data<Ethernet*>() + 1);
   size_t ip_hlen = ip->header_length << 2;
   Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
@@ -33,11 +30,12 @@ void process_packet(bess::Packet* pkt) {
     next.sip = next.dip = 0;
     next.sport = next.dport = 0;
   }
-  */
+  
   //Send (subss, supss, nextss, sc_len, sc) to DyscoPolicyCenter
 }
-
+*/
 void DyscoSynP::ProcessBatch(bess::PacketBatch* batch) {
+  /*
   int cnt = batch->cnt();
 
   bess::Packet* pkt;
@@ -45,8 +43,8 @@ void DyscoSynP::ProcessBatch(bess::PacketBatch* batch) {
     pkt = batch->pkts()[i];
     process_packet(pkt);
   }
-
+  */
   RunChooseModule(0, batch);
 }
 
-ADD_MODULE(DyscoSynP, "dysco_synp", "processes TCP SYN with Payload fragment")
+ADD_MODULE(DyscoSynP, "dysco_synp", "processes TCP SYN with Payload segment")

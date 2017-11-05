@@ -11,4 +11,4 @@ void DyscoSyn::ProcessBatch(bess::PacketBatch* batch) {
   RunChooseModule(0, batch);
 }
 
-ADD_MODULE(DyscoSyn, "dysco_syn", "processes TCP SYN fragment")
+ADD_MODULE(DyscoSyn, "dysco_syn", "processes TCP SYN segment")
