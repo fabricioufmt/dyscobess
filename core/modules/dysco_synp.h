@@ -2,6 +2,8 @@
 #define BESS_MODULES_DYSCOSYNP_H_
 
 #include "../module.h"
+#include <rte_config.h>
+#include <rte_hash_crc.h>
 
 struct tcp_session {
   uint32_t sip;

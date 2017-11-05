@@ -5,6 +5,8 @@ DyscoSynP::DyscoSynP() : Module() {
 }
 
 void process_packet(bess::Packet* pkt) {
+  Ipv4* ip = reinterpret_cast<Ipv4*>(pkt->head_data<Ethernet*>() + 1);
+  ip = nullptr;
   /*
   Ipv4* ip = reinterpret_cast<Ipv4*>(pkt->head_data<Ethernet*>() + 1);
   size_t ip_hlen = ip->header_length << 2;
