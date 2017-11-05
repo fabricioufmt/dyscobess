@@ -52,7 +52,6 @@ DyscoTcpFilter::DyscoTcpFilter() : Module() {
 }
 
 void DyscoTcpFilter::ProcessBatch(bess::PacketBatch* batch) {
-  batch->set_cnt(0);
 }
 
 
