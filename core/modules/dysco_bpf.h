@@ -2,6 +2,7 @@
 #define BESS_MODULES_DYSCOBPF_H_
 
 #include <vector>
+#include <string>
 
 using bpf_filter_func_t = u_int (*)(u_char *, u_int, u_int);
 
