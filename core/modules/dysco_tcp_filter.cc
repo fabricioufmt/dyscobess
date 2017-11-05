@@ -13,7 +13,7 @@ void DyscoTcpFilter::ProcessBatch(bess::PacketBatch* batch) {
   for (int i = 0; i < cnt; i++) {
     bess::Packet *pkt = batch->pkts()[i];
 
-    if (bpf->Match(bpf->filters_[0], pkt->head_data<u_char *>(), pkt->total_len(),
+    if (DyscoBPF::Match(bpf->filters_[0], pkt->head_data<u_char *>(), pkt->total_len(),
               pkt->head_len())) {
       *(ptrs[1]++) = pkt;
     } else {
