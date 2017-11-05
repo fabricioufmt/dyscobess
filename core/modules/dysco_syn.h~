@@ -1,0 +1,8 @@
+#ifndef BESS_MODULES_DYSCOSYN_H_
+#define BESS_MODULES_DYSCOSYN_H_
+
+class DyscoSyn final : public Module {
+  
+};
+
+#endif
