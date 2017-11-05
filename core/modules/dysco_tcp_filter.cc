@@ -19,6 +19,10 @@ DyscoTcpFilter::DyscoTcpFilter() : Module() {
   /*
     Disconnect gates
    */
+  bess::IGate* igate = igates()[0];
+  bess::OGate* ogate1 = ogates()[0];
+  bess::OGate* ogate2 = ogates()[1];
+
   DisconnectModules(0);
   DisconnectModules(1);
   DisconnectModulesUpstream(0);
