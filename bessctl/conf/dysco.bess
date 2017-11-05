@@ -2,10 +2,11 @@ import scapy.all as scapy
 
 dpdk0::PMDPort(port_id=0, num_inc_q=1, num_out_q=1)
 host_if0 = VPort(ifname='eth0', ip_addrs=['10.1.1.1/24'])
-#host_if1 = VPort(ifname='eth1', ip_addrs=['10.1.2.1/24'])
+host_if1 = VPort(ifname='eth1', ip_addrs=['10.1.2.1/24'])
 
-DyscoInc(port=dpdk0) -> DyscoOut(port=host_if0)
+DyscoInc(port=dpdk0) -> tcp_filter::DyscoTcpFilter() -> DyscoOut(port=host_if0)
 
+tcp_filter:1 -> DyscoOut(port=host_if1)
 
 
 #myport::PMDPort(port_id=0, num_inc_q=1, num_out_q=1)
