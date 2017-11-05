@@ -8,7 +8,7 @@ class DyscoNonSyn final : public Module {
   static const gate_idx_t kNumIGates = 1;
   //static const gate_idx_t kNumOGates = 2;
 
-  DyscoSyn();
+  DyscoNonSyn();
 
   void ProcessBatch(bess::PacketBatch*) override;
 };
