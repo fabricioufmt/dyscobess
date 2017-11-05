@@ -28,7 +28,7 @@ void DyscoTcpFilter::ProcessBatch(bess::PacketBatch* batch) {
   /*
     Disconnect and new connect ogate 0
   */
-  
+  /*
   bess::OGate* ogate = ogates()[0];
   Module* m_next = ogate->next();
   gate_idx_t igate_idx = ogate->igate_idx();
