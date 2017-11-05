@@ -1,12 +1,12 @@
 #include "dysco_tcp_filter.h"
 
-DyscoTcpFilter::DyscpTcpFilter() : Module() {
+DyscoTcpFilter::DyscoTcpFilter() : Module() {
   bpf = new DyscoBPF();
   bpf->add_filter("ip and tcp", 8);
 }
 
 void DyscoTcpFilter::ProcessBatch(bess::PacketBatch* batch) {
-  const Filter &filter = bpf->filters_[0];
+  const DyscoBPF::Filter &filter = bpf->filters_[0];
 
   bess::PacketBatch out_batches[2];
   bess::Packet **ptrs[2];
@@ -19,7 +19,7 @@ void DyscoTcpFilter::ProcessBatch(bess::PacketBatch* batch) {
   for (int i = 0; i < cnt; i++) {
     bess::Packet *pkt = batch->pkts()[i];
 
-    if (bpf->Match(filter, pkt->head_data<u_char *>(), pkt->total_len(),
+    if (bpf->Match(, pkt->head_data<u_char *>(), pkt->total_len(),
               pkt->head_len())) {
       *(ptrs[1]++) = pkt;
     } else {
@@ -31,7 +31,7 @@ void DyscoTcpFilter::ProcessBatch(bess::PacketBatch* batch) {
   out_batches[1].set_cnt(ptrs[1] - out_batches[1].pkts());
 
   RunChooseModule(0, &out_batches[0]);
-  RunChooseModule(filter.gate, &out_batches[1]);
+  RunChooseModule(1, &out_batches[1]);
   /*
   int cnt = batch->cnt();
   int n_filters = filters_.size();
