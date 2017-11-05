@@ -19,7 +19,7 @@ void DyscoTcpFilter::ProcessBatch(bess::PacketBatch* batch) {
   /*
     Disconnect BPF gates
   */
-  printf("(BPF)IN: %d == OUT: %d\n", bpf.module_builder()->NumIGates(), bpf.module_builder()->NumOGates());
+  //printf("(BPF)IN: %d == OUT: %d\n", bpf.module_builder()->NumIGates(), bpf.module_builder()->NumOGates());
   printf("(DYS)IN: %d == OUT: %d\n", module_builder()->NumIGates(), module_builder()->NumOGates());
   //bpf.DisconnectModules(0);
   //bpf.DisconnectModules(1);
