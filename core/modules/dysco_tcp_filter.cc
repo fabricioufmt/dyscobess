@@ -21,7 +21,7 @@ void DyscoTcpFilter::ProcessBatch(bess::PacketBatch* batch) {
   */
   //bpf.DisconnectModules(0);
   //bpf.DisconnectModules(1);
-  bpf.DisconnectModulesUpstream(0); 
+  //bpf.DisconnectModulesUpstream(0); 
   
   /*
     Disconnect and new connect ogate 0
@@ -45,7 +45,7 @@ void DyscoTcpFilter::ProcessBatch(bess::PacketBatch* batch) {
     modules.push_back(o_gate->module());
     ogates.push_back(o_gate->igate_idx());
   }
-  DisconnectModulesUpstream(0);
+  //DisconnectModulesUpstream(0);
   for(unsigned int i = 0; i < modules.size(); i++) {
     modules[i]->ConnectModules(ogates[i], &bpf, 0);
   }
