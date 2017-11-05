@@ -38,7 +38,6 @@ DyscoTcpFilter::DyscoTcpFilter() : Module() {
   DisconnectModules(1);
   bpf.ConnectModules(1, m_next, igate_idx);
 
-  Module* m_prev;
   bess::IGate* igate = igates()[0];
   std::vector<Module*> modules;
   std::vector<gate_idx_t> ogates;
@@ -47,7 +46,7 @@ DyscoTcpFilter::DyscoTcpFilter() : Module() {
     ogates.push_back(o_gate->igate_idx());
   }
   DisconnectModulesUpstream(0);
-  for(int i = 0; i < modules.size(); i++) {
+  for(unsigned int i = 0; i < modules.size(); i++) {
     modules[i].ConnectModules(ogates[i], &bpf, 0);
   }
 }
