@@ -4,6 +4,7 @@ void DyscoTcpFilter::ProcessBatch(bess::PacketBatch* batch) {
   /*
     Create BPF module
   */
+  /*
   bess::pb::BPFArg arg;
   bess::pb::BPFArg::Filter* f1 = arg.add_filters();
   f1->set_priority(8);
@@ -17,14 +18,14 @@ void DyscoTcpFilter::ProcessBatch(bess::PacketBatch* batch) {
   bpf->DeInit();
   bpf->Init(arg);
 
-  bess::bp::CreateModuleRequest request;
-  bess::bp::CreateModuleRequest response;
+  bess::pb::CreateModuleRequest request;
+  bess::pb::CreateModuleRequest response;
 
   request.set_name("dyscobpf0");
   request.set_mclass("BPF");
   
   CreateModule(NULL, &request, &response);
-  
+  */
   /*
     Disconnect BPF gates
   */
