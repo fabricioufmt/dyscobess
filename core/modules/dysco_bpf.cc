@@ -1,6 +1,6 @@
 #include "dysco_bpf.h"
 #include "bpf.h"
-#inclide "bpf.cpp"
+#include "bpf.cpp"
 //#define SNAPLEN 0xffff
 
 bool DyscoBPF::add_filter(std::string exp, int priority) {
