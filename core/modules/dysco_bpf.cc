@@ -1083,7 +1083,7 @@ bool DyscoBPF::add_filter(std::string exp, int priority) {
 
   return true;
 }
-
+/*
 int* DyscoBPF::ProcessBatch1Filter(bess::PacketBatch* batch) {
   int cnt = batch->cnt();
   const Filter& filter = filters_[0];
@@ -1129,7 +1129,7 @@ int* DyscoBPF::ProcessBatch(bess::PacketBatch* batch) {
 
   return pouts;
 }
-
+*/
 inline bool DyscoBPF::Match(const Filter &filter, u_char *pkt, u_int wirelen,
                   u_int buflen) {
 #ifdef __x86_64
