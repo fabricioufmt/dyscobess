@@ -2,7 +2,7 @@
 
 #include "../utils/ip.h"
 #include "../utils/tcp.h"
-#include "../utils/udp.h"
+#include "../utils/ethernet.h"
 
 using bess::utils::Ethernet;
 using bess::utils::Ipv4;
