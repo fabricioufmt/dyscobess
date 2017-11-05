@@ -2,7 +2,7 @@
 #define BESS_MODULES_DYSCOSYN_H_
 
 #include "../module.h"
-#include "DyscoBPF.h"
+#include "dysco_bpf.h"
 
 class DyscoSyn final : public Module {
  public:
