@@ -9,7 +9,8 @@ bool DyscoBPF::add_filter(std::string exp, int priority) {
   filter.exp = exp;
 
   struct bpf_program il;
-  if(pcap_compile_nopcap(SNAPLEN, DLT_EN10MB, &il, 1, PCAP_NETMASK_UNKNOWN) == -1)
+  if(pcap_compile_nopcap(SNAPLEN, DLT_EN10MB, &il,
+			 filter.exp.c_str(), 1, PCAP_NETMASK_UNKNOWN) == -1)
     return false;
 
 #ifdef __x86_64
