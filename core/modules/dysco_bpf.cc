@@ -1,7 +1,53 @@
 #include "dysco_bpf.h"
 #include "bpf.h"
 //#define SNAPLEN 0xffff
+static int bpf_jit_optimize(struct bpf_insn *prog, u_int nins) {
+  int flags;
+  u_int i;
 
+  /* Do we return immediately? */
+  if (BPF_CLASS(prog[0].code) == BPF_RET)
+    return (BPF_JIT_FRET);
+
+  for (flags = 0, i = 0; i < nins; i++) {
+    switch (prog[i].code) {
+      case BPF_LD | BPF_W | BPF_ABS:
+      case BPF_LD | BPF_H | BPF_ABS:
+      case BPF_LD | BPF_B | BPF_ABS:
+      case BPF_LD | BPF_W | BPF_IND:
+      case BPF_LD | BPF_H | BPF_IND:
+      case BPF_LD | BPF_B | BPF_IND:
+      case BPF_LDX | BPF_MSH | BPF_B:
+        flags |= BPF_JIT_FPKT;
+        break;
+      case BPF_LD | BPF_MEM:
+      case BPF_LDX | BPF_MEM:
+      case BPF_ST:
+      case BPF_STX:
+        flags |= BPF_JIT_FMEM;
+        break;
+      case BPF_LD | BPF_W | BPF_LEN:
+      case BPF_LDX | BPF_W | BPF_LEN:
+        flags |= BPF_JIT_FLEN;
+        break;
+      case BPF_JMP | BPF_JA:
+      case BPF_JMP | BPF_JGT | BPF_K:
+      case BPF_JMP | BPF_JGE | BPF_K:
+      case BPF_JMP | BPF_JEQ | BPF_K:
+      case BPF_JMP | BPF_JSET | BPF_K:
+      case BPF_JMP | BPF_JGT | BPF_X:
+      case BPF_JMP | BPF_JGE | BPF_X:
+      case BPF_JMP | BPF_JEQ | BPF_X:
+      case BPF_JMP | BPF_JSET | BPF_X:
+        flags |= BPF_JIT_FJMP;
+        break;
+    }
+    if (flags == BPF_JIT_FLAG_ALL)
+      break;
+  }
+
+  return (flags);
+}
 bool DyscoBPF::add_filter(std::string exp, int priority) {
   Filter filter;
   filter.priority = priority;
