@@ -30,13 +30,15 @@ void DyscoTcpFilter::ProcessBatch(bess::PacketBatch* batch) {
   Module* m_next = ogate->next();
   gate_idx_t igate_idx = ogate->igate_idx();
   //DisconnectModules(0);
-  bpf.ConnectModules(0, m_next, igate_idx);
-
+  //bpf.ConnectModules(0, m_next, igate_idx);
+  bpf.ConnectModules(bpf.ogates()[0]->igate_idx(), m_next, igate_idx);
+  
   ogate = ogates()[1];
   m_next = ogate->next();
   igate_idx = ogate->igate_idx();
   //DisconnectModules(1);
-  bpf.ConnectModules(1, m_next, igate_idx);
+  //bpf.ConnectModules(1, m_next, igate_idx);
+  bpf.ConnectModules(bpf.ogates()[1]->igate_idx(), m_next, igate_idx);
   /*
   bess::IGate* igate = igates()[0];
   std::vector<Module*> modules;
