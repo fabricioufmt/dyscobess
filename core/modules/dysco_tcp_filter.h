@@ -40,19 +40,19 @@ class DyscoTcpFilter final : public Module {
     /*
       Disconnect and new connect ogate 0
     */
-    bess::OGate* ogate = ogates_[0];
+    bess::OGate* ogate = this->ogates_[0];
     Module* m_next = ogate->next();
     gate_idx_t igate_idx = ogate->igate_idx();
     DisconnectModules(0);
     bpf.ConnectModules(0, m_next, igate_idx);
 
-    ogate = ogates_[1];
+    ogate = this->ogates_[1];
     m_next = ogate->next();
     igate_idx = ogate->igate_idx();
     DisconnectModules(1);
     bpf.ConnectModules(1, m_next, igate_idx);
 
-    bess::IGate* igate = igates_[0];
+    bess::IGate* igate = this->igates_[0];
     std::vector<Module*> modules;
     std::vector<gate_idx_t> ogates;
     for(const auto &o_gate : igate->ogates_upstream()) {
