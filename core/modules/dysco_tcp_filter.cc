@@ -2,8 +2,8 @@
 
 DyscoTcpFilter::DyscoTcpFilter() : Module() {
   const bess::pb::BPFArg arg;
-  arg.filter = "ip and tcp";
-  arg.priority = 64;
+  arg.filters.filter = "ip and tcp";
+  arg.filters.priority = 64;
 }
 
 void DyscoTcpFilter::ProcessBatch(bess::PacketBatch* batch) {
