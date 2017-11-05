@@ -19,8 +19,8 @@ void DyscoTcpFilter::ProcessBatch(bess::PacketBatch* batch) {
   /*
     Disconnect BPF gates
   */
-  printf("(BPF)IN: %lu == OUT: %lu\n", bpf.ogates().size(), bpf.igates().size());
-  printf("(DYS)IN: %lu == OUT: %lu\n", ogates().size(), igates().size());
+  printf("(BPF)IN: %lu == OUT: %lu\n", bpf.module_builder()->NumIGates(), bpf.module_builder()->NumOGates());
+  printf("(DYS)IN: %lu == OUT: %lu\n", module_builder_->NumIGates(), module_builder_->NumOGates());
   //bpf.DisconnectModules(0);
   //bpf.DisconnectModules(1);
   //bpf.DisconnectModulesUpstream(0); 
@@ -28,14 +28,14 @@ void DyscoTcpFilter::ProcessBatch(bess::PacketBatch* batch) {
   /*
     Disconnect and new connect ogate 0
   */
-  /*
+  
   bess::OGate* ogate = ogates()[0];
   Module* m_next = ogate->next();
   gate_idx_t igate_idx = ogate->igate_idx();
   //DisconnectModules(0);
   //bpf.ConnectModules(0, m_next, igate_idx);
   bpf.ConnectModules(bpf.ogates()[0]->igate_idx(), m_next, igate_idx);
-  
+  /*
   ogate = ogates()[1];
   m_next = ogate->next();
   igate_idx = ogate->igate_idx();
