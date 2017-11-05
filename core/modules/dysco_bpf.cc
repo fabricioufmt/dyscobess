@@ -1,14 +1,9 @@
-#include <cstdint>
-#include <cstdlib>
-#include <cstring>
-#include <sys/mman.h>
-
 #include "dysco_bpf.h"
 
-bool DyscoBPF::add_filter(std::string filter, int priority) {
-  Filter f;
-  f.priority = priority;
-  f.exp = filter;
+bool DyscoBPF::add_filter(std::string exp, int priority) {
+  Filter filter;
+  filter.priority = priority;
+  filter.exp = exp;
 
   struct bpf_program il;
   if(pcap_compile_nopcap(SNAPLEN, DLT_EN10MB, &il, 1, PCAP_NETMASK_UNKNOWN) == -1)

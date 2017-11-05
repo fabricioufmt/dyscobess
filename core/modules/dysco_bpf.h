@@ -4,6 +4,11 @@
 #include <pcap.h>
 #include <vector>
 #include <string>
+#include <cstdint>
+#include <cstdlib>
+#include <cstring>
+#include <sys/mman.h>
+
 #include "../module.h"
 
 using bpf_filter_func_t = u_int (*)(u_char *, u_int, u_int);
