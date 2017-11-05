@@ -51,8 +51,8 @@ DyscoTcpFilter::DyscoTcpFilter() : Module() {
   }
 }
 
-void DyscoTcpFilter::ProcessBatch(bess::PacketBatch* batch) {
-}
+//void DyscoTcpFilter::ProcessBatch(bess::PacketBatch* batch) {
+//}
 
 
 ADD_MODULE(DyscoTcpFilter, "dysco_tcp_filter", "classifies packet as TCP or non-TCP")
