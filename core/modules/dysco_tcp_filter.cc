@@ -10,7 +10,8 @@ DyscoTcpFilter::DyscoTcpFilter() : Module() {
   f2.set_filter("not ip or not tcp");
   f2.set_gate(1);
 
-  bess::pb::BPFArg::Filter* filters = arg.filters();
+  
+  bess::pb::BPFArg::Filter* filters = arg.add_filters();
 }
 
 void DyscoTcpFilter::ProcessBatch(bess::PacketBatch* batch) {
