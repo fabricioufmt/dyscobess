@@ -1,7 +1,7 @@
+#include "dysco_bpf.h"
 #include "dysco_tcp_filter.h"
 
 void DyscoTcpFilter::ProcessBatch(bess::PacketBatch* batch) {
-
   bess::PacketBatch out_batches[2];
   bess::Packet **ptrs[2];
 

@@ -13,7 +13,7 @@
 
 using bpf_filter_func_t = u_int (*)(u_char *, u_int, u_int);
 
-class DyscoBPF final {
+class DyscoBPF {
  public:
   DyscoBPF() {}
 
