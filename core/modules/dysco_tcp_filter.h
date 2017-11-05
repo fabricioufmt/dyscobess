@@ -18,7 +18,7 @@ class DyscoTcpFilter final : public Module {
   
   void ProcessBatch(bess::PacketBatch*) override;
  private:
-  BPF* bpf;
+  DyscoBPF* bpf;
 };
 
 #endif // BESS_MODULES_DYSCOTCPFILTER_H_

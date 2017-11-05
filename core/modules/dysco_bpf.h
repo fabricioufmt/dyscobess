@@ -15,13 +15,11 @@ using bpf_filter_func_t = u_int (*)(u_char *, u_int, u_int);
 
 class DyscoBPF final {
  public:
-  
   DyscoBPF() {}
 
   bool add_filter(std::string, int);
   int* ProcessBatch(bess::PacketBatch*);
   
- private:
   struct Filter {
 #ifdef __x86_64
     bpf_filter_func_t func;
