@@ -18,7 +18,6 @@ class DyscoBPF final {
   DyscoBPF() {}
 
   bool add_filter(std::string, int);
-  int* ProcessBatch(bess::PacketBatch*);
   
   struct Filter {
 #ifdef __x86_64
@@ -32,7 +31,6 @@ class DyscoBPF final {
     std::string exp;  // original filter expression string
   };
 
-  int* ProcessBatch1Filter(bess::PacketBatch*);
   static bool Match(const Filter &, u_char *, u_int, u_int);
 
   std::vector<Filter> filters_;
