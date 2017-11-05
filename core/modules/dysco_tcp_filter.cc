@@ -11,8 +11,8 @@ DyscoTcpFilter::DyscoTcpFilter() : Module() {
   f2.set_gate(1);
 
   bess::pb::BPFArg::Filter* filters = arg.add_filters();
-  filters.set_filter(f1);
-  filters.set_filter(f2);
+  filters->set_filter(f1);
+  filters->set_filter(f2);
 }
 
 void DyscoTcpFilter::ProcessBatch(bess::PacketBatch* batch) {
