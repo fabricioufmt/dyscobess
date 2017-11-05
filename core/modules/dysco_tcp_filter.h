@@ -14,7 +14,7 @@ class DyscoTcpFilter final : public Module {
   static const gate_idx_t kNumIGates = 1;
   static const gate_idx_t kNumOGates = 2;
   
- DyscoTcpFilter() : Module() {}
+ DyscoTcpFilter() : Module(), bpf() {}
   
   void ProcessBatch(bess::PacketBatch*) override;
  private:
