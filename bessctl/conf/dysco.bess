@@ -11,9 +11,9 @@ policycenter::DyscoPolicyCenter()
 DyscoInc(port=dpdk0) -> tcp_filter:0 -> Sink()
 tcp_filter:1 -> policycenter
 
-policycenter:0 -> DyscoOut(port=host_if0)
-policycenter:1 -> DyscoOut(port=host_if1)
-policycenter:2 -> DyscoOut(port=host_if2)
+policycenter:0 -> DyscoSyn() -> DyscoOut(port=host_if0)
+policycenter:1 -> DyscoSynP() -> DyscoOut(port=host_if1)
+policycenter:2 -> DyscoNonSyn() -> DyscoOut(port=host_if2)
 
 
 #myport::PMDPort(port_id=0, num_inc_q=1, num_out_q=1)
