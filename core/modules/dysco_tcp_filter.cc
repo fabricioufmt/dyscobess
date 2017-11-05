@@ -19,11 +19,12 @@ DyscoTcpFilter::DyscoTcpFilter() : Module() {
   /*
     Disconnect gates
    */
-  bess::IGate* igate_dysco = igates_[0];
-  for(const auto& ogate : igate_dysco->ogates_upstream()) {
-    Module* m_prev = ogate->module();
-  }
-  
+  DisconnectModules(0);
+  DisconnectModules(1);
+  DisconnectModulesUpstream(0);
+  bpf.DisconnectModules(0);
+  bpf.DisconnectModules(1);
+  bpf.DisconnectModulesUpstream(0);  
 }
 
 void DyscoTcpFilter::ProcessBatch(bess::PacketBatch* batch) {
