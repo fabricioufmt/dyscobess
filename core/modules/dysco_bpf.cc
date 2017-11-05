@@ -1,4 +1,6 @@
 #include "dysco_bpf.h"
+#include "bpf.h"
+//#define SNAPLEN 0xffff
 
 bool DyscoBPF::add_filter(std::string exp, int priority) {
   Filter filter;
@@ -61,7 +63,6 @@ int* DyscoBPF::ProcessBatch(bess::PacketBatch* batch) {
   int i, j;
   int* pouts = new int[cnt];
   for(i = 0; i < cnt; i++) {
-    int pout = -1;
     bess::Packet* pkt = batch->pkts()[i];
 
     for(j = 0; j < n_filters; j++) {
