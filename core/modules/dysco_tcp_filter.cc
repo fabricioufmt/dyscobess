@@ -27,7 +27,7 @@ DyscoTcpFilter::DyscoTcpFilter() : Module() {
     Disconnect and new connect ogate 0
    */
   bess::OGate* ogate = ogates()[0];
-  bess::Module* m_next = ogate->next();
+  Module* m_next = ogate->next();
   gate_idx_t igate_idx = ogate->igate_idx();
   DisconnectModules(0);
   bpf.ConnectModules(0, m_next, igate_idx);
