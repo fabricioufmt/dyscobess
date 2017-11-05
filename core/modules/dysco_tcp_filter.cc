@@ -1,10 +1,5 @@
 #include "dysco_tcp_filter.h"
 
-DyscoTcpFilter::DyscoTcpFilter() : Module() {
-  bpf = new DyscoBPF();
-  bpf->add_filter("ip and tcp", 8);
-}
-
 void DyscoTcpFilter::ProcessBatch(bess::PacketBatch* batch) {
   const DyscoBPF::Filter &filter = bpf->filters_[0];
 
