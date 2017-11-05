@@ -13,7 +13,7 @@ DyscoTcpFilter::DyscoTcpFilter() : Module() {
   f2->set_gate(1);
 
   bpf.DeInit();
-  bpf.Init(&arg);
+  bpf.Init(arg);
 }
 
 void DyscoTcpFilter::ProcessBatch(bess::PacketBatch* batch) {
