@@ -1,7 +1,6 @@
 #include "dysco_tcp_filter.h"
 
 void DyscoTcpFilter::ProcessBatch(bess::PacketBatch* batch) {
-  const DyscoBPF::struct Filter &filter = bpf->filters_[0];
 
   bess::PacketBatch out_batches[2];
   bess::Packet **ptrs[2];
@@ -14,7 +13,7 @@ void DyscoTcpFilter::ProcessBatch(bess::PacketBatch* batch) {
   for (int i = 0; i < cnt; i++) {
     bess::Packet *pkt = batch->pkts()[i];
 
-    if (bpf->Match(filter, pkt->head_data<u_char *>(), pkt->total_len(),
+    if (bpf->Match(bpf->filters_[0], pkt->head_data<u_char *>(), pkt->total_len(),
               pkt->head_len())) {
       *(ptrs[1]++) = pkt;
     } else {
