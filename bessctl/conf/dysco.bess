@@ -8,8 +8,7 @@ host_if1 = VPort(ifname='eth2', ip_addrs=['10.1.3.1/24'])
 tcp_filter::DyscoTcpFilter()
 policy_center::DyscoPolicyCenter()
 
-DyscoInc(port=dpdk0) ->
-tcp_filter:0 -> Sink()
+DyscoInc(port=dpdk0) -> tcp_filter:0 -> Sink()
 tcp_filter:1 -> policycenter
 
 policycenter:0 -> DyscoOut(port=host_if0)
