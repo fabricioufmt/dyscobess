@@ -1130,7 +1130,7 @@ int* DyscoBPF::ProcessBatch(bess::PacketBatch* batch) {
   return pouts;
 }
 */
-inline bool DyscoBPF::Match(const Filter &filter, u_char *pkt, u_int wirelen,
+bool DyscoBPF::Match(const Filter &filter, u_char *pkt, u_int wirelen,
                   u_int buflen) {
 #ifdef __x86_64
   int ret = filter.func(pkt, wirelen, buflen);

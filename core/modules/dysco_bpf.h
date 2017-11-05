@@ -31,7 +31,7 @@ class DyscoBPF {
     std::string exp;  // original filter expression string
   };
 
-  static bool Match(const Filter &, u_char *, u_int, u_int);
+  bool Match(const Filter &, u_char *, u_int, u_int);
 
   std::vector<Filter> filters_;
 };
