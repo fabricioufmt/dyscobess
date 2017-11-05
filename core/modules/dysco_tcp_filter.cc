@@ -11,6 +11,9 @@ DyscoTcpFilter::DyscoTcpFilter() : Module() {
   f2->set_priority(4);
   f2->set_filter("not ip or not tcp");
   f2->set_gate(1);
+
+  bpf.DeInit();
+  bpf.Init(&arg);
 }
 
 void DyscoTcpFilter::ProcessBatch(bess::PacketBatch* batch) {
