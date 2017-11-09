@@ -15,11 +15,11 @@ bool DyscoPolicyCenter::add(Ipv4* ip, Tcp* tcp, uint8_t* payload, uint32_t paylo
 	
 	cb.sc = 0;
 	cb.sc_len = 0;
-	uint32_t sc_len = payload_len - sizeof(DyscoTcpSession) - sizeof(uint32);
+	uint32_t sc_len = payload_len - sizeof(DyscoTcpSession) - sizeof(uint32_t);
 	
 	if(sc_len != 0) {
 		cb.sc = (uint8_t*) malloc(sc_len);
-		memcpy(cb.sc, payload + sizeof(DyscoTcpSession) + sizeof(uint32), sc_len);
+		memcpy(cb.sc, payload + sizeof(DyscoTcpSession) + sizeof(uint32_t), sc_len);
 		cb.sc_len = sc_len;
 	}
 

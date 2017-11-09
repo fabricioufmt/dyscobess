@@ -37,7 +37,7 @@ class DyscoTcpSession {
 };
 
 class DyscoControlBlock {
- private:
+ public:
 	DyscoTcpSession subss;
 	DyscoTcpSession supss;
 
