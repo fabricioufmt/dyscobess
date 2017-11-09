@@ -7,30 +7,29 @@
 
 class DyscoInc final : public Module {
  public:
-  static const gate_idx_t kNumIGates = 0;
+	static const gate_idx_t kNumIGates = 0;
 
-  static const Commands cmds;
+	static const Commands cmds;
 
-  DyscoInc() : Module(), port_(), prefetch_(), burst_() {
-    is_task_ = true;
-    max_allowed_workers_ = Worker::kMaxWorkers;
-  }
+ DyscoInc() : Module(), port_(), prefetch_(), burst_() {
+		is_task_ = true;
+		max_allowed_workers_ = Worker::kMaxWorkers;
+	}
 
-  CommandResponse Init(const bess::pb::PortIncArg &arg);
+	CommandResponse Init(const bess::pb::DyscoIncArg &arg);
 
-  void DeInit() override;
+	void DeInit() override;
 
-  struct task_result RunTask(void *arg) override;
+	struct task_result RunTask(void *arg) override;
 
-  std::string GetDesc() const override;
+	std::string GetDesc() const override;
 
-  CommandResponse CommandSetBurst(
-      const bess::pb::PortIncCommandSetBurstArg &arg);
+	CommandResponse CommandSetBurst(const bess::pb::PortIncCommandSetBurstArg &arg);
 
  private:
-  Port *port_;
-  int prefetch_;
-  int burst_;
+	Port *port_;
+	int prefetch_;
+	int burst_;
 };
 
 #endif  // BESS_MODULES_DYSCOINC_H_

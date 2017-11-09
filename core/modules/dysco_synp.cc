@@ -1,7 +1,23 @@
 #include "dysco_synp.h"
 
-DyscoSynP::DyscoSynP() : Module() {
+DyscoSynP::DyscoSynP() : Module(), dyscopolicy() {
   
+}
+
+CommandResponse DyscoSynP::Init(const bess::pb::DyscoSynPArg& arg) {
+	const char* module_name;
+	if(!arg.dyscopolicy().length())
+		return CommandFailure(EINVAL, "'dyscopolicy' must be given as string");
+
+	module_name = arg.dyscopolicy();
+
+	const auto &it = all_modules().find(module_name);
+	if(it == all_modules().end())
+		return CommandFailure(ENODEV, "Module %s not found", port_name);
+
+	dyscopolicy = it->second;
+
+	return CommandSuccess();
 }
 /*
 void process_packet(bess::Packet* pkt) {
