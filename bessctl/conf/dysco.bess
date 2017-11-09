@@ -11,6 +11,7 @@ policycenter::DyscoPolicyCenter()
 DyscoInc(port=dpdk0) -> class0
 
 class0:0 -> DyscoSyn() -> DyscoOut(port=host_if0)
-class0:1 -> DyscoSynP(dyscopolicy=policycenter) -> DyscoOut(port=host_if1)
+class0:1 -> DyscoOut(port=host_if1)
+#class0:1 -> DyscoSynP(dyscopolicy=policycenter) -> DyscoOut(port=host_if1)
 class0:2 -> DyscoNonSyn() -> DyscoOut(port=host_if2)
-class0:3 -> Sink()	
+class0:3 -> Sink()
