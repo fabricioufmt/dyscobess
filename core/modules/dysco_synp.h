@@ -12,7 +12,7 @@
 #include "../utils/ip.h"
 #include "../utils/tcp.h"
 
-using bess::utils::Ip;
+using bess::utils::Ipv4;
 using bess::utils::Tcp;
 
 struct tcp_session {
