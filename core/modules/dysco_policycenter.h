@@ -7,6 +7,7 @@
 #include "../module.h"
 #include "../utils/ip.h"
 #include "../utils/tcp.h"
+#include "../utils/ether.h"
 
 #include "../utils/cuckoo_map.h"
 #include "../utils/endian.h"
@@ -15,7 +16,7 @@ using bess::utils::Tcp;
 using bess::utils::Ipv4;
 using bess::utils::Ethernet;
 
-Class DyscoTcpSession {
+class DyscoTcpSession {
  public:
 	uint32_t sip;
 	uint32_t dip;
@@ -37,10 +38,10 @@ Class DyscoTcpSession {
 
 class DyscoControlBlock {
  private:
-	struct tcp_session subss;
-	struct tcp_session supss;
+	DyscoTcpSession subss;
+	DyscoTcpSession supss;
 
-	uint8* sc;
+	uint8_t* sc;
 	uint32_t sc_len;
 };
 
@@ -50,7 +51,7 @@ class DyscoPolicyCenter final : public Module {
 	static const gate_idx_t kNumOGates = 0;
 	DyscoPolicyCenter();
 
-	bool add(Ipv4*, Tcp*, uint8_t*, int);
+	bool add(Ipv4*, Tcp*, uint8_t*, uint32_t);
  private:
 	using HashTable = bess::utils::CuckooMap<DyscoTcpSession, DyscoControlBlock, DyscoTcpSession::Hash, DyscoTcpSession::EqualTo>;
 };
