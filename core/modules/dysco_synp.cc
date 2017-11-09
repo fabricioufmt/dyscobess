@@ -48,6 +48,19 @@ void process_packet(bess::Packet* pkt) {
 }
 */
 
+void DyscoSynP::remove_payload(bess::Packet* pkt) {
+	Ipv4* ip = reinterpret_cast<Ipv4*>(pkt->head_data<Ethernet*>() + 1);
+	size_t ip_hlen = ip->header_length << 2;
+	Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
+
+	uint32_t trim_length = ip->length.value() - tcp->offset * 4 - ip_hlen;
+
+	if(trim_length)
+		pkt->trim(trim_length);
+
+	ip->length = ip->length - be16_t(trim_length);
+}
+
 void DyscoSynP::process_packet(bess::Packet* pkt) {
 	Ipv4* ip = reinterpret_cast<Ipv4*>(pkt->head_data<Ethernet*>() + 1);
 	size_t ip_hlen = ip->header_length << 2;
@@ -73,6 +86,7 @@ void DyscoSynP::ProcessBatch(bess::PacketBatch* batch) {
 	for(int i = 0; i < cnt; i++) {
 		pkt = batch->pkts()[i];
 		process_packet(pkt);
+		remove_payload(pkt);
 	}
 	
 	RunChooseModule(0, batch);
