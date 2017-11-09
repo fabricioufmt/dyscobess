@@ -1,5 +1,5 @@
-#ifndef BESS_MODULES_DYSCOTCPFILTER_H_
-#define BESS_MODULES_DYSCOTCPFILTER_H_
+#ifndef BESS_MODULES_DYSCOCLASSIFIER_H_
+#define BESS_MODULES_DYSCOCLASSIFIER_H_
 
 #include <pcap.h>
 
@@ -9,12 +9,12 @@
 #include "../pb/module_msg.pb.h"
 #include "dysco_bpf.h"
 
-class DyscoTcpFilter final : public Module {
+class DyscoClassifier final : public Module {
  public:
   static const gate_idx_t kNumIGates = 1;
-  static const gate_idx_t kNumOGates = 2;
+  static const gate_idx_t kNumOGates = 4;
   
-  DyscoTcpFilter() : Module() {
+  DyscoClassifier() : Module() {
     bpf = new DyscoBPF();
     bpf->add_filter("ip and tcp", 8);
   }
@@ -24,4 +24,4 @@ class DyscoTcpFilter final : public Module {
   DyscoBPF* bpf;
 };
 
-#endif // BESS_MODULES_DYSCOTCPFILTER_H_
+#endif // BESS_MODULES_DYSCOCLASSIFIER_H_
