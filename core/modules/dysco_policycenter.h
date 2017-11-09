@@ -5,6 +5,7 @@
 #include "../utils/ip.h"
 #include "../utils/tcp.h"
 
+using bess::utils::Ip;
 using bess::utils::Tcp;
 
 class DyscoPolicyCenter final : public Module {

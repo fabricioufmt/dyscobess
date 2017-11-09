@@ -8,6 +8,13 @@
 #include "../pb/module_msg.pb.h"
 #include "dysco_policycenter.h"
 
+
+#include "../utils/ip.h"
+#include "../utils/tcp.h"
+
+using bess::utils::Ip;
+using bess::utils::Tcp;
+
 struct tcp_session {
 	uint32_t sip;
 	uint32_t dip;
