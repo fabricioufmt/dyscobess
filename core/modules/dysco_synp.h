@@ -6,7 +6,7 @@
 
 #include "../module.h"
 #include "../pb/module_msg.pb.h"
-#include "../dysco_policycenter.h"
+#include "dysco_policycenter.h"
 
 struct tcp_session {
 	uint32_t sip;
