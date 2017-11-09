@@ -49,6 +49,7 @@ class DyscoSynP final : public Module {
   
  private:
 	DyscoPolicyCenter* dyscopolicy;
+	void process_packet(bess::Packet*);
 };
 
 #endif
