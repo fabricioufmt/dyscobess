@@ -13,12 +13,11 @@ DyscoTcpSession* DyscoCenter::get_session(Ipv4* ip, Tcp* tcp) {
 	ss.dport = tcp->dst_port.value();
 
 	auto* it = map.Find(ss);
-	if(it == nullptr)
-		return 0;
+	if(it != nullptr) {
+		return &it->second.supss;
+	}
 
-	DyscoControlBlock node = it->second;
-
-	return &(node.supss);
+	return 0;
 }
 
 bool DyscoCenter::add(Ipv4* ip, Tcp* tcp, uint8_t* payload, uint32_t payload_len) {
