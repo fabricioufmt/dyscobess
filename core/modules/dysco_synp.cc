@@ -53,7 +53,7 @@ void DyscoSynP::remove_payload(bess::Packet* pkt) {
 	size_t ip_hlen = ip->header_length << 2;
 	Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
 
-	uint32_t trim_length = ip->length.value() - tcp->offset * 4 - ip_hlen;
+	uint32_t trim_len = ip->length.value() - tcp->offset * 4 - ip_hlen;
 
 	if(trim_len)
 		pkt->trim(trim_len);
