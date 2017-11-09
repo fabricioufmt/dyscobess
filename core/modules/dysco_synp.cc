@@ -4,7 +4,7 @@ DyscoSynP::DyscoSynP() : Module(), dyscopolicy() {
   
 }
 
-CommandResponse DyscoSynP::Init(const bess::pb::DyscoInc& arg) {
+CommandResponse DyscoSynP::Init(const bess::pb::DyscoIncArg& arg) {
 	const char* module_name;
 	if(!arg.dyscopolicy().length())
 		return CommandFailure(EINVAL, "'dyscopolicy' must be given as string");
