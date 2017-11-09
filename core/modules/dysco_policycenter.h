@@ -14,7 +14,7 @@ class DyscoPolicyCenter final : public Module {
 	static const gate_idx_t kNumOGates = 0;
 	DyscoPolicyCenter();
 
-	bool add(Ip*, Tcp*, uint8_t*, int);
+	bool add(Ipv4*, Tcp*, uint8_t*, int);
 };
 
 #endif //BESS_MODULES_DYSCOPOLICYCENTER_H_

@@ -11,9 +11,11 @@
 
 #include "../utils/ip.h"
 #include "../utils/tcp.h"
+#include "../utils/ether.h"
 
-using bess::utils::Ipv4;
 using bess::utils::Tcp;
+using bess::utils::Ipv4;
+using bess::utils::Ethernet;
 
 struct tcp_session {
 	uint32_t sip;
