@@ -78,9 +78,9 @@ void DyscoSynP::process_packet(bess::Packet* pkt) {
 	be16_t oldsp = tcp->src_port;
 	be16_t olddp = tcp->dst_port;
 	*/
-	ip->src = be32_t(supss->sip);
+	ip->src = be32_t(0);
 	ip->dst = be32_t(supss->dip);
-	tcp->src_port = be16_t(supss->sport);
+	tcp->src_port = be16_t(0);
 	tcp->dst_port = be16_t(supss->dport);
 	/*
 	ip->src = oldsrc;
