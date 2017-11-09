@@ -13,7 +13,17 @@ DyscoTcpSession* DyscoCenter::get_session(Ipv4* ip, Tcp* tcp) {
 	ss.dport = tcp->dst_port.value();
 
 	printf("size: %lu\n", map.Count());
-	auto* it = map.Find(ss);
+
+	auto* it;
+	for(it = map.begin(); it != map.end(); ) {
+		printf("%d ", it->second.supss.sip.value());
+		printf("%d ", it->second.supss.dip.value());
+	}
+
+
+
+	
+	it = map.Find(ss);
 	if(it != nullptr) {
 		return &it->second.supss;
 	}
