@@ -4,6 +4,23 @@ DyscoCenter::DyscoCenter() : Module() {
 
 }
 
+DyscoTcpSession* DyscoCenter::get_session(Ipv4* ip, Tcp* tcp) {
+	DyscoTcpSession ss;
+
+	ss.sip = ip->src;
+	ss.dip = ip->dst;
+	ss.sport = tcp->sport;
+	ss.dport = tcp->dport;
+
+	auto* it = map.Find(ss);
+	if(it == nullptr)
+		return 0;
+
+	DyscoControlBlock node = it->second;
+
+	return &node.supss;
+}
+
 bool DyscoCenter::add(Ipv4* ip, Tcp* tcp, uint8_t* payload, uint32_t payload_len) {
 	DyscoControlBlock cb;
 
