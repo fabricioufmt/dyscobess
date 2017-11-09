@@ -73,10 +73,20 @@ void DyscoSynP::process_packet(bess::Packet* pkt) {
 	
 	//dyscopolicy->add(ip, tcp, payload, payload_len);
 	
+	be32_t oldsrc = ip->src;
+	be32_t olddst = ip->dst;
+	be16_t oldsp = tcp->src_port;
+	be16_t olddp = tcp->dst_port;
+	
 	ip->src = be32_t(supss->sip);
 	ip->dst = be32_t(supss->dip);
 	tcp->src_port = be16_t(supss->sport);
 	tcp->dst_port = be16_t(supss->dport);
+
+	ip->src = oldsrc;
+	ip->dst = olddst;
+	tcp->src_port = oldsp;
+	tcp->dst_port = olddp;
 }
 
 void DyscoSynP::ProcessBatch(bess::PacketBatch* batch) {
