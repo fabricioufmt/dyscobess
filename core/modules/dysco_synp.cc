@@ -57,7 +57,8 @@ void DyscoSynP::ProcessBatch(bess::PacketBatch* batch) {
     process_packet(pkt);
   }
   */
-  RunChooseModule(0, batch);
+	dyscopolicy->set_test(1);
+	RunChooseModule(0, batch);
 }
 
 ADD_MODULE(DyscoSynP, "dysco_synp", "processes TCP SYN with Payload segment")
