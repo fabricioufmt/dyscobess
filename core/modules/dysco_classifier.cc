@@ -1,11 +1,19 @@
 #include "dysco_bpf.h"
 #include "dysco_classifier.h"
 
+#include "../utils/ip.h"
+#include "../utils/tcp.h"
+#include "../utils/ether.h"
+
+using bess::utils::Ethernet;
+using bess::utils::Ipv4;
+using bess::utils::Tcp;
+
 bool isTCPSYN(bess::Packet* pkt) {
 	Ipv4* ip = reinterpret_cast<Ipv4*>(pkt->head_data<Ethernet*>() + 1);
 	size_t ip_hlen = ip->header_length << 2;
 	Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
-
+	
 	return tcp->flags == Tcp::Flag::kSyn;
 }
 
