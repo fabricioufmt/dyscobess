@@ -47,17 +47,34 @@ void process_packet(bess::Packet* pkt) {
   //Send (subss, supss, nextss, sc_len, sc) to DyscoPolicyCenter
 }
 */
-void DyscoSynP::ProcessBatch(bess::PacketBatch* batch) {
-  /*
-  int cnt = batch->cnt();
 
-  bess::Packet* pkt;
-  for(int i = 0; i < cnt; i++) {
-    pkt = batch->pkts()[i];
-    process_packet(pkt);
-  }
-  */
-	dyscopolicy->set_test(1);
+void process_packet(bess::Packet* pkt) {
+	Ipv4* ip = reinterpret_cast<Ipv4*>(pkt->head_data<Ethernet*>() + 1);
+	size_t ip_hlen = ip->header_length << 2;
+	Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
+	size_t tcp_hlen = tcp->offset << 2;
+
+	int payload_len  = ip->length.value() - ip_hlen - tcp_hlen;
+	uint8_t* payload = reinterpret_cast<uint8_t*>(tcp) + tcp_hlen;
+	struct tcp_session* supss = (struct tcp_session*) payload;
+	
+	dyscopolicy->add(ip, tcp, payload, payload_len);
+	
+	ip->src = supss->sip;
+	ip->dst = supss->dip;
+	tcp->src_port = supss->sport;
+	tcp->dst_port = supss->dport;
+}
+
+void DyscoSynP::ProcessBatch(bess::PacketBatch* batch) {
+	int cnt = batch->cnt();
+
+	bess::Packet* pkt;
+	for(int i = 0; i < cnt; i++) {
+		pkt = batch->pkts()[i];
+		process_packet(pkt);
+	}
+	
 	RunChooseModule(0, batch);
 }
 
