@@ -42,7 +42,7 @@ class DyscoSynP final : public Module {
 	static const gate_idx_t kNumIGates = 1;
 	//static const gate_idx_t kNumOGates = 2;
 
- DyscoSynP() : Module(), dyscopolicy() {
+ DyscoSynP() : Module() {
 	}
 	CommandResponse Init(const bess::pb::DyscoSynPArg& arg);
 	void DeInit() override;
