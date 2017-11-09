@@ -6,7 +6,7 @@ DyscoSynP::DyscoSynP() : Module(), dyscopolicy() {
 }
 
 CommandResponse DyscoSynP::Init(const bess::pb::DyscoSynPArg& arg) {
-	char* module_name;
+	const char* module_name;
 	if(!arg.dyscopolicy().length())
 		return CommandFailure(EINVAL, "'dyscopolicy' must be given as string");
 
@@ -16,7 +16,7 @@ CommandResponse DyscoSynP::Init(const bess::pb::DyscoSynPArg& arg) {
 	if(it == ModuleGraph::GetAllModules().end())
 		return CommandFailure(ENODEV, "Module %s not found", module_name);
 
-	dyscopolicy = it->second;
+	dyscopolicy = reinterpret_cast<DyscoPolicyCenter*>(it->second);
 
 	return CommandSuccess();
 }
