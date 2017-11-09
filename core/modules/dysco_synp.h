@@ -43,7 +43,7 @@ class DyscoSynP final : public Module {
 	//static const gate_idx_t kNumOGates = 2;
 
 	DyscoSynP();
-	CommandResponse Init(const bess::pb::DyscoIncArg& arg);
+	CommandResponse Init(const bess::pb::DyscoSynPArg& arg);
 	void DeInit() override;
 	void ProcessBatch(bess::PacketBatch*) override;
   

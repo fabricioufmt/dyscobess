@@ -1095,10 +1095,14 @@ message WorkerSplitArg {
 
 //DYSCO
 message DyscoOutArg {
-  string port = 1;
+	string port = 1;
 }
 
 message DyscoIncArg {
-  string port = 1;
-  bool prefetch = 2;
+  	string port = 1;
+	bool prefetch = 2;
+}
+
+message DyscoSynPArg {
+	string dyscopolicy = 1;
 }
