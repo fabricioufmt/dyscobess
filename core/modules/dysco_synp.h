@@ -22,7 +22,7 @@ using bess::utils::be16_t;
 class DyscoSynP final : public Module {
  public:
 	static const gate_idx_t kNumIGates = 1;
-	//static const gate_idx_t kNumOGates = 2;
+	static const gate_idx_t kNumOGates = 1;
 
  DyscoSynP() : Module() {}
 	CommandResponse Init(const bess::pb::DyscoSynPArg& arg);
