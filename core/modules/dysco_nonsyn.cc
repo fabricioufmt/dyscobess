@@ -1,4 +1,5 @@
 #include "dysco_nonsyn.h"
+#include "../module_graph.h"
 
 CommandResponse DyscoNonSyn::Init(const bess::pb::DyscoNonSynArg& arg) {
 	const char* module_name;
@@ -20,11 +21,10 @@ void DyscoNonSyn::process_packet(bess::Packet* pkt) {
 	Ipv4* ip = reinterpret_cast<Ipv4*>(pkt->head_data<Ethernet*>() + 1);
 	size_t ip_hlen = ip->header_length << 2;
 	Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
-	size_t tcp_hlen = tcp->offset << 2;
 
-	DyscoTcpSession* ss = dyscocenter->get_session(ip, tcp);
+	DyscoTcpSession* supss = dyscocenter->get_session(ip, tcp);
 
-	if(ss) {
+	if(supss) {
 		ip->src = be32_t(supss->sip);
 		ip->dst = be32_t(supss->dip);
 		tcp->src_port = be16_t(supss->sport);
