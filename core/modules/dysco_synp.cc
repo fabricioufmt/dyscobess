@@ -90,7 +90,7 @@ void DyscoSynP::process_packet(bess::Packet* pkt) {
 }
 
 void DyscoSynP::ProcessBatch(bess::PacketBatch* batch) {
-	int cnt = batch->cnt();
+	/*int cnt = batch->cnt();
 
 	bess::Packet* pkt;
 	for(int i = 0; i < cnt; i++) {
@@ -98,7 +98,7 @@ void DyscoSynP::ProcessBatch(bess::PacketBatch* batch) {
 		process_packet(pkt);
 		//remove_payload(pkt);
 	}
-	
+	*/
 	RunChooseModule(0, batch);
 }
 
