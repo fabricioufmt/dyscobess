@@ -1,5 +1,0 @@
-#include "dysco_syn.h"
-
-DyscoSyn::DyscoSyn() : Module() {
-  bpf = new DyscoBPF();
-}
