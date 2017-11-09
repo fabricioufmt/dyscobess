@@ -54,6 +54,7 @@ class DyscoPolicyCenter final : public Module {
 	bool add(Ipv4*, Tcp*, uint8_t*, uint32_t);
  private:
 	using HashTable = bess::utils::CuckooMap<DyscoTcpSession, DyscoControlBlock, DyscoTcpSession::Hash, DyscoTcpSession::EqualTo>;
+	HashTable map;
 };
 
 #endif //BESS_MODULES_DYSCOPOLICYCENTER_H_
