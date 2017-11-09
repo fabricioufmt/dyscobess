@@ -56,7 +56,7 @@ void DyscoSynP::process_packet(bess::Packet* pkt) {
 
 	int payload_len  = ip->length.value() - ip_hlen - tcp_hlen;
 	uint8_t* payload = reinterpret_cast<uint8_t*>(tcp) + tcp_hlen;
-	struct tcp_session* supss = (struct tcp_session*) payload;
+	DyscoTcpSession* supss = reinterpret_cast<DyscoTcpSession*>(payload);
 	
 	dyscopolicy->add(ip, tcp, payload, payload_len);
 	
