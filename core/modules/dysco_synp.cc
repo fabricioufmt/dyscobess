@@ -2,7 +2,7 @@
 #include "../module_graph.h"
 
 CommandResponse DyscoSynP::Init(const bess::pb::DyscoSynPArg& arg) {
-	const char* module_name;
+	/*const char* module_name;
 	if(!arg.dyscopolicy().length())
 		return CommandFailure(EINVAL, "'dyscopolicy' must be given as string");
 
@@ -13,7 +13,7 @@ CommandResponse DyscoSynP::Init(const bess::pb::DyscoSynPArg& arg) {
 		return CommandFailure(ENODEV, "Module %s not found", module_name);
 
 	dyscopolicy = reinterpret_cast<DyscoPolicyCenter*>(it->second);
-
+	*/
 	return CommandSuccess();
 }
 /*
