@@ -12,7 +12,7 @@ CommandResponse DyscoSynP::Init(const bess::pb::DyscoSynPArg& arg) {
 	if(it == ModuleGraph::GetAllModules().end())
 		return CommandFailure(ENODEV, "Module %s not found", module_name);
 
-	dyscocenter = reinterpret_cast<DyscoPolicyCenter*>(it->second);
+	dyscocenter = reinterpret_cast<DyscoCenter*>(it->second);
 	
 	return CommandSuccess();
 }
