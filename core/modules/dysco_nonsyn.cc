@@ -29,7 +29,8 @@ void DyscoNonSyn::process_packet(bess::Packet* pkt) {
 		ip->dst = be32_t(supss->dip);
 		tcp->src_port = be16_t(supss->sport);
 		tcp->dst_port = be16_t(supss->dport);
-	}
+	} else
+		printf("not found session\n");
 }
 
 void DyscoNonSyn::ProcessBatch(bess::PacketBatch* batch) {
