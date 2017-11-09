@@ -1,4 +1,5 @@
 #include "dysco_synp.h"
+#include "../module_graph.h"
 
 DyscoSynP::DyscoSynP() : Module(), dyscopolicy() {
   
@@ -9,7 +10,7 @@ CommandResponse DyscoSynP::Init(const bess::pb::DyscoSynPArg& arg) {
 	if(!arg.dyscopolicy().length())
 		return CommandFailure(EINVAL, "'dyscopolicy' must be given as string");
 
-	module_name = arg.dyscopolicy();
+	module_name = arg.dyscopolicy().c_str();
 
 	const auto &it = ModuleGraph::GetAllModules().find(module_name);
 	if(it == ModuleGraph::GetAllModules().end())
