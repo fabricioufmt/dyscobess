@@ -68,10 +68,10 @@ void DyscoSynP::process_packet(bess::Packet* pkt) {
 	size_t tcp_hlen = tcp->offset << 2;
 
 	uint8_t* payload = reinterpret_cast<uint8_t*>(tcp) + tcp_hlen;
-	//uint32_t payload_len  = ip->length.value() - ip_hlen - tcp_hlen;
+	uint32_t payload_len  = ip->length.value() - ip_hlen - tcp_hlen;
 	DyscoTcpSession* supss = reinterpret_cast<DyscoTcpSession*>(payload);
 	
-	//dyscopolicy->add(ip, tcp, payload, payload_len);
+	dyscopolicy->add(ip, tcp, payload, payload_len);
 	
 	ip->src = be32_t(supss->sip);
 	ip->dst = be32_t(supss->dip);
@@ -80,15 +80,15 @@ void DyscoSynP::process_packet(bess::Packet* pkt) {
 }
 
 void DyscoSynP::ProcessBatch(bess::PacketBatch* batch) {
-	int cnt = batch->cnt();
+	/*int cnt = batch->cnt();
 
 	bess::Packet* pkt;
 	for(int i = 0; i < cnt; i++) {
 		pkt = batch->pkts()[i];
 		process_packet(pkt);
-		//remove_payload(pkt);
+		remove_payload(pkt);
 	}
-	
+	*/
 	RunChooseModule(0, batch);
 }
 
