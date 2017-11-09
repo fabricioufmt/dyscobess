@@ -13,7 +13,7 @@ CommandResponse DyscoSynP::Init(const bess::pb::DyscoSynPArg& arg) {
 
 	const auto &it = all_modules().find(module_name);
 	if(it == all_modules().end())
-		return CommandFailure(ENODEV, "Module %s not found", port_name);
+		return CommandFailure(ENODEV, "Module %s not found", module_name);
 
 	dyscopolicy = it->second;
 
