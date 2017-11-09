@@ -9,7 +9,7 @@
 #include "../utils/tcp.h"
 
 #include "../utils/cuckoo_map.h"
-#include "../utils/endian."
+#include "../utils/endian.h"
 
 using bess::utils::Tcp;
 using bess::utils::Ipv4;
