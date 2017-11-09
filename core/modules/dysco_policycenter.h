@@ -13,7 +13,7 @@ class DyscoPolicyCenter final : public Module {
 		teste = t;
 	}
  private:
-	int teste
+	int teste;
 };
 
 #endif //BESS_MODULES_DYSCOPOLICYCENTER_H_
