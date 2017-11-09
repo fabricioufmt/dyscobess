@@ -14,8 +14,8 @@ DyscoTcpSession* DyscoCenter::get_session(Ipv4* ip, Tcp* tcp) {
 
 	printf("size: %lu\n", map.Count());
 
-	auto* it;
-	for(it = map.begin(); it != map.end(); ) {
+	auto* it = map.begin()
+	for(; it != map.end(); ) {
 		printf("%d ", it->second.supss.sip.value());
 		printf("%d ", it->second.supss.dip.value());
 	}
