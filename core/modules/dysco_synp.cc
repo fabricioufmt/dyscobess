@@ -5,14 +5,14 @@ DyscoSynP::DyscoSynP() : Module(), dyscopolicy() {
 }
 
 CommandResponse DyscoSynP::Init(const bess::pb::DyscoSynPArg& arg) {
-	const char* module_name;
+	char* module_name;
 	if(!arg.dyscopolicy().length())
 		return CommandFailure(EINVAL, "'dyscopolicy' must be given as string");
 
 	module_name = arg.dyscopolicy();
 
-	const auto &it = all_modules().find(module_name);
-	if(it == all_modules().end())
+	const auto &it = ModuleGraph::GetAllModules().find(module_name);
+	if(it == ModuleGraph::GetAllModules().end())
 		return CommandFailure(ENODEV, "Module %s not found", module_name);
 
 	dyscopolicy = it->second;
