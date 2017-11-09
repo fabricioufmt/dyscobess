@@ -1,12 +1,9 @@
 #ifndef BESS_MODULES_DYSCOSYNP_H_
 #define BESS_MODULES_DYSCOSYNP_H_
 
-#include <rte_config.h>
-#include <rte_hash_crc.h>
-
 #include "../module.h"
 #include "../pb/module_msg.pb.h"
-#include "dysco_policycenter.h"
+#include "dysco_center.h"
 
 #include "../utils/ip.h"
 #include "../utils/tcp.h"
@@ -25,13 +22,13 @@ class DyscoSynP final : public Module {
 	static const gate_idx_t kNumOGates = 1;
 
  DyscoSynP() : Module() {}
-	CommandResponse Init(const bess::pb::DyscoSynPArg& arg);
+	CommandResponse Init(const bess::pb::DyscoSynPArg&);
 	void ProcessBatch(bess::PacketBatch*) override;
   
  private:
-	DyscoPolicyCenter* dyscopolicy;
+	DyscoCenter* dyscocenter;
 	void process_packet(bess::Packet*);
 	void remove_payload(bess::Packet*);
 };
 
-#endif
+#endif //BESS_MODULES_DYSCOSYNP_H_

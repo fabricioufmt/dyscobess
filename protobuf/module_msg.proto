@@ -1104,5 +1104,13 @@ message DyscoIncArg {
 }
 
 message DyscoSynPArg {
-	string dyscopolicy = 1;
+	string dyscocenter = 1;
+}
+
+message DyscoSynArg {
+	string dyscocenter = 1;
+}
+
+message DyscoNonSyn {
+	string dyscocenter = 1;
 }

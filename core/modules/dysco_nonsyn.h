@@ -13,4 +13,4 @@ class DyscoNonSyn final : public Module {
   void ProcessBatch(bess::PacketBatch*) override;
 };
 
-#endif
+#endif //BESS_MODULES_DYSCONONSYN_H_

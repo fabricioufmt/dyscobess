@@ -1,10 +1,10 @@
-#include "dysco_policycenter.h"
+#include "dysco_center.h"
 
-DyscoPolicyCenter::DyscoPolicyCenter() : Module() {
+DyscoCenter::DyscoCenter() : Module() {
 
 }
 
-bool DyscoPolicyCenter::add(Ipv4* ip, Tcp* tcp, uint8_t* payload, uint32_t payload_len) {
+bool DyscoCenter::add(Ipv4* ip, Tcp* tcp, uint8_t* payload, uint32_t payload_len) {
 	DyscoControlBlock cb;
 
 	cb.subss.sip = ip->src.value();
@@ -26,4 +26,4 @@ bool DyscoPolicyCenter::add(Ipv4* ip, Tcp* tcp, uint8_t* payload, uint32_t paylo
 	return true;
 }
 
-ADD_MODULE(DyscoPolicyCenter, "dysco_policycenter", "Dysco core")
+ADD_MODULE(DyscoCenter, "dysco_center", "Dysco center")

@@ -3,16 +3,16 @@
 
 CommandResponse DyscoSynP::Init(const bess::pb::DyscoSynPArg& arg) {
 	const char* module_name;
-	if(!arg.dyscopolicy().length())
+	if(!arg.dyscocenter().length())
 		return CommandFailure(EINVAL, "'dyscopolicy' must be given as string");
 
-	module_name = arg.dyscopolicy().c_str();
+	module_name = arg.dyscocenter().c_str();
 
 	const auto &it = ModuleGraph::GetAllModules().find(module_name);
 	if(it == ModuleGraph::GetAllModules().end())
 		return CommandFailure(ENODEV, "Module %s not found", module_name);
 
-	dyscopolicy = reinterpret_cast<DyscoPolicyCenter*>(it->second);
+	dyscocenter = reinterpret_cast<DyscoPolicyCenter*>(it->second);
 	
 	return CommandSuccess();
 }
@@ -24,10 +24,10 @@ void DyscoSynP::remove_payload(bess::Packet* pkt) {
 
 	uint32_t trim_len = ip->length.value() - tcp->offset * 4 - ip_hlen;
 
-	if(trim_len)
+	if(trim_len) {
 		pkt->trim(trim_len);
-
-	ip->length = ip->length - be16_t(trim_len);
+		ip->length = ip->length - be16_t(trim_len);
+	}
 }
 
 void DyscoSynP::process_packet(bess::Packet* pkt) {
@@ -39,9 +39,8 @@ void DyscoSynP::process_packet(bess::Packet* pkt) {
 	uint8_t* payload = reinterpret_cast<uint8_t*>(tcp) + tcp_hlen;
 	uint32_t payload_len = ip->length.value() - ip_hlen - tcp_hlen;
 	DyscoTcpSession* supss = reinterpret_cast<DyscoTcpSession*>(payload);
-	//DyscoTcpSession* supss = (DyscoTcpSession*) payload;
 	
-	dyscopolicy->add(ip, tcp, payload, payload_len);
+	dyscocenter->add(ip, tcp, payload, payload_len);
 	
 	ip->src = be32_t(supss->sip);
 	ip->dst = be32_t(supss->dip);

@@ -1,5 +1,5 @@
-#ifndef BESS_MODULES_DYSCOPOLICYCENTER_H_
-#define BESS_MODULES_DYSCOPOLICYCENTER_H_
+#ifndef BESS_MODULES_DYSCOCENTER_H_
+#define BESS_MODULES_DYSCOCENTER_H_
 
 #include <vector>
 #include <rte_hash_crc.h>
@@ -45,11 +45,11 @@ class DyscoControlBlock {
 	uint32_t sc_len;
 };
 
-class DyscoPolicyCenter final : public Module {
+class DyscoCenter final : public Module {
  public:
 	static const gate_idx_t kNumIGates = 0;
 	static const gate_idx_t kNumOGates = 0;
-	DyscoPolicyCenter();
+	DyscoCenter();
 
 	bool add(Ipv4*, Tcp*, uint8_t*, uint32_t);
  private:
@@ -57,4 +57,4 @@ class DyscoPolicyCenter final : public Module {
 	HashTable map;
 };
 
-#endif //BESS_MODULES_DYSCOPOLICYCENTER_H_
+#endif //BESS_MODULES_DYSCOCENTER_H_
