@@ -1,10 +1,6 @@
 #include "dysco_synp.h"
 #include "../module_graph.h"
 
-DyscoSynP::DyscoSynP() : Module(), dyscopolicy() {
-  
-}
-
 CommandResponse DyscoSynP::Init(const bess::pb::DyscoSynPArg& arg) {
 	const char* module_name;
 	if(!arg.dyscopolicy().length())
