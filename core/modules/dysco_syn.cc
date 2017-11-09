@@ -5,9 +5,9 @@ DyscoSyn::DyscoSyn() : Module() {
 }
 
 void DyscoSyn::ProcessBatch(bess::PacketBatch* batch) {
-	if(bpf->filters_.size() == 0)
-		RunChooseModule(0, batch);
-  
+	//if(bpf->filters_.size() == 0)
+	//	RunChooseModule(0, batch);
+	//
 	RunChooseModule(0, batch);
 }
 
