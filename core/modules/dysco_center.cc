@@ -45,9 +45,8 @@ bool DyscoCenter::add(Ipv4* ip, Tcp* tcp, uint8_t* payload, uint32_t payload_len
 		memcpy(cb.sc, payload + sizeof(DyscoTcpSession) + sizeof(uint32_t), sc_len);
 		cb.sc_len = sc_len;
 	}
-	printf("size b4 insert: %lu\n", map.Count());
 	map.Insert(ss, cb);
-	printf("size after insert: %lu\n", map.Count());
+	
 	return true;
 }
 
