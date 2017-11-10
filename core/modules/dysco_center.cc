@@ -17,13 +17,6 @@ DyscoTcpSession* DyscoCenter::get_session(Ipv4* ip, Tcp* tcp) {
 	while(itt != map.end()) {
 		if(equals(ss, (*itt).first))
 			return &(*itt).second.supss;
-		/*
-		printf("%u:%u -> %u:%u\n",
-		       (*itt).first.sip,
-		       (*itt).first.sport,
-		       (*itt).first.dip,
-		       (*itt).first.dport);
-		*/
 		itt++;
 	}
 	/*

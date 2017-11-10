@@ -10,12 +10,12 @@ class1::DyscoClassifier()
 dyscocenter::DyscoCenter()
 
 DyscoInc(port=dpdk0) -> class0
-class0:0 -> DyscoSyn(dyscocenter=dyscocenter) -> 0:merge0
-class0:1 -> DyscoSynP(dyscocenter=dyscocenter) -> 1:merge0
-class0:2 -> DyscoNonSyn(dyscocenter=dyscocenter) -> 2:merge0
-#class0:0 -> DyscoSyn(dyscocenter=dyscocenter, direction='in') -> 0:merge0
-#class0:1 -> DyscoSynP(dyscocenter=dyscocenter, direction='in') -> 1:merge0
-#class0:2 -> DyscoNonSyn(dyscocenter=dyscocenter, direction='in') -> 2:merge0
+#class0:0 -> DyscoSyn(dyscocenter=dyscocenter) -> 0:merge0
+#class0:1 -> DyscoSynP(dyscocenter=dyscocenter) -> 1:merge0
+#class0:2 -> DyscoNonSyn(dyscocenter=dyscocenter) -> 2:merge0
+class0:0 -> DyscoSyn(dyscocenter=dyscocenter, direction='in') -> 0:merge0
+class0:1 -> DyscoSynP(dyscocenter=dyscocenter, direction='in') -> 1:merge0
+class0:2 -> DyscoNonSyn(dyscocenter=dyscocenter, direction='in') -> 2:merge0
 class0:3 -> Sink()
 merge0 -> DyscoOut(port=host_if0)
 
