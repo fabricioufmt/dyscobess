@@ -11,21 +11,26 @@ DyscoTcpSession* DyscoCenter::get_session(Ipv4* ip, Tcp* tcp) {
 	ss.dip = ip->dst.value();
 	ss.sport = tcp->src_port.value();
 	ss.dport = tcp->dst_port.value();
-	/*
+	
 	HashTable::iterator itt = map.begin();
 	while(itt != map.end()) {
+		if(DyscoTcpSession::EqualTo(ss, (*itt).first))
+			return &(*itt).second.supss;
+		/*
 		printf("%u:%u -> %u:%u\n",
 		       (*itt).first.sip,
 		       (*itt).first.sport,
 		       (*itt).first.dip,
 		       (*itt).first.dport);
+		*/
 		itt++;
-		}*/
+	}
+	/*
 	auto* it = map.Find(ss);
 	if(it != nullptr) {
 		return &it->second.supss;
 	}
-
+	*/
 	return 0;
 }
 
