@@ -1107,6 +1107,10 @@ message DyscoSynArg {
 	string dyscocenter = 1;
 }
 
+message DyscoSynIncArg {
+	string dyscocenter = 1;
+}
+
 message DyscoSynPArg {
 	string dyscocenter = 1;
 }
