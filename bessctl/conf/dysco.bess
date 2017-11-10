@@ -17,9 +17,9 @@ class0:3 -> Sink()
 merge0 -> DyscoOut(port=host_if0)
 
 
-DyscoInc(port=host_if0) -> class1
-class1:0 -> DyscoSyn(dyscocenter=dyscocenter, direction='out') -> 0:merge1
-class1:1 -> DyscoSynP(dyscocenter=dyscocenter, direction='out') -> 1:merge1
-class1:2 -> DyscoNonSyn(dyscocenter=dyscocenter, direction='out') -> 2:merge1
-class1:3 -> Sink()
-merge1 -> DyscoOut(port=dpdk0)
+#DyscoInc(port=host_if0) -> class1
+#class1:0 -> DyscoSyn(dyscocenter=dyscocenter, direction='out') -> 0:merge1
+#class1:1 -> DyscoSynP(dyscocenter=dyscocenter, direction='out') -> 1:merge1
+#class1:2 -> DyscoNonSyn(dyscocenter=dyscocenter, direction='out') -> 2:merge1
+#class1:3 -> Sink()
+#merge1 -> DyscoOut(port=dpdk0)
