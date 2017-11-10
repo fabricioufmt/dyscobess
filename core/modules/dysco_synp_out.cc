@@ -1,7 +1,7 @@
 #include "dysco_synp_out.h"
 #include "../module_graph.h"
 
-CommandResponse DyscoSynPOut::Init(const bess::pb::DyscoSynPArg& arg) {
+CommandResponse DyscoSynPOut::Init(const bess::pb::DyscoSynPOutArg& arg) {
 	const char* module_name;
 	if(!arg.dyscocenter().length())
 		return CommandFailure(EINVAL, "'dyscopolicy' must be given as string");

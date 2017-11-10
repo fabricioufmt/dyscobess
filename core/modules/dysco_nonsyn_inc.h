@@ -22,7 +22,7 @@ class DyscoNonSynInc final : public Module {
 	static const gate_idx_t kNumOGates = 1;
 
  DyscoNonSynInc() : Module() {}
-	CommandResponse Init(const bess::pb::DyscoNonSynArg&);
+	CommandResponse Init(const bess::pb::DyscoNonSynIncArg&);
 	void ProcessBatch(bess::PacketBatch*) override;
 
  private:

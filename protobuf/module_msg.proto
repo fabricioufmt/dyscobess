@@ -1103,18 +1103,26 @@ message DyscoIncArg {
 	bool prefetch = 2;
 }
 
-message DyscoSynArg {
-	string dyscocenter = 1;
-}
-
 message DyscoSynIncArg {
 	string dyscocenter = 1;
 }
 
-message DyscoSynPArg {
+message DyscoSynOutArg {
 	string dyscocenter = 1;
 }
 
-message DyscoNonSynArg {
+message DyscoSynPIncArg {
+	string dyscocenter = 1;
+}
+
+message DyscoSynPOutArg {
+	string dyscocenter = 1;
+}
+
+message DyscoNonSynIncArg {
+	string dyscocenter = 1;
+}
+
+message DyscoNonSynOutArg {
 	string dyscocenter = 1;
 }

@@ -22,7 +22,7 @@ class DyscoSynPOut final : public Module {
 	static const gate_idx_t kNumOGates = 1;
 
  DyscoSynPOut() : Module() {}
-	CommandResponse Init(const bess::pb::DyscoSynPArg&);
+	CommandResponse Init(const bess::pb::DyscoSynPOutArg&);
 	void ProcessBatch(bess::PacketBatch*) override;
   
  private:

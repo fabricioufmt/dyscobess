@@ -1,7 +1,7 @@
 #include "dysco_nonsyn_out.h"
 #include "../module_graph.h"
 
-CommandResponse DyscoNonSynOut::Init(const bess::pb::DyscoNonSynArg& arg) {
+CommandResponse DyscoNonSynOut::Init(const bess::pb::DyscoNonSynOutArg& arg) {
 	const char* module_name;
 	if(!arg.dyscocenter().length())
 		return CommandFailure(EINVAL, "'dyscopolicy' must be given as string");
