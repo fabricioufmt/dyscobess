@@ -14,10 +14,10 @@ DyscoTcpSession* DyscoCenter::get_session(Ipv4* ip, Tcp* tcp) {
 
 	printf("size: %lu\n", map.Count());
 
-	bess::utils::CuckooMap::iterator it = map.begin();
-	while(it != map.end()) {
+	bess::utils::CuckooMap::iterator itt = map.begin();
+	while(itt != map.end()) {
 		printf("itrator\n");
-		it++;
+		itt++;
 	}
 	auto* it = map.Find(ss);
 	if(it != nullptr) {
