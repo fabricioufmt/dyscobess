@@ -1105,12 +1105,15 @@ message DyscoIncArg {
 
 message DyscoSynPArg {
 	string dyscocenter = 1;
+	string direction = 2;
 }
 
 message DyscoSynArg {
 	string dyscocenter = 1;
+	string direction = 2;
 }
 
 message DyscoNonSynArg {
 	string dyscocenter = 1;
+	string direction = 2;
 }

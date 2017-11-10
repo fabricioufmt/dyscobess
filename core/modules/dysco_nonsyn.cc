@@ -25,13 +25,11 @@ void DyscoNonSyn::process_packet(bess::Packet* pkt) {
 	DyscoTcpSession* supss = dyscocenter->get_session(ip, tcp);
 
 	if(supss) {
-		printf("found\n");
 		ip->src = be32_t(supss->sip);
 		ip->dst = be32_t(supss->dip);
 		tcp->src_port = be16_t(supss->sport);
 		tcp->dst_port = be16_t(supss->dport);
-	} else
-		printf("not found session\n");
+	}
 }
 
 void DyscoNonSyn::ProcessBatch(bess::PacketBatch* batch) {
