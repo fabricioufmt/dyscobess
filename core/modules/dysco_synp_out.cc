@@ -1,7 +1,7 @@
-#include "dysco_synp.h"
+#include "dysco_synp_out.h"
 #include "../module_graph.h"
 
-CommandResponse DyscoSynP::Init(const bess::pb::DyscoSynPArg& arg) {
+CommandResponse DyscoSynPOut::Init(const bess::pb::DyscoSynPArg& arg) {
 	const char* module_name;
 	if(!arg.dyscocenter().length())
 		return CommandFailure(EINVAL, "'dyscopolicy' must be given as string");
@@ -17,7 +17,7 @@ CommandResponse DyscoSynP::Init(const bess::pb::DyscoSynPArg& arg) {
 	return CommandSuccess();
 }
 
-void DyscoSynP::remove_payload(bess::Packet* pkt) {
+void DyscoSynPOut::remove_payload(bess::Packet* pkt) {
 	Ipv4* ip = reinterpret_cast<Ipv4*>(pkt->head_data<Ethernet*>() + 1);
 	size_t ip_hlen = ip->header_length << 2;
 	Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
@@ -30,7 +30,7 @@ void DyscoSynP::remove_payload(bess::Packet* pkt) {
 	}
 }
 
-void DyscoSynP::process_packet(bess::Packet* pkt) {
+void DyscoSynPOut::process_packet(bess::Packet* pkt) {
 	Ipv4* ip = reinterpret_cast<Ipv4*>(pkt->head_data<Ethernet*>() + 1);
 	size_t ip_hlen = ip->header_length << 2;
 	Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
@@ -48,7 +48,7 @@ void DyscoSynP::process_packet(bess::Packet* pkt) {
 	tcp->dst_port = be16_t(supss->dport);
 }
 
-void DyscoSynP::ProcessBatch(bess::PacketBatch* batch) {
+void DyscoSynPOut::ProcessBatch(bess::PacketBatch* batch) {
 	int cnt = batch->cnt();
 
 	bess::Packet* pkt;
@@ -61,4 +61,4 @@ void DyscoSynP::ProcessBatch(bess::PacketBatch* batch) {
 	RunChooseModule(0, batch);
 }
 
-ADD_MODULE(DyscoSynP, "dysco_synp", "processes TCP SYN with Payload segment")
+ADD_MODULE(DyscoSynPOut, "dysco_synp_out", "processes TCP SYN with Payload segments outcoming")

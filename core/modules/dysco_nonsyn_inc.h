@@ -1,5 +1,5 @@
-#ifndef BESS_MODULES_DYSCONONSYN_H_
-#define BESS_MODULES_DYSCONONSYN_H_
+#ifndef BESS_MODULES_DYSCONONSYNINC_H_
+#define BESS_MODULES_DYSCONONSYNINC_H_
 
 #include "../module.h"
 #include "../pb/module_msg.pb.h"
@@ -16,12 +16,12 @@ using bess::utils::Ethernet;
 using bess::utils::be32_t;
 using bess::utils::be16_t;
 
-class DyscoNonSyn final : public Module {
+class DyscoNonSynInc final : public Module {
  public:
 	static const gate_idx_t kNumIGates = 1;
 	static const gate_idx_t kNumOGates = 1;
 
- DyscoNonSyn() : Module() {}
+ DyscoNonSynInc() : Module() {}
 	CommandResponse Init(const bess::pb::DyscoNonSynArg&);
 	void ProcessBatch(bess::PacketBatch*) override;
 
@@ -30,4 +30,4 @@ class DyscoNonSyn final : public Module {
 	void process_packet(bess::Packet*);
 };
 
-#endif //BESS_MODULES_DYSCONONSYN_H_
+#endif //BESS_MODULES_DYSCONONSYNINC_H_

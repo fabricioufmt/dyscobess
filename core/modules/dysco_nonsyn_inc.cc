@@ -1,7 +1,7 @@
-#include "dysco_nonsyn.h"
+#include "dysco_nonsyn_inc.h"
 #include "../module_graph.h"
 
-CommandResponse DyscoNonSyn::Init(const bess::pb::DyscoNonSynArg& arg) {
+CommandResponse DyscoNonSynInc::Init(const bess::pb::DyscoNonSynArg& arg) {
 	const char* module_name;
 	if(!arg.dyscocenter().length())
 		return CommandFailure(EINVAL, "'dyscopolicy' must be given as string");
@@ -17,7 +17,7 @@ CommandResponse DyscoNonSyn::Init(const bess::pb::DyscoNonSynArg& arg) {
 	return CommandSuccess();
 }
 
-void DyscoNonSyn::process_packet(bess::Packet* pkt) {
+void DyscoNonSynInc::process_packet(bess::Packet* pkt) {
 	Ipv4* ip = reinterpret_cast<Ipv4*>(pkt->head_data<Ethernet*>() + 1);
 	size_t ip_hlen = ip->header_length << 2;
 	Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
@@ -32,7 +32,7 @@ void DyscoNonSyn::process_packet(bess::Packet* pkt) {
 	}
 }
 
-void DyscoNonSyn::ProcessBatch(bess::PacketBatch* batch) {
+void DyscoNonSynInc::ProcessBatch(bess::PacketBatch* batch) {
 	int cnt = batch->cnt();
 
 	bess::Packet* pkt;
@@ -44,4 +44,4 @@ void DyscoNonSyn::ProcessBatch(bess::PacketBatch* batch) {
 	RunChooseModule(0, batch);
 }
 
-ADD_MODULE(DyscoNonSyn, "dysco_nonsyn", "processes TCP NON-SYN segment")
+ADD_MODULE(DyscoNonSynInc, "dysco_nonsyn_inc", "processes TCP NON-SYN segments incoming")

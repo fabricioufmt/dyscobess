@@ -1,5 +1,5 @@
-#ifndef BESS_MODULES_DYSCOSYNP_H_
-#define BESS_MODULES_DYSCOSYNP_H_
+#ifndef BESS_MODULES_DYSCOSYNOUT_H_
+#define BESS_MODULES_DYSCOSYNOUT_H_
 
 #include "../module.h"
 #include "../pb/module_msg.pb.h"
@@ -16,19 +16,17 @@ using bess::utils::Ethernet;
 using bess::utils::be32_t;
 using bess::utils::be16_t;
 
-class DyscoSynP final : public Module {
+class DyscoSynOut final : public Module {
  public:
 	static const gate_idx_t kNumIGates = 1;
 	static const gate_idx_t kNumOGates = 1;
 
- DyscoSynP() : Module() {}
-	CommandResponse Init(const bess::pb::DyscoSynPArg&);
+ DyscoSynOut() : Module() {}
+	CommandResponse Init(const bess::pb::DyscoSynArg&);
 	void ProcessBatch(bess::PacketBatch*) override;
-  
+
  private:
 	DyscoCenter* dyscocenter;
-	void process_packet(bess::Packet*);
-	void remove_payload(bess::Packet*);
 };
 
-#endif //BESS_MODULES_DYSCOSYNP_H_
+#endif //BESS_MODULES_DYSCOSYNOUT_H_

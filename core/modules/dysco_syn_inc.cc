@@ -1,7 +1,7 @@
-#include "dysco_syn.h"
+#include "dysco_syn_inc.h"
 #include "../module_graph.h"
 
-CommandResponse DyscoSyn::Init(const bess::pb::DyscoSynArg& arg) {
+CommandResponse DyscoSynInc::Init(const bess::pb::DyscoSynArg& arg) {
 	const char* module_name;
 	if(!arg.dyscocenter().length())
 		return CommandFailure(EINVAL, "'dyscopolicy' must be given as string");
@@ -17,8 +17,8 @@ CommandResponse DyscoSyn::Init(const bess::pb::DyscoSynArg& arg) {
 	return CommandSuccess();
 }
 
-void DyscoSyn::ProcessBatch(bess::PacketBatch* batch) {
+void DyscoSynInc::ProcessBatch(bess::PacketBatch* batch) {
 	RunChooseModule(0, batch);
 }
 
-ADD_MODULE(DyscoSyn, "dysco_syn", "processes TCP SYN segment")
+ADD_MODULE(DyscoSynInc, "dysco_syn_inc", "processes TCP SYN segments incoming")
