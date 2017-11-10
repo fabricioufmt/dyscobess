@@ -1103,11 +1103,11 @@ message DyscoIncArg {
 	bool prefetch = 2;
 }
 
-message DyscoSynPArg {
+message DyscoSynArg {
 	string dyscocenter = 1;
 }
 
-message DyscoSynArg {
+message DyscoSynPArg {
 	string dyscocenter = 1;
 }
 
