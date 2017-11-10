@@ -11,15 +11,14 @@ DyscoTcpSession* DyscoCenter::get_session(Ipv4* ip, Tcp* tcp) {
 	ss.dip = ip->dst.value();
 	ss.sport = tcp->src_port.value();
 	ss.dport = tcp->dst_port.value();
-
+	/*
 	printf("size: %lu\n", map.Count());
 
-	//bess::utils::CuckooMap<DyscoTcpSession, DyscoControlBlock, DyscoTcpSession::Hash, DyscoTcpSession::EqualTo>::iterator itt = map.begin();
 	HashTable::iterator itt = map.begin();
 	while(itt != map.end()) {
 		printf("itrator\n");
 		itt++;
-	}
+		}*/
 	auto* it = map.Find(ss);
 	if(it != nullptr) {
 		return &it->second.supss;
