@@ -30,7 +30,7 @@ void DyscoSynPOut::remove_payload(bess::Packet* pkt) {
 	}
 }
 
-void DyscoSynPOut::process_packet(bess::Packet* pkt) {
+bool DyscoSynPOut::process_packet(bess::Packet* pkt) {
 	Ipv4* ip = reinterpret_cast<Ipv4*>(pkt->head_data<Ethernet*>() + 1);
 	size_t ip_hlen = ip->header_length << 2;
 	Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
@@ -39,6 +39,9 @@ void DyscoSynPOut::process_packet(bess::Packet* pkt) {
 	uint8_t* payload = reinterpret_cast<uint8_t*>(tcp) + tcp_hlen;
 	uint32_t payload_len = ip->length.value() - ip_hlen - tcp_hlen;
 	DyscoTcpSession* supss = reinterpret_cast<DyscoTcpSession*>(payload);
+
+	if(!dyscocenter)
+		return false;
 	
 	dyscocenter->add(ip, tcp, payload, payload_len);
 	
@@ -46,6 +49,8 @@ void DyscoSynPOut::process_packet(bess::Packet* pkt) {
 	ip->dst = be32_t(supss->dip);
 	tcp->src_port = be16_t(supss->sport);
 	tcp->dst_port = be16_t(supss->dport);
+
+	return true;
 }
 
 void DyscoSynPOut::ProcessBatch(bess::PacketBatch* batch) {

@@ -21,13 +21,15 @@ class DyscoNonSynInc final : public Module {
 	static const gate_idx_t kNumIGates = 1;
 	static const gate_idx_t kNumOGates = 1;
 
- DyscoNonSynInc() : Module() {}
+ DyscoNonSynInc() : Module() {
+		dyscocenter = 0;
+	}
 	CommandResponse Init(const bess::pb::DyscoNonSynIncArg&);
 	void ProcessBatch(bess::PacketBatch*) override;
 
  private:
 	DyscoCenter* dyscocenter;
-	void process_packet(bess::Packet*);
+	bool process_packet(bess::Packet*);
 };
 
 #endif //BESS_MODULES_DYSCONONSYNINC_H_

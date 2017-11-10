@@ -21,13 +21,15 @@ class DyscoSynPInc final : public Module {
 	static const gate_idx_t kNumIGates = 1;
 	static const gate_idx_t kNumOGates = 1;
 
- DyscoSynPInc() : Module() {}
+ DyscoSynPInc() : Module() {
+		dyscocenter = 0;
+	}
 	CommandResponse Init(const bess::pb::DyscoSynPIncArg&);
 	void ProcessBatch(bess::PacketBatch*) override;
   
  private:
 	DyscoCenter* dyscocenter;
-	void process_packet(bess::Packet*);
+	bool process_packet(bess::Packet*);
 	void remove_payload(bess::Packet*);
 };
 

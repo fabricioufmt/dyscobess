@@ -21,12 +21,15 @@ class DyscoSynOut final : public Module {
 	static const gate_idx_t kNumIGates = 1;
 	static const gate_idx_t kNumOGates = 1;
 
- DyscoSynOut() : Module() {}
+ DyscoSynOut() : Module() {
+		dyscocenter = 0;
+	}
 	CommandResponse Init(const bess::pb::DyscoSynOutArg&);
 	void ProcessBatch(bess::PacketBatch*) override;
 
  private:
 	DyscoCenter* dyscocenter;
+	bool process_packet(bess::Packet*);
 };
 
 #endif //BESS_MODULES_DYSCOSYNOUT_H_

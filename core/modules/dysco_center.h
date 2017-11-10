@@ -53,6 +53,7 @@ class DyscoCenter final : public Module {
 
 	bool add(Ipv4*, Tcp*, uint8_t*, uint32_t);
 	DyscoTcpSession* get_session(Ipv4*, Tcp*);
+	DyscoControlBlock* get_controlblock(Ipv4*, Tcp*);
 	
  private:
 	using HashTable = bess::utils::CuckooMap<DyscoTcpSession, DyscoControlBlock, DyscoTcpSession::Hash, DyscoTcpSession::EqualTo>;

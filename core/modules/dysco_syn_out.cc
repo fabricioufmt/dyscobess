@@ -17,7 +17,31 @@ CommandResponse DyscoSynOut::Init(const bess::pb::DyscoSynOutArg& arg) {
 	return CommandSuccess();
 }
 
+bool DyscoSynOut::process_packet(bess::Packet* pkt) {
+	Ipv4* ip = reinterpret_cast<Ipv4*>(pkt->head_data<Ethernet*>() + 1);
+	size_t ip_hlen = ip->header_length << 2;
+	Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
+
+	if(!dyscocenter)
+		return false;
+	
+	DyscoControlBlock* cb = dyscocenter->get_controlblock(ip, tcp);
+
+	return true;
+}
+
+/*
+  When DyscoSynOut receives SYN segment, it checks any policy rule on DyscoCenter. 
+ */
 void DyscoSynOut::ProcessBatch(bess::PacketBatch* batch) {
+	int cnt = batch->cnt();
+
+	bess::Packet* pkt;
+	for(int i = 0; i < cnt; i++) {
+		pkt = batch->pkts()[i];
+		process_packet(pkt);
+	}
+	
 	RunChooseModule(0, batch);
 }
 

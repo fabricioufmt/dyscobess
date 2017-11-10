@@ -17,19 +17,25 @@ CommandResponse DyscoNonSynInc::Init(const bess::pb::DyscoNonSynIncArg& arg) {
 	return CommandSuccess();
 }
 
-void DyscoNonSynInc::process_packet(bess::Packet* pkt) {
+bool DyscoNonSynInc::process_packet(bess::Packet* pkt) {
 	Ipv4* ip = reinterpret_cast<Ipv4*>(pkt->head_data<Ethernet*>() + 1);
 	size_t ip_hlen = ip->header_length << 2;
 	Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
 
+	if(!dyscocenter)
+		return false;
+	
 	DyscoTcpSession* supss = dyscocenter->get_session(ip, tcp);
 
-	if(supss) {
-		ip->src = be32_t(supss->sip);
-		ip->dst = be32_t(supss->dip);
-		tcp->src_port = be16_t(supss->sport);
-		tcp->dst_port = be16_t(supss->dport);
-	}
+	if(!supss)
+		return false;
+	
+	ip->src = be32_t(supss->sip);
+	ip->dst = be32_t(supss->dip);
+	tcp->src_port = be16_t(supss->sport);
+	tcp->dst_port = be16_t(supss->dport);
+	
+	return true;
 }
 
 void DyscoNonSynInc::ProcessBatch(bess::PacketBatch* batch) {

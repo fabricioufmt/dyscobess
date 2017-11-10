@@ -13,18 +13,32 @@ DyscoTcpSession* DyscoCenter::get_session(Ipv4* ip, Tcp* tcp) {
 	ss.dport = tcp->dst_port.value();
 
 	DyscoTcpSession::EqualTo equals;
-	HashTable::iterator itt = map.begin();
-	while(itt != map.end()) {
-		if(equals(ss, (*itt).first))
-			return &(*itt).second.supss;
-		itt++;
+	HashTable::iterator it = map.begin();
+	while(it != map.end()) {
+		if(equals(ss, (*it).first))
+			return &(*it).second.supss;
+		it++;
 	}
-	/*
-	auto* it = map.Find(ss);
-	if(it != nullptr) {
-		return &it->second.supss;
+	
+	return 0;
+}
+
+DyscoControlBlock* DyscoCenter::get_controlblock(Ipv4* ip, Tcp* tcp) {
+	DyscoTcpSession ss;
+
+	ss.sip = ip->src.value();
+	ss.dip = ip->dst.value();
+	ss.sport = tcp->src_port.value();
+	ss.dport = tcp->dst_port.value();
+
+	DyscoTcpSession::EqualTo equals;
+	HashTable::iterator it = map.begin();
+	while(it != map.end()) {
+		if(equals(ss, (*it).first))
+			return &(*it).second;
+		it++;
 	}
-	*/
+
 	return 0;
 }
 

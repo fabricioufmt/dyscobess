@@ -21,7 +21,9 @@ class DyscoSynInc final : public Module {
 	static const gate_idx_t kNumIGates = 1;
 	static const gate_idx_t kNumOGates = 1;
 
- DyscoSynInc() : Module() {}
+ DyscoSynInc() : Module() {
+		dyscocenter = 0;
+	}
 	CommandResponse Init(const bess::pb::DyscoSynIncArg&);
 	void ProcessBatch(bess::PacketBatch*) override;
 

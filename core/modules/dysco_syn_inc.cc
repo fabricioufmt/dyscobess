@@ -16,7 +16,9 @@ CommandResponse DyscoSynInc::Init(const bess::pb::DyscoSynIncArg& arg) {
 	
 	return CommandSuccess();
 }
-
+/*
+  When DyscoSynInc receives SYN segment, it forwards this segment.
+ */
 void DyscoSynInc::ProcessBatch(bess::PacketBatch* batch) {
 	RunChooseModule(0, batch);
 }
