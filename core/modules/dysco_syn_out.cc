@@ -41,7 +41,7 @@ bool DyscoSynOut::process_packet(bess::Packet* pkt) {
 	memcpy(payload, &cb->supss, sizeof(DyscoTcpSession));
 	memcpy(payload + sizeof(DyscoTcpSession), cb->sc, cb->sc_len);
 	
-	ip->length = be32_t(ip->length.value() + payload_len);
+	ip->length = be16_t(ip->length.value() + payload_len);
 	
 	return true;
 }
