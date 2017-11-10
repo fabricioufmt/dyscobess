@@ -13,6 +13,12 @@ DyscoTcpSession* DyscoCenter::get_session(Ipv4* ip, Tcp* tcp) {
 	ss.dport = tcp->dst_port.value();
 
 	printf("size: %lu\n", map.Count());
+
+	bess::utils::CuckooMap::iterator it = map.begin();
+	while(it != map.end()) {
+		printf("itrator\n");
+		it++;
+	}
 	auto* it = map.Find(ss);
 	if(it != nullptr) {
 		return &it->second.supss;
