@@ -33,15 +33,15 @@ bool DyscoSynOut::process_packet(bess::Packet* pkt) {
 	DyscoTcpSession* ss = &cb->subss;
 	ip->src = be32_t(ss->sip);
 	ip->dst = be32_t(ss->dip);
-	ip->sport = be16_t(ss->sport);
-	ip->dport = be16_t(ss->dport);
+	tcp->src_port = be16_t(ss->sport);
+	tcp->dst_port = be16_t(ss->dport);
 
 	uint32_t payload_len = sizeof(DyscoTcpSession) + cb->sc_len;
 	uint8_t* payload = (uint8*) pkt->append(payload_len);
 	memcpy(payload, &cb->supss, sizeof(DyscoTcpSession));
 	memcpy(payload + sizeof(DyscoTcpSession), cb->sc, cb->sc_len);
 	
-	ip->length += be32_t(payload_len);
+	ip->length = ip->length + be32_t(payload_len);
 	
 	return true;
 }

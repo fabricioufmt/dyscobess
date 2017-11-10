@@ -34,7 +34,7 @@ DyscoControlBlock* DyscoCenter::get_controlblock(Ipv4* ip, Tcp* tcp) {
 	DyscoTcpSession::EqualTo equals;
 	HashTable::iterator it = map.begin();
 	while(it != map.end()) {
-		if(equals(ss, (*it).first.supss))
+		if(equals(ss, (*it).second.supss))
 			return &(*it).second;
 		it++;
 	}
