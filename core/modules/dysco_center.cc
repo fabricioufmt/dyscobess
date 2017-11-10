@@ -14,7 +14,7 @@ DyscoTcpSession* DyscoCenter::get_session(Ipv4* ip, Tcp* tcp) {
 
 	printf("size: %lu\n", map.Count());
 
-	bess::utils::CuckooMap::iterator itt = map.begin();
+	bess::utils::CuckooMap<DyscoTcpSession, DyscoControlBlock>::iterator itt = map.begin();
 	while(itt != map.end()) {
 		printf("itrator\n");
 		itt++;
