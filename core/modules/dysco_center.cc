@@ -18,7 +18,7 @@ DyscoTcpSession* DyscoCenter::get_session(Ipv4* ip, Tcp* tcp) {
 		       (*itt).first.sip,
 		       (*itt).first.sport,
 		       (*itt).first.dip,
-		       (*itt).first.dport)
+		       (*itt).first.dport);
 		itt++;
 	}
 	auto* it = map.Find(ss);
