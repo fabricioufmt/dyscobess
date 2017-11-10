@@ -14,7 +14,7 @@ DyscoTcpSession* DyscoCenter::get_session(Ipv4* ip, Tcp* tcp) {
 	
 	HashTable::iterator itt = map.begin();
 	while(itt != map.end()) {
-		if(DyscoTcpSession::EqualTo(ss, (*itt).first))
+		if(DyscoTcpSession::EqualTo::EqualTo(ss, (*itt).first))
 			return &(*itt).second.supss;
 		/*
 		printf("%u:%u -> %u:%u\n",
