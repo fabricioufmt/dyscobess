@@ -4,14 +4,15 @@ dpdk0::PMDPort(port_id=0, num_inc_q=1, num_out_q=1)
 host_if0 = VPort(ifname='eth0', ip_addrs=['10.1.1.1/24'])
 host_if1 = VPort(ifname='eth1', ip_addrs=['10.1.2.1/24'])
 host_if2 = VPort(ifname='eth2', ip_addrs=['10.1.3.1/24'])
+host_if3 = VPort(ifname='eth3', ip_addrs=['10.1.4.1/24'])
 
 class0::DyscoClassifier()
-policycenter::DyscoPolicyCenter()
+dyscocenter::DyscoCenter()
 
 DyscoInc(port=dpdk0) -> class0
 
-class0:0 -> DyscoSyn() -> DyscoOut(port=host_if0)
-class0:1 -> DyscoOut(port=host_if1)
-#class0:1 -> DyscoSynP(dyscopolicy=policycenter) -> DyscoOut(port=host_if1)
-class0:2 -> DyscoNonSyn() -> DyscoOut(port=host_if2)
-class0:3 -> Sink()
+class0:0 -> DyscoSyn(dyscocenter=dyscocenter) -> DyscoOut(port=host_if0)
+#class0:1 -> DyscoOut(port=host_if1)
+class0:1 -> DyscoSynP(dyscocenter=dyscocenter) -> DyscoOut(port=host_if1)
+class0:2 -> DyscoNonSyn(dyscocenter=dyscocenter) -> DyscoOut(port=host_if2)
+class0:3 -> DyscoOut(port=host_if3)
