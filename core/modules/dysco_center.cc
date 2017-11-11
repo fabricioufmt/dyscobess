@@ -106,8 +106,8 @@ bool DyscoCenter::add_mapping(Ipv4* ip, Tcp* tcp, uint8_t* payload, uint32_t pay
 	struct in_addr dstip;
 	srcip.s_addr = cb.supss.sip;
 	dstip.s_addr = cb.supss.dip;
-	inet_ntop(AF_INET, &srcip, ipsrc, INET_ADRSTRLEN);
-	inet_ntop(AF_INET, &dstip, ipdst, INET_ADRSTRLEN);
+	inet_ntop(AF_INET, &srcip, ipsrc, INET_ADDRSTRLEN);
+	inet_ntop(AF_INET, &dstip, ipdst, INET_ADDRSTRLEN);
 	sprintf(buf, "src host %s and dst host %s and src port %u and dst port %u",
 		ipsrc, ipdst, cb.supss.sport, cb.supss.dport);
 
