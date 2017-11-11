@@ -110,7 +110,7 @@ bool DyscoCenter::add_mapping(Ipv4* ip, Tcp* tcp, uint8_t* payload, uint32_t pay
 	inet_ntop(AF_INET, &dstip, ipdst, INET_ADDRSTRLEN);
 	sprintf(buf, "src host %s and dst host %s and src port %u and dst port %u",
 		ipsrc, ipdst, cb.supss.sport, cb.supss.dport);
-
+	fprintf(stderr, "%s\n", buf);
 	std::string exp(buf, strlen(buf));
 	bpf->add_filter(0, exp, cb.sc, cb.sc_len);
 	return true;
