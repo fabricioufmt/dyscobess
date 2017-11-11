@@ -32,7 +32,7 @@ bool DyscoSynOut::process_packet(bess::Packet* pkt) {
 
 	//These must be merge into a single DyscoControlBlock
 	DyscoBPF::Filter* filter = dyscocenter->get_filter(pkt);
-	DyscoControlBlock* cb = dyscocenter->get_controlblock(ip, tcp);
+	DyscoControlBlock* cb = dyscocenter->get_controlblock_supss(ip, tcp);
 
 	if(!cb) {
 		fprintf(stderr, "cb is NULL\n");

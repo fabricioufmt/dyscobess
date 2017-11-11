@@ -64,6 +64,25 @@ DyscoControlBlock* DyscoCenter::get_controlblock(Ipv4* ip, Tcp* tcp) {
 	return 0;
 }
 
+DyscoControlBlock* DyscoCenter::get_controlblock_supss(Ipv4* ip, Tcp* tcp) {
+	DyscoTcpSession ss;
+
+	ss.sip = ip->src.value();
+	ss.dip = ip->dst.value();
+	ss.sport = tcp->src_port.value();
+	ss.dport = tcp->dst_port.value();
+
+	DyscoTcpSession::EqualTo equals;
+	HashTable::iterator it = map.begin();
+	while(it != map.end()) {
+		if(equals(ss, (*it).second.supss))
+			return &(*it).second;
+		it++;
+	}
+	
+	return 0;
+}
+
 DyscoBPF::Filter* DyscoCenter::get_filter(bess::Packet* pkt) {
 	return bpf->get_filter(pkt);
 }
@@ -98,7 +117,7 @@ bool DyscoCenter::add_mapping(Ipv4* ip, Tcp* tcp, uint8_t* payload, uint32_t pay
 	}
 	map.Insert(ss, cb);
 	fprintf(stderr, "DYSCOCENTER add_mapping: %u:%u->%u:%d\n", ss.sip, ss.dip, ss.sport, ss.dport);
-
+	
 	//TODO: check with Ronaldo, if this is really necessary
 	char buf[256];
 	char ipsrc[INET_ADDRSTRLEN];
