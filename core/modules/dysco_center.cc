@@ -1,4 +1,7 @@
 #include "dysco_center.h"
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 
 DyscoCenter::DyscoCenter() : Module() {
 	bpf = new DyscoBPF();
