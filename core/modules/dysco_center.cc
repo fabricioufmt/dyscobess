@@ -97,7 +97,7 @@ bool DyscoCenter::add_mapping(Ipv4* ip, Tcp* tcp, uint8_t* payload, uint32_t pay
 		cb.nextss.dport = (rand() % 1000 + 30000);
 	}
 	map.Insert(ss, cb);
-	fprintf(stderr, "DYSCOCENTER add_mapping: %u:%u->%u:%d\n", ss->sip, ss->dip, ss->sport, ss->dport);
+	fprintf(stderr, "DYSCOCENTER add_mapping: %u:%u->%u:%d\n", ss.sip, ss.dip, ss.sport, ss.dport);
 
 	//TODO: check with Ronaldo, if this is really necessary
 	char buf[256];
