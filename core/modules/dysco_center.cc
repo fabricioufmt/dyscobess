@@ -42,6 +42,25 @@ DyscoTcpSession* DyscoCenter::get_nextss(Ipv4* ip, Tcp* tcp) {
 	return 0;
 }
 
+DyscoControlBlock* DyscoCenter::get_controlblock(Ipv4* ip, Tcp* tcp) {
+	DyscoTcpSession ss;
+
+	ss.sip = ip->src.value();
+	ss.dip = ip->dst.value();
+	ss.sport = tcp->src_port.value();
+	ss.dport = tcp->dst_port.value();
+
+	DyscoTcpSession::EqualTo equals;
+	HashTable::iterator it = map.begin();
+	while(it != map.end()) {
+		if(equals(ss, (*it).first))
+			return &(*it).second;
+		it++;
+	}
+	
+	return 0;
+}
+
 DyscoBPF::Filter* DyscoCenter::get_filter(bess::Packet* pkt) {
 	return bpf->get_filter(pkt);
 }

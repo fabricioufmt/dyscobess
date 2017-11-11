@@ -57,8 +57,9 @@ class DyscoCenter final : public Module {
 	bool add_mapping(Ipv4*, Tcp*, uint8_t*, uint32_t);
 	bool add_policy_rule(uint32_t, std::string, uint8_t*, uint32_t);
 	DyscoTcpSession* get_supss(Ipv4*, Tcp*);
-	//DyscoControlBlock* get_controlblock(bess::Packet*);
+	DyscoControlBlock* get_controlblock(bess::Packet*);
 	DyscoTcpSession* get_nextss(Ipv4*, Tcp*);
+	DyscoBPF::Filter* get_filter(bess::Packet*);
 	
  private:
 	using HashTable = bess::utils::CuckooMap<DyscoTcpSession, DyscoControlBlock, DyscoTcpSession::Hash, DyscoTcpSession::EqualTo>;
