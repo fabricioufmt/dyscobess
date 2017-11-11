@@ -34,8 +34,10 @@ bool DyscoSynOut::process_packet(bess::Packet* pkt) {
 	DyscoBPF::Filter* filter = dyscocenter->get_filter(pkt);
 	DyscoControlBlock* cb = dyscocenter->get_controlblock(ip, tcp);
 
-	if(!cb || !filter)
+	if(!cb || !filter) {
+		fprintf(stderr, "cb or filter is NULL\n");
 		return false;
+	}
 	
 	DyscoTcpSession* ss = &cb->nextss;
 	ip->src = be32_t(ss->sip);
