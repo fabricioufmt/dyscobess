@@ -42,9 +42,9 @@ DyscoTcpSession* DyscoCenter::get_nextss(Ipv4* ip, Tcp* tcp) {
 	return 0;
 }
 
-/*DyscoBPF::Filter* DyscoCenter::get_controlblock(bess::Packet* pkt) {
+DyscoBPF::Filter* DyscoCenter::get_filter(bess::Packet* pkt) {
 	return bpf->get_filter(pkt);
-	}*/
+}
 
 bool DyscoCenter::add_policy_rule(uint32_t priority, std::string exp, uint8_t* sc, uint32_t sc_len) {
 	return bpf->add_filter(priority, exp, sc, sc_len);

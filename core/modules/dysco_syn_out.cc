@@ -29,10 +29,12 @@ bool DyscoSynOut::process_packet(bess::Packet* pkt) {
 
 	if(!dyscocenter)
 		return false;
-	
+
+	//These must be merge into a single DyscoControlBlock
+	DyscoBPF::Filter* filter = dyscocenter->get_filter(pkt);
 	DyscoControlBlock* cb = dyscocenter->get_controlblock(ip, tcp);
 
-	if(!cb)
+	if(!cb || !filter)
 		return false;
 	
 	DyscoTcpSession* ss = &cb->nextss;
@@ -41,10 +43,10 @@ bool DyscoSynOut::process_packet(bess::Packet* pkt) {
 	tcp->src_port = be16_t(ss->sport);
 	tcp->dst_port = be16_t(ss->dport);
 
-	uint32_t payload_len = sizeof(DyscoTcpSession) + cb->sc_len;
+	uint32_t payload_len = sizeof(DyscoTcpSession) + filter->sc_len;
 	uint8_t* payload = (uint8_t*) pkt->append(payload_len);
 	memcpy(payload, &cb->supss, sizeof(DyscoTcpSession));
-	memcpy(payload + sizeof(DyscoTcpSession), cb->sc, cb->sc_len);
+	memcpy(payload + sizeof(DyscoTcpSession), filter->sc, filter->sc_len);
 	
 	ip->length = be16_t(ip->length.value() + payload_len);
 	
