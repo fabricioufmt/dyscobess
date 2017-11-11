@@ -52,9 +52,11 @@ bool DyscoSynPOut::process_packet(bess::Packet* pkt) {
 
 	return true;
 }
-
+/*
+  Will DyscoSynPOut receive SYN with Payload segment?
+ */
 void DyscoSynPOut::ProcessBatch(bess::PacketBatch* batch) {
-	int cnt = batch->cnt();
+	/*int cnt = batch->cnt();
 
 	bess::Packet* pkt;
 	for(int i = 0; i < cnt; i++) {
@@ -62,7 +64,7 @@ void DyscoSynPOut::ProcessBatch(bess::PacketBatch* batch) {
 		process_packet(pkt);
 		remove_payload(pkt);
 	}
-	
+	*/
 	RunChooseModule(0, batch);
 }
 

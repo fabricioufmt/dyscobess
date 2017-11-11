@@ -27,18 +27,14 @@ bool DyscoSynOut::process_packet(bess::Packet* pkt) {
 	size_t ip_hlen = ip->header_length << 2;
 	Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
 
-	if(!dyscocenter) {
-		printf("Dysco Center is NULL\n");
+	if(!dyscocenter)
 		return false;
-	}
-	printf("Dysco Center is not NULL\n");
+	
 	DyscoControlBlock* cb = dyscocenter->get_controlblock(ip, tcp);
 
-	if(!cb) {
-		printf("Control Block not found\n");
+	if(!cb)
 		return false;
-	}
-	printf("Control Block found\n");
+	
 	DyscoTcpSession* ss = &cb->nextss;
 	ip->src = be32_t(ss->sip);
 	ip->dst = be32_t(ss->dip);
