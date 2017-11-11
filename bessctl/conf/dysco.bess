@@ -1,7 +1,7 @@
 import scapy.all as scapy
 
 dpdk0::PMDPort(port_id=0, num_inc_q=1, num_out_q=1)
-host_if0 = VPort(ifname='eth0', ip_addrs=['10.1.1.1/24'])
+host_if0 = VPort(ifname='eth0', ip_addrs=['1.1.1.10/24'])
 
 merge0::Merge()
 merge1::Merge()
