@@ -61,6 +61,10 @@ bool DyscoCenter::add(Ipv4* ip, Tcp* tcp, uint8_t* payload, uint32_t payload_len
 		cb.sc = (uint8_t*) malloc(sc_len);
 		memcpy(cb.sc, payload + sizeof(DyscoTcpSession) + sizeof(uint32_t), sc_len);
 		cb.sc_len = sc_len;
+		cb.nextss.sip = cb.subss.dip;
+		cb.nextss.dip = *((uint32_t*) cb.sc);
+		cb.nextss.sport = (rand() % 1000 + 10000);
+		cb.nextss.dport = (rand() % 1000 + 30000);
 	}
 	map.Insert(ss, cb);
 	

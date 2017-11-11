@@ -40,6 +40,7 @@ class DyscoControlBlock {
  public:
 	DyscoTcpSession subss;
 	DyscoTcpSession supss;
+	DyscoTcpSession nextss;
 
 	uint8_t* sc;
 	uint32_t sc_len;

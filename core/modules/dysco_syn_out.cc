@@ -16,7 +16,12 @@ CommandResponse DyscoSynOut::Init(const bess::pb::DyscoSynOutArg& arg) {
 	
 	return CommandSuccess();
 }
-
+/*
+  Receives ControlBlock searching for supss like as packet.
+  We assume that this packet come from a VPort without modification
+  and
+  We assume that DyscoCenter already matched with highest-priority rule on policies.
+ */
 bool DyscoSynOut::process_packet(bess::Packet* pkt) {
 	Ipv4* ip = reinterpret_cast<Ipv4*>(pkt->head_data<Ethernet*>() + 1);
 	size_t ip_hlen = ip->header_length << 2;
@@ -30,7 +35,7 @@ bool DyscoSynOut::process_packet(bess::Packet* pkt) {
 	if(!cb)
 		return false;
 
-	DyscoTcpSession* ss = &cb->subss;
+	DyscoTcpSession* ss = &cb->nextss;
 	ip->src = be32_t(ss->sip);
 	ip->dst = be32_t(ss->dip);
 	tcp->src_port = be16_t(ss->sport);
