@@ -59,7 +59,6 @@ void DyscoSynPInc::ProcessBatch(bess::PacketBatch* batch) {
 	bess::Packet* pkt;
 	for(int i = 0; i < cnt; i++) {
 		pkt = batch->pkts()[i];
-		fprintf(stderr, "SynPInc: %d\n", i);
 		process_packet(pkt);
 		remove_payload(pkt);
 	}

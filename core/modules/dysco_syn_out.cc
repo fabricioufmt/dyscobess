@@ -60,11 +60,10 @@ bool DyscoSynOut::process_packet(bess::Packet* pkt) {
  */
 void DyscoSynOut::ProcessBatch(bess::PacketBatch* batch) {
 	int cnt = batch->cnt();
-	fprintf(stderr, "SynOut here\n");
+	
 	bess::Packet* pkt;
 	for(int i = 0; i < cnt; i++) {
 		pkt = batch->pkts()[i];
-		fprintf(stderr, "SynOut: %d\n", i);
 		process_packet(pkt);
 	}
 	
