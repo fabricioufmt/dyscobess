@@ -94,7 +94,22 @@ bool DyscoCenter::add_mapping(Ipv4* ip, Tcp* tcp, uint8_t* payload, uint32_t pay
 		cb.nextss.dport = (rand() % 1000 + 30000);
 	}
 	map.Insert(ss, cb);
-	
+
+	//TODO: check with Ronaldo, if this is really necessary
+	char buf[256];
+	char ipsrc[INET_ADDRSTRLEN];
+	char ipdst[INET_ADDRSTRLEN];
+	struct in_addr srcip;
+	struct in_addr dstip;
+	srcip.s_addr = cb.supss.sip;
+	dstip.s_addr = cb.supss.dip;
+	inet_ntop(AF_INET, &srcip, ipsrc, INET_ADRSTRLEN);
+	inet_ntop(AF_INET, &dstip, ipdst, INET_ADRSTRLEN);
+	sprintf(buf, "src host %s and dst host %s and src port %u and dst port %u",
+		ipsrc, ipdst, cb.supss.sport, cb.supss.dport);
+
+	std::string exp(buf, strlen(buf));
+	bpf->add_policy_rule(0, exp, cb.sc, cb.cs_len);
 	return true;
 }
 
