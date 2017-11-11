@@ -1,7 +1,7 @@
 import scapy.all as scapy
 
 dpdk0::PMDPort(port_id=0, num_inc_q=1, num_out_q=1)
-host_if0 = VPort(ifname='eth0', ip_addrs=['1.1.1.10/24'])
+host_if0 = VPort(ifname='eth0', ip_addrs=['192.168.1.200/24'])
 
 merge0::Merge()
 merge1::Merge()
@@ -21,5 +21,5 @@ DyscoInc(port=host_if0) -> class1
 class1:0 -> DyscoSynOut(dyscocenter=dyscocenter) -> 0:merge1
 class1:1 -> DyscoSynPOut(dyscocenter=dyscocenter) -> 1:merge1
 class1:2 -> DyscoNonSynOut(dyscocenter=dyscocenter) -> 2:merge1
-class1:3 -> Sink()
+class1:3 -> 3:merge1 #Sink()
 merge1 -> DyscoOut(port=dpdk0)
