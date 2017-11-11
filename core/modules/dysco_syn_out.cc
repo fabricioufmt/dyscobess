@@ -45,7 +45,7 @@ bool DyscoSynOut::process_packet(bess::Packet* pkt) {
 	tcp->src_port = be16_t(ss->sport);
 	tcp->dst_port = be16_t(ss->dport);
 
-	fprintf(stderr, "SYN_OUT: %u:%u->%u:%d\n", ip->src, ip->dst, tcp->src_port, tcp->dst_port);
+	fprintf(stderr, "SYN_OUT: %u:%u->%u:%d\n", ss->sip, ss->dip, ss->sport, ss->dport);
 	
 	uint32_t payload_len = sizeof(DyscoTcpSession) + filter->sc_len;
 	uint8_t* payload = (uint8_t*) pkt->append(payload_len);
