@@ -25,12 +25,11 @@ bool DyscoNonSynOut::process_packet(bess::Packet* pkt) {
 	if(!dyscocenter)
 		return false;
 
-	DyscoControlBlock* cb = dyscocenter->get_controlblock(ip, tcp);
-
-	if(!cb)
+	DyscoTcpSession* ss = dyscocenter->get_nextss(ip, tcp);
+	
+	if(!ss)
 		return false;
 	
-	DyscoTcpSession* ss = &cb->nextss;
 	ip->src = be32_t(ss->sip);
 	ip->dst = be32_t(ss->dip);
 	tcp->src_port = be16_t(ss->sport);
