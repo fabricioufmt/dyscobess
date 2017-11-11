@@ -43,7 +43,7 @@ bool DyscoSynPInc::process_packet(bess::Packet* pkt) {
 	if(!dyscocenter)
 		return false;
 	
-	dyscocenter->add(ip, tcp, payload, payload_len);
+	dyscocenter->add_mapping(ip, tcp, payload, payload_len);
 	
 	ip->src = be32_t(supss->sip);
 	ip->dst = be32_t(supss->dip);

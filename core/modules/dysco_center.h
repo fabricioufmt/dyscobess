@@ -12,6 +12,8 @@
 #include "../utils/cuckoo_map.h"
 #include "../utils/endian.h"
 
+#include "dysco_bpf.h"
+
 using bess::utils::Tcp;
 using bess::utils::Ipv4;
 using bess::utils::Ethernet;
@@ -46,19 +48,29 @@ class DyscoControlBlock {
 	uint32_t sc_len;
 };
 
+class DyscoPolicyRule {
+ public:
+	uint32_t priority;
+	std::string filter;
+	uint_8* sc;
+	uint32_t sc_len;
+};
+
 class DyscoCenter final : public Module {
  public:
 	static const gate_idx_t kNumIGates = 0;
 	static const gate_idx_t kNumOGates = 0;
 	DyscoCenter();
 
-	bool add(Ipv4*, Tcp*, uint8_t*, uint32_t);
+	bool add_mapping(Ipv4*, Tcp*, uint8_t*, uint32_t);
+	bool add_policy_rule(uint32_t, std::string, uint8_t*, uint32_t);
 	DyscoTcpSession* get_session(Ipv4*, Tcp*);
-	DyscoControlBlock* get_controlblock(Ipv4*, Tcp*);
+	DyscoControlBlock* get_controlblock(bess::Packet*);
 	
  private:
 	using HashTable = bess::utils::CuckooMap<DyscoTcpSession, DyscoControlBlock, DyscoTcpSession::Hash, DyscoTcpSession::EqualTo>;
 	HashTable map;
+	DyscoBPF* bpf;
 };
 
 #endif //BESS_MODULES_DYSCOCENTER_H_

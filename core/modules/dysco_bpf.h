@@ -15,25 +15,27 @@ using bpf_filter_func_t = u_int (*)(u_char *, u_int, u_int);
 
 class DyscoBPF {
  public:
-  DyscoBPF() {}
-
-  bool add_filter(std::string, int);
+	DyscoBPF() {}
   
-  struct Filter {
+	struct Filter {
 #ifdef __x86_64
-    bpf_filter_func_t func;
-    size_t mmap_size;  // needed for munmap()
+		bpf_filter_func_t func;
+		size_t mmap_size;  // needed for munmap()
 #else
-    bpf_program il_code;
+		bpf_program il_code;
 #endif
-    int gate;
-    int priority;     // higher number == higher priority
-    std::string exp;  // original filter expression string
-  };
+		uint32_t priority;
+		std::string exp;
+		uint8_t* sc;
+		uint32_t sc_len;
+	};
 
-  bool Match(const Filter &, u_char *, u_int, u_int);
+	bool Match(const Filter &, u_char *, u_int, u_int);
+	std::vector<Filter> filters_;
 
-  std::vector<Filter> filters_;
+
+	bool add_filter(uint32_t, std::string, uint8_t*, uint32_t);
+	Filter* get_filter(bess::Packet*);
 };
 
 #endif  // BESS_MODULES_DYSCOBPF_H_
