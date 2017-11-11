@@ -109,7 +109,7 @@ bool DyscoCenter::add_mapping(Ipv4* ip, Tcp* tcp, uint8_t* payload, uint32_t pay
 		ipsrc, ipdst, cb.supss.sport, cb.supss.dport);
 
 	std::string exp(buf, strlen(buf));
-	bpf->add_policy_rule(0, exp, cb.sc, cb.cs_len);
+	bpf->add_filter(0, exp, cb.sc, cb.sc_len);
 	return true;
 }
 
