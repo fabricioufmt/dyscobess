@@ -134,7 +134,6 @@ bool DyscoCenter::add_mapping(Ipv4* ip, Tcp* tcp, uint8_t* payload, uint32_t pay
 	std::string exp(buf, strlen(buf));
 	bpf->add_filter(0, exp, cb.sc, cb.sc_len);
 	
-	fprintf(stderr, "DYSCOCENTER add_filter: %s\n", cb.sc);
 	return true;
 }
 

@@ -34,15 +34,8 @@ bool DyscoSynOut::process_packet(bess::Packet* pkt) {
 	DyscoBPF::Filter* filter = dyscocenter->get_filter(pkt);
 	DyscoControlBlock* cb = dyscocenter->get_controlblock_supss(ip, tcp);
 
-	if(!cb) {
-		fprintf(stderr, "cb is NULL\n");
+	if(!cb || !filter)
 		return false;
-	}
-
-	if(!filter) {
-		fprintf(stderr, "filter is NULL\n");
-		return false;
-	}	
 	
 	DyscoTcpSession* ss = &cb->nextss;
 	ip->src = be32_t(ss->sip);
@@ -50,15 +43,11 @@ bool DyscoSynOut::process_packet(bess::Packet* pkt) {
 	tcp->src_port = be16_t(ss->sport);
 	tcp->dst_port = be16_t(ss->dport);
 
-	fprintf(stderr, "SYN_OUT: %u:%u->%u:%d\n", ss->sip, ss->dip, ss->sport, ss->dport);
-	
 	uint32_t payload_len = sizeof(DyscoTcpSession) + filter->sc_len;
 	uint8_t* payload = (uint8_t*) pkt->append(payload_len);
 	memcpy(payload, &cb->supss, sizeof(DyscoTcpSession));
 	memcpy(payload + sizeof(DyscoTcpSession), filter->sc, filter->sc_len);
 
-	fprintf(stderr, "SYN_OUT: %d bytes\n", filter->sc_len);
-	
 	ip->length = be16_t(ip->length.value() + payload_len);
 	
 	return true;
