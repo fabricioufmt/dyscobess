@@ -25,7 +25,7 @@ bool DyscoNonSynInc::process_packet(bess::Packet* pkt) {
 	if(!dyscocenter)
 		return false;
 	
-	DyscoTcpSession* supss = dyscocenter->get_session(ip, tcp);
+	DyscoTcpSession* supss = dyscocenter->get_supss(ip, tcp);
 
 	if(!supss)
 		return false;
