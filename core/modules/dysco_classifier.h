@@ -16,7 +16,7 @@ class DyscoClassifier final : public Module {
   
   DyscoClassifier() : Module() {
     bpf = new DyscoBPF();
-    bpf->add_filter("ip and tcp", 8);
+    bpf->add_filter(1, "ip and tcp", 0, 0);
   }
   
   void ProcessBatch(bess::PacketBatch*) override;

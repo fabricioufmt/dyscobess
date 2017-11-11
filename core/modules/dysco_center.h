@@ -48,14 +48,6 @@ class DyscoControlBlock {
 	uint32_t sc_len;
 };
 
-class DyscoPolicyRule {
- public:
-	uint32_t priority;
-	std::string filter;
-	uint_8* sc;
-	uint32_t sc_len;
-};
-
 class DyscoCenter final : public Module {
  public:
 	static const gate_idx_t kNumIGates = 0;
