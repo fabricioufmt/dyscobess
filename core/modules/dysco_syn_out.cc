@@ -32,9 +32,11 @@ bool DyscoSynOut::process_packet(bess::Packet* pkt) {
 	
 	DyscoControlBlock* cb = dyscocenter->get_controlblock(ip, tcp);
 
-	if(!cb)
+	if(!cb) {
+		printf("Control Block not found\n");
 		return false;
-
+	}
+	printf("Control Block found\n");
 	DyscoTcpSession* ss = &cb->nextss;
 	ip->src = be32_t(ss->sip);
 	ip->dst = be32_t(ss->dip);
