@@ -10,14 +10,72 @@ os.system('ip netns add h3 > /dev/null')
 os.system('echo 1 > /proc/sys/net/ipv4/ip_forward')
 
 
-h1_0::VPort(ifname='h1-0', netns='/var/run/netns/h1', ip_addrs=['10.0.1.1/24'])
+h1_0::VPort(ifname='h1-0', netns='/var/run/netns/h1',
+			   mac_addr='00:00:00:00:00:01', ip_addrs=['10.0.1.1/24'])
 h1_1::VPort(ifname='h1-1', ip_addrs=['10.0.1.2/24'])
-h2_0::VPort(ifname='h2-0', netns='/var/run/netns/h2', ip_addrs=['10.0.2.1/24'])
+h2_0::VPort(ifname='h2-0', netns='/var/run/netns/h2',
+			   mac_addr='00:00:00:00:00:02', ip_addrs=['10.0.2.1/24'])
 h2_1::VPort(ifname='h2-1', ip_addrs=['10.0.2.2/24'])
-h3_0::VPort(ifname='h3-0', netns='/var/run/netns/h3', ip_addrs=['10.0.3.1/24'])
+h3_0::VPort(ifname='h3-0', netns='/var/run/netns/h3',
+			   mac_addr='00:00:00:00:00:03', ip_addrs=['10.0.3.1/24'])
 h3_1::VPort(ifname='h3-1', ip_addrs=['10.0.3.2/24'])
 
+merge1::Merge()
+merge2::Merge()
+merge3::Merge()
+class1::DyscoClassifier()
+class2::DyscoClassifier()
+class3::DyscoClassifier()
+dyscocenter::DyscoCenter()
 
+l2f::L2Forward()
+l2f.add(entries=[
+	{'addr':'00:00:00:00:00:01', 'gate':0},
+	{'addr':'00:00:00:00:00:02', 'gate':1},
+	{'addr':'00:00:00:00:00:03', 'gate':2},
+	{'addr':'ff:ff:ff:ff:ff:ff', 'gate':3}])
+#l2f.set_default_gate(gate=4)
 
-PortInc(port='h1_0') -> PortOut(port='h1_1')
-PortInc(port='h1_1') -> PortOut(port='h1_0')
+PortInc(port=h1_0) -> class1
+class1:0 -> DyscoSynInc(dyscocenter=dyscocenter) -> 0:merge1
+class1:1 -> DyscoSynPInc(dyscocenter=dyscocenter) -> 1:merge1
+class1:2 -> DyscoNonSynInc(dyscocenter=dyscocenter) -> 2:merge1
+class1:3 -> 3:merge1
+
+PortInc(port=h2_0) -> class2
+class2:0 -> DyscoSynInc(dyscocenter=dyscocenter) -> 0:merge2
+class2:1 -> DyscoSynPInc(dyscocenter=dyscocenter) -> 1:merge2
+class2:2 -> DyscoNonSynInc(dyscocenter=dyscocenter) -> 2:merge2
+class2:3 -> 3:merge2
+
+PortInc(port=h3_0) -> class3
+class3:0 -> DyscoSynInc(dyscocenter=dyscocenter) -> 0:merge3
+class3:1 -> DyscoSynPInc(dyscocenter=dyscocenter) -> 1:merge3
+class3:2 -> DyscoNonSynInc(dyscocenter=dyscocenter) -> 2:merge3
+class3:3 -> 3:merge3
+
+merge1 -> 0:l2f
+merge2 -> 1:l2f
+merge3 -> 2:l2f
+
+l2f:0 -> class1_1
+class1_1:0 -> DyscoSynOut(dyscocenter=dyscocenter) -> 0:merge1_1
+class1_1:1 -> DyscoSynPOut(dyscocenter=dyscocenter) -> 1:merge1_1
+class1_1:2 -> DyscoNonSynOut(dyscocenter=dyscocenter) -> 2:merge1_1
+class1_1:3 -> 3:merge1_1
+
+l2f:0 -> class1_1
+class2_1:0 -> DyscoSynOut(dyscocenter=dyscocenter) -> 0:merge2_1
+class2_1:1 -> DyscoSynPOut(dyscocenter=dyscocenter) -> 1:merge2_1
+class2_1:2 -> DyscoNonSynOut(dyscocenter=dyscocenter) -> 2:merge2_1
+class2_1:3 -> 3:merge2_1
+
+l2f:0 -> class1_1
+class3_1:0 -> DyscoSynOut(dyscocenter=dyscocenter) -> 0:merge3_1
+class3_1:1 -> DyscoSynPOut(dyscocenter=dyscocenter) -> 1:merge3_1
+class3_1:2 -> DyscoNonSynOut(dyscocenter=dyscocenter) -> 2:merge3_1
+class3_1:3 -> 3:merge3_1
+
+merge1_1 -> PortOut(port=h1_0)
+merge2_1 -> PortOut(port=h2_0)
+merge3_1 -> PortOut(port=h3_0)
