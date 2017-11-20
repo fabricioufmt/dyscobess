@@ -17,9 +17,9 @@ h2::VPort(ifname='h2-0', netns='/var/run/netns/h2', loopback=True,
 h3::VPort(ifname='h3-0', netns='/var/run/netns/h3', loopback=True,
 			   mac_addr='00:00:00:00:00:03', ip_addrs=['10.0.3.1/24'])
 
-pout1::PortOut(port=h1)
-pout2::PortOut(port=h2)
-pout3::PortOut(port=h3)
+out_h1::PortOut(port=h1)
+out_h2::PortOut(port=h2)
+out_h3::PortOut(port=h3)
 
 os.system('ip netns exec h1 ifconfig lo up > /dev/null')
 os.system('ip netns exec h2 ifconfig lo up > /dev/null')
