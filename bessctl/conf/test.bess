@@ -20,6 +20,10 @@ h3_0::VPort(ifname='h3-0', netns='/var/run/netns/h3', loopback=True,
 			   mac_addr='00:00:00:00:00:03', ip_addrs=['10.0.3.1/24'])
 h3_1::VPort(ifname='h3-1', ip_addrs=['10.0.3.2/24'])
 
+os.system('ip netns exec h1 ifconfig lo up > /dev/null')
+os.system('ip netns exec h2 ifconfig lo up > /dev/null')
+os.system('ip netns exec h3 ifconfig lo up > /dev/null')
+
 merge::Merge()
 merge1::Merge()
 merge2::Merge()
