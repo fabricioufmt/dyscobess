@@ -89,6 +89,15 @@ class3_1:1 -> DyscoSynPOut(dyscocenter=dyscocenter) -> 1:merge3_1
 class3_1:2 -> DyscoNonSynOut(dyscocenter=dyscocenter) -> 2:merge3_1
 class3_1:3 -> 3:merge3_1
 
-merge1_1 -> PortOut(port=h1_0)
-merge2_1 -> PortOut(port=h2_0)
-merge3_1 -> PortOut(port=h3_0)
+#merge1_1 -> PortOut(port=h1_0)
+#merge2_1 -> PortOut(port=h2_0)
+#merge3_1 -> PortOut(port=h3_0)
+merge1_1 -> QueueOut(port=h1_0, qid=0)
+merge2_1 -> QueueOut(port=h2_0, qid=0)
+merge3_1 -> QueueOut(port=h3_0, qid=0)
+
+l2f:3 -> rr::RoundRobin()
+
+rr:0->QueueOut(port=h1_0, qid=0)
+rr:1->QueueOut(port=h2_0, qid=0)
+rr:2->QueueOut(port=h3_0, qid=0)
