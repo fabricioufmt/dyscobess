@@ -1,25 +1,66 @@
 import scapy.all as scapy
 
 dpdk0::PMDPort(port_id=0, num_inc_q=1, num_out_q=1)
-host_if0 = VPort(ifname='eth0', ip_addrs=['192.168.1.200/24'])
+host_if0 = VPort(ifname='eth0', mac_addr='00:00:00:00:00:01', ip_addrs=['192.168.1.200/24'])
+host_if1 = VPort(ifname='eth1', mac_addr='00:00:00:00:00:02', ip_addrs=['192.168.1.201/24'])
+host_if2 = VPort(ifname='eth2', mac_addr='00:00:00:00:00:03', ip_addrs=['192.168.1.202/24'])
 
+merge::Merge()
 merge0::Merge()
 merge1::Merge()
+merge2::Merge()
+merge3::Merge()
 class0::DyscoClassifier()
 class1::DyscoClassifier()
+class2::DyscoClassifier()
+class3::DyscoClassifier()
 dyscocenter::DyscoCenter()
+
+l2f::L2Forward()
+l2f.add(entries=[{'addr':'00:00:00:00:00:01', 'gate':1}])
+l2f.add(entries=[{'addr':'00:00:00:00:00:02', 'gate':2}])
+l2f.add(entries=[{'addr':'00:00:00:00:00:03', 'gate':3}])
+l2f.set_default_gate(gate=4)
 
 DyscoInc(port=dpdk0) -> class0
 class0:0 -> DyscoSynInc(dyscocenter=dyscocenter) -> 0:merge0
 class0:1 -> DyscoSynPInc(dyscocenter=dyscocenter) -> 1:merge0
 class0:2 -> DyscoNonSynInc(dyscocenter=dyscocenter) -> 2:merge0
-class0:3 -> Sink()
-merge0 -> DyscoOut(port=host_if0)
-
+class0:3 -> 3:merge0
+#merge0 -> DyscoOut(port=host_if0)
+merge0 -> Sink()
 
 DyscoInc(port=host_if0) -> class1
 class1:0 -> DyscoSynOut(dyscocenter=dyscocenter) -> 0:merge1
 class1:1 -> DyscoSynPOut(dyscocenter=dyscocenter) -> 1:merge1
 class1:2 -> DyscoNonSynOut(dyscocenter=dyscocenter) -> 2:merge1
-class1:3 -> 3:merge1 #Sink()
-merge1 -> DyscoOut(port=dpdk0)
+class1:3 -> 3:merge1
+merge1 -> 0:merge
+
+DyscoInc(port=host_if1) -> class2
+class2:0 -> DyscoSynOut(dyscocenter=dyscocenter) -> 0:merge2
+class2:1 -> DyscoSynPOut(dyscocenter=dyscocenter) -> 1:merge2
+class2:2 -> DyscoNonSynOut(dyscocenter=dyscocenter) -> 2:merge2
+class2:3 -> 3:merge2
+merge2 -> 1:merge
+
+DyscoInc(port=host_if2) -> class3
+class3:0 -> DyscoSynOut(dyscocenter=dyscocenter) -> 0:merge3
+class3:1 -> DyscoSynPOut(dyscocenter=dyscocenter) -> 1:merge3
+class3:2 -> DyscoNonSynOut(dyscocenter=dyscocenter) -> 2:merge3
+class3:3 -> 3:merge3
+merge3 -> 2:merge
+
+merge -> l2f
+l2f:0 -> pout0::PortOut(port=host_if0)
+l2f:1 -> pout1::PortOut(port=host_if1)
+l2f:2 -> pout2::PortOut(port=host_if2)
+l2f:3 -> rr::RoundRobin(gates=[0,1,2])
+
+rr:0 -> pout0
+rr:1 -> pout1
+rr:2 -> pout2
+
+
+
+
