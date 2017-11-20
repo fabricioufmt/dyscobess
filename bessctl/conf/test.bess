@@ -20,6 +20,7 @@ h3_0::VPort(ifname='h3-0', netns='/var/run/netns/h3',
 			   mac_addr='00:00:00:00:00:03', ip_addrs=['10.0.3.1/24'])
 h3_1::VPort(ifname='h3-1', ip_addrs=['10.0.3.2/24'])
 
+merge::Merge()
 merge1::Merge()
 merge2::Merge()
 merge3::Merge()
@@ -54,9 +55,11 @@ class3:1 -> DyscoSynPInc(dyscocenter=dyscocenter) -> 1:merge3
 class3:2 -> DyscoNonSynInc(dyscocenter=dyscocenter) -> 2:merge3
 class3:3 -> 3:merge3
 
-merge1 -> 0:l2f
-merge2 -> 1:l2f
-merge3 -> 2:l2f
+merge1 -> 0:merge
+merge2 -> 1:merge
+merge3 -> 2:merge
+
+merge -> l2f
 
 l2f:0 -> class1_1
 class1_1:0 -> DyscoSynOut(dyscocenter=dyscocenter) -> 0:merge1_1
