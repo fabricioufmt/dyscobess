@@ -1,0 +1,25 @@
+import os
+import scapy.all as scapy
+
+os.system('ip netns add h1 > /dev/null')
+os.system('ip netns add h2 > /dev/null')
+os.system('ip netns add h3 > /dev/null')
+os.system('ip link add h1-0 type veth peer name h1-1 > /dev/null')
+os.system('ip link add h2-0 type veth peer name h2-1 > /dev/null')
+os.system('ip link add h3-0 type veth peer name h3-1 > /dev/null')
+os.system('ip link set h1-0 netns h1 > /dev/null')
+os.system('ip link set h2-0 netns h2 > /dev/null')
+os.system('ip link set h3-0 netns h3 > /dev/null')
+os.system('ip netns exec h1 ifconfig lo up > /dev/null')
+os.system('ip netns exec h1 ifconfig h1-0 10.0.1.1/24 up > /dev/null')
+os.system('ifconfig h1-1 10.0.1.2/24 up > /dev/null')
+os.system('ip netns exec h2 ifconfig lo up > /dev/null')
+os.system('ip netns exec h2 ifconfig h2-0 10.0.2.1/24 up > /dev/null')
+os.system('ifconfig h2-1 10.0.2.2/24 up > /dev/null')
+os.system('ip netns exec h3 ifconfig lo up > /dev/null')
+os.system('ip netns exec h3 ifconfig h3-0 10.0.3.1/24 up > /dev/null')
+os.system('ifconfig h3-1 10.0.3.2/24 up > /dev/null')
+
+port0::PMDPort(port='port0', vdev='h1-1')
+port1::PMDPort(port='port1', vdev='h2-1')
+port2::PMDPort(port='port2', vdev='h3-1')
