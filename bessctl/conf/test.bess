@@ -92,12 +92,12 @@ class3_1:3 -> 3:merge3_1
 #merge1_1 -> PortOut(port=h1_0)
 #merge2_1 -> PortOut(port=h2_0)
 #merge3_1 -> PortOut(port=h3_0)
-merge1_1 -> QueueOut(port=h1_0, qid=0)
-merge2_1 -> QueueOut(port=h2_0, qid=0)
-merge3_1 -> QueueOut(port=h3_0, qid=0)
+merge1_1 -> q0::QueueOut(port=h1_0, qid=0)
+merge2_1 -> q1::QueueOut(port=h2_0, qid=0)
+merge3_1 -> q2::QueueOut(port=h3_0, qid=0)
 
 l2f:3 -> rr::RoundRobin()
 
-rr:0->QueueOut(port=h1_0, qid=0)
-rr:1->QueueOut(port=h2_0, qid=0)
-rr:2->QueueOut(port=h3_0, qid=0)
+rr:0->q0
+rr:1->q1
+rr:2->q2
