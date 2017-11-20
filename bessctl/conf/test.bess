@@ -52,22 +52,24 @@ PortInc(port=h1) -> 0:merge
 PortInc(port=h2) -> 1:merge
 PortInc(port=h3) -> 2:merge
 
-merge -> l2f
+merge -> out_h2
 
-l2f:0 -> merge1_1
-l2f:1 -> merge2_1
-l2f:2 -> merge3_1
+#merge -> l2f
+
+#l2f:0 -> merge1_1
+#l2f:1 -> merge2_1
+#l2f:2 -> merge3_1
 
 #merge1_1 -> PortOut(port=h1_0)
 #merge2_1 -> PortOut(port=h2_0)
 #merge3_1 -> PortOut(port=h3_0)
-merge1_1 -> out_h2
-merge2_1 -> out_h2
-merge3_1 -> out_h2
+#merge1_1 -> out_h2
+#merge2_1 -> out_h2
+#merge3_1 -> out_h2
 
-l2f:3 -> rr::RoundRobin()
-l2f:4 -> out_h2
+#l2f:3 -> rr::RoundRobin()
+#l2f:4 -> out_h2
 
-rr:0 -> out_h2
-rr:1 -> out_h2
-rr:2 -> out_h2
+#rr:0 -> out_h2
+#rr:1 -> out_h2
+#rr:2 -> out_h2
