@@ -116,7 +116,6 @@ bool DyscoCenter::add_mapping(Ipv4* ip, Tcp* tcp, uint8_t* payload, uint32_t pay
 		cb.nextss.dport = (rand() % 1000 + 30000);
 	}
 	map.Insert(ss, cb);
-	fprintf(stderr, "DYSCOCENTER add_mapping: %u:%u->%u:%d\n", ss.sip, ss.dip, ss.sport, ss.dport);
 	
 	//TODO: check with Ronaldo, if this is really necessary
 	char buf[256];
@@ -130,7 +129,6 @@ bool DyscoCenter::add_mapping(Ipv4* ip, Tcp* tcp, uint8_t* payload, uint32_t pay
 	inet_ntop(AF_INET, &dstip, ipdst, INET_ADDRSTRLEN);
 	sprintf(buf, "src host %s and dst host %s and src port %u and dst port %u",
 		ipsrc, ipdst, cb.supss.sport, cb.supss.dport);
-	fprintf(stderr, "%s\n", buf);
 	std::string exp(buf, strlen(buf));
 	bpf->add_filter(0, exp, cb.sc, cb.sc_len);
 	
