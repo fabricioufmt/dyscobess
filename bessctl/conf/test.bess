@@ -14,65 +14,12 @@ h1::VPort(ifname='h1-0', netns='/var/run/netns/h1', loopback=True,
 			   mac_addr='00:00:00:00:00:01', ip_addrs=['10.0.1.1/24'])
 h2::VPort(ifname='h2-0', netns='/var/run/netns/h2', loopback=True,
 			   mac_addr='00:00:00:00:00:02', ip_addrs=['10.0.2.1/24'])
-h3::VPort(ifname='h3-0', netns='/var/run/netns/h1', loopback=True,
+h3::VPort(ifname='h3-0', netns='/var/run/netns/h3', loopback=True,
 			   mac_addr='00:00:00:00:00:03', ip_addrs=['10.0.3.1/24'])
-
-out_h1::PortOut(port=h1)
-out_h2::PortOut(port=h2)
-out_h3::PortOut(port=h3)
 
 os.system('ip netns exec h1 ifconfig lo up > /dev/null')
 os.system('ip netns exec h2 ifconfig lo up > /dev/null')
 os.system('ip netns exec h3 ifconfig lo up > /dev/null')
 
-merge::Merge()
-merge1::Merge()
-merge2::Merge()
-merge3::Merge()
-merge1_1::Merge()
-merge2_1::Merge()
-merge3_1::Merge()
-class1::DyscoClassifier()
-class2::DyscoClassifier()
-class3::DyscoClassifier()
-class1_1::DyscoClassifier()
-class2_1::DyscoClassifier()
-class3_1::DyscoClassifier()
-dyscocenter::DyscoCenter()
-
-l2f::L2Forward()
-l2f.add(entries=[
-	{'addr':'00:00:00:00:00:01', 'gate':0},
-	{'addr':'00:00:00:00:00:02', 'gate':1},
-	{'addr':'00:00:00:00:00:03', 'gate':2},
-	{'addr':'ff:ff:ff:ff:ff:ff', 'gate':3}])
-l2f.set_default_gate(gate=4)
-
-#PortInc(port=h1) -> 0:merge
-#PortInc(port=h2) -> 1:merge
-#PortInc(port=h3) -> 2:merge
-PortInc(port=h1) -> out_h3
-PortInc(port=h2) -> out_h2
-PortInc(port=h3) -> out_h3
-
-#merge -> out_h2
-
-#merge -> l2f
-
-#l2f:0 -> merge1_1
-#l2f:1 -> merge2_1
-#l2f:2 -> merge3_1
-
-#merge1_1 -> PortOut(port=h1_0)
-#merge2_1 -> PortOut(port=h2_0)
-#merge3_1 -> PortOut(port=h3_0)
-#merge1_1 -> out_h2
-#merge2_1 -> out_h2
-#merge3_1 -> out_h2
-
-#l2f:3 -> rr::RoundRobin()
-#l2f:4 -> out_h2
-
-#rr:0 -> out_h2
-#rr:1 -> out_h2
-#rr:2 -> out_h2
+PortInc(port=h1) -> PortOut(port=h2)
+PortInc(port=h2) -> PortInc(port=h1)
