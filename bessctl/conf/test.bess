@@ -51,7 +51,7 @@ l2f.set_default_gate(gate=4)
 #PortInc(port=h1) -> 0:merge
 #PortInc(port=h2) -> 1:merge
 #PortInc(port=h3) -> 2:merge
-PortInc(port=h1) -> out_h2
+PortInc(port=h1) -> Dump() -> out_h2
 PortInc(port=h2) -> out_h2
 PortInc(port=h3) -> out_h2
 
