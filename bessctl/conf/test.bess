@@ -22,4 +22,4 @@ os.system('ip netns exec h2 ifconfig lo up > /dev/null')
 os.system('ip netns exec h3 ifconfig lo up > /dev/null')
 
 PortInc(port=h1) -> PortOut(port=h2)
-PortInc(port=h2) -> PortInc(port=h1)
+PortInc(port=h2) -> PortOut(port=h1)
