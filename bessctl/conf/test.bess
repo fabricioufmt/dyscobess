@@ -12,9 +12,9 @@ os.system('echo 1 > /proc/sys/net/ipv4/ip_forward')
 
 h1::VPort(ifname='h1-0', netns='/var/run/netns/h1', loopback=True,
 			   mac_addr='00:00:00:00:00:01', ip_addrs=['10.0.1.1/24'])
-h2::VPort(ifname='h2-0', netns='/var/run/netns/h2', loopback=True,
+h2::VPort(ifname='h2-0', netns='/var/run/netns/h1', loopback=True,
 			   mac_addr='00:00:00:00:00:02', ip_addrs=['10.0.2.1/24'])
-h3::VPort(ifname='h3-0', netns='/var/run/netns/h3', loopback=True,
+h3::VPort(ifname='h3-0', netns='/var/run/netns/h1', loopback=True,
 			   mac_addr='00:00:00:00:00:03', ip_addrs=['10.0.3.1/24'])
 
 out_h1::PortOut(port=h1)
@@ -51,7 +51,7 @@ l2f.set_default_gate(gate=4)
 #PortInc(port=h1) -> 0:merge
 #PortInc(port=h2) -> 1:merge
 #PortInc(port=h3) -> 2:merge
-PortInc(port=h1) -> Dump() -> out_h2
+PortInc(port=h1) -> out_h2
 PortInc(port=h2) -> out_h2
 PortInc(port=h3) -> out_h2
 
