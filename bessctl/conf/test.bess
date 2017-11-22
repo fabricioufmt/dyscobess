@@ -66,9 +66,9 @@ class3:1 -> DyscoSynPInc(dyscocenter=dyscocenter) -> 1:merge3
 class3:2 -> DyscoNonSynInc(dyscocenter=dyscocenter) -> 2:merge3
 class3:3 -> 3:merge3
 
-merge1 -> l2f
-merge2 -> l2f
-merge3 -> l2f
+merge1 -> 0:l2f
+merge2 -> 1:l2f
+merge3 -> 2:l2f
 
 l2f:0 -> class1_1
 class1_1:0 -> DyscoSynOut(dyscocenter=dyscocenter) -> 0:merge1_1
