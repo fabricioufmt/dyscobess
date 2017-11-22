@@ -30,9 +30,7 @@ merge::Merge()
 l2f::L2Forward()
 l2f.add(entries=[
 	{'addr':'00:00:00:00:00:01', 'gate':0},
-	{'addr':'00:00:00:00:00:02', 'gate':1},
-	{'addr':'00:00:00:00:00:03', 'gate':2},
-	{'addr':'00:ff:ff:ff:ff:ff', 'gate':3}])
+	{'addr':'00:00:00:00:00:02', 'gate':1}])
 	
 PortInc(port=h1) -> 0:merge
 PortInc(port=h2) -> 1:merge
