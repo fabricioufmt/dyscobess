@@ -40,4 +40,3 @@ merge -> l2f
 
 l2f:0 -> PortOut(port=h1)
 l2f:1 -> PortOut(port=h2)
-l2f:2 -> PortOut(port=h3)
