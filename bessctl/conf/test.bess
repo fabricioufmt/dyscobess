@@ -34,19 +34,67 @@ out_h3::PortOut(port=h3)
 
 merge::Merge()
 merge1::Merge()
+merge2::Merge()
+merge3::Merge()
+merge1_1::Merge()
+merge2_1::Merge()
+merge3_1::Merge()
+class1::DyscoClassifier()
+class2::DyscoClassifier()
+class3::DyscoClassifier()
+class1_1::DyscoClassifier()
+class2_1::DyscoClassifier()
+class3_1::DyscoClassifier()
+dyscocenter::DyscoCenter()
 
 l2f::L2Forward()
 l2f.add(entries=[
 	{'addr':'00:00:00:00:00:01', 'gate':0},
 	{'addr':'00:00:00:00:00:02', 'gate':1},
 	{'addr':'00:00:00:00:00:03', 'gate':2}])
-	
-PortInc(port=h1) -> 0:merge
-PortInc(port=h2) -> 1:merge
-PortInc(port=h3) -> 2:merge
+
+PortInc(port=h1) -> class1
+class1:0 -> DyscoSynInc(dyscocenter=dyscocenter) -> 0:merge1
+class1:1 -> DyscoSynPInc(dyscocenter=dyscocenter) -> 1:merge1
+class1:2 -> DyscoNonSynInc(dyscocenter=dyscocenter) -> 2:merge1
+class1:3 -> 3:merge1
+
+PortInc(port=h2) -> class2
+class2:0 -> DyscoSynInc(dyscocenter=dyscocenter) -> 0:merge2
+class2:1 -> DyscoSynPInc(dyscocenter=dyscocenter) -> 1:merge2
+class2:2 -> DyscoNonSynInc(dyscocenter=dyscocenter) -> 2:merge2
+class2:3 -> 3:merge2
+
+PortInc(port=h3) -> class3
+class3:0 -> DyscoSynInc(dyscocenter=dyscocenter) -> 0:merge3
+class3:1 -> DyscoSynPInc(dyscocenter=dyscocenter) -> 1:merge3
+class3:2 -> DyscoNonSynInc(dyscocenter=dyscocenter) -> 2:merge3
+class3:3 -> 3:merge3
+
+merge1 -> 0:merge
+merge2 -> 1:merge
+merge3 -> 2:merge
 
 merge -> l2f
 
-l2f:0 -> out_h1
-l2f:1 -> out_h2
-l2f:2 -> out_h3
+l2f:0 -> class1_1
+class1_1:0 -> DyscoSynOut(dyscocenter=dyscocenter) -> 0:merge1_1
+class1_1:1 -> DyscoSynPOut(dyscocenter=dyscocenter) -> 1:merge1_1
+class1_1:2 -> DyscoNonSynOut(dyscocenter=dyscocenter) -> 2:merge1_1
+class1_1:3 -> 3:merge1_1
+
+l2f:1 -> class2_1
+class2_1:0 -> DyscoSynOut(dyscocenter=dyscocenter) -> 0:merge2_1
+class2_1:1 -> DyscoSynPOut(dyscocenter=dyscocenter) -> 1:merge2_1
+class2_1:2 -> DyscoNonSynOut(dyscocenter=dyscocenter) -> 2:merge2_1
+class2_1:3 -> 3:merge2_1
+
+l2f:2 -> class3_1
+class3_1:0 -> DyscoSynOut(dyscocenter=dyscocenter) -> 0:merge3_1
+class3_1:1 -> DyscoSynPOut(dyscocenter=dyscocenter) -> 1:merge3_1
+class3_1:2 -> DyscoNonSynOut(dyscocenter=dyscocenter) -> 2:merge3_1
+class3_1:3 -> 3:merge3_1
+
+merge1_1 -> out_h1
+merge2_1 -> out_h2
+merge3_1 -> out_h3
