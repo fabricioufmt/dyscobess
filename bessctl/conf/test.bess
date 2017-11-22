@@ -25,7 +25,7 @@ os.system('ip netns exec h3 ifconfig lo up > /dev/null')
 #out_h2::PortOut(port=h2)
 #out_h3::PortOut(port=h3)
 
-merge:Merge()
+merge::Merge()
 
 l2f::L2Forward()
 l2f.add(entries=[
