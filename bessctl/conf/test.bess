@@ -47,6 +47,9 @@ class2_1::DyscoClassifier()
 class3_1::DyscoClassifier()
 dyscocenter::DyscoCenter()
 
+
+#TODO: Use ExactMatching instead L2Forward to provide a simple L3 Forwarding
+
 l2f::L2Forward()
 l2f.add(entries=[
 	{'addr':'00:00:00:00:00:01', 'gate':0},
