@@ -21,6 +21,13 @@ os.system('ip netns exec h1 ifconfig lo up > /dev/null')
 os.system('ip netns exec h2 ifconfig lo up > /dev/null')
 os.system('ip netns exec h3 ifconfig lo up > /dev/null')
 
+os.system('ip netns exec h2 arp -s 10.0.1.1 00:00:00:00:01 > /dev/null')
+os.system('ip netns exec h3 arp -s 10.0.1.1 00:00:00:00:01 > /dev/null')
+os.system('ip netns exec h1 arp -s 10.0.1.1 00:00:00:00:02 > /dev/null')
+os.system('ip netns exec h3 arp -s 10.0.1.1 00:00:00:00:02 > /dev/null')
+os.system('ip netns exec h1 arp -s 10.0.1.1 00:00:00:00:03 > /dev/null')
+os.system('ip netns exec h2 arp -s 10.0.1.1 00:00:00:00:03 > /dev/null')
+
 out_h1::PortOut(port=h1)
 out_h2::PortOut(port=h2)
 out_h3::PortOut(port=h3)
@@ -32,8 +39,7 @@ l2f::L2Forward()
 l2f.add(entries=[
 	{'addr':'00:00:00:00:00:01', 'gate':0},
 	{'addr':'00:00:00:00:00:02', 'gate':1},
-	{'addr':'00:00:00:00:00:03', 'gate':2},
-	{'addr':'ff:ff:ff:ff:ff:ff', 'gate':3}])
+	{'addr':'00:00:00:00:00:03', 'gate':2}])
 	
 PortInc(port=h1) -> 0:merge
 PortInc(port=h2) -> 1:merge
@@ -44,7 +50,3 @@ merge -> l2f
 l2f:0 -> out_h1
 l2f:1 -> out_h2
 l2f:2 -> out_h3
-l2f:3 -> rr::RoundRobin()
-rr:0 -> out_h1
-rr:1 -> out_h2
-rr:2 -> out_h3
