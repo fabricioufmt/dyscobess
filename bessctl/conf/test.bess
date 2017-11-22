@@ -21,9 +21,9 @@ os.system('ip netns exec h1 ifconfig lo up > /dev/null')
 os.system('ip netns exec h2 ifconfig lo up > /dev/null')
 os.system('ip netns exec h3 ifconfig lo up > /dev/null')
 
-out_h1::PortOut(port=h1)
-out_h2::PortOut(port=h2)
-out_h3::PortOut(port=h3)
+#out_h1::PortOut(port=h1)
+#out_h2::PortOut(port=h2)
+#out_h3::PortOut(port=h3)
 
 
 PortInc(port=h1) -> PortOut(port=h2)
