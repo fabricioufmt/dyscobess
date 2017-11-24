@@ -11,14 +11,6 @@
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 
-#define MY_DEST_MAC0	0x00
-#define MY_DEST_MAC1	0x00
-#define MY_DEST_MAC2	0x00
-#define MY_DEST_MAC3	0x00
-#define MY_DEST_MAC4	0x00
-#define MY_DEST_MAC5	0x00
-
-#define DEFAULT_IF	"wlp2s0"
 #define BUF_SIZ		1500
 
 struct pseudo_header {
@@ -115,7 +107,7 @@ int main(int argc, char** argv) {
 	eh->ether_dhost[2] = 0;
 	eh->ether_dhost[3] = 0;
 	eh->ether_dhost[4] = 0;
-	eh->ether_dhost[5] = 0;
+	eh->ether_dhost[5] = argv[2][5] - 48;
 	/* Ethertype field */
 	eh->ether_type = htons(ETH_P_IP);
 	tx_len += sizeof(struct ether_header);
@@ -224,7 +216,7 @@ int main(int argc, char** argv) {
 	socket_address.sll_addr[2] = 0;
 	socket_address.sll_addr[3] = 0;
 	socket_address.sll_addr[4] = 0;
-	socket_address.sll_addr[5] = 0;
+	socket_address.sll_addr[5] = argv[2][5] - 48;
 
 	/* Send packet */
 	if (sendto(sockfd, sendbuf, tx_len, 0, (struct sockaddr*)&socket_address, sizeof(struct sockaddr_ll)) < 0)
