@@ -134,8 +134,8 @@ int main(int argc, char** argv) {
 	iph->ihl = 5;
 	iph->version = 4;
 	iph->tos = 0;
-	iph->tot_len = htonl(sizeof(struct iphdr) + sizeof(struct tcphdr) + payload_len);
-	iph->id = htonl (54321);
+	iph->tot_len = htons(sizeof(struct iphdr) + sizeof(struct tcphdr) + payload_len);
+	iph->id = htons(54321);
 	iph->frag_off = 0;
 	iph->ttl = 255;
 	iph->protocol = IPPROTO_TCP;
