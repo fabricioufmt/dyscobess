@@ -40,7 +40,7 @@ dyscocenter::DyscoCenter()
 
 PortInc(port=h1) -> class1
 class1:0 -> DyscoSynInc(dyscocenter=dyscocenter) -> 0:merge1
-class1:1 -> DyscoSynPInc(dyscocenter=dyscocenter) -> 1:merge1
+class1:1 -> DyscoSynInc(dyscocenter=dyscocenter) -> 1:merge1
 class1:2 -> DyscoNonSynInc(dyscocenter=dyscocenter) -> 2:merge1
 class1:3 -> 3:merge1
 
