@@ -34,6 +34,11 @@ bool DyscoNonSynInc::process_packet(bess::Packet* pkt) {
 	ip->dst = be32_t(supss->dip);
 	tcp->src_port = be16_t(supss->sport);
 	tcp->dst_port = be16_t(supss->dport);
+
+	ip->checksum = 0;
+	tcp->checksum = 0;
+	ip->checksum = bess::utils::CalculateIpv4Checksum(*ip);
+	tcp->checksum = bess::utils::CalculateIpv4TcpChecksum(*ip, *tcp);
 	
 	return true;
 }

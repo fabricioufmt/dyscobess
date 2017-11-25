@@ -49,6 +49,11 @@ bool DyscoSynOut::process_packet(bess::Packet* pkt) {
 	memcpy(payload + sizeof(DyscoTcpSession), filter->sc, filter->sc_len);
 
 	ip->length = be16_t(ip->length.value() + payload_len);
+
+	ip->checksum = 0;
+	tcp->checksum = 0;
+	ip->checksum = bess::utils::CalculateIpv4Checksum(*ip);
+	tcp->checksum = bess::utils::CalculateIpv4TcpChecksum(*ip, *tcp);
 	
 	return true;
 }
