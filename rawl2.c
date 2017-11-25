@@ -116,8 +116,8 @@ int main(int argc, char** argv) {
 	struct tcp_session ss;
 	ss.sip = inet_addr("10.0.1.1");
 	ss.dip = inet_addr("200.200.200.65");
-	ss.sport = 12345;
-	ss.dport = 8080;
+	ss.sport = htons(12345);
+	ss.dport = htons(8080);
 	unsigned int sc1 = inet_addr("192.168.1.254");
 	unsigned int sc2 = inet_addr("192.168.3.50");
 	unsigned int sc3 = inet_addr("200.200.200.250");
