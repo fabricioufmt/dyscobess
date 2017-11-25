@@ -29,6 +29,11 @@ void DyscoSynPInc::remove_payload(bess::Packet* pkt) {
 		pkt->trim(trim_len);
 		ip->length = ip->length - be16_t(trim_len);
 	}
+
+	ip->checksum = 0;
+	tcp->checksum = 0;
+	ip->checksum = bess::utils::CalculateIpv4Checksum(*ip);
+	tcp->checksum = bess::utils::CalculateIpv4TcpChecksum(*ip, *tcp);
 }
 
 bool DyscoSynPInc::process_packet(bess::Packet* pkt) {
