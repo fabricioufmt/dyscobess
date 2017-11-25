@@ -1,3 +1,4 @@
+#include <arpa/inet.h>
 #include "dysco_synp_inc.h"
 #include "../module_graph.h"
 
