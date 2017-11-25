@@ -45,10 +45,14 @@ bool DyscoSynPInc::process_packet(bess::Packet* pkt) {
 	
 	dyscocenter->add_mapping(ip, tcp, payload, payload_len);
 	
-	ip->src = be32_t(supss->sip);
+	/*ip->src = be32_t(supss->sip);
 	ip->dst = be32_t(supss->dip);
 	tcp->src_port = be16_t(supss->sport);
-	tcp->dst_port = be16_t(supss->dport);
+	tcp->dst_port = be16_t(supss->dport);*/
+	ip->src = supss->sip;
+	ip->dst = supss->dip;
+	tcp->src_port = supss->sport;
+	tcp->dst_port = supss->dport;
 
 	return true;
 }
