@@ -58,7 +58,7 @@ bool DyscoSynOut::process_packet(bess::Packet* pkt) {
 	return true;
 }
 
-char* printip(uint32_t ip) {
+char* printip1(uint32_t ip) {
 	uint8_t bytes[4];
         char* buf = (char*) malloc(17);
 	
@@ -77,8 +77,8 @@ void DyscoSynOut::debug_info(bess::Packet* pkt) {
 	Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
 
 	fprintf(stderr, "DyscoSynInc: %s:%u -> %s:%u\n",
-		printip(ntohl(ip->src.value())), ntohs(tcp->src_port.value()),
-		printip(ntohl(ip->dst.value())), ntohs(tcp->dst_port.value()));
+		printip1(ntohl(ip->src.value())), ntohs(tcp->src_port.value()),
+		printip1(ntohl(ip->dst.value())), ntohs(tcp->dst_port.value()));
 }
 
 /*
