@@ -91,11 +91,13 @@ DyscoControlBlock* DyscoCenter::get_controlblock_supss(Ipv4* ip, Tcp* tcp) {
 	DyscoTcpSession::EqualTo equals;
 	HashTable::iterator it = map.begin();
 	while(it != map.end()) {
-		if(equals(ss, (*it).second.supss))
+		if(equals(ss, (*it).second.supss)) {
+			fprintf(stderr, "DyscoCenter(get_controlblock_supss): found.\n");
 			return &(*it).second;
+		}
 		it++;
 	}
-	
+	fprintf(stderr, "DyscoCenter(get_controlblock_supss): not found.\n");
 	return 0;
 }
 
