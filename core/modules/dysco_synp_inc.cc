@@ -47,6 +47,9 @@ bool DyscoSynPInc::process_packet(bess::Packet* pkt) {
 	DyscoTcpSession* supss = reinterpret_cast<DyscoTcpSession*>(payload);
 
 	if(!dyscocenter)
+		fprintf(stderr, "DyscoSynPInc: dyscocenter is NULL.\n");
+	
+	if(!dyscocenter)
 		return false;
 
 	fprintf(stderr, "DyscoSynPInc: calling add_mapping method.\n");
