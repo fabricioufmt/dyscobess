@@ -30,7 +30,7 @@ class DyscoSynOut final : public Module {
 	}
 	CommandResponse Init(const bess::pb::DyscoSynOutArg&);
 	void ProcessBatch(bess::PacketBatch*) override;
-	void debug_info(bess::Packet*);
+	void debug_info(bess::Packet*, char*);
 
  private:
 	DyscoCenter* dyscocenter;

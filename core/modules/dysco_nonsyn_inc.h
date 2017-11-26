@@ -30,7 +30,7 @@ class DyscoNonSynInc final : public Module {
 	}
 	CommandResponse Init(const bess::pb::DyscoNonSynIncArg&);
 	void ProcessBatch(bess::PacketBatch*) override;
-	void debug_info(bess::Packet*);
+	void debug_info(bess::Packet*, char* dir);
 
  private:
 	DyscoCenter* dyscocenter;

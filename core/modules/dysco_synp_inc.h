@@ -35,7 +35,7 @@ class DyscoSynPInc final : public Module {
 	DyscoCenter* dyscocenter;
 	bool process_packet(bess::Packet*);
 	void remove_payload(bess::Packet*);
-	void debug_info(bess::Packet*);
+	void debug_info(bess::Packet*, char* dir);
 };
 
 #endif //BESS_MODULES_DYSCOSYNPINC_H_

@@ -56,12 +56,12 @@ char* printip4(uint32_t ip) {
         return buf;
 }
 
-void DyscoNonSynInc::debug_info(bess::Packet* pkt) {
+void DyscoNonSynInc::debug_info(bess::Packet* pkt, char* dir) {
 	Ipv4* ip = reinterpret_cast<Ipv4*>(pkt->head_data<Ethernet*>() + 1);
 	size_t ip_hlen = ip->header_length << 2;
 	Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
 
-	fprintf(stderr, "DyscoNonSynInc: %s:%u -> %s:%u\n",
+	fprintf(stderr, "DyscoNonSynInc(%s): %s:%u -> %s:%u\n", dir
 		printip4(ip->src.value()), tcp->src_port.value(),
 		printip4(ip->dst.value()), tcp->dst_port.value());
 }
@@ -72,9 +72,9 @@ void DyscoNonSynInc::ProcessBatch(bess::PacketBatch* batch) {
 	bess::Packet* pkt;
 	for(int i = 0; i < cnt; i++) {
 		pkt = batch->pkts()[i];
-		debug_info(pkt);
+		debug_info(pkt, "in");
 		process_packet(pkt);
-		debug_info(pkt);
+		debug_info(pkt, "out");
 	}
 	
 	RunChooseModule(0, batch);
