@@ -48,7 +48,8 @@ bool DyscoSynPInc::process_packet(bess::Packet* pkt) {
 
 	if(!dyscocenter)
 		fprintf(stderr, "DyscoSynPInc: dyscocenter is NULL.\n");
-	
+	else
+		fprintf(stderr, "DyscoSynPInc: dyscocenter is not NULL.\n");
 	if(!dyscocenter)
 		return false;
 
