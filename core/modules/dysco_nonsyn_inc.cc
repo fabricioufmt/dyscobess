@@ -72,9 +72,9 @@ void DyscoNonSynInc::ProcessBatch(bess::PacketBatch* batch) {
 	bess::Packet* pkt;
 	for(int i = 0; i < cnt; i++) {
 		pkt = batch->pkts()[i];
-		debug_info(pkt, "in");
+		debug_info(pkt, (char*)"in");
 		process_packet(pkt);
-		debug_info(pkt, "out");
+		debug_info(pkt, (char*)"out");
 	}
 	
 	RunChooseModule(0, batch);
