@@ -61,7 +61,7 @@ void DyscoNonSynInc::debug_info(bess::Packet* pkt, char* dir) {
 	size_t ip_hlen = ip->header_length << 2;
 	Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
 
-	fprintf(stderr, "DyscoNonSynInc(%s): %s:%u -> %s:%u\n", dir
+	fprintf(stderr, "DyscoNonSynInc(%s): %s:%u -> %s:%u\n", dir,
 		printip4(ip->src.value()), tcp->src_port.value(),
 		printip4(ip->dst.value()), tcp->dst_port.value());
 }
