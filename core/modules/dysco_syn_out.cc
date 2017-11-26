@@ -34,6 +34,11 @@ bool DyscoSynOut::process_packet(bess::Packet* pkt) {
 	DyscoBPF::Filter* filter = dyscocenter->get_filter(pkt);
 	DyscoControlBlock* cb = dyscocenter->get_controlblock_supss(ip, tcp);
 
+	if(!cb)
+		fprintf(stderr, "DyscoSynOut: cb is NULL\n");
+	if(!filter)
+		fprintf(stderr, "DyscoSynOut: filter is NULL\n");		
+	
 	if(!cb || !filter)
 		return false;
 	
