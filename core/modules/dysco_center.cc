@@ -108,8 +108,8 @@ bool DyscoCenter::add_policy_rule(uint32_t priority, std::string exp, uint8_t* s
 }
 
 bool DyscoCenter::add_mapping(Ipv4* ip, Tcp* tcp, uint8_t* payload, uint32_t payload_len) {
-	DyscoControlBlock cb;
 	DyscoTcpSession ss;
+	DyscoControlBlock cb;
 
 	ss.sip = htonl(ip->src.value());
 	ss.dip = htonl(ip->dst.value());
@@ -127,14 +127,14 @@ bool DyscoCenter::add_mapping(Ipv4* ip, Tcp* tcp, uint8_t* payload, uint32_t pay
 		memcpy(cb.sc, payload + sizeof(DyscoTcpSession) + sizeof(uint32_t), sc_len);
 		cb.sc_len = sc_len;
 		cb.nextss.sip = cb.subss.dip;
-		cb.nextss.dip = *((uint32_t*) cb.sc);
+		cb.nextss.dip = *((uint32_t*) payload + sizeof(DyscoTcpSession));
 		cb.nextss.sport = htons((rand() % 1000 + 10000));
 		cb.nextss.dport = htons((rand() % 1000 + 30000));
 	}
 	map.Insert(ss, cb);
 	fprintf(stderr, "DyscoCenter(add_mapping): %s:%u -> %s:%u\n",
-		printip0(cb.supss.sip), cb.supss.sport,
-		printip0(cb.supss.dip), cb.supss.dport);
+		printip0(ntohl(cb.supss.sip)), ntohs(cb.supss.sport),
+		printip0(ntohl(cb.supss.dip)), ntohs(cb.supss.dport));
 	
 	//TODO: check with Ronaldo, if this is really necessary
 	char buf[256];
