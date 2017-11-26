@@ -17,9 +17,9 @@ CommandResponse DyscoSynInc::Init(const bess::pb::DyscoSynIncArg& arg) {
 	return CommandSuccess();
 }
 
-int8_t* printip(uint32_t ip) {
+char* printip(uint32_t ip) {
 	uint8_t bytes[4];
-        int8_t* buf = (int8_t*) malloc(17);
+        char* buf = (char*) malloc(17);
 	
         bytes[0] = ip & 0xFF;
         bytes[1] = (ip >> 8) & 0xFF;
