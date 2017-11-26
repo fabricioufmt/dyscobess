@@ -78,8 +78,8 @@ void DyscoSynPInc::debug_info(bess::Packet* pkt) {
 	Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
 
 	fprintf(stderr, "DyscoSynPInc: %s:%u -> %s:%u\n",
-		printip2(ntohl(ip->src.value())), ntohs(tcp->src_port.value()),
-		printip2(ntohl(ip->dst.value())), ntohs(tcp->dst_port.value()));
+		printip2(ip->src.value()), tcp->src_port.value(),
+		printip2(ip->dst.value()), tcp->dst_port.value());
 }
 
 void DyscoSynPInc::ProcessBatch(bess::PacketBatch* batch) {
@@ -88,6 +88,7 @@ void DyscoSynPInc::ProcessBatch(bess::PacketBatch* batch) {
 	bess::Packet* pkt;
 	for(int i = 0; i < cnt; i++) {
 		pkt = batch->pkts()[i];
+		debug_info(pkt);
 		process_packet(pkt);
 		remove_payload(pkt);
 		debug_info(pkt);

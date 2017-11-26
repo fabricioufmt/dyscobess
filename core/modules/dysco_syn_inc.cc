@@ -36,8 +36,8 @@ void DyscoSynInc::debug_info(bess::Packet* pkt) {
 	Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
 
 	fprintf(stderr, "DyscoSynInc: %s:%u -> %s:%u\n",
-		printip(ntohl(ip->src.value())), ntohs(tcp->src_port.value()),
-		printip(ntohl(ip->dst.value())), ntohs(tcp->dst_port.value()));
+		printip(ip->src.value()), tcp->src_port.value(),
+		printip(ip->dst.value()), tcp->dst_port.value());
 }
 
 /*

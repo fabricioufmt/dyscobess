@@ -72,8 +72,8 @@ void DyscoSynPOut::debug_info(bess::Packet* pkt) {
 	Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
 
 	fprintf(stderr, "DyscoSynPOut: %s:%u -> %s:%u\n",
-		printip3(ntohl(ip->src.value())), ntohs(tcp->src_port.value()),
-		printip3(ntohl(ip->dst.value())), ntohs(tcp->dst_port.value()));
+		printip3(ip->src.value()), tcp->src_port.value(),
+		printip3(ip->dst.value()), tcp->dst_port.value());
 }
 
 /*

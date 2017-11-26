@@ -63,8 +63,8 @@ void DyscoNonSynOut::debug_info(bess::Packet* pkt) {
 	Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
 
 	fprintf(stderr, "DyscoNonSynOut: %s:%u -> %s:%u\n",
-		printip5(ntohl(ip->src.value())), ntohs(tcp->src_port.value()),
-		printip5(ntohl(ip->dst.value())), ntohs(tcp->dst_port.value()));
+		printip5(ip->src.value()), tcp->src_port.value(),
+		printip5(ip->dst.value()), tcp->dst_port.value());
 }
 
 void DyscoNonSynOut::ProcessBatch(bess::PacketBatch* batch) {
@@ -73,6 +73,7 @@ void DyscoNonSynOut::ProcessBatch(bess::PacketBatch* batch) {
 	bess::Packet* pkt;
 	for(int i = 0; i < cnt; i++) {
 		pkt = batch->pkts()[i];
+		debug_info(pkt);
 		process_packet(pkt);
 		debug_info(pkt);
 	}
