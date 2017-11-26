@@ -50,24 +50,28 @@ class2:1 -> DyscoSynPInc(dyscocenter=dyscocenter) -> 1:merge2
 class2:2 -> DyscoNonSynInc(dyscocenter=dyscocenter) -> 2:merge2
 class2:3 -> 3:merge2
 
-merge1 -> out_h2 
-merge2 -> out_h1
+#merge1 -> out_h2 
+#merge2 -> out_h1
 #merge1 -> 0:merge
 #merge2 -> 1:merge
 
 #merge -> l2f
 
 #l2f:0 -> class1_1
-#class1_1:0 -> DyscoSynOut(dyscocenter=dyscocenter) -> 0:merge1_1
-#class1_1:1 -> DyscoSynPOut(dyscocenter=dyscocenter) -> 1:merge1_1
-#class1_1:2 -> DyscoNonSynOut(dyscocenter=dyscocenter) -> 2:merge1_1
-#class1_1:3 -> 3:merge1_1
+merge1 -> class1_1
+class1_1:0 -> DyscoSynOut(dyscocenter=dyscocenter) -> 0:merge1_1
+class1_1:1 -> DyscoSynPOut(dyscocenter=dyscocenter) -> 1:merge1_1
+class1_1:2 -> DyscoNonSynOut(dyscocenter=dyscocenter) -> 2:merge1_1
+class1_1:3 -> 3:merge1_1
 
 #l2f:1 -> class2_1
-#class2_1:0 -> DyscoSynOut(dyscocenter=dyscocenter) -> 0:merge2_1
-#class2_1:1 -> DyscoSynPOut(dyscocenter=dyscocenter) -> 1:merge2_1
-#class2_1:2 -> DyscoNonSynOut(dyscocenter=dyscocenter) -> 2:merge2_1
-#class2_1:3 -> 3:merge2_1
+merge2 -> class2_1
+class2_1:0 -> DyscoSynOut(dyscocenter=dyscocenter) -> 0:merge2_1
+class2_1:1 -> DyscoSynPOut(dyscocenter=dyscocenter) -> 1:merge2_1
+class2_1:2 -> DyscoNonSynOut(dyscocenter=dyscocenter) -> 2:merge2_1
+class2_1:3 -> 3:merge2_1
 
 #merge1_1 -> out_h1
 #merge2_1 -> out_h2
+merge1_1 -> out_h2
+merge2_1 -> out_h1
