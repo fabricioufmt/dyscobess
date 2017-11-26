@@ -1,6 +1,9 @@
 #ifndef BESS_MODULES_DYSCOSYNINC_H_
 #define BESS_MODULES_DYSCOSYNINC_H_
 
+#include <stdio.h>
+#include <arpa/inet.h>
+
 #include "../module.h"
 #include "../pb/module_msg.pb.h"
 #include "dysco_center.h"
@@ -26,6 +29,7 @@ class DyscoSynInc final : public Module {
 	}
 	CommandResponse Init(const bess::pb::DyscoSynIncArg&);
 	void ProcessBatch(bess::PacketBatch*) override;
+	void debug_info(bess::Packet*);
 
  private:
 	DyscoCenter* dyscocenter;

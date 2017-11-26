@@ -72,4 +72,4 @@ void DyscoSynPInc::ProcessBatch(bess::PacketBatch* batch) {
 	RunChooseModule(0, batch);
 }
 
-ADD_MODULE(DyscoSynPInc, "dysco_synp_inc", "processes TCP SYN with Payload segments incoming.")
+ADD_MODULE(DyscoSynPInc, "dysco_synp_inc", "processes TCP SYN with Payload segments incoming")
