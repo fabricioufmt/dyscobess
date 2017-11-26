@@ -128,7 +128,7 @@ bool DyscoCenter::add_mapping(Ipv4* ip, Tcp* tcp, uint8_t* payload, uint32_t pay
 	inet_ntop(AF_INET, &srcip, ipsrc, INET_ADDRSTRLEN);
 	inet_ntop(AF_INET, &dstip, ipdst, INET_ADDRSTRLEN);
 	sprintf(buf, "src host %s and dst host %s and src port %u and dst port %u",
-		ipsrc, ipdst, cb.supss.sport, cb.supss.dport);
+		ipsrc, ipdst, ntohs(cb.supss.sport), ntohs(cb.supss.dport));
 	//debug
 	fprintf(stderr, "DyscoCenter: %s\n", buf);
 	std::string exp(buf, strlen(buf));
