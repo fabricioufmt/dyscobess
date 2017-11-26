@@ -82,7 +82,7 @@ void DyscoSynPOut::debug_info(bess::Packet* pkt, char* dir) {
 void DyscoSynPOut::ProcessBatch(bess::PacketBatch* batch) {
 	int cnt = batch->cnt();
 
-	bess::Packet* pkt;
+	bess::Packet* pkt = 0;
 	for(int i = 0; i < cnt; i++) {
 		debug_info(pkt, (char*)"in");
 		pkt = batch->pkts()[i];
