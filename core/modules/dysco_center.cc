@@ -64,6 +64,19 @@ DyscoControlBlock* DyscoCenter::get_controlblock(Ipv4* ip, Tcp* tcp) {
 	return 0;
 }
 
+char* printip0(uint32_t ip) {
+	uint8_t bytes[4];
+        char* buf = (char*) malloc(17);
+	
+        bytes[0] = ip & 0xFF;
+        bytes[1] = (ip >> 8) & 0xFF;
+        bytes[2] = (ip >> 16) & 0xFF;
+        bytes[3] = (ip >> 24) & 0xFF;
+        sprintf(buf, "%d.%d.%d.%d", bytes[3], bytes[2], bytes[1], bytes[0]);
+
+        return buf;
+}
+
 DyscoControlBlock* DyscoCenter::get_controlblock_supss(Ipv4* ip, Tcp* tcp) {
 	DyscoTcpSession ss;
 
@@ -71,7 +84,9 @@ DyscoControlBlock* DyscoCenter::get_controlblock_supss(Ipv4* ip, Tcp* tcp) {
 	ss.dip = ip->dst.value();
 	ss.sport = tcp->src_port.value();
 	ss.dport = tcp->dst_port.value();
-
+	fprintf(stderr, "DyscoCenter(get_controlblock_supss): %s:%u -> %s:%u\n",
+		printip1(ip->src.value()), tcp->src_port.value(),
+		printip1(ip->dst.value()), tcp->dst_port.value());
 	DyscoTcpSession::EqualTo equals;
 	HashTable::iterator it = map.begin();
 	while(it != map.end()) {
