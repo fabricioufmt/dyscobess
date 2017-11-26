@@ -76,7 +76,7 @@ void DyscoSynOut::debug_info(bess::Packet* pkt) {
 	size_t ip_hlen = ip->header_length << 2;
 	Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
 
-	fprintf(stderr, "DyscoSynInc: %s:%u -> %s:%u\n",
+	fprintf(stderr, "DyscoSynOut: %s:%u -> %s:%u\n",
 		printip1(ntohl(ip->src.value())), ntohs(tcp->src_port.value()),
 		printip1(ntohl(ip->dst.value())), ntohs(tcp->dst_port.value()));
 }
@@ -91,6 +91,7 @@ void DyscoSynOut::ProcessBatch(bess::PacketBatch* batch) {
 	for(int i = 0; i < cnt; i++) {
 		pkt = batch->pkts()[i];
 		process_packet(pkt);
+		debug_info(pkt);
 	}
 	
 	RunChooseModule(0, batch);

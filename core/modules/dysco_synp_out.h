@@ -1,6 +1,9 @@
 #ifndef BESS_MODULES_DYSCOSYNPOUT_H_
 #define BESS_MODULES_DYSCOSYNPOUT_H_
 
+#include <stdio.h>
+#include <arpa/inet.h>
+
 #include "../module.h"
 #include "../pb/module_msg.pb.h"
 #include "dysco_center.h"
@@ -31,6 +34,7 @@ class DyscoSynPOut final : public Module {
 	DyscoCenter* dyscocenter;
 	bool process_packet(bess::Packet*);
 	void remove_payload(bess::Packet*);
+	void debug_info(bess::Packet*);
 };
 
 #endif //BESS_MODULES_DYSCOSYNPOUT_H_

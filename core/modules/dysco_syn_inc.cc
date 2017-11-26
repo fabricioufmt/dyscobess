@@ -44,7 +44,6 @@ void DyscoSynInc::debug_info(bess::Packet* pkt) {
   When DyscoSynInc receives SYN segment, it forwards this segment.
  */
 void DyscoSynInc::ProcessBatch(bess::PacketBatch* batch) {
-	//RunChooseModule(0, batch);
 	int cnt = batch->cnt();
 
 	bess::Packet* pkt;
@@ -52,6 +51,7 @@ void DyscoSynInc::ProcessBatch(bess::PacketBatch* batch) {
 		pkt = batch->pkts()[i];
 		debug_info(pkt);
 	}
+	RunChooseModule(0, batch);
 }
 
 ADD_MODULE(DyscoSynInc, "dysco_syn_inc", "processes TCP SYN segments incoming")

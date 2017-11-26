@@ -59,6 +59,29 @@ bool DyscoSynPInc::process_packet(bess::Packet* pkt) {
 	return true;
 }
 
+char* printip2(uint32_t ip) {
+	uint8_t bytes[4];
+        char* buf = (char*) malloc(17);
+	
+        bytes[0] = ip & 0xFF;
+        bytes[1] = (ip >> 8) & 0xFF;
+        bytes[2] = (ip >> 16) & 0xFF;
+        bytes[3] = (ip >> 24) & 0xFF;
+        sprintf(buf, "%d.%d.%d.%d", bytes[3], bytes[2], bytes[1], bytes[0]);
+
+        return buf;
+}
+
+void DyscoSynPInc::debug_info(bess::Packet* pkt) {
+	Ipv4* ip = reinterpret_cast<Ipv4*>(pkt->head_data<Ethernet*>() + 1);
+	size_t ip_hlen = ip->header_length << 2;
+	Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
+
+	fprintf(stderr, "DyscoSynPInc: %s:%u -> %s:%u\n",
+		printip2(ntohl(ip->src.value())), ntohs(tcp->src_port.value()),
+		printip2(ntohl(ip->dst.value())), ntohs(tcp->dst_port.value()));
+}
+
 void DyscoSynPInc::ProcessBatch(bess::PacketBatch* batch) {
 	int cnt = batch->cnt();
 
@@ -67,6 +90,7 @@ void DyscoSynPInc::ProcessBatch(bess::PacketBatch* batch) {
 		pkt = batch->pkts()[i];
 		process_packet(pkt);
 		remove_payload(pkt);
+		debug_info(pkt);
 	}
 	
 	RunChooseModule(0, batch);
