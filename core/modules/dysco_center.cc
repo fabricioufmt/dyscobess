@@ -10,10 +10,10 @@ DyscoCenter::DyscoCenter() : Module() {
 DyscoTcpSession* DyscoCenter::get_supss(Ipv4* ip, Tcp* tcp) {
 	DyscoTcpSession ss;
 
-	ss.sip = ip->src.value();
-	ss.dip = ip->dst.value();
-	ss.sport = tcp->src_port.value();
-	ss.dport = tcp->dst_port.value();
+	ss.sip = htonl(ip->src.value());
+	ss.dip = htonl(ip->dst.value());
+	ss.sport = htons(tcp->src_port.value());
+	ss.dport = htons(tcp->dst_port.value());
 
 	DyscoTcpSession::EqualTo equals;
 	HashTable::iterator it = map.begin();
@@ -29,11 +29,11 @@ DyscoTcpSession* DyscoCenter::get_supss(Ipv4* ip, Tcp* tcp) {
 DyscoTcpSession* DyscoCenter::get_nextss(Ipv4* ip, Tcp* tcp) {
 	DyscoTcpSession ss;
 
-	ss.sip = ip->src.value();
-	ss.dip = ip->dst.value();
-	ss.sport = tcp->src_port.value();
-	ss.dport = tcp->dst_port.value();
-
+	ss.sip = htonl(ip->src.value());
+	ss.dip = htonl(ip->dst.value());
+	ss.sport = htons(tcp->src_port.value());
+	ss.dport = htons(tcp->dst_port.value());
+	
 	DyscoTcpSession::EqualTo equals;
 	HashTable::iterator it = map.begin();
 	while(it != map.end()) {
@@ -48,11 +48,11 @@ DyscoTcpSession* DyscoCenter::get_nextss(Ipv4* ip, Tcp* tcp) {
 DyscoControlBlock* DyscoCenter::get_controlblock(Ipv4* ip, Tcp* tcp) {
 	DyscoTcpSession ss;
 
-	ss.sip = ip->src.value();
-	ss.dip = ip->dst.value();
-	ss.sport = tcp->src_port.value();
-	ss.dport = tcp->dst_port.value();
-
+	ss.sip = htonl(ip->src.value());
+	ss.dip = htonl(ip->dst.value());
+	ss.sport = htons(tcp->src_port.value());
+	ss.dport = htons(tcp->dst_port.value());
+	
 	DyscoTcpSession::EqualTo equals;
 	HashTable::iterator it = map.begin();
 	while(it != map.end()) {
@@ -80,10 +80,11 @@ char* printip0(uint32_t ip) {
 DyscoControlBlock* DyscoCenter::get_controlblock_supss(Ipv4* ip, Tcp* tcp) {
 	DyscoTcpSession ss;
 
-	ss.sip = ip->src.value();
-	ss.dip = ip->dst.value();
-	ss.sport = tcp->src_port.value();
-	ss.dport = tcp->dst_port.value();
+	ss.sip = htonl(ip->src.value());
+	ss.dip = htonl(ip->dst.value());
+	ss.sport = htons(tcp->src_port.value());
+	ss.dport = htons(tcp->dst_port.value());
+	
 	fprintf(stderr, "DyscoCenter(get_controlblock_supss): %s:%u -> %s:%u\n",
 		printip0(ip->src.value()), tcp->src_port.value(),
 		printip0(ip->dst.value()), tcp->dst_port.value());
@@ -110,10 +111,10 @@ bool DyscoCenter::add_mapping(Ipv4* ip, Tcp* tcp, uint8_t* payload, uint32_t pay
 	DyscoControlBlock cb;
 	DyscoTcpSession ss;
 
-	ss.sip = ip->src.value();
-	ss.dip = ip->dst.value();
-	ss.sport = tcp->src_port.value();
-	ss.dport = tcp->dst_port.value();
+	ss.sip = htonl(ip->src.value());
+	ss.dip = htonl(ip->dst.value());
+	ss.sport = htons(tcp->src_port.value());
+	ss.dport = htons(tcp->dst_port.value());
 	cb.subss = ss;
 	memcpy(&cb.supss, (DyscoTcpSession*) payload, sizeof(DyscoTcpSession));
 	
@@ -127,8 +128,8 @@ bool DyscoCenter::add_mapping(Ipv4* ip, Tcp* tcp, uint8_t* payload, uint32_t pay
 		cb.sc_len = sc_len;
 		cb.nextss.sip = cb.subss.dip;
 		cb.nextss.dip = *((uint32_t*) cb.sc);
-		cb.nextss.sport = (rand() % 1000 + 10000);
-		cb.nextss.dport = (rand() % 1000 + 30000);
+		cb.nextss.sport = htons((rand() % 1000 + 10000));
+		cb.nextss.dport = htons((rand() % 1000 + 30000));
 	}
 	map.Insert(ss, cb);
 	fprintf(stderr, "DyscoCenter(add_mapping): %s:%u -> %s:%u\n",
