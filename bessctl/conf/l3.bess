@@ -13,8 +13,8 @@ os.system('echo 1 > /proc/sys/net/ipv4/ip_forward')
 
 h1::VPort(ifname='h1-0', netns='/var/run/netns/h1', ip_addrs=['10.1.1.1/24'])
 h2::VPort(ifname='h2-0', netns='/var/run/netns/h2', ip_addrs=['10.1.1.2/24'])
-h2::VPort(ifname='h3-0', netns='/var/run/netns/h3', ip_addrs=['10.1.1.3/24'])
-h2::VPort(ifname='h4-0', netns='/var/run/netns/h4', ip_addrs=['10.1.1.4/24'])
+h3::VPort(ifname='h3-0', netns='/var/run/netns/h3', ip_addrs=['10.1.1.3/24'])
+h4::VPort(ifname='h4-0', netns='/var/run/netns/h4', ip_addrs=['10.1.1.4/24'])
 
 os.system('ip netns exec h1 ifconfig lo up > /dev/null')
 os.system('ip netns exec h2 ifconfig lo up > /dev/null')
