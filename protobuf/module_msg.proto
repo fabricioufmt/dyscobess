@@ -1130,7 +1130,7 @@ message DyscoNonSynOutArg {
 message DyscoCenterAddArg {
 	uint32 priority = 1;
 	uint32 sc_len = 2;
-	repeted string chain = 3;
+	repeated string chain = 3;
 	string filter = 4;
 }
 
