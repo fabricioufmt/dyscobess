@@ -9,15 +9,17 @@ DyscoCenter::DyscoCenter() : Module() {
 
 CommandResponse DyscoCenter::CommandAdd(const bess::pb::DyscoCenterAddArg& arg) {
 	//TODO
+	fprintf(stderr, "Add: priority: %d\n", arg.priority());	
 	return CommandSuccess();
 }
 
 CommandResponse DyscoCenter::CommandDel(const bess::pb::DyscoCenterDelArg& arg) {
 	//TODO
+	fprintf(stderr, "Del: priority: %d\n", arg.priority());
 	return CommandSuccess();
 }
 
-CommandResponse DyscoCenter::CommandList(const bess::pb::DyscoCenterListArg& arg) {
+CommandResponse DyscoCenter::CommandList(const bess::pb::EmptyArg&) {
 	//TODO
 	return CommandSuccess();
 }

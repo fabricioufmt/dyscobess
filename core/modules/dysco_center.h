@@ -63,7 +63,7 @@ class DyscoCenter final : public Module {
 	DyscoBPF::Filter* get_filter(bess::Packet*);
 	CommandResponse CommandAdd(const bess::pb::DyscoCenterAddArg&);
 	CommandResponse CommandDel(const bess::pb::DyscoCenterDelArg&);
-	CommandResponse CommandList(const bess::pb::DyscoCenterListArg&);
+	CommandResponse CommandList(const bess::pb::EmptyArg&);
 	
  private:
 	using HashTable = bess::utils::CuckooMap<DyscoTcpSession, DyscoControlBlock, DyscoTcpSession::Hash, DyscoTcpSession::EqualTo>;
