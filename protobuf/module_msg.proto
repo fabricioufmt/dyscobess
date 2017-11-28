@@ -1126,3 +1126,19 @@ message DyscoNonSynIncArg {
 message DyscoNonSynOutArg {
 	string dyscocenter = 1;
 }
+
+message DyscoCenterAddArg {
+	uint32 priority = 1;
+	uint32 sc_len = 2;
+	repetead string chain = 3;
+	string filter = 4;
+}
+
+message DyscoCenterDelArg {
+	uint32 priority = 1;
+	string filter = 2;
+}
+
+message DyscoCenterListArg {
+
+}

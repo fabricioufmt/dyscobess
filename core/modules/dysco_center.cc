@@ -7,6 +7,21 @@ DyscoCenter::DyscoCenter() : Module() {
 	bpf = new DyscoBPF();
 }
 
+CommandResponse DyscoCenter::CommandAdd(const bess::pb::DyscoCenterAddArg& arg) {
+	//TODO
+	return CommandSuccess();
+}
+
+CommandResponse DyscoCenter::CommandDel(const bess::pb::DyscoCenterDelArg& arg) {
+	//TODO
+	return CommandSuccess();
+}
+
+CommandResponse DyscoCenter::CommandList(const bess::pb::DyscoCenterListArg& arg) {
+	//TODO
+	return CommandSuccess();
+}
+
 DyscoTcpSession* DyscoCenter::get_supss(Ipv4* ip, Tcp* tcp) {
 	DyscoTcpSession ss;
 
