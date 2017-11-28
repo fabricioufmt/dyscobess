@@ -50,6 +50,8 @@ class DyscoControlBlock {
 
 class DyscoCenter final : public Module {
  public:
+	static const Commands cmds;
+	
 	static const gate_idx_t kNumIGates = 0;
 	static const gate_idx_t kNumOGates = 0;
 	DyscoCenter();

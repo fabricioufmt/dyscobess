@@ -3,6 +3,13 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
+const Commands DyscoCenter::cmds = {
+	{"add", "DyscoCenterAddArg", MODULE_CMD_FUNC(&DyscoCenter::CommandAdd), Command::THREAD_UNSAFE},
+	{"del", "DyscoCenterDelArg", MODULE_CMD_FUNC(&DyscoCenter::CommandDel), Command::THREAD_UNSAFE},
+	{"list", "EmptyArg", MODULE_CMD_FUNC(&DyscoCenter::CommandList), Command::THREAD_UNSAFE}
+};
+
+
 DyscoCenter::DyscoCenter() : Module() {
 	bpf = new DyscoBPF();
 }
