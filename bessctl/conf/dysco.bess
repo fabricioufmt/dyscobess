@@ -99,10 +99,10 @@ class1_1:2 -> DyscoNonSynOut(dyscocenter=dyscocenter) -> 2:merge1_1
 class1_1:3 -> 3:merge1_1
 
 ipl:1 -> class2_1
-class1_2:0 -> DyscoSynOut(dyscocenter=dyscocenter) -> 0:merge2_1
-class1_2:1 -> DyscoSynPOut(dyscocenter=dyscocenter) -> 1:merge2_1
-class1_2:2 -> DyscoNonSynOut(dyscocenter=dyscocenter) -> 2:merge2_1
-class1_2:3 -> 3:merge2_1
+class2_1:0 -> DyscoSynOut(dyscocenter=dyscocenter) -> 0:merge2_1
+class2_1:1 -> DyscoSynPOut(dyscocenter=dyscocenter) -> 1:merge2_1
+class2_1:2 -> DyscoNonSynOut(dyscocenter=dyscocenter) -> 2:merge2_1
+class2_1:3 -> 3:merge2_1
 
 ipl:2 -> class3_1
 class3_1:0 -> DyscoSynOut(dyscocenter=dyscocenter) -> 0:merge3_1
