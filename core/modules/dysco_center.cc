@@ -17,8 +17,7 @@ DyscoCenter::DyscoCenter() : Module() {
 CommandResponse DyscoCenter::CommandAdd(const bess::pb::DyscoCenterAddArg& arg) {
 	//TODO
 	int i;
-	fprintf(stderr, "[DyscoCenterAdd]: priority: %d,
-sc_len: %d, chain:", arg.priority(), arg.sc_len());
+	fprintf(stderr, "[DyscoCenterAdd]: priority: %d, sc_len: %d, chain:", arg.priority(), arg.sc_len());
 	for(i = 0; i < arg.sc_len(); i++)
 		fprintf(stderr, " %s", arg.chain[i]);
 	fprintf(stderr, ", filter: %s\n", arg.filter());
