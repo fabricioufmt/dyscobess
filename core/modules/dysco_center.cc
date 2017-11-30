@@ -19,7 +19,7 @@ CommandResponse DyscoCenter::CommandAdd(const bess::pb::DyscoCenterAddArg& arg) 
 	//uint32_t i;
 	fprintf(stderr, "[DyscoCenterAdd]: priority: %d, sc_len: %d, chain:", arg.priority(), arg.sc_len());
 	for(std::string s : arg.chain())
-		fprintf(stderr, " %s", s);
+		fprintf(stderr, " %s", s.c_str());
 	//for(i = 0; i < arg.sc_len(); i++)
 	//fprintf(stderr, " %s", arg.chain());
 	fprintf(stderr, ", filter: %s\n", arg.filter().c_str());
