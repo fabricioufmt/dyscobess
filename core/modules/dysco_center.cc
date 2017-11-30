@@ -18,9 +18,9 @@ CommandResponse DyscoCenter::CommandAdd(const bess::pb::DyscoCenterAddArg& arg) 
 	//TODO
 	uint32_t i;
 	fprintf(stderr, "[DyscoCenterAdd]: priority: %d, sc_len: %d, chain:", arg.priority(), arg.sc_len());
-	for(i = 0; i < arg.sc_len(); i++)
-		fprintf(stderr, " %s", arg.chain()[i]);
-	fprintf(stderr, ", filter: %s\n", arg.filter()->c_str());
+	//for(i = 0; i < arg.sc_len(); i++)
+		fprintf(stderr, " %s", arg.chain());
+	fprintf(stderr, ", filter: %s\n", arg.filter().c_str());
 	//	add_policy_rule(uint32_t priority, std::string exp, uint8_t* sc, uint32_t sc_len) {
 
 	
