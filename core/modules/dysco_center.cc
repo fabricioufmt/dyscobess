@@ -22,7 +22,7 @@ CommandResponse DyscoCenter::CommandAdd(const bess::pb::DyscoCenterAddArg& arg) 
 		fprintf(stderr, " %s", s.c_str());
 	fprintf(stderr, ", filter: %s\n", arg.filter().c_str());
 
-	l.msg("deu certo");
+	l.set_msg("deu certo");
 	
 	return CommandSuccess(l);
 }
