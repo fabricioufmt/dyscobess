@@ -16,17 +16,13 @@ DyscoCenter::DyscoCenter() : Module() {
 
 CommandResponse DyscoCenter::CommandAdd(const bess::pb::DyscoCenterAddArg& arg) {
 	//TODO
-	//uint32_t i;
 	fprintf(stderr, "[DyscoCenterAdd]: priority: %d, sc_len: %d, chain:", arg.priority(), arg.sc_len());
 	for(std::string s : arg.chain())
 		fprintf(stderr, " %s", s.c_str());
-	//for(i = 0; i < arg.sc_len(); i++)
-	//fprintf(stderr, " %s", arg.chain());
 	fprintf(stderr, ", filter: %s\n", arg.filter().c_str());
-	//	add_policy_rule(uint32_t priority, std::string exp, uint8_t* sc, uint32_t sc_len) {
 
 	
-	return CommandSuccess();
+	return CommandSuccess("deu certo mano");
 }
 
 CommandResponse DyscoCenter::CommandDel(const bess::pb::DyscoCenterDelArg& arg) {
