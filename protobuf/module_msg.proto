@@ -1140,5 +1140,5 @@ message DyscoCenterDelArg {
 }
 
 message DyscoCenterListArg {
-
+	string msg = 1;
 }

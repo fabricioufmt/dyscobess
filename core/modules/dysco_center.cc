@@ -15,14 +15,16 @@ DyscoCenter::DyscoCenter() : Module() {
 }
 
 CommandResponse DyscoCenter::CommandAdd(const bess::pb::DyscoCenterAddArg& arg) {
+	bess::pb::DyscoCenterListArg l;
 	//TODO
 	fprintf(stderr, "[DyscoCenterAdd]: priority: %d, sc_len: %d, chain:", arg.priority(), arg.sc_len());
 	for(std::string s : arg.chain())
 		fprintf(stderr, " %s", s.c_str());
 	fprintf(stderr, ", filter: %s\n", arg.filter().c_str());
 
+	l.msg("deu certo");
 	
-	return CommandSuccess("deu certo mano");
+	return CommandSuccess(l);
 }
 
 CommandResponse DyscoCenter::CommandDel(const bess::pb::DyscoCenterDelArg& arg) {
