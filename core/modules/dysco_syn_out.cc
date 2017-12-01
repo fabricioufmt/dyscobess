@@ -34,69 +34,55 @@ bool DyscoSynOut::process_packet(bess::Packet* pkt) {
 	DyscoBPF::Filter* filter = dyscocenter->get_filter(pkt);
 	DyscoControlBlock* cb = dyscocenter->get_controlblock_supss(ip, tcp);
 
-	if(!cb)
-		fprintf(stderr, "DyscoSynOut: cb is NULL\n");
-	else
+	if(cb) {
 		fprintf(stderr, "DyscoSynOut: cb is not NULL\n");
-	if(!filter)
-		fprintf(stderr, "DyscoSynOut: filter is NULL\n");
-	else {
-		fprintf(stderr, "DyscoSynOut: filter is not NULL\n");
-		fprintf(stderr, "sc_len: %d\nsc: ", filter->sc_len);
-		for(uint32_t i = 0; i < filter->sc_len; i++)
-			fprintf(stderr, "%x", filter->sc[i]);
-		fprintf(stderr, "\n");
-	}
+		DyscoTcpSession* ss = &cb->nextss;
+		ip->src = be32_t(ntohl(ss->sip));
+		ip->dst = be32_t(ntohl(ss->dip));
+		tcp->src_port = be16_t(ntohs(ss->sport));
+		tcp->dst_port = be16_t(ntohs(ss->dport));
 
-	if(!cb && filter) {
-		fprintf(stderr, "!cb && filter\n");
-		DyscoTcpSession supss;
-		supss.sip = htonl(ip->src.value());
-		supss.dip = htonl(ip->dst.value());
-		supss.sport = htons(tcp->src_port.value());
-		supss.dport = htons(tcp->dst_port.value());
+		uint32_t payload_len = sizeof(DyscoTcpSession) + filter->sc_len;
+		uint8_t* payload = (uint8_t*) pkt->append(payload_len);
+		memcpy(payload, &cb->supss, sizeof(DyscoTcpSession));
+		memcpy(payload + sizeof(DyscoTcpSession), filter->sc, filter->sc_len);
 
-		ip->dst = be32_t(htonl(*(uint32_t*)filter->sc));
-		tcp->src_port = be16_t((rand() % 1000 + 10000));
-		tcp->dst_port = be16_t((rand() % 1000 + 30000));
-
-		uint32_t nsize = sizeof(DyscoTcpSession) + filter->sc_len;
-		uint8_t* npayload = (uint8_t*) pkt->append(nsize);
-		memcpy(npayload, &supss, sizeof(DyscoTcpSession));
-		memcpy(npayload + sizeof(DyscoTcpSession), filter->sc, filter->sc_len);
-
-		ip->length = be16_t(ip->length.value() + nsize);
+		ip->length = be16_t(ip->length.value() + payload_len);
 
 		ip->checksum = 0;
 		tcp->checksum = 0;
 		ip->checksum = bess::utils::CalculateIpv4Checksum(*ip);
 		tcp->checksum = bess::utils::CalculateIpv4TcpChecksum(*ip, *tcp);
+	} else {
+		fprintf(stderr, "DyscoSynOut: cb is NULL\n");
+		if(filter) {
+			fprintf(stderr, "DyscoSynOut: filter is not NULL\n");
+			DyscoTcpSession supss;
+			supss.sip = htonl(ip->src.value());
+			supss.dip = htonl(ip->dst.value());
+			supss.sport = htons(tcp->src_port.value());
+			supss.dport = htons(tcp->dst_port.value());
 
-		return true;
+			ip->dst = be32_t(htonl(*(uint32_t*)filter->sc));
+			tcp->src_port = be16_t((rand() % 1000 + 10000));
+			tcp->dst_port = be16_t((rand() % 1000 + 30000));
+
+			uint32_t nsize = sizeof(DyscoTcpSession) + filter->sc_len;
+			uint8_t* npayload = (uint8_t*) pkt->append(nsize);
+			memcpy(npayload, &supss, sizeof(DyscoTcpSession));
+			memcpy(npayload + sizeof(DyscoTcpSession), filter->sc, filter->sc_len);
+
+			ip->length = be16_t(ip->length.value() + nsize);
+
+			ip->checksum = 0;
+			tcp->checksum = 0;
+			ip->checksum = bess::utils::CalculateIpv4Checksum(*ip);
+			tcp->checksum = bess::utils::CalculateIpv4TcpChecksum(*ip, *tcp);
+		} else {
+			fprintf(stderr, "DyscoSynOut: filter is NULL\n");
+			return false;
+		}
 	}
-
-
-	
-	if(!cb || !filter)
-		return false;
-	
-	DyscoTcpSession* ss = &cb->nextss;
-	ip->src = be32_t(ntohl(ss->sip));
-	ip->dst = be32_t(ntohl(ss->dip));
-	tcp->src_port = be16_t(ntohs(ss->sport));
-	tcp->dst_port = be16_t(ntohs(ss->dport));
-
-	uint32_t payload_len = sizeof(DyscoTcpSession) + filter->sc_len;
-	uint8_t* payload = (uint8_t*) pkt->append(payload_len);
-	memcpy(payload, &cb->supss, sizeof(DyscoTcpSession));
-	memcpy(payload + sizeof(DyscoTcpSession), filter->sc, filter->sc_len);
-
-	ip->length = be16_t(ip->length.value() + payload_len);
-
-	ip->checksum = 0;
-	tcp->checksum = 0;
-	ip->checksum = bess::utils::CalculateIpv4Checksum(*ip);
-	tcp->checksum = bess::utils::CalculateIpv4TcpChecksum(*ip, *tcp);
 	
 	return true;
 }
