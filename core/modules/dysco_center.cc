@@ -35,7 +35,7 @@ CommandResponse DyscoCenter::CommandAdd(const bess::pb::DyscoCenterAddArg& arg) 
 	bpf->add_filter(arg.priority(), arg.filter(), sc, sc_size);
 	
 	bess::pb::DyscoCenterListArg l;
-	l.set_msg("policy added.");	
+	l.set_msg("OK.");	
 	return CommandSuccess(l);
 }
 
