@@ -3,7 +3,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-#include "../utils/ip.h"
+#include "../utils/format.h"
 
 const Commands DyscoCenter::cmds = {
 	{"add", "DyscoCenterAddArg", MODULE_CMD_FUNC(&DyscoCenter::CommandAdd), Command::THREAD_UNSAFE},
