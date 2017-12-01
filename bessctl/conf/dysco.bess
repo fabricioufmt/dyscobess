@@ -43,6 +43,7 @@ ipl.add(prefix='10.1.1.1', prefix_len=32, gate=0)
 ipl.add(prefix='10.1.1.2', prefix_len=32, gate=1)
 ipl.add(prefix='10.1.1.3', prefix_len=32, gate=2)
 ipl.add(prefix='10.1.1.4', prefix_len=32, gate=3)
+ipl.add(prefix='0.0.0.0', prefix_len=0, gate=4)
 
 merge::Merge()
 merge1::Merge()
@@ -115,6 +116,8 @@ class4_1:0 -> DyscoSynOut(dyscocenter=dyscocenter) -> 0:merge4_1
 class4_1:1 -> DyscoSynPOut(dyscocenter=dyscocenter) -> 1:merge4_1
 class4_1:2 -> DyscoNonSynOut(dyscocenter=dyscocenter) -> 2:merge4_1
 class4_1:3 -> 3:merge4_1
+
+ipl:4 -> Sink()
 
 merge1_1 -> PortOut(port=h1)
 merge2_1 -> PortOut(port=h2)
