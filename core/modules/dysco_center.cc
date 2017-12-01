@@ -15,15 +15,22 @@ DyscoCenter::DyscoCenter() : Module() {
 }
 
 CommandResponse DyscoCenter::CommandAdd(const bess::pb::DyscoCenterAddArg& arg) {
-	bess::pb::DyscoCenterListArg l;
 	//TODO
 	fprintf(stderr, "[DyscoCenterAdd]: priority: %d, sc_len: %d, chain:", arg.priority(), arg.sc_len());
 	for(std::string s : arg.chain())
 		fprintf(stderr, " %s", s.c_str());
 	fprintf(stderr, ", filter: %s\n", arg.filter().c_str());
 
-	l.set_msg("deu certo");
+	uint32_t i = 0;
+	uint32_t sc_size = arg.sc_len() * sizeof(uint32_t);
+	uint8_t* sc = (uint8_t*) malloc(sc_size);
+	for(std::string s : arg.chain()) {
+		bess::util::Parse(s, "%u.%u.%u.%u", sc[i], sc[i+1], sc[i+2], sc[i+3]);
+		i += 4;
+	}
 	
+	bess::pb::DyscoCenterListArg l;
+	l.set_msg("policy added.");	
 	return CommandSuccess(l);
 }
 
