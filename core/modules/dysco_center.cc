@@ -30,6 +30,8 @@ CommandResponse DyscoCenter::CommandAdd(const bess::pb::DyscoCenterAddArg& arg) 
 		bess::utils::Parse(s, "%c.%c.%c.%c", sc+i, sc+i+1, sc+i+2, sc+i+3);
 		i += 4;
 	}
+
+	bpf->add_filter(arg.priority(), arg.filter(), sc, sc_size);
 	
 	bess::pb::DyscoCenterListArg l;
 	l.set_msg("policy added.");	
@@ -44,7 +46,18 @@ CommandResponse DyscoCenter::CommandDel(const bess::pb::DyscoCenterDelArg& arg) 
 
 CommandResponse DyscoCenter::CommandList(const bess::pb::EmptyArg&) {
 	//TODO
-	return CommandSuccess();
+	std::string s;
+	bess::pb::DyscoCenterListArg l;
+
+	s += "[DyscoCenterList]:\n";
+	for(DyscoBPF::Filter f : bpf->filters_) {
+		s += f.priority;
+		s += f.exp;
+		s += "\n";
+	}
+
+	l.set_msg(s);
+	return CommandSuccess(l);
 }
 
 DyscoTcpSession* DyscoCenter::get_supss(Ipv4* ip, Tcp* tcp) {
