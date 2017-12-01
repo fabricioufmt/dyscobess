@@ -47,6 +47,36 @@ bool DyscoSynOut::process_packet(bess::Packet* pkt) {
 			fprintf(stderr, "%x", filter->sc[i]);
 		fprintf(stderr, "\n");
 	}
+
+	if(!cb && filter) {
+		fprintf(stderr, "!cb && filter\n");
+		DyscoTcpSession supss;
+		supss.sip = htonl(ip->src.value());
+		supss.dip = htonl(ip->dst.value());
+		supss.sport = htons(tcp->src_port.value());
+		supss.dport = htons(tcp->dst_port.value());
+
+		ip->dst = be32_t(*(uint32_t*)filter->sc);
+		tcp->src_port = be16_t((rand() % 1000 + 10000));
+		tcp->dst_port = be16_t((rand() % 1000 + 30000));
+
+		uint32_t nsize = sizeof(DyscoTcpSession) + filter->sc_len;
+		int8_t* npayload = (uint8_t*) pkt->append(nsize);
+		memcpy(npayload, &supss, sizeof(DyscoTcpSession));
+		memcpy(npayload + sizeof(DyscoTcpSession), filter->sc, filter->sc_len);
+
+		ip->length = be16_t(ip->length.value() + nsize);
+
+		ip->checksum = 0;
+		tcp->checksum = 0;
+		ip->checksum = bess::utils::CalculateIpv4Checksum(*ip);
+		tcp->checksum = bess::utils::CalculateIpv4TcpChecksum(*ip, *tcp);
+
+		return true;
+	}
+
+
+	
 	if(!cb || !filter)
 		return false;
 	

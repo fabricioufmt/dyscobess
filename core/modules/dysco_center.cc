@@ -29,14 +29,8 @@ CommandResponse DyscoCenter::CommandAdd(const bess::pb::DyscoCenterAddArg& arg) 
 	uint8_t* sc = (uint8_t*) malloc(sc_size);
 	uint32_t a, b, c, d;
 	for(std::string s : arg.chain()) {
-		//bess::utils::Parse(s, "%u.%u.%u.%u", (unsigned int*)sc+i, (unsigned int*)sc+i+1, (unsigned int*)sc+i+2, (unsigned int*)sc+i+3);
 		bess::utils::Parse(s, "%u.%u.%u.%u", &a, &b, &c, &d);
-		*(sc+i) = a;
-		*(sc+i+1) = b;
-		*(sc+i+2) = c;
-		*(sc+i+3) = d;
-		//		fprintf(stderr, "%x.%x.%x.%x\n", (unsigned int)sc+i, (unsigned int)sc+i+1, (unsigned int)sc+i+2, (unsigned int)sc+i+3);
-		fprintf(stderr, "%x.%x.%x.%x\n", *(sc+i), *(sc+i+1), *(sc+i+2), *(sc+i+3));
+		*(sc+i) = a; *(sc+i+1) = b; *(sc+i+2) = c; *(sc+i+3) = d;
 		i += 4;
 	}
 
