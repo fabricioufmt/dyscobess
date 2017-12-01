@@ -40,8 +40,12 @@ bool DyscoSynOut::process_packet(bess::Packet* pkt) {
 		fprintf(stderr, "DyscoSynOut: cb is not NULL\n");
 	if(!filter)
 		fprintf(stderr, "DyscoSynOut: filter is NULL\n");
-	else
+	else {
 		fprintf(stderr, "DyscoSynOut: filter is not NULL\n");
+		for(int i = 0; i < filter->sc_len; i++)
+			fprintf(stderr, "%x", filter->sc[i]);
+		fprintf(stderr, "\n");
+	}
 	if(!cb || !filter)
 		return false;
 	
