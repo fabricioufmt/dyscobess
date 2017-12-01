@@ -1098,7 +1098,7 @@ bool DyscoBPF::add_filter(uint32_t priority, std::string exp, uint8_t* sc, uint3
 	return true;
 }
 
-DyscoBPF::Filter* DyscoBPF::get_filter1(bess::Packet* pkt) {
+DyscoBPF::Filter* DyscoBPF::get_filter(bess::Packet* pkt) {
 	for(Filter& filter : filters_) {
 		if(Match(filter, pkt->head_data<uint8_t*>(), pkt->total_len(), pkt->head_len()))
 			return &filter;	
