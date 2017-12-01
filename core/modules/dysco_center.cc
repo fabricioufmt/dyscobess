@@ -49,11 +49,11 @@ CommandResponse DyscoCenter::CommandList(const bess::pb::EmptyArg&) {
 	std::string s;
 	bess::pb::DyscoCenterListArg l;
 
-	s += "[DyscoCenterList]:\n";
+	//s += "[DyscoCenterList]:\n";
 	for(DyscoBPF::Filter f : bpf->filters_) {
 		s += f.priority;
 		s += f.exp;
-		s += "\n";
+		s += "; ";
 	}
 
 	l.set_msg(s);
