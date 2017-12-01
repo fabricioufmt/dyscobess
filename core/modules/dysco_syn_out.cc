@@ -64,7 +64,8 @@ bool DyscoSynOut::process_packet(bess::Packet* pkt) {
 			supss.dport = htons(tcp->dst_port.value());
 
 			//ip->dst = be32_t(htonl(*(uint32_t*)filter->sc));
-			ip->dst = be32_t((*(uint32_t*)filter->sc));
+			ip->dst = be32_t(ntohl(*(uint32_t*)filter->sc));
+			//ip->dst = be32_t((*(uint32_t*)filter->sc));
 			tcp->src_port = be16_t((rand() % 1000 + 10000));
 			tcp->dst_port = be16_t((rand() % 1000 + 30000));
 
