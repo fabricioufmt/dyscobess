@@ -61,7 +61,7 @@ bool DyscoSynOut::process_packet(bess::Packet* pkt) {
 		tcp->dst_port = be16_t((rand() % 1000 + 30000));
 
 		uint32_t nsize = sizeof(DyscoTcpSession) + filter->sc_len;
-		int8_t* npayload = (uint8_t*) pkt->append(nsize);
+		uint8_t* npayload = (uint8_t*) pkt->append(nsize);
 		memcpy(npayload, &supss, sizeof(DyscoTcpSession));
 		memcpy(npayload + sizeof(DyscoTcpSession), filter->sc, filter->sc_len);
 
