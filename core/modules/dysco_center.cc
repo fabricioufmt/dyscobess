@@ -51,7 +51,7 @@ CommandResponse DyscoCenter::CommandList(const bess::pb::EmptyArg&) {
 
 	//s += "[DyscoCenterList]:\n";
 	for(DyscoBPF::Filter f : bpf->filters_) {
-		s += f.priority;
+		s += std::to_string(f.priority);
 		s += f.exp;
 		s += "; ";
 	}
