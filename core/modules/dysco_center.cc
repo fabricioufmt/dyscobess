@@ -27,7 +27,7 @@ CommandResponse DyscoCenter::CommandAdd(const bess::pb::DyscoCenterAddArg& arg) 
 	uint32_t sc_size = arg.sc_len() * sizeof(uint32_t);
 	uint8_t* sc = (uint8_t*) malloc(sc_size);
 	for(std::string s : arg.chain()) {
-		bess::utils::Parse(s, "%u.%u.%u.%u", sc[i], sc[i+1], sc[i+2], sc[i+3]);
+		bess::utils::Parse(s, "%u.%u.%u.%u", sc+i, sc+i+1, sc+i+2, sc+i+3);
 		i += 4;
 	}
 	
