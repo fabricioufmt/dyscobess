@@ -45,13 +45,13 @@ CommandResponse DyscoCenter::CommandDel(const bess::pb::DyscoCenterDelArg& arg) 
 }
 
 CommandResponse DyscoCenter::CommandList(const bess::pb::EmptyArg&) {
-	//TODO
 	std::string s;
 	bess::pb::DyscoCenterListArg l;
 
 	//s += "[DyscoCenterList]:\n";
 	for(DyscoBPF::Filter f : bpf->filters_) {
 		s += std::to_string(f.priority);
+		s += ": "
 		s += f.exp;
 		s += "; ";
 	}
