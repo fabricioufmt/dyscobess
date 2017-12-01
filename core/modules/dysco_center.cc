@@ -4,6 +4,7 @@
 #include <arpa/inet.h>
 
 #include "../utils/format.h"
+#include "dysco_bpf.h"
 
 const Commands DyscoCenter::cmds = {
 	{"add", "DyscoCenterAddArg", MODULE_CMD_FUNC(&DyscoCenter::CommandAdd), Command::THREAD_UNSAFE},
