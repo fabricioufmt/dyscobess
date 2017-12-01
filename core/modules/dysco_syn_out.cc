@@ -42,6 +42,7 @@ bool DyscoSynOut::process_packet(bess::Packet* pkt) {
 		fprintf(stderr, "DyscoSynOut: filter is NULL\n");
 	else {
 		fprintf(stderr, "DyscoSynOut: filter is not NULL\n");
+		fprintf(stderr, "sc_len: %d\nsc: ", filter->sc_len);
 		for(uint32_t i = 0; i < filter->sc_len; i++)
 			fprintf(stderr, "%x", filter->sc[i]);
 		fprintf(stderr, "\n");
