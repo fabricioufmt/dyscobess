@@ -35,7 +35,7 @@ class DyscoBPF {
 
 
 	bool add_filter(uint32_t, std::string, uint8_t*, uint32_t);
-	Filter* get_filter(bess::Packet*);
+	Filter* get_filter1(bess::Packet*);
 };
 
 #endif  // BESS_MODULES_DYSCOBPF_H_
