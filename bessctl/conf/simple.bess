@@ -11,8 +11,8 @@ os.system('echo 1 > /proc/sys/net/ipv4/ip_forward')
 
 h1::VPort(ifname='h1-0', netns='/var/run/netns/h1', mac_addr='00:00:00:00:00:11', ip_addrs=['10.0.1.1/24'])
 h2_0::VPort(ifname='h2-0', netns='/var/run/netns/h2', mac_addr='00:00:00:00:00:12', ip_addrs=['10.0.1.2/24'])
-h2_1::VPort(ifname='h2-1', netns='/var/run/netns/h2', mac_addr='00:00:00:00:00:21', ip_addrs=['10.0.2.2/24'])
-h3::VPort(ifname='h3-0', netns='/var/run/netns/h3', mac_addr='00:00:00:00:00:22', ip_addrs=['10.0.2.1/24'])
+h2_1::VPort(ifname='h2-1', netns='/var/run/netns/h2', mac_addr='00:00:00:00:00:22', ip_addrs=['10.0.2.2/24'])
+h3::VPort(ifname='h3-0', netns='/var/run/netns/h3', mac_addr='00:00:00:00:00:21', ip_addrs=['10.0.2.1/24'])
 
 os.system('ip netns exec h1 ifconfig lo up > /dev/null')
 os.system('ip netns exec h2 ifconfig lo up > /dev/null')
