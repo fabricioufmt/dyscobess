@@ -26,7 +26,7 @@ os.system('ip netns exec h3 arp -s 10.0.2.2 00:00:00:00:00:22 > /dev/null')
 os.system('ip netns exec h1 route add default gw 10.0.1.2 > /dev/null')
 os.system('ip netns exec h3 route add default gw 10.0.2.2 > /dev/null')
 os.system('ip netns exec h2 route add -net 10.0.1.0/24 gw 10.0.1.1 > /dev/null')
-os.system('ip netns exec h2 route add -net 10.0.2.0/24 gw 10.0.2.1 > /dev/null')
+os.system('ip netns exec h2 route add default gw 10.0.2.1 > /dev/null')
 
 ipl::IPLookup()
 ipl.add(prefix='10.0.1.1', prefix_len=32, gate=0)
