@@ -3,75 +3,43 @@ import scapy.all as scapy
 
 os.system('ip netns del h1 > /dev/null')
 os.system('ip netns del h2 > /dev/null')
+os.system('ip netns del h3 > /dev/null')
 os.system('ip netns add h1 > /dev/null')
 os.system('ip netns add h2 > /dev/null')
+os.system('ip netns add h3 > /dev/null')
 os.system('echo 1 > /proc/sys/net/ipv4/ip_forward')
 
-
-h1::VPort(ifname='h1-0', netns='/var/run/netns/h1',
-			   mac_addr='00:00:00:00:00:01', ip_addrs=['10.0.1.1/24'])
-h2::VPort(ifname='h2-0', netns='/var/run/netns/h2',
-			   mac_addr='00:00:00:00:00:02', ip_addrs=['10.0.1.2/24'])
+h1::VPort(ifname='h1-0', netns='/var/run/netns/h1', mac_addr='00:00:00:00:00:11', ip_addrs=['10.0.1.1/24'])
+h2_0::VPort(ifname='h2-0', netns='/var/run/netns/h2', mac_addr='00:00:00:00:00:12', ip_addrs=['10.0.1.2/24'])
+h2_1::VPort(ifname='h2-1', netns='/var/run/netns/h2', mac_addr='00:00:00:00:00:21', ip_addrs=['10.0.2.2/24'])
+h3::VPort(ifname='h3-0', netns='/var/run/netns/h3', mac_addr='00:00:00:00:00:22', ip_addrs=['10.0.2.1/24'])
 
 os.system('ip netns exec h1 ifconfig lo up > /dev/null')
 os.system('ip netns exec h2 ifconfig lo up > /dev/null')
+os.system('ip netns exec h3 ifconfig lo up > /dev/null')
 
-os.system('ip netns exec h2 arp -s 10.0.1.1 00:00:00:00:00:01 > /dev/null')
-os.system('ip netns exec h1 arp -s 10.0.1.2 00:00:00:00:00:02 > /dev/null')
+os.system('ip netns exec h1 arp -s 10.0.1.2 00:00:00:00:00:12 > /dev/null')
+os.system('ip netns exec h2 arp -s 10.0.1.1 00:00:00:00:00:11 > /dev/null')
+os.system('ip netns exec h2 arp -s 10.0.2.1 00:00:00:00:00:21 > /dev/null')
+os.system('ip netns exec h3 arp -s 10.0.2.2 00:00:00:00:00:22 > /dev/null')
 
-out_h1::PortOut(port=h1)
-out_h2::PortOut(port=h2)
+os.system('ip netns exec h1 route add default gw 10.0.1.2 > /dev/null')
+os.system('ip netns exec h3 route add default gw 10.0.2.2 > /dev/null')
+os.system('ip netns exec h2 route add -net 10.0.1.0/24 gw 10.0.1.1 > /dev/null')
+os.system('ip netns exec h2 route add -net 10.0.2.0/24 gw 10.0.2.1 > /dev/null')
 
-#merge::Merge()
-merge1::Merge()
-merge2::Merge()
-merge1_1::Merge()
-merge2_1::Merge()
-class1::DyscoClassifier()
-class2::DyscoClassifier()
-class1_1::DyscoClassifier()
-class2_1::DyscoClassifier()
-dyscocenter::DyscoCenter()
+ipl::IPLookup()
+ipl.add(prefix='10.0.1.1', prefix_len=32, gate=0)
+ipl.add(prefix='10.0.2.2', prefix_len=32, gate=3)
+ipl.add(prefix='10.0.1.0', prefix_len=24, gate=1)
+ipl.add(prefix='10.0.2.0', prefix_len=24, gate=2)
 
-#l2f::L2Forward()
-#l2f.add(entries=[
-#	{'addr':'00:00:00:00:00:01', 'gate':0},
-#	{'addr':'00:00:00:00:00:02', 'gate':1}])
+PortInc(port=h1) -> ipl
+PortInc(port=h2_0) -> ipl
+PortInc(port=h2_1) -> ipl
+PortInc(port=h3) -> ipl
 
-PortInc(port=h1) -> class1
-class1:0 -> DyscoSynInc(dyscocenter=dyscocenter) -> 0:merge1
-class1:1 -> DyscoSynPInc(dyscocenter=dyscocenter) -> 1:merge1
-class1:2 -> DyscoNonSynInc(dyscocenter=dyscocenter) -> 2:merge1
-class1:3 -> 3:merge1
-
-PortInc(port=h2) -> class2
-class2:0 -> DyscoSynInc(dyscocenter=dyscocenter) -> 0:merge2
-class2:1 -> DyscoSynPInc(dyscocenter=dyscocenter) -> 1:merge2
-class2:2 -> DyscoNonSynInc(dyscocenter=dyscocenter) -> 2:merge2
-class2:3 -> 3:merge2
-
-#merge1 -> out_h2 
-#merge2 -> out_h1
-#merge1 -> 0:merge
-#merge2 -> 1:merge
-
-#merge -> l2f
-
-#l2f:0 -> class1_1
-merge1 -> class1_1
-class1_1:0 -> DyscoSynOut(dyscocenter=dyscocenter) -> 0:merge1_1
-class1_1:1 -> DyscoSynPOut(dyscocenter=dyscocenter) -> 1:merge1_1
-class1_1:2 -> DyscoNonSynOut(dyscocenter=dyscocenter) -> 2:merge1_1
-class1_1:3 -> 3:merge1_1
-
-#l2f:1 -> class2_1
-merge2 -> class2_1
-class2_1:0 -> DyscoSynOut(dyscocenter=dyscocenter) -> 0:merge2_1
-class2_1:1 -> DyscoSynPOut(dyscocenter=dyscocenter) -> 1:merge2_1
-class2_1:2 -> DyscoNonSynOut(dyscocenter=dyscocenter) -> 2:merge2_1
-class2_1:3 -> 3:merge2_1
-
-#merge1_1 -> out_h1
-#merge2_1 -> out_h2
-merge1_1 -> out_h2
-merge2_1 -> out_h1
+ipl:0 -> PortOut(port=h1)
+ipl:1 -> PortOut(port=h2_0)
+ipl:2 -> PortOut(port=h2_1)
+ipl:3 -> PortOut(port=h3)
