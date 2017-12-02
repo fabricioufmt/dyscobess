@@ -28,7 +28,7 @@ os.system('ip netns exec h3 route add default gw 10.0.2.2 > /dev/null')
 os.system('ip netns exec h2 route add -net 10.0.1.0/24 gw 10.0.1.1 > /dev/null')
 os.system('ip netns exec h2 route add default gw 10.0.2.1 > /dev/null')
 
-l2f::L2Fordward()
+l2f::L2Forward()
 l2f.add(entries=[
 	{'addr':'00:00:00:00:00:11', 'gate':0},
 	{'addr':'00:00:00:00:00:12', 'gate':1},
