@@ -12,6 +12,7 @@
 #include "../utils/tcp.h"
 #include "../utils/ether.h"
 #include "../utils/endian.h"
+#include "../utils/checksum.h"
 
 using bess::utils::Tcp;
 using bess::utils::Ipv4;
