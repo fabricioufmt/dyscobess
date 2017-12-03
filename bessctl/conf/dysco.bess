@@ -155,9 +155,9 @@ class5_1:1 -> DyscoSynPOut(dyscocenter=dyscocenter) -> 1:merge5_1
 class5_1:2 -> DyscoNonSynOut(dyscocenter=dyscocenter) -> 2:merge5_1
 class5_1:3 -> 3:merge5_1
 
-merge0_1 -> PortOut(port=h1)
-merge1_1 -> PortOut(port=h2_0)
-merge2_1 -> PortOut(port=h2_1)
-merge3_1 -> PortOut(port=h3_0)
-merge4_1 -> PortOut(port=h3_1)
-merge5_1 -> PortOut(port=h4)
+merge0_1 -> Update(fields=[{'offset':0, 'size':6, 'value':17}]) -> PortOut(port=h1)
+merge1_1 -> Update(fields=[{'offset':0, 'size':6, 'value':18}]) -> PortOut(port=h2_0)
+merge2_1 -> Update(fields=[{'offset':0, 'size':6, 'value':34}]) -> PortOut(port=h2_1)
+merge3_1 -> Update(fields=[{'offset':0, 'size':6, 'value':19}]) -> PortOut(port=h3_0)
+merge4_1 -> Update(fields=[{'offset':0, 'size':6, 'value':51}]) -> PortOut(port=h3_1)
+merge5_1 -> Update(fields=[{'offset':0, 'size':6, 'value':20}]) -> PortOut(port=h4)
