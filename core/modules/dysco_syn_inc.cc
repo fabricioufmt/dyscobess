@@ -112,7 +112,9 @@ void DyscoSynInc::ProcessBatch(bess::PacketBatch* batch) {
 	bess::Packet* pkt = 0;
 	for(int i = 0; i < cnt; i++) {
 		pkt = batch->pkts()[i];
-		debug_info(pkt, (char*)"in/out");
+		debug_info(pkt, (char*)"in");
+		process_packet(pkt);
+		debug_info(pkt, (char*)"out");
 	}
 	RunChooseModule(0, batch);
 }
