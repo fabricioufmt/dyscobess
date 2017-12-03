@@ -79,7 +79,7 @@ bool DyscoSynInc::process_packet(bess::Packet* pkt) {
 			if(!cb)
 				return false;
 			
-			DyscoTcpSession* ss = cb->get_subss(ip, tcp);
+			DyscoTcpSession* ss = dyscocenter->get_subss(ip, tcp);
 			ip->src = be32_t(ntohl(ss->sip));
 			ip->dst = be32_t(ntohl(ss->dip));
 			tcp->src_port = be16_t(ntohs(ss->sport));
