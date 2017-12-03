@@ -75,6 +75,15 @@ bool DyscoSynInc::process_packet(bess::Packet* pkt) {
 		if(filter) {
 			fprintf(stderr, "DyscoSynInc: filter is not NULL\n");
 			dyscocenter->add_mapping_filter(ip, tcp, filter);
+			cb = dyscocenter->get_controlblock(ip, tcp);
+			if(!cb)
+				return false;
+			
+			DyscoTcpSession* ss = cb->get_subss(ip, tcp);
+			ip->src = be32_t(ntohl(ss->sip));
+			ip->dst = be32_t(ntohl(ss->dip));
+			tcp->src_port = be16_t(ntohs(ss->sport));
+			tcp->dst_port = be16_t(ntohs(ss->dport));
 			
 			ip->checksum = 0;
 			tcp->checksum = 0;
@@ -97,6 +106,7 @@ void DyscoSynInc::ProcessBatch(bess::PacketBatch* batch) {
 		pkt = batch->pkts()[i];
 		debug_info(pkt, (char*)"in");
 		process_packet(pkt);
+		fprintf(stderr, "test: %s\n", *this->name());
 		debug_info(pkt, (char*)"out");
 	}
 	RunChooseModule(0, batch);
