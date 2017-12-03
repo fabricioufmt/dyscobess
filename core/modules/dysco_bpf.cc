@@ -1068,6 +1068,7 @@ bool DyscoBPF::add_filter(uint32_t priority, std::string exp, uint8_t* sc, uint3
 	Filter filter;
 	filter.priority = priority;
 	filter.exp = exp;
+	filter.i = 0;
 	filter.sc_len = sc_len;
 	filter.sc = (uint8_t*) malloc(sc_len);
 	memcpy(filter.sc, sc, sc_len);

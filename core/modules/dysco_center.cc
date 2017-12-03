@@ -165,6 +165,33 @@ bool DyscoCenter::add_policy_rule(uint32_t priority, std::string exp, uint8_t* s
 	return bpf->add_filter(priority, exp, sc, sc_len);
 }
 
+bool DyscoCenter::add_mapping_filter(Ipv4* ip, Tcp* tcp, DyscoBPF::Filter* filter) {
+	DyscoTcpSession ss;
+	DyscoControlBlock cb;
+	DyscoTcpSession supss;
+
+	cb.supss.sip = htonl(ip->src.value());
+	cb.supss.dip = htonl(ip->dst.value());
+	cb.supss.sport = htons(tcp->src_port.value());
+	cb.supss.dport = htons(tcp->dst_port.value());
+
+	if(filter->i == 0)
+		ss.sip = cb.supss.sip;
+	else
+		ss.sip = ntohl(((uint32_t*)filter->sc)[filter->i - 1]);
+	ss.sip = ntohl(((uint32_t*)filter->sc)[filter->i++]);
+	ss.sport = htons((rand() % 1000 + 10000));
+	ss.dport = htons((rand() % 1000 + 30000));
+	cb.supss = ss;
+	map.Insert(ss, cb);
+	
+	fprintf(stderr, "DyscoCenter(add_mapping_filter): %s:%u -> %s:%u => %s:%u -> %s:%u\n",
+		printip0(ntohl(ss.sip)), ntohs(ss.sport),
+		printip0(ntohl(ss.dip)), ntohs(ss.dport),
+		printip0(ntohl(cb.supss.sip)), ntohs(cb.supss.sport),
+		printip0(ntohl(cb.supss.dip)), ntohs(cb.supss.dport));
+}
+
 bool DyscoCenter::add_mapping(Ipv4* ip, Tcp* tcp, uint8_t* payload, uint32_t payload_len) {
 	DyscoTcpSession ss;
 	DyscoControlBlock cb;
@@ -190,7 +217,9 @@ bool DyscoCenter::add_mapping(Ipv4* ip, Tcp* tcp, uint8_t* payload, uint32_t pay
 		cb.nextss.dport = htons((rand() % 1000 + 30000));
 	}
 	map.Insert(ss, cb);
-	fprintf(stderr, "DyscoCenter(add_mapping): %s:%u -> %s:%u\n",
+	fprintf(stderr, "DyscoCenter(add_mapping): %s:%u -> %s:%u => %s:%u -> %s:%u\n",
+		printip0(ntohl(ss.sip)), ntohs(ss.sport),
+		printip0(ntohl(ss.dip)), ntohs(ss.dport),
 		printip0(ntohl(cb.supss.sip)), ntohs(cb.supss.sport),
 		printip0(ntohl(cb.supss.dip)), ntohs(cb.supss.dport));
 	

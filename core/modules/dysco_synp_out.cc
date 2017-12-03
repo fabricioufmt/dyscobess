@@ -71,7 +71,6 @@ bool DyscoSynPOut::process_packet(bess::Packet* pkt) {
 	if(!dyscocenter)
 		return false;
 
-	fprintf(stderr, "DyscoSynPOut: calling add_mapping method.\n");
 	dyscocenter->add_mapping(ip, tcp, payload, payload_len);
 	
 	ip->src = be32_t(ntohl(supss->sip));

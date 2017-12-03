@@ -57,6 +57,7 @@ class DyscoCenter final : public Module {
 	DyscoCenter();
 
 	bool add_mapping(Ipv4*, Tcp*, uint8_t*, uint32_t);
+	bool add_mapping_filter(Ipv4*, Tcp*, DyscoBPF::Filter*)
 	bool add_policy_rule(uint32_t, std::string, uint8_t*, uint32_t);
 	DyscoTcpSession* get_supss(Ipv4*, Tcp*);
 	DyscoControlBlock* get_controlblock(Ipv4*, Tcp*);

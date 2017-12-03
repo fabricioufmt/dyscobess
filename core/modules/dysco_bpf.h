@@ -26,6 +26,7 @@ class DyscoBPF {
 #endif
 		uint32_t priority;
 		std::string exp;
+		uint32_t i;
 		uint8_t* sc;
 		uint32_t sc_len;
 	};
