@@ -20,7 +20,7 @@ h2_1::VPort(ifname='h2-1', netns='/var/run/netns/h2',
 h3_0::VPort(ifname='h3-0', netns='/var/run/netns/h3',
 			 mac_addr='00:00:00:00:00:13', ip_addrs=['10.0.1.3/24']) 
 h3_1::VPort(ifname='h3-1', netns='/var/run/netns/h3',
-			 mac_addr='00:00:00:00:00:33', ip_addrs=['10.0.3.3/24'])
+			 mac_addr='00:00:00:00:00:23', ip_addrs=['10.0.2.3/24'])
 h4::VPort(ifname='h4-0', netns='/var/run/netns/h4',
 			 mac_addr='00:00:00:00:00:14', ip_addrs=['10.0.1.4/24'])
 
@@ -35,9 +35,11 @@ os.system('ip netns exec h1 arp -s 10.0.1.4 00:00:00:00:00:14 > /dev/null')
 os.system('ip netns exec h2 arp -s 10.0.1.1 00:00:00:00:00:11 > /dev/null')
 os.system('ip netns exec h2 arp -s 10.0.1.3 00:00:00:00:00:13 > /dev/null')
 os.system('ip netns exec h2 arp -s 10.0.1.4 00:00:00:00:00:14 > /dev/null')
+os.system('ip netns exec h2 arp -s 10.0.2.3 00:00:00:00:00:23 > /dev/null')
 os.system('ip netns exec h3 arp -s 10.0.1.1 00:00:00:00:00:11 > /dev/null')
 os.system('ip netns exec h3 arp -s 10.0.1.2 00:00:00:00:00:12 > /dev/null')
 os.system('ip netns exec h3 arp -s 10.0.1.4 00:00:00:00:00:14 > /dev/null')
+os.system('ip netns exec h3 arp -s 10.0.2.2 00:00:00:00:00:22 > /dev/null')
 os.system('ip netns exec h4 arp -s 10.0.1.1 00:00:00:00:00:11 > /dev/null')
 os.system('ip netns exec h4 arp -s 10.0.1.2 00:00:00:00:00:12 > /dev/null')
 os.system('ip netns exec h4 arp -s 10.0.1.3 00:00:00:00:00:13 > /dev/null')
@@ -47,7 +49,7 @@ ipl.add(prefix='10.0.1.1', prefix_len=32, gate=0)
 ipl.add(prefix='10.0.1.2', prefix_len=32, gate=1)
 ipl.add(prefix='10.0.2.2', prefix_len=32, gate=2)
 ipl.add(prefix='10.0.1.3', prefix_len=32, gate=3)
-ipl.add(prefix='10.0.3.3', prefix_len=32, gate=4)
+ipl.add(prefix='10.0.2.3', prefix_len=32, gate=4)
 ipl.add(prefix='10.0.1.4', prefix_len=32, gate=5)
 
 merge0::Merge()
@@ -159,5 +161,5 @@ merge0_1 -> Update(fields=[{'offset':0, 'size':6, 'value':17}]) -> PortOut(port=
 merge1_1 -> Update(fields=[{'offset':0, 'size':6, 'value':18}]) -> PortOut(port=h2_0)
 merge2_1 -> Update(fields=[{'offset':0, 'size':6, 'value':34}]) -> PortOut(port=h2_1)
 merge3_1 -> Update(fields=[{'offset':0, 'size':6, 'value':19}]) -> PortOut(port=h3_0)
-merge4_1 -> Update(fields=[{'offset':0, 'size':6, 'value':51}]) -> PortOut(port=h3_1)
+merge4_1 -> Update(fields=[{'offset':0, 'size':6, 'value':35}]) -> PortOut(port=h3_1)
 merge5_1 -> Update(fields=[{'offset':0, 'size':6, 'value':20}]) -> PortOut(port=h4)
