@@ -189,6 +189,8 @@ bool DyscoCenter::add_mapping_filter(Ipv4* ip, Tcp* tcp, DyscoBPF::Filter* filte
 		printip0(ntohl(ss.dip)), ntohs(ss.dport),
 		printip0(ntohl(cb.supss.sip)), ntohs(cb.supss.sport),
 		printip0(ntohl(cb.supss.dip)), ntohs(cb.supss.dport));
+
+	return true;
 }
 
 bool DyscoCenter::add_mapping(Ipv4* ip, Tcp* tcp, uint8_t* payload, uint32_t payload_len) {
