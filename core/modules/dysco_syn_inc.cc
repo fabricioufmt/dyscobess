@@ -102,6 +102,8 @@ bool DyscoSynInc::process_packet(bess::Packet* pkt) {
 			return false;
 		}
 	}
+
+	return true;
 }
 
 void DyscoSynInc::ProcessBatch(bess::PacketBatch* batch) {
