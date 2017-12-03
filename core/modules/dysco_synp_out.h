@@ -34,7 +34,7 @@ class DyscoSynPOut final : public Module {
 	DyscoCenter* dyscocenter;
 	bool process_packet(bess::Packet*);
 	void remove_payload(bess::Packet*);
-	void debug_info(bess::Packet*, char* dir);
+	void debug_info(bess::Packet*, char*);
 };
 
 #endif //BESS_MODULES_DYSCOSYNPOUT_H_
