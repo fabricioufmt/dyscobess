@@ -167,4 +167,5 @@ merge3_1 -> Update(fields=[{'offset':0, 'size':6, 'value':19}]) -> PortOut(port=
 merge4_1 -> Update(fields=[{'offset':0, 'size':6, 'value':35}]) -> PortOut(port=h3_1)
 merge5_1 -> Update(fields=[{'offset':0, 'size':6, 'value':20}]) -> PortOut(port=h4)
 
-dyscocenter.add({'priority':1, 'sc_len':3, 'chain':['10.0.1.2', '10.0.1.3', '10.0.1.4'], 'filter':'dst port 5001'})
+#dyscocenter.add({'priority':1, 'sc_len':3, 'chain':['10.0.1.2', '10.0.1.3', '10.0.1.4'], 'filter':'dst port 5001'})
+dyscocenter.add(priority=1, sc_len=3, chain=['10.0.1.2', '10.0.1.3', '10.0.1.4'], filter='dst port 5001')
