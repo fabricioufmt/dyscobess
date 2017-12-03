@@ -106,7 +106,7 @@ void DyscoSynInc::ProcessBatch(bess::PacketBatch* batch) {
 		pkt = batch->pkts()[i];
 		debug_info(pkt, (char*)"in");
 		process_packet(pkt);
-		fprintf(stderr, "test: %s\n", this->name());
+		fprintf(stderr, "test: %s\n", this->name().c_str());
 		debug_info(pkt, (char*)"out");
 	}
 	RunChooseModule(0, batch);
