@@ -168,7 +168,6 @@ bool DyscoCenter::add_policy_rule(uint32_t priority, std::string exp, uint8_t* s
 bool DyscoCenter::add_mapping_filter(Ipv4* ip, Tcp* tcp, DyscoBPF::Filter* filter) {
 	DyscoTcpSession ss;
 	DyscoControlBlock cb;
-	DyscoTcpSession supss;
 
 	cb.supss.sip = htonl(ip->src.value());
 	cb.supss.dip = htonl(ip->dst.value());
