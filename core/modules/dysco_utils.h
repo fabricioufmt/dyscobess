@@ -10,7 +10,7 @@ using bess::utils::Ipv4;
 using bess::utils::Ethernet;
 
 bool isIP(Ethernet* eth) {
-	return eth->ether_type == Ethernet::Type::kIpv4;
+	return eth->ether_type.value() == Ethernet::Type::kIpv4;
 }
 
 bool isTCP(Ipv4* ip) {

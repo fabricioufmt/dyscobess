@@ -92,7 +92,7 @@ bool DyscoAgentInc::process_nonsyn(Ipv4* ip, Tcp* tcp) {
 	if(!dc)
 		return false;
 
-	DyscoTcpSession* ss = dc->get_subss(this->index, ip, tcp);
+	DyscoTcpSession* ss = dc->get_subss_by_supss(this->index, ip, tcp);
 	if(!ss)
 		return false;
 	

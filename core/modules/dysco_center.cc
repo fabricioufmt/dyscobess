@@ -132,7 +132,7 @@ DyscoTcpSession* DyscoCenter::get_subss_by_supss(uint32_t i, Ipv4* ip, Tcp* tcp)
 
 	DyscoControlBlock* cb = get_controlblock_by_supss(i, ip, tcp);
 	if(!cb)
-		return cb->subss;
+		&return cb->subss;
 	
 	return 0;
 }
