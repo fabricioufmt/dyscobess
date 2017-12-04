@@ -38,14 +38,14 @@ bool DyscoAgentInc::process_syn(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 		}
 
 		fprintf(stderr, "DyscoAgentInc(syn): filter is not NULL\n");
-		cb = dc->add_mapping_filter(this->index, ip, tcp, filter);
+		cb = dc->add_mapping_filter(this->index, ip, tcp, f);
 		if(!cb)
 			return false;
 		
 	}
 	fprintf(stderr, "DyscoAgentInc(syn): cb is not NULL\n");
 	
-	DyscoTcpSession* ss = cb->subss;
+	DyscoTcpSession* ss = &cb->subss;
 	ip->src = be32_t(ntohl(ss->sip));
 	ip->dst = be32_t(ntohl(ss->dip));
 	tcp->src_port = be16_t(ntohs(ss->sport));
@@ -78,7 +78,7 @@ bool DyscoAgentInc::process_synp(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 	tcp->dst_port = be16_t(ntohs(supss->dport));
 
 	pkt->trim(payload_len);
-	ip->length = ip->length - be16_t(trim_len);
+	ip->length = ip->length - be16_t(payload_len);
 
 	ip->checksum = 0;
 	tcp->checksum = 0;
@@ -127,10 +127,9 @@ bool DyscoAgentInc::process_packet(bess::Packet* pkt) {
 		return false;
 
 	Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
-	size_t tcp_hlen = tcp->offset << 2;
 	if(isTCPSYN(tcp)) {
 		if(hasPayload(ip, tcp))
-			process_synp(ip, tcp);
+			process_synp(pkt, ip, tcp);
 		else
 			process_syn(pkt, ip, tcp);
 	} else
