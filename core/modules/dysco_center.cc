@@ -132,7 +132,7 @@ DyscoTcpSession* DyscoCenter::get_subss_by_supss(uint32_t i, Ipv4* ip, Tcp* tcp)
 
 	DyscoControlBlock* cb = get_controlblock_by_supss(i, ip, tcp);
 	if(!cb)
-		&return cb->subss;
+		return &cb->subss;
 	
 	return 0;
 }
@@ -194,7 +194,7 @@ DyscoControlBlock* DyscoCenter::get_controlblock_by_supss(uint32_t i, Ipv4* ip, 
 	if(ret1 != nullptr) {
 		DyscoTcpSession::EqualTo equals;
 		bess::utils::CuckooMap<DyscoTcpSession, DyscoControlBlock, DyscoTcpSession::Hash, DyscoTcpSession::EqualTo>::iterator it = ret1->second.begin();
-		while(it != map.end()) {
+		while(it != ret1->second.end()) {
 			if(equals(ss, (*it).second.supss))
 				return &(*it).second;
 			it++;
