@@ -108,12 +108,21 @@ DyscoTcpSession* DyscoCenter::get_supss_by_subss(uint32_t i, Ipv4* ip, Tcp* tcp)
 	ss.dip = htonl(ip->dst.value());
 	ss.sport = htons(tcp->src_port.value());
 	ss.dport = htons(tcp->dst_port.value());
-
-	std::pair<uint32_t, bess::utils::CuckooMap<DyscoTcpSession, DyscoControlBlock, DyscoTcpSession::Hash, DyscoTcpSession::EqualTo>>* ret1;
-
-	ret1 = map.Find(i);
-	if(ret1 != nullptr) {
-		bess::utils::CuckooMap<DyscoTcpSession, DyscoControlBlock, DyscoTcpSession::Hash, DyscoTcpSession::EqualTo>* map2 = &ret1->second;
+	
+	DyscoTcpSession::EqualTo equals;
+	HashTable::iterator it = map.begin();
+	while(it != map.end()) {
+		if(i == (*it).first) {
+			bess::utils::CuckooMap<DyscoTcpSession, DyscoControlBlock, DyscoTcpSession::Hash, DyscoTcpSession::EqualTo>::iterator itt = (*it).second.begin();
+			while(itt != (*it).second.end()) {
+				if(equals(ss, (*itt).first))
+					return &(*itt).second.subss;
+				
+				itt++;
+			}
+		}
+		
+		it++;
 	}
 
 	return 0;
