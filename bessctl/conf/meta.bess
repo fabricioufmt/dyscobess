@@ -64,9 +64,9 @@ PortInc(port=h3_0) -> DyscoAgentInc(dc=dc) -> ipl
 PortInc(port=h3_1) -> DyscoAgentInc(dc=dc) -> ipl
 PortInc(port=h4) -> DyscoAgentInc(dc=dc) -> ipl
 
-ipl:0 -> PortOut(port=h1)
-ipl:1 -> PortOut(port=h2_0)
-ipl:2 -> PortOut(port=h2_1)
-ipl:3 -> PortOut(port=h3_0)
-ipl:4 -> PortOut(port=h3_1)
-ipl:5 -> PortOut(port=h4)
+ipl:0 -> DyscoAgentOut(dc=dc) -> PortOut(port=h1)
+ipl:1 -> DyscoAgentOut(dc=dc) -> PortOut(port=h2_0)
+ipl:2 -> DyscoAgentOut(dc=dc) -> PortOut(port=h2_1)
+ipl:3 -> DyscoAgentOut(dc=dc) -> PortOut(port=h3_0)
+ipl:4 -> DyscoAgentOut(dc=dc) -> PortOut(port=h3_1)
+ipl:5 -> DyscoAgentOut(dc=dc) -> PortOut(port=h4)
