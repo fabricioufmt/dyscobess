@@ -113,9 +113,8 @@ DyscoTcpSession* DyscoCenter::get_supss_by_subss(uint32_t i, Ipv4* ip, Tcp* tcp)
 
 	ret1 = map.Find(i);
 	if(ret1 != nullptr) {
-		ret1->second::Entry* ret2 = ret1->second.Find(ss);
-		if(ret2 != nullptr)
-			return &ret2->second.supss;
+		if(ret1->second.Find(ss) != nullptr)
+			return &ret1->second.Find(ss)->second.supss;
 	}
 
 	return 0;
