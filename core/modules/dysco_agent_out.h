@@ -7,6 +7,7 @@
 #include "../module.h"
 #include "../pb/module_msg.pb.h"
 #include "dysco_center.h"
+#include "dysco_utils.h"
 
 #include "../utils/ip.h"
 #include "../utils/tcp.h"
@@ -31,7 +32,6 @@ class DyscoAgentOut final : public Module {
 	CommandResponse Init(const bess::pb::DyscoAgentOutArg&);
 
  private:
-	uint32_t index;
 	DyscoCenter* dc;
 };
 

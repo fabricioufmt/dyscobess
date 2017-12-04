@@ -56,22 +56,30 @@ class DyscoCenter final : public Module {
 	static const gate_idx_t kNumOGates = 0;
 	DyscoCenter();
 
-	bool add_mapping(Ipv4*, Tcp*, uint8_t*, uint32_t);
-	bool add_mapping_filter(Ipv4*, Tcp*, DyscoBPF::Filter*);
+	bool add_mapping(uint32_t, Ipv4*, Tcp*, uint8_t*, uint32_t);
+	DyscoControlBlock* add_mapping_filter(uint32_t, Ipv4*, Tcp*, DyscoBPF::Filter*);
+	//bool add_mapping(Ipv4*, Tcp*, uint8_t*, uint32_t);
+	//DyscoControlBlock* add_mapping_filter(Ipv4*, Tcp*, DyscoBPF::Filter*);
 	bool add_policy_rule(uint32_t, std::string, uint8_t*, uint32_t);
-	DyscoControlBlock* get_controlblock(Ipv4*, Tcp*);
-	DyscoControlBlock* get_controlblock_supss(Ipv4*, Tcp*);
+	DyscoControlBlock* get_controlblock_by_supss(uint32_t, Ipv4*, Tcp*);
+	//DyscoControlBlock* get_controlblock(uint32_t, Ipv4*, Tcp*);
+	//DyscoControlBlock* get_controlblock(Ipv4*, Tcp*);
+	//DyscoControlBlock* get_controlblock_supss(Ipv4*, Tcp*);
+	
 	uint32_t get_index(const std::string&);
-	DyscoTcpSession* get_subss(Ipv4*, Tcp*);
-	DyscoTcpSession* get_supss(Ipv4*, Tcp*);
-	DyscoTcpSession* get_nextss(Ipv4*, Tcp*);
+	DyscoTcpSession* get_subss(uint32_t, Ipv4*, Tcp*);
+	DyscoTcpSession* get_supss(uint32_t, Ipv4*, Tcp*);
+	//DyscoTcpSession* get_subss(Ipv4*, Tcp*);
+	//DyscoTcpSession* get_supss(Ipv4*, Tcp*);
+	//DyscoTcpSession* get_nextss(Ipv4*, Tcp*);
 	DyscoBPF::Filter* get_filter(bess::Packet*);
 	CommandResponse CommandAdd(const bess::pb::DyscoCenterAddArg&);
 	CommandResponse CommandDel(const bess::pb::DyscoCenterDelArg&);
 	CommandResponse CommandList(const bess::pb::EmptyArg&);
 	
  private:
-	using HashTable = bess::utils::CuckooMap<DyscoTcpSession, DyscoControlBlock, DyscoTcpSession::Hash, DyscoTcpSession::EqualTo>;
+	//using HashTable = bess::utils::CuckooMap<DyscoTcpSession, DyscoControlBlock, DyscoTcpSession::Hash, DyscoTcpSession::EqualTo>;
+	using HashTable = bess::utils::CuckooMap<uint32_t, bess::utils::CuckooMap<DyscoTcpSession, DyscoControlBlock, DyscoTcpSession::Hash, DyscoTcpSession::EqualTo>;
 	HashTable map;
 	DyscoBPF* bpf;
 };

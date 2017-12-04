@@ -7,6 +7,7 @@
 #include "../module.h"
 #include "../pb/module_msg.pb.h"
 #include "dysco_center.h"
+#include "dysco_utils.h"
 
 #include "../utils/ip.h"
 #include "../utils/tcp.h"
@@ -26,7 +27,11 @@ class DyscoAgentInc final : public Module {
 	static const gate_idx_t kNumOGates = 1;
 
 	DyscoAgentInc();
+	bool process_nonsyn(Ipv4*, Tcp*);
 	bool process_packet(bess::Packet*);
+	bool insert_metadata(bess::Packet*);
+	bool process_syn(bess::Packet*, Ipv4*, Tcp*);
+	bool process_synp(bess::Packet*, Ipv4*, Tcp*);
 	void ProcessBatch(bess::PacketBatch*) override;
 	CommandResponse Init(const bess::pb::DyscoAgentIncArg&);
 
