@@ -24,8 +24,8 @@ CommandResponse DyscoAgentInc::Init(const bess::pb::DyscoAgentIncArg& arg) {
 }
 
 bool DyscoAgentInc::process_packet(bess::Packet* pkt) {
-	*(pkt->metadata<char*>()) = 'b';
-	
+	const char* metadata = pkt->metadata<char*>();
+	metadata[0] = 'b';
 	return true;
 }
 
