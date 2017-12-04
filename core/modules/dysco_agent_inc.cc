@@ -34,7 +34,7 @@ void DyscoAgentInc::ProcessBatch(bess::PacketBatch* batch) {
 	bess::Packet* pkt = 0;
 	for(int i = 0; i < cnt; i++) {
 		pkt = batch->pkts()[i];
-		//process_packet(pkt);
+		process_packet(pkt);
 	}
 	
 	RunChooseModule(0, batch);
