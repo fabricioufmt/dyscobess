@@ -1146,3 +1146,7 @@ message DyscoCenterListArg {
 message DyscoAgentIncArg {
 	string dc = 1;
 }
+
+message DyscoAgentOutArg {
+	string dc = 1;
+}

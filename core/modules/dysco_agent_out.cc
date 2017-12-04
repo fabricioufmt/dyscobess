@@ -1,12 +1,12 @@
-#include "dysco_agent_inc.h"
+#include "dysco_agent_out.h"
 #include "../module_graph.h"
 
-DyscoAgentInc::DyscoAgentInc() : Module() {
+DyscoAgentOut::DyscoAgentOut() : Module() {
 	dc = 0;
 	index = 0;
 }
 
-CommandResponse DyscoAgentInc::Init(const bess::pb::DyscoAgentIncArg& arg) {
+CommandResponse DyscoAgentOut::Init(const bess::pb::DyscoAgentOutArg& arg) {
 	if(!arg.dc().length())
 		return CommandFailure(EINVAL, "'dc' must be given as string.");
 
@@ -23,13 +23,14 @@ CommandResponse DyscoAgentInc::Init(const bess::pb::DyscoAgentIncArg& arg) {
 	return CommandSuccess();
 }
 
-bool DyscoAgentInc::process_packet(bess::Packet* pkt) {
-	*p->metadata<char*>() = 'b';
+bool DyscoAgentOut::process_packet(bess::Packet* pkt) {
+	char* metadata = pkt->metadata<char*>();
+	fprintf(stderr, "DyscoAgentOut(metadata): %c\n", metadata[0]);
 	
 	return true;
 }
 
-void DyscoAgentInc::ProcessBatch(bess::PacketBatch* batch) {
+void DyscoAgentOut::ProcessBatch(bess::PacketBatch* batch) {
 	int cnt = batch->cnt();
 
 	bess::Packet* pkt = 0;
@@ -41,4 +42,4 @@ void DyscoAgentInc::ProcessBatch(bess::PacketBatch* batch) {
 	RunChooseModule(0, batch);
 }
 
-ADD_MODULE(DyscoAgentInc, "dysco_agent_inc", "processes packets incoming")
+ADD_MODULE(DyscoAgentOut, "dysco_agent_out", "processes packets outcoming")
