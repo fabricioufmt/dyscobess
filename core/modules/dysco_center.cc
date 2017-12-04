@@ -138,7 +138,7 @@ DyscoTcpSession* DyscoCenter::get_subss_by_supss(uint32_t i, Ipv4* ip, Tcp* tcp)
 }
 
 uint32_t DyscoCenter::get_index(const std::string& name) {
-	return std::hash<std::string>(name);
+	return std::hash<std::string>()(name);
 }
 /*
 DyscoTcpSession* DyscoCenter::get_nextss(Ipv4* ip, Tcp* tcp) {

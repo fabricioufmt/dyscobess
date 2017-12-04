@@ -67,8 +67,8 @@ class DyscoCenter final : public Module {
 	//DyscoControlBlock* get_controlblock_supss(Ipv4*, Tcp*);
 	
 	uint32_t get_index(const std::string&);
-	DyscoTcpSession* get_subss(uint32_t, Ipv4*, Tcp*);
-	DyscoTcpSession* get_supss(uint32_t, Ipv4*, Tcp*);
+	DyscoTcpSession* get_subss_by_supss(uint32_t, Ipv4*, Tcp*);
+	DyscoTcpSession* get_supss_by_subss(uint32_t, Ipv4*, Tcp*);
 	//DyscoTcpSession* get_subss(Ipv4*, Tcp*);
 	//DyscoTcpSession* get_supss(Ipv4*, Tcp*);
 	//DyscoTcpSession* get_nextss(Ipv4*, Tcp*);
