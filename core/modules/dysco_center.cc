@@ -266,16 +266,26 @@ DyscoControlBlock* DyscoCenter::add_mapping_filter(uint32_t i, Ipv4* ip, Tcp* tc
 	ss.sport = htons((rand() % 1000 + 10000));
 	ss.dport = htons((rand() % 1000 + 30000));
 	cb.supss = ss;
+
+	std::pair<uint32_t, bess::utils::CuckooMap<DyscoTcpSession, DyscoControlBlock, DyscoTcpSession::Hash, DyscoTcpSession::EqualTo>>* ret1;
+
+	ret1 = map.Find(i);
+	if(ret1 != nullptr)
+		ret1->second.Insert(ss, cb);
+	else
+		return 0;
+	
 	//map.Insert(ss, cb);
-	bess::utils::CuckooMap<DyscoTcpSession, DyscoControlBlock, DyscoTcpSession::Hash, DyscoTcpSession::EqualTo> hash_value(ss, cb);
-	map.Insert(i, hash_value);
+	//bess::utils::CuckooMap<DyscoTcpSession, DyscoControlBlock, DyscoTcpSession::Hash, DyscoTcpSession::EqualTo> hash_value(ss, cb);
+	//map.Insert(i, hash_value);
+	
 	fprintf(stderr, "DyscoCenter(add_mapping_filter)[%u]: %s:%u -> %s:%u => %s:%u -> %s:%u\n", i,
 		printip0(ntohl(ss.sip)), ntohs(ss.sport),
 		printip0(ntohl(ss.dip)), ntohs(ss.dport),
 		printip0(ntohl(cb.supss.sip)), ntohs(cb.supss.sport),
 		printip0(ntohl(cb.supss.dip)), ntohs(cb.supss.dport));
 
-	return &hash_value.second;
+	return &ret1->second.Find(ss)->second;
 }
 
 /*
@@ -383,9 +393,18 @@ bool DyscoCenter::add_mapping(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_t* payload, 
 		cb.nextss.sport = htons((rand() % 1000 + 10000));
 		cb.nextss.dport = htons((rand() % 1000 + 30000));
 	}
+
+	std::pair<uint32_t, bess::utils::CuckooMap<DyscoTcpSession, DyscoControlBlock, DyscoTcpSession::Hash, DyscoTcpSession::EqualTo>>* ret1;
+
+	ret1 = map.Find(i);
+	if(ret1 != nullptr)
+		ret1->second.Insert(ss, cb);
+	else
+		return false;
+	
 	//map.Insert(ss, cb);
-	bess::utils::CuckooMap<DyscoTcpSession, DyscoControlBlock, DyscoTcpSession::Hash, DyscoTcpSession::EqualTo> hash_value(ss, cb);
-	map.Insert(i, hash_value);
+	//bess::utils::CuckooMap<DyscoTcpSession, DyscoControlBlock, DyscoTcpSession::Hash, DyscoTcpSession::EqualTo> hash_value(ss, cb);
+	//map.Insert(i, hash_value);
 	
 	fprintf(stderr, "DyscoCenter(add_mapping): %s:%u -> %s:%u => %s:%u -> %s:%u\n",
 		printip0(ntohl(ss.sip)), ntohs(ss.sport),
