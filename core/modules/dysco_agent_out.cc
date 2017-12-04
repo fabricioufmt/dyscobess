@@ -24,8 +24,8 @@ CommandResponse DyscoAgentOut::Init(const bess::pb::DyscoAgentOutArg& arg) {
 }
 
 bool DyscoAgentOut::process_packet(bess::Packet* pkt) {
-	char* metadata = pkt->metadata<>();
-	fprintf(stderr, "DyscoAgentOut(metadata): %c\n", metadata[0]);
+	//	char* metadata = pkt->metadata<>();
+	fprintf(stderr, "DyscoAgentOut(metadata): %c\n", pkt->metadata<>()[0]);
 	
 	return true;
 }
