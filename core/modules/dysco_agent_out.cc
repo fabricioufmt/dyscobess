@@ -3,7 +3,6 @@
 
 DyscoAgentOut::DyscoAgentOut() : Module() {
 	dc = 0;
-	index = 0;
 }
 
 CommandResponse DyscoAgentOut::Init(const bess::pb::DyscoAgentOutArg& arg) {
@@ -18,14 +17,37 @@ CommandResponse DyscoAgentOut::Init(const bess::pb::DyscoAgentOutArg& arg) {
 	if(!dc)
 		return CommandFailure(ENODEV, "DyscoCenter module is NULL.");
 
-	index = dc->get_index(this->name());
-	
 	return CommandSuccess();
 }
 
 bool DyscoAgentOut::process_packet(bess::Packet* pkt) {
-	//	char* metadata = pkt->metadata<>();
-	fprintf(stderr, "DyscoAgentOut(metadata): %c\n", pkt->metadata<const char*>()[0]);
+	if(!dc)
+		return false;
+			
+	Ethernet* eth = pkt->head_data<Ethernet*>();
+	if(!isIP(eth))
+		return false;
+
+	Ipv4* ip = reinterpret_cast<Ipv4*>(eth + 1);
+	size_t ip_hlen = ip->header_length << 2;
+	if(!isTCP(ip))
+		return false;
+
+	Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
+	uint32_t pkt_index = ((uint32_t*)pkt->metadata<const char*>())[0];
+	DyscoTcpSession* ss = dc->get_supss(pkt_index, ip, tcp);
+	if(!ss)
+		return false;
+	
+	ip->src = be32_t(ss->sip);
+	ip->dst = be32_t(ss->dip);
+	tcp->src_port = be16_t(ss->sport);
+	tcp->dst_port = be16_t(ss->dport);
+
+	ip->checksum = 0;
+	tcp->checksum = 0;
+	ip->checksum = bess::utils::CalculateIpv4Checksum(*ip);
+	tcp->checksum = bess::utils::CalculateIpv4TcpChecksum(*ip, *tcp);
 	
 	return true;
 }
