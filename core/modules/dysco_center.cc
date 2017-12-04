@@ -82,6 +82,10 @@ DyscoTcpSession* DyscoCenter::get_supss(Ipv4* ip, Tcp* tcp) {
 	return 0;
 }
 
+uint32_t DyscoCenter::get_index(const std::string& name) {
+	return (uint32_t) name.c_str()[0];
+}
+
 DyscoTcpSession* DyscoCenter::get_nextss(Ipv4* ip, Tcp* tcp) {
 	DyscoTcpSession ss;
 
