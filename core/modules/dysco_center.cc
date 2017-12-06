@@ -316,7 +316,7 @@ DyscoControlBlock* DyscoCenter::add_mapping_filter(uint32_t i, Ipv4* ip, Tcp* tc
 		printip0(ntohl(cb.supss.dip)), ntohs(cb.supss.dport));
 
 	//return &ret1->second.Find(ss)->second;
-	return map.Find(ss)->second;
+	return &map.Find(ss)->second;
 }
 
 /*
