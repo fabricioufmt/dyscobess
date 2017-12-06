@@ -102,7 +102,7 @@ DyscoTcpSession* DyscoCenter::get_subss(Ipv4* ip, Tcp* tcp) {
 }
 */
 DyscoTcpSession* DyscoCenter::get_supss_by_subss(uint32_t i, Ipv4* ip, Tcp* tcp) {
-	DyscoTcpSession ss;
+	const DyscoTcpSession ss;
 
 	ss.sip = htonl(ip->src.value());
 	ss.dip = htonl(ip->dst.value());
@@ -138,7 +138,7 @@ DyscoTcpSession* DyscoCenter::get_supss_by_subss(uint32_t i, Ipv4* ip, Tcp* tcp)
 		it++;
 	}
 	return 0;
-	*/x
+	*/
 }
 
 DyscoTcpSession* DyscoCenter::get_subss_by_supss(uint32_t i, Ipv4* ip, Tcp* tcp) {
