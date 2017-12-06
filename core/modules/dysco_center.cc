@@ -281,10 +281,10 @@ DyscoControlBlock* DyscoCenter::add_mapping_filter(uint32_t i, Ipv4* ip, Tcp* tc
 	DyscoControlBlock cb;
 
 	cb.supss.i = i;
-	cb.supss.sip = (ip->src.value());
-	cb.supss.dip = (ip->dst.value());
-	cb.supss.sport = (tcp->src_port.value());
-	cb.supss.dport = (tcp->dst_port.value());
+	cb.supss.sip = htonl(ip->src.value());
+	cb.supss.dip = htonl(ip->dst.value());
+	cb.supss.sport = htons(tcp->src_port.value());
+	cb.supss.dport = htons(tcp->dst_port.value());
 	/*cb.supss.sip = htonl(ip->src.value());
 	cb.supss.dip = htonl(ip->dst.value());
 	cb.supss.sport = htons(tcp->src_port.value());
@@ -295,7 +295,7 @@ DyscoControlBlock* DyscoCenter::add_mapping_filter(uint32_t i, Ipv4* ip, Tcp* tc
 		ss.sip = cb.supss.sip;
 	else
 		ss.sip = ntohl(((uint32_t*)filter->sc)[filter->i - 1]);
-	ss.sip = ntohl(((uint32_t*)filter->sc)[filter->i++]);
+	ss.dip = ntohl(((uint32_t*)filter->sc)[filter->i++]);
 	ss.sport = htons((rand() % 1000 + 10000));
 	ss.dport = htons((rand() % 1000 + 30000));
 	cb.subss = ss;
