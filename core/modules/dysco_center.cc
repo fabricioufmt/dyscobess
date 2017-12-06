@@ -114,7 +114,9 @@ DyscoTcpSession* DyscoCenter::get_supss_by_subss(uint32_t i, Ipv4* ip, Tcp* tcp)
 	if(submap == nullptr)
 		return 0;
 
-	auto* entry = submap->second.Find(const_cast<DyscoTcpSession&>(ss));
+	const DyscoTcpSession& t = const_cast<DyscoTcpSession&>(ss);
+	
+	auto* entry = submap->second.Find(t);
 	if(entry == nullptr)
 		return 0;
 
