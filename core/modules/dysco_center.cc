@@ -102,19 +102,19 @@ DyscoTcpSession* DyscoCenter::get_subss(Ipv4* ip, Tcp* tcp) {
 }
 */
 DyscoTcpSession* DyscoCenter::get_supss_by_subss(uint32_t i, Ipv4* ip, Tcp* tcp) {
-	const DyscoTcpSession ss;
+	DyscoTcpSession* ss = new DyscoTcpSession();
 
-	ss.sip = htonl(ip->src.value());
-	ss.dip = htonl(ip->dst.value());
-	ss.sport = htons(tcp->src_port.value());
-	ss.dport = htons(tcp->dst_port.value());
+	ss->sip = htonl(ip->src.value());
+	ss->dip = htonl(ip->dst.value());
+	ss->sport = htons(tcp->src_port.value());
+	ss->dport = htons(tcp->dst_port.value());
 
 
 	auto* submap = map.Find(i);
 	if(submap == nullptr)
 		return 0;
 
-	auto* entry = submap->second.Find(ss);
+	auto* entry = submap->second.Find(*ss);
 	if(entry == nullptr)
 		return 0;
 
