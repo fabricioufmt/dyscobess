@@ -116,7 +116,7 @@ DyscoTcpSession* DyscoCenter::get_supss_by_subss(uint32_t i, Ipv4* ip, Tcp* tcp)
 
 	const DyscoTcpSession& t = const_cast<DyscoTcpSession&>(ss);
 	
-	auto* entry = submap->second.Find(t);
+	auto* entry = reinterpret_cast<bess::utils::CuckooMap<DyscoTcpSession, DyscoControlBlock, DyscoTcpSession::Hash, DyscoTcpSession::EqualTo>>(submap->second).Find(t);
 	if(entry == nullptr)
 		return 0;
 
