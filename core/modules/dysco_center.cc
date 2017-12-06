@@ -404,6 +404,7 @@ bool DyscoCenter::add_mapping(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_t* payload, 
 	DyscoTcpSession ss;
 	DyscoControlBlock cb;
 
+	ss.i = i;
 	ss.sip = htonl(ip->src.value());
 	ss.dip = htonl(ip->dst.value());
 	ss.sport = htons(tcp->src_port.value());
@@ -416,6 +417,7 @@ bool DyscoCenter::add_mapping(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_t* payload, 
 	uint32_t sc_len = payload_len - sizeof(DyscoTcpSession) - sizeof(uint32_t);
 	
 	if(sc_len != 0) {
+		
 		cb.sc = (uint8_t*) malloc(sc_len);
 		memcpy(cb.sc, payload + sizeof(DyscoTcpSession) + sizeof(uint32_t), sc_len);
 		cb.sc_len = sc_len;
@@ -424,7 +426,9 @@ bool DyscoCenter::add_mapping(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_t* payload, 
 		cb.nextss.sport = htons((rand() % 1000 + 10000));
 		cb.nextss.dport = htons((rand() % 1000 + 30000));
 	}
-
+	map.Insert(ss, cb);
+	
+	/*
 	std::pair<uint32_t, bess::utils::CuckooMap<DyscoTcpSession, DyscoControlBlock, DyscoTcpSession::Hash, DyscoTcpSession::EqualTo>>* ret1;
 
 	ret1 = map.Find(i);
@@ -432,7 +436,7 @@ bool DyscoCenter::add_mapping(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_t* payload, 
 		ret1->second.Insert(ss, cb);
 	else
 		return false;
-	
+	*/
 	//map.Insert(ss, cb);
 	//bess::utils::CuckooMap<DyscoTcpSession, DyscoControlBlock, DyscoTcpSession::Hash, DyscoTcpSession::EqualTo> hash_value(ss, cb);
 	//map.Insert(i, hash_value);
