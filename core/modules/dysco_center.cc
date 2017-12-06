@@ -129,13 +129,6 @@ DyscoTcpSession* DyscoCenter::get_supss_by_subss(uint32_t i, Ipv4* ip, Tcp* tcp)
 }
 
 DyscoTcpSession* DyscoCenter::get_subss_by_supss(uint32_t i, Ipv4* ip, Tcp* tcp) {
-	DyscoTcpSession ss;
-
-	ss.sip = htonl(ip->src.value());
-	ss.dip = htonl(ip->dst.value());
-	ss.sport = htons(tcp->src_port.value());
-	ss.dport = htons(tcp->dst_port.value());
-
 	DyscoControlBlock* cb = get_controlblock_by_supss(i, ip, tcp);
 	if(!cb)
 		return &cb->subss;
