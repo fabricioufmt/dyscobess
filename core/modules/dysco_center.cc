@@ -280,11 +280,13 @@ DyscoControlBlock* DyscoCenter::add_mapping_filter(uint32_t i, Ipv4* ip, Tcp* tc
 	DyscoTcpSession ss;
 	DyscoControlBlock cb;
 
+	cb.supss.i = i;
 	cb.supss.sip = htonl(ip->src.value());
 	cb.supss.dip = htonl(ip->dst.value());
 	cb.supss.sport = htons(tcp->src_port.value());
 	cb.supss.dport = htons(tcp->dst_port.value());
 
+	ss.i = i;
 	if(filter->i == 0)
 		ss.sip = cb.supss.sip;
 	else
@@ -294,14 +296,15 @@ DyscoControlBlock* DyscoCenter::add_mapping_filter(uint32_t i, Ipv4* ip, Tcp* tc
 	ss.dport = htons((rand() % 1000 + 30000));
 	cb.supss = ss;
 
-	std::pair<uint32_t, bess::utils::CuckooMap<DyscoTcpSession, DyscoControlBlock, DyscoTcpSession::Hash, DyscoTcpSession::EqualTo>>* ret1;
+	/*std::pair<uint32_t, bess::utils::CuckooMap<DyscoTcpSession, DyscoControlBlock, DyscoTcpSession::Hash, DyscoTcpSession::EqualTo>>* ret1;
 
 	ret1 = map.Find(i);
 	if(ret1 != nullptr)
 		ret1->second.Insert(ss, cb);
 	else
 		return 0;
-	
+	*/
+	map.Insert(ss, cb);
 	//map.Insert(ss, cb);
 	//bess::utils::CuckooMap<DyscoTcpSession, DyscoControlBlock, DyscoTcpSession::Hash, DyscoTcpSession::EqualTo> hash_value(ss, cb);
 	//map.Insert(i, hash_value);
@@ -312,7 +315,8 @@ DyscoControlBlock* DyscoCenter::add_mapping_filter(uint32_t i, Ipv4* ip, Tcp* tc
 		printip0(ntohl(cb.supss.sip)), ntohs(cb.supss.sport),
 		printip0(ntohl(cb.supss.dip)), ntohs(cb.supss.dport));
 
-	return &ret1->second.Find(ss)->second;
+	//return &ret1->second.Find(ss)->second;
+	return map.Find(ss)->second;
 }
 
 /*
