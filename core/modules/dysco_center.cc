@@ -104,23 +104,24 @@ DyscoTcpSession* DyscoCenter::get_subss(Ipv4* ip, Tcp* tcp) {
 DyscoTcpSession* DyscoCenter::get_supss_by_subss(uint32_t i, Ipv4* ip, Tcp* tcp) {
 	DyscoTcpSession ss;
 
+	ss.i = i;
 	ss.sip = htonl(ip->src.value());
 	ss.dip = htonl(ip->dst.value());
 	ss.sport = htons(tcp->src_port.value());
 	ss.dport = htons(tcp->dst_port.value());
 
-
-	auto* submap = map.Find(i);
-	if(submap == nullptr)
+	auto* result = map.Find(ss);
+	if(result == nullptr)
 		return 0;
 
-	const DyscoTcpSession& t = const_cast<DyscoTcpSession&>(ss);
+	return &result->second.supss;
+	//const DyscoTcpSession& t = const_cast<DyscoTcpSession&>(ss);
 	
-	auto* entry = reinterpret_cast<bess::utils::CuckooMap<DyscoTcpSession, DyscoControlBlock, DyscoTcpSession::Hash, DyscoTcpSession::EqualTo>>(submap->second).Find(t);
-	if(entry == nullptr)
-		return 0;
+	//auto* entry = reinterpret_cast<bess::utils::CuckooMap<DyscoTcpSession, DyscoControlBlock, DyscoTcpSession::Hash, DyscoTcpSession::EqualTo>>(submap->second).Find(t);
+	//if(entry == nullptr)
+	//	return 0;
 
-	return &entry->second.subss;
+	//return &entry->second.subss;
 	/*
 	DyscoTcpSession::EqualTo equals;
 	HashTable::iterator it = map.begin();
@@ -197,12 +198,24 @@ DyscoControlBlock* DyscoCenter::get_controlblock(Ipv4* ip, Tcp* tcp) {
 DyscoControlBlock* DyscoCenter::get_controlblock_by_supss(uint32_t i, Ipv4* ip, Tcp* tcp) {
 	DyscoTcpSession ss;
 
+	ss.i = i;
 	ss.sip = htonl(ip->src.value());
 	ss.dip = htonl(ip->dst.value());
 	ss.sport = htons(tcp->src_port.value());
 	ss.dport = htons(tcp->dst_port.value());
 
-	std::pair<uint32_t, bess::utils::CuckooMap<DyscoTcpSession, DyscoControlBlock, DyscoTcpSession::Hash, DyscoTcpSession::EqualTo>>* ret1;
+	HashTable::iterator it = map.begin();
+	while(it != map.end()) {
+		DyscoTcpSession::EqualTo equals;
+		if(equals(ss, (*it).second.supss))
+			return &(*it).second;
+		it++;
+	}
+
+	return 0;
+
+	
+	/*std::pair<uint32_t, bess::utils::CuckooMap<DyscoTcpSession, DyscoControlBlock, DyscoTcpSession::Hash, DyscoTcpSession::EqualTo>>* ret1;
 
 	ret1 = map.Find(i);
 	if(ret1 != nullptr) {
@@ -215,7 +228,7 @@ DyscoControlBlock* DyscoCenter::get_controlblock_by_supss(uint32_t i, Ipv4* ip, 
 		}
 	}
 	
-	return 0;
+	return 0;*/
 }
 
 char* printip0(uint32_t ip) {

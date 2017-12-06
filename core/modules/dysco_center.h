@@ -20,6 +20,7 @@ using bess::utils::Ethernet;
 
 class DyscoTcpSession {
  public:
+	uint32_t i;
 	uint32_t sip;
 	uint32_t dip;
 	uint16_t sport;
@@ -33,7 +34,7 @@ class DyscoTcpSession {
 
 	struct EqualTo {
 		bool operator()(const DyscoTcpSession& a, const DyscoTcpSession& b) const {
-			return a.sip == b.sip && a.dip == b.dip && a.sport == b.sport && a.dport == b.dport;
+			return a.i == b.i && a.sip == b.sip && a.dip == b.dip && a.sport == b.sport && a.dport == b.dport;
 		}
 	};
 };
@@ -78,8 +79,8 @@ class DyscoCenter final : public Module {
 	CommandResponse CommandList(const bess::pb::EmptyArg&);
 	
  private:
-	//using HashTable = bess::utils::CuckooMap<DyscoTcpSession, DyscoControlBlock, DyscoTcpSession::Hash, DyscoTcpSession::EqualTo>;
-	using HashTable = bess::utils::CuckooMap<uint32_t, bess::utils::CuckooMap<DyscoTcpSession, DyscoControlBlock, DyscoTcpSession::Hash, DyscoTcpSession::EqualTo>>;
+	using HashTable = bess::utils::CuckooMap<DyscoTcpSession, DyscoControlBlock, DyscoTcpSession::Hash, DyscoTcpSession::EqualTo>;
+	//using HashTable = bess::utils::CuckooMap<uint32_t, bess::utils::CuckooMap<DyscoTcpSession, DyscoControlBlock, DyscoTcpSession::Hash, DyscoTcpSession::EqualTo>>;
 	HashTable map;
 	DyscoBPF* bpf;
 };
