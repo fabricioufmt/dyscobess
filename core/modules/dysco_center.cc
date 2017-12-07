@@ -127,16 +127,17 @@ DyscoTcpSession* DyscoCenter::get_supss_by_subss(uint32_t i, Ipv4* ip, Tcp* tcp)
 	ss.dport = htons(tcp->dst_port.value());
 
 
-	fprintf(stderr, "DyscoCenter(get_supss_by_subss)[%u]: %s:%u -> %s:%u\n", i,
+	fprintf(stderr, "%s(get_supss_by_subss)[%u]: (SUB) %s:%u -> %s:%u\n",
+		name().c_str(), i,
 		printip0(ntohl(ss.sip)), ntohs(ss.sport),
 		printip0(ntohl(ss.dip)), ntohs(ss.dport));
 	
 	auto* result = map.Find(ss);
 	if(result == nullptr) {
-		fprintf(stderr, "DyscoCenter(get_supss_by_subss) not found\n");
+		fprintf(stderr, "%s(get_supss_by_subss) not found\n", name().c_str());
 		return 0;
 	}
-	fprintf(stderr, "DyscoCenter(get_supss_by_subss) found\n");
+	fprintf(stderr, "%s(get_supss_by_subss) found\n", name().c_str());
 	return &result->second.supss;
 	//const DyscoTcpSession& t = const_cast<DyscoTcpSession&>(ss);
 	
@@ -168,6 +169,10 @@ DyscoTcpSession* DyscoCenter::get_supss_by_subss(uint32_t i, Ipv4* ip, Tcp* tcp)
 }
 
 DyscoTcpSession* DyscoCenter::get_subss_by_supss(uint32_t i, Ipv4* ip, Tcp* tcp) {
+	fprintf(stderr, "%s(get_subss_by_supss)[%u]: (SUP) %s:%u -> %s:%u\n",
+		name().c_str(), i,
+		printip2(ip->src.value()), tcp->src_port.value(),
+		printip2(ip->dst.value()), tcp->dst_port.value());
 	DyscoControlBlock* cb = get_controlblock_by_supss(i, ip, tcp);
 	if(!cb)
 		return &cb->subss;
@@ -323,8 +328,10 @@ DyscoControlBlock* DyscoCenter::add_mapping_filter(uint32_t i, Ipv4* ip, Tcp* tc
 	//map.Insert(ss, cb);
 	//bess::utils::CuckooMap<DyscoTcpSession, DyscoControlBlock, DyscoTcpSession::Hash, DyscoTcpSession::EqualTo> hash_value(ss, cb);
 	//map.Insert(i, hash_value);
-	
-	fprintf(stderr, "DyscoCenter(add_mapping_filter)[%u]: %s:%u -> %s:%u => %s:%u -> %s:%u\n", i,
+	fprintf(stderr, "%s(add_mapping_filter) SUP => SUB\n",
+		name().c_str());
+	fprintf(stderr, "%s(add_mapping_filter)[%u]: %s:%u -> %s:%u => %s:%u -> %s:%u\n",
+		name().c_str(), i,
 		printip0(ntohl(cb.supss.sip)), ntohs(cb.supss.sport),
 		printip0(ntohl(cb.supss.dip)), ntohs(cb.supss.dport),
 		printip0(ntohl(cb.subss.sip)), ntohs(cb.subss.sport),

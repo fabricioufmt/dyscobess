@@ -42,21 +42,21 @@ bool DyscoAgentInc::process_syn(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 
 	DyscoControlBlock* cb = dc->get_controlblock_by_supss(this->index, ip, tcp);
 	if(!cb) {
-		fprintf(stderr, "DyscoAgentInc(syn): cb is NULL\n");
+		fprintf(stderr, "%s(SYN): cb is NULL\n", name().c_str());
 
 		DyscoBPF::Filter* f = dc->get_filter(pkt);
 		if(!f) {
-			fprintf(stderr, "DyscoAgentInc(syn): filter is NULL\n");
+			fprintf(stderr, "%s(SYN): filter is NULL\n", name().c_str());
 			return false;
 		}
 
-		fprintf(stderr, "DyscoAgentInc(syn): filter is not NULL\n");
+		fprintf(stderr, "%s(SYN): filter is not NULL\n", name().c_str());
 		cb = dc->add_mapping_filter(this->index, ip, tcp, f);
 		if(!cb)
 			return false;
 		
 	}
-	fprintf(stderr, "DyscoAgentInc(syn): cb is not NULL\n");
+	fprintf(stderr, "%s(SYN): cb is not NULL\n", name().c_str());
 	
 	DyscoTcpSession* ss = &cb->subss;
 	ip->src = be32_t(ntohl(ss->sip));
@@ -150,7 +150,9 @@ bool DyscoAgentInc::process_packet(bess::Packet* pkt) {
 			process_syn(pkt, ip, tcp);
 	} else
 		process_nonsyn(ip, tcp);
-	
+	fprintf(stderr, "%s(OUT): %s:%u -> %s:%u\n", name().c_str(),
+		printip1(ip->src.value()), tcp->src_port.value(),
+		printip1(ip->dst.value()), tcp->dst_port.value());
 	return true;
 }
 
