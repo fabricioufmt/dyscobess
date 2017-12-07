@@ -317,7 +317,7 @@ DyscoControlBlock* DyscoCenter::add_mapping_filter(uint32_t i, Ipv4* ip, Tcp* tc
 		printip0(ntohl(cb.supss.sip)), ntohs(cb.supss.sport),
 		printip0(ntohl(cb.supss.dip)), ntohs(cb.supss.dport),
 		printip0(ntohl(cb.subss.sip)), ntohs(cb.subss.sport),
-		printip0(ntohl(cb.supss.dip)), ntohs(cb.supss.dport));
+		printip0(ntohl(cb.subss.dip)), ntohs(cb.subss.dport));
 
 	//return &ret1->second.Find(ss)->second;
 	return &map.Find(ss)->second;
