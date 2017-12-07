@@ -38,10 +38,10 @@ bool DyscoAgentOut::process_packet(bess::Packet* pkt) {
 	fprintf("%s: pkt_index: %u\n", get_name().c_str(), pkt_index);
 	DyscoTcpSession* ss = dc->get_supss_by_subss(pkt_index, ip, tcp);
 	if(!ss) {
-		fprintf("%s: get_supss_by_subss is NULL\n", name().c_str());
+		fprintf(stderr, "%s: get_supss_by_subss is NULL\n", name().c_str());
 		return false;
 	}
-	fprintf("%s: get_supss_by_subss is not NULL\n", name().c_str());
+	fprintf(stderr, "%s: get_supss_by_subss is not NULL\n", name().c_str());
 	
 	ip->src = be32_t(ntohl(ss->sip));
 	ip->dst = be32_t(ntohl(ss->dip));
