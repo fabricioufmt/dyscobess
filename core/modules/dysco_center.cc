@@ -171,8 +171,8 @@ DyscoTcpSession* DyscoCenter::get_supss_by_subss(uint32_t i, Ipv4* ip, Tcp* tcp)
 DyscoTcpSession* DyscoCenter::get_subss_by_supss(uint32_t i, Ipv4* ip, Tcp* tcp) {
 	fprintf(stderr, "%s(get_subss_by_supss)[%u]: (SUP) %s:%u -> %s:%u\n",
 		name().c_str(), i,
-		printip2(ip->src.value()), tcp->src_port.value(),
-		printip2(ip->dst.value()), tcp->dst_port.value());
+		printip0(ip->src.value()), tcp->src_port.value(),
+		printip0(ip->dst.value()), tcp->dst_port.value());
 	DyscoControlBlock* cb = get_controlblock_by_supss(i, ip, tcp);
 	if(!cb)
 		return &cb->subss;
