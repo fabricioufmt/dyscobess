@@ -1,6 +1,19 @@
 #include "dysco_agent_out.h"
 #include "../module_graph.h"
 
+char* printip2(uint32_t ip) {
+	uint8_t bytes[4];
+        char* buf = (char*) malloc(17);
+	
+        bytes[0] = ip & 0xFF;
+        bytes[1] = (ip >> 8) & 0xFF;
+        bytes[2] = (ip >> 16) & 0xFF;
+        bytes[3] = (ip >> 24) & 0xFF;
+        sprintf(buf, "%d.%d.%d.%d", bytes[3], bytes[2], bytes[1], bytes[0]);
+
+        return buf;
+}
+
 DyscoAgentOut::DyscoAgentOut() : Module() {
 	dc = 0;
 }
@@ -35,7 +48,9 @@ bool DyscoAgentOut::process_packet(bess::Packet* pkt) {
 
 	Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
 	uint32_t pkt_index = ((uint32_t*)pkt->metadata<const char*>())[0];
-	fprintf(stderr, "%s: pkt_index: %u\n", name().c_str(), pkt_index);
+	fprintf(stderr, "%s(IN)[%u]: %s:%u -> %s:%u\n", pkt_index, name().c_str()
+		printip2(ip->src.value()), tcp->src_port.value(),
+		printip2(ip->dst.value()), tcp->dst_port.value());
 	DyscoTcpSession* ss = dc->get_supss_by_subss(pkt_index, ip, tcp);
 	if(!ss) {
 		fprintf(stderr, "%s: get_supss_by_subss is NULL\n", name().c_str());
