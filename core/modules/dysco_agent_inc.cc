@@ -141,8 +141,8 @@ bool DyscoAgentInc::process_packet(bess::Packet* pkt) {
 
 	Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
 	fprintf(stderr, "%s(IN): %s:%u -> %s:%u\n", name().c_str()
-		printip1(ip->src.value()), tcp->src_port.value(),
-		printip1(ip->dst.value()), tcp->dst_port.value());
+		printip1(ip->src.value(), tcp->src_port.value(),
+		printip1(ip->dst.value(), tcp->dst_port.value());
 	if(isTCPSYN(tcp)) {
 		if(hasPayload(ip, tcp))
 			process_synp(pkt, ip, tcp);
