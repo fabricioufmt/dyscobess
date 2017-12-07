@@ -289,7 +289,7 @@ DyscoControlBlock* DyscoCenter::add_mapping_filter(uint32_t i, Ipv4* ip, Tcp* tc
 	cb.supss.dip = htonl(ip->dst.value());
 	cb.supss.sport = htons(tcp->src_port.value());
 	cb.supss.dport = htons(tcp->dst_port.value());*/
-
+	fprintf(stderr, "DyscoCenter(add_mapping_filter)[%u]: filter->i: %u\n", i, filter->i);
 	ss.i = i;
 	if(filter->i == 0)
 		ss.sip = cb.supss.sip;
