@@ -294,7 +294,7 @@ DyscoControlBlock* DyscoCenter::add_mapping_filter(uint32_t i, Ipv4* ip, Tcp* tc
 	if(filter->i == 0)
 		ss.sip = cb.supss.sip;
 	else
-		ss.sip = ntohl(((uint32_t*)filter->sc)[filter->i - 1]);
+		ss.sip = (((uint32_t*)filter->sc)[filter->i - 1]);
 	ss.dip = (((uint32_t*)filter->sc)[filter->i++]);
 	ss.sport = htons((rand() % 1000 + 10000));
 	ss.dport = htons((rand() % 1000 + 30000));
@@ -316,8 +316,8 @@ DyscoControlBlock* DyscoCenter::add_mapping_filter(uint32_t i, Ipv4* ip, Tcp* tc
 	fprintf(stderr, "DyscoCenter(add_mapping_filter)[%u]: %s:%u -> %s:%u => %s:%u -> %s:%u\n", i,
 		printip0(ntohl(cb.supss.sip)), ntohs(cb.supss.sport),
 		printip0(ntohl(cb.supss.dip)), ntohs(cb.supss.dport),
-		printip0(ntohl(ss.sip)), ntohs(ss.sport),
-		printip0(ntohl(ss.dip)), ntohs(ss.dport));
+		printip0(ntohl(cb.subss.sip)), ntohs(cb.subss.sport),
+		printip0(ntohl(cb.supss.dip)), ntohs(cb.supss.dport));
 
 	//return &ret1->second.Find(ss)->second;
 	return &map.Find(ss)->second;
