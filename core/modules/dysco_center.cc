@@ -13,6 +13,22 @@ const Commands DyscoCenter::cmds = {
 };
 
 
+
+
+char* printip0(uint32_t ip) {
+	uint8_t bytes[4];
+        char* buf = (char*) malloc(17);
+	
+        bytes[0] = ip & 0xFF;
+        bytes[1] = (ip >> 8) & 0xFF;
+        bytes[2] = (ip >> 16) & 0xFF;
+        bytes[3] = (ip >> 24) & 0xFF;
+        sprintf(buf, "%d.%d.%d.%d", bytes[3], bytes[2], bytes[1], bytes[0]);
+
+        return buf;
+}
+
+
 DyscoCenter::DyscoCenter() : Module() {
 	bpf = new DyscoBPF();
 }
@@ -238,18 +254,6 @@ DyscoControlBlock* DyscoCenter::get_controlblock_by_supss(uint32_t i, Ipv4* ip, 
 	return 0;*/
 }
 
-char* printip0(uint32_t ip) {
-	uint8_t bytes[4];
-        char* buf = (char*) malloc(17);
-	
-        bytes[0] = ip & 0xFF;
-        bytes[1] = (ip >> 8) & 0xFF;
-        bytes[2] = (ip >> 16) & 0xFF;
-        bytes[3] = (ip >> 24) & 0xFF;
-        sprintf(buf, "%d.%d.%d.%d", bytes[3], bytes[2], bytes[1], bytes[0]);
-
-        return buf;
-}
 /*
 DyscoControlBlock* DyscoCenter::get_controlblock_supss(Ipv4* ip, Tcp* tcp) {
 	DyscoTcpSession ss;
