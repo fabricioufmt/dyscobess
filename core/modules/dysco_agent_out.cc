@@ -35,7 +35,7 @@ bool DyscoAgentOut::process_packet(bess::Packet* pkt) {
 
 	Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
 	uint32_t pkt_index = ((uint32_t*)pkt->metadata<const char*>())[0];
-	fprintf("%s: pkt_index: %u\n", get_name().c_str(), pkt_index);
+	fprintf(stderr, "%s: pkt_index: %u\n", name().c_str(), pkt_index);
 	DyscoTcpSession* ss = dc->get_supss_by_subss(pkt_index, ip, tcp);
 	if(!ss) {
 		fprintf(stderr, "%s: get_supss_by_subss is NULL\n", name().c_str());
