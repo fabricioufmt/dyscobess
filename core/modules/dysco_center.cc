@@ -110,10 +110,17 @@ DyscoTcpSession* DyscoCenter::get_supss_by_subss(uint32_t i, Ipv4* ip, Tcp* tcp)
 	ss.sport = htons(tcp->src_port.value());
 	ss.dport = htons(tcp->dst_port.value());
 
-	auto* result = map.Find(ss);
-	if(result == nullptr)
-		return 0;
 
+	fprintf(stderr, "DyscoCenter(get_supss_by_subss)[%u]: %s:%u -> %s:%u\n", i,
+		printip0(ntohl(ss.sip)), ntohs(ss.sport),
+		printip0(ntohl(ss.dip)), ntohs(ss.dport));
+	
+	auto* result = map.Find(ss);
+	if(result == nullptr) {
+		fprintf(stderr, "DyscoCenter(get_supss_by_subss) not found\n");
+		return 0;
+	}
+	fprintf(stderr, "DyscoCenter(get_supss_by_subss) found\n");
 	return &result->second.supss;
 	//const DyscoTcpSession& t = const_cast<DyscoTcpSession&>(ss);
 	
