@@ -75,12 +75,8 @@ bool DyscoAgentOut::process_packet(bess::Packet* pkt) {
 		process_syn(pkt_index, ip, tcp);
 	
 	DyscoTcpSession* ss = dc->get_supss_by_subss(pkt_index, ip, tcp);
-	if(!ss) {
-		fprintf(stderr, "%s: get_supss_by_subss is NULL\n", name().c_str());
+	if(!ss)
 		return false;
-	}
-	
-	fprintf(stderr, "%s: get_supss_by_subss is not NULL\n", name().c_str());
 	
 	ip->src = be32_t(ntohl(ss->sip));
 	ip->dst = be32_t(ntohl(ss->dip));
