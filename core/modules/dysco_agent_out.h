@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <arpa/inet.h>
 
+#include "../port.h"
 #include "../module.h"
 #include "../pb/module_msg.pb.h"
 #include "dysco_center.h"
@@ -27,6 +28,7 @@ class DyscoAgentOut final : public Module {
 
 	DyscoAgentOut();
 	bool process_packet(bess::Packet*);
+	void process_syn(uint32_t, Ipv4*, Tcp*);
 	void ProcessBatch(bess::PacketBatch*) override;
 	CommandResponse Init(const bess::pb::DyscoAgentOutArg&);
 

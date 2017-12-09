@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <arpa/inet.h>
 
+#include "../port.h"
 #include "../module.h"
 #include "../pb/module_msg.pb.h"
 #include "dysco_center.h"
