@@ -139,6 +139,8 @@ bool DyscoCenter::add_backmapping(uint32_t i, DyscoControlBlock* block) {
 	revsubss->dport = block->subss.sport;
 
 	map.Insert(*revsubss, cb);
+
+	return true;
 }
 
 DyscoTcpSession* DyscoCenter::get_supss_by_subss(uint32_t i, Ipv4* ip, Tcp* tcp) {
