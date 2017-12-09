@@ -32,7 +32,8 @@ CommandResponse DyscoAgentInc::Init(const bess::pb::DyscoAgentIncArg& arg) {
 		return CommandFailure(ENODEV, "DyscoCenter module is NULL.");
 
 	const char* port_name = arg.port().c_str();
-	it = PortBuilder::all_ports().find(port_name);
+	//it = PortBuilder::all_ports().find(port_name);
+	it = PortBuilder::all_ports().find(arg.port());
 	if(it == PortBuilder::all_ports().end()) {
 		return CommandFailure(ENODEV, "Port %s not found", port_name);
 	}
