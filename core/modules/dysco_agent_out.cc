@@ -16,6 +16,7 @@ char* printip2(uint32_t ip) {
 
 DyscoAgentOut::DyscoAgentOut() : Module() {
 	dc = 0;
+	index = 0;
 }
 
 CommandResponse DyscoAgentOut::Init(const bess::pb::DyscoAgentOutArg& arg) {

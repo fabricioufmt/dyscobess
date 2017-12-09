@@ -28,7 +28,7 @@ class DyscoAgentOut final : public Module {
 
 	DyscoAgentOut();
 	bool process_packet(bess::Packet*);
-	void process_syn(uint32_t, Ipv4*, Tcp*);
+	bool process_syn(uint32_t, Ipv4*, Tcp*);
 	void ProcessBatch(bess::PacketBatch*) override;
 	CommandResponse Init(const bess::pb::DyscoAgentOutArg&);
 
@@ -52,6 +52,7 @@ class DyscoAgentOut final : public Module {
 	}
 
  private:
+	uint32_t index;
 	DyscoCenter* dc;
 };
 
