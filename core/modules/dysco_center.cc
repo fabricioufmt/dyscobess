@@ -291,7 +291,7 @@ DyscoControlBlock* DyscoCenter::get_controlblock_by_supss(uint32_t i, Ipv4* ip, 
 	DyscoTcpSession* ss2;
 	while(it != map.end()) {
 		DyscoTcpSession::EqualTo equals;
-		fprintf(stderr, "[DyscoCenter]: (SUB) [%u]: %s:%u -> %s:%u\n",
+		/*fprintf(stderr, "[DyscoCenter]: (SUB) [%u]: %s:%u -> %s:%u\n",
 			i,
 			printip0(ntohl(ss.sip)), ntohs(ss.sport),
 			printip0(ntohl(ss.dip)), ntohs(ss.dport));
@@ -305,9 +305,9 @@ DyscoControlBlock* DyscoCenter::get_controlblock_by_supss(uint32_t i, Ipv4* ip, 
 		fprintf(stderr, "%u==%u, %u==%u, %u==%u, %u==%u, %u==%u\n",
 			ss.i, ss2->i, ss.sip, ss2->sip, ss.dip, ss2->dip, ss.sport, ss2->sport, ss.dport, ss2->dport);
 
-			
+		*/	
 		if(equals(ss, (*it).second.supss)) {
-			fprintf(stderr, "------------FOUND------------\n");
+			//fprintf(stderr, "------------FOUND------------\n");
 			return &(*it).second;
 		}
 		it++;
