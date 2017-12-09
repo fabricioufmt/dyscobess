@@ -140,6 +140,14 @@ bool DyscoCenter::add_backmapping(uint32_t i, DyscoControlBlock* block) {
 
 	map.Insert(*revsubss, cb);
 
+	fprintf(stderr, "[DyscoCenter](add_backmapping)[%u]: %s:%u -> %s:%u => %s:%u -> %s:%u\n",
+		i,
+		printip0(ntohl(revsubss->sip)), ntohs(revsubss->sport),
+		printip0(ntohl(revsubss->dip)), ntohs(revsubss->dport),
+		printip0(ntohl(revsupss->sip)), ntohs(revsupss->sport),
+		printip0(ntohl(revsupss->dip)), ntohs(revsupss->dport));
+
+	
 	return true;
 }
 
@@ -255,6 +263,11 @@ DyscoControlBlock* DyscoCenter::get_controlblock_by_subss(uint32_t i, Ipv4* ip, 
 	ss.sport = htons(tcp->src_port.value());
 	ss.dport = htons(tcp->dst_port.value());
 
+	fprintf(stderr, "[DyscoCenter](get_controlblock_by_subss)[%u]:  %s:%u -> %s:%u\n",
+		i,
+		printip0(ip->src.value()), tcp->src_port.value(),
+		printip0(ip->dst.value()), tcp->dst_port.value());
+	
 	HashTable::iterator it = map.begin();
 	while(it != map.end()) {
 		DyscoTcpSession::EqualTo equals;
@@ -275,6 +288,11 @@ DyscoControlBlock* DyscoCenter::get_controlblock_by_supss(uint32_t i, Ipv4* ip, 
 	ss.sport = htons(tcp->src_port.value());
 	ss.dport = htons(tcp->dst_port.value());
 
+	fprintf(stderr, "[DyscoCenter](get_controlblock_by_supss)[%u]:  %s:%u -> %s:%u\n",
+		i,
+		printip0(ip->src.value()), tcp->src_port.value(),
+		printip0(ip->dst.value()), tcp->dst_port.value());
+	
 	HashTable::iterator it = map.begin();
 	while(it != map.end()) {
 		DyscoTcpSession::EqualTo equals;
@@ -505,7 +523,8 @@ bool DyscoCenter::add_mapping(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_t* payload, 
 	//bess::utils::CuckooMap<DyscoTcpSession, DyscoControlBlock, DyscoTcpSession::Hash, DyscoTcpSession::EqualTo> hash_value(ss, cb);
 	//map.Insert(i, hash_value);
 	
-	fprintf(stderr, "DyscoCenter(add_mapping): %s:%u -> %s:%u => %s:%u -> %s:%u\n",
+	fprintf(stderr, "[DyscoCenter](add_mapping)[%u]: %s:%u -> %s:%u => %s:%u -> %s:%u\n",
+		i,
 		printip0(ntohl(ss.sip)), ntohs(ss.sport),
 		printip0(ntohl(ss.dip)), ntohs(ss.dport),
 		printip0(ntohl(cb.supss.sip)), ntohs(cb.supss.sport),
