@@ -310,7 +310,7 @@ DyscoControlBlock* DyscoCenter::get_controlblock_by_supss(uint32_t i, Ipv4* ip, 
 			(*it).second.supss.i,
 			printip0(ntohl((*it).second.supss.sip)), ntohs((*it).second.supss.sport),
 			printip0(ntohl((*it).second.supss.dip)), ntohs((*it).second.supss.dport));
-		ss2 = (*it).second.supss;
+		ss2 = &(*it).second.supss;
 		fprintf(stderr, "%u==%u, %u==%u, %u==%u, %u==%u, %u==%u\n",
 			ss.i, ss2->i, ss.sip, ss2->sip, ss.dip, ss2->dip, ss.sport, ss2->sport, ss.dport, ss2->dport);
 
