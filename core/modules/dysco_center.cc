@@ -143,7 +143,7 @@ bool DyscoCenter::add_backmapping(uint32_t i, DyscoControlBlock* block) {
 	
 	map.Insert(*revsubss, cb);
 
-	fprintf(stderr, "[DyscoCenter](add_backmapping)[%u]: %s:%u -> %s:%u => %s:%u -> %s:%u\n",
+	fprintf(stderr, "[DyscoCenter](add_backmapping{SUB=>SUP})[%u]: %s:%u -> %s:%u => %s:%u -> %s:%u\n",
 		i,
 		printip0(ntohl(revsubss->sip)), ntohs(revsubss->sport),
 		printip0(ntohl(revsubss->dip)), ntohs(revsubss->dport),
@@ -203,10 +203,6 @@ DyscoTcpSession* DyscoCenter::get_supss_by_subss(uint32_t i, Ipv4* ip, Tcp* tcp)
 }
 
 DyscoTcpSession* DyscoCenter::get_subss_by_supss(uint32_t i, Ipv4* ip, Tcp* tcp) {
-	fprintf(stderr, "[DyscoCenter](get_subss_by_supss)[%u]: (SUP) %s:%u -> %s:%u\n",
-		i,
-		printip0(ip->src.value()), tcp->src_port.value(),
-		printip0(ip->dst.value()), tcp->dst_port.value());
 	DyscoControlBlock* cb = get_controlblock_by_supss(i, ip, tcp);
 	if(!cb)
 		return &cb->subss;
@@ -266,11 +262,6 @@ DyscoControlBlock* DyscoCenter::get_controlblock_by_subss(uint32_t i, Ipv4* ip, 
 	ss.sport = htons(tcp->src_port.value());
 	ss.dport = htons(tcp->dst_port.value());
 
-	fprintf(stderr, "[DyscoCenter](get_controlblock_by_subss)[%u]:  %s:%u -> %s:%u\n",
-		i,
-		printip0(ip->src.value()), tcp->src_port.value(),
-		printip0(ip->dst.value()), tcp->dst_port.value());
-	
 	HashTable::iterator it = map.begin();
 	while(it != map.end()) {
 		DyscoTcpSession::EqualTo equals;
@@ -410,8 +401,7 @@ DyscoControlBlock* DyscoCenter::add_mapping_filter(uint32_t i, Ipv4* ip, Tcp* tc
 	//map.Insert(ss, cb);
 	//bess::utils::CuckooMap<DyscoTcpSession, DyscoControlBlock, DyscoTcpSession::Hash, DyscoTcpSession::EqualTo> hash_value(ss, cb);
 	//map.Insert(i, hash_value);
-	fprintf(stderr, "[DyscoCenter](add_mapping_filter) SUP => SUB\n");
-	fprintf(stderr, "[DyscoCenter](add_mapping_filter)[%u]: %s:%u -> %s:%u => %s:%u -> %s:%u\n",
+	fprintf(stderr, "[DyscoCenter](add_mapping_filter{SUP=>SUB})[%u]: %s:%u -> %s:%u => %s:%u -> %s:%u\n",
 		i,
 		printip0(ntohl(cb.supss.sip)), ntohs(cb.supss.sport),
 		printip0(ntohl(cb.supss.dip)), ntohs(cb.supss.dport),
