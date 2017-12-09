@@ -46,7 +46,7 @@ bool DyscoAgentOut::process_syn(uint32_t i, Ipv4* ip, Tcp* tcp) {
 	if(!block)
 		return false;
 
-	dc->add_backmapping(this->index, block);
+	return dc->add_backmapping(this->index, block);
 }
 
 bool DyscoAgentOut::process_packet(bess::Packet* pkt) {
