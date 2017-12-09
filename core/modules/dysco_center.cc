@@ -288,7 +288,7 @@ DyscoControlBlock* DyscoCenter::get_controlblock_by_supss(uint32_t i, Ipv4* ip, 
 		printip0(ip->dst.value()), tcp->dst_port.value());
 	
 	HashTable::iterator it = map.begin();
-	DyscoTcpSession* ss2;
+	//DyscoTcpSession* ss2;
 	while(it != map.end()) {
 		DyscoTcpSession::EqualTo equals;
 		/*fprintf(stderr, "[DyscoCenter]: (SUB) [%u]: %s:%u -> %s:%u\n",
