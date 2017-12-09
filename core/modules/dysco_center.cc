@@ -138,6 +138,9 @@ bool DyscoCenter::add_backmapping(uint32_t i, DyscoControlBlock* block) {
 	revsubss->sport = block->subss.dport;
 	revsubss->dport = block->subss.sport;
 
+	if(map.Find(*revsubss) != nullptr)
+		return false;
+	
 	map.Insert(*revsubss, cb);
 
 	fprintf(stderr, "[DyscoCenter](add_backmapping)[%u]: %s:%u -> %s:%u => %s:%u -> %s:%u\n",

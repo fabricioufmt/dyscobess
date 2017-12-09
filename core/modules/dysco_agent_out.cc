@@ -30,7 +30,7 @@ CommandResponse DyscoAgentOut::Init(const bess::pb::DyscoAgentOutArg& arg) {
 	dc = reinterpret_cast<DyscoCenter*>(it->second);
 	if(!dc)
 		return CommandFailure(ENODEV, "DyscoCenter module is NULL.");
-	
+	/*
 	const char* port_name = arg.port().c_str();
 	//const auto& itt = PortBuilder::all_ports().find(port_name);
 	const auto& itt = PortBuilder::all_ports().find(arg.port());
@@ -39,6 +39,8 @@ CommandResponse DyscoAgentOut::Init(const bess::pb::DyscoAgentOutArg& arg) {
 	}
 
 	index = dc->get_index(reinterpret_cast<Port*>(itt->second)->name());
+	*/
+	index = dc->get_index(arg.port());
 	
 	return CommandSuccess();
 }
