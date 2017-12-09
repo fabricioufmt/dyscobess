@@ -315,8 +315,10 @@ DyscoControlBlock* DyscoCenter::get_controlblock_by_supss(uint32_t i, Ipv4* ip, 
 			ss.i, ss2->i, ss.sip, ss2->sip, ss.dip, ss2->dip, ss.sport, ss2->sport, ss.dport, ss2->dport);
 
 			
-		if(equals(ss, (*it).second.supss))
+		if(equals(ss, (*it).second.supss)) {
+			fprintf(stderr, "------------FOUND------------\n");
 			return &(*it).second;
+		}
 		it++;
 	}
 
