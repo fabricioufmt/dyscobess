@@ -62,12 +62,14 @@ class DyscoCenter final : public Module {
 	//bool add_mapping(Ipv4*, Tcp*, uint8_t*, uint32_t);
 	//DyscoControlBlock* add_mapping_filter(Ipv4*, Tcp*, DyscoBPF::Filter*);
 	bool add_policy_rule(uint32_t, std::string, uint8_t*, uint32_t);
+	DyscoControlBlock* get_controlblock_by_subss(uint32_t, Ipv4*, Tcp*);
 	DyscoControlBlock* get_controlblock_by_supss(uint32_t, Ipv4*, Tcp*);
 	//DyscoControlBlock* get_controlblock(uint32_t, Ipv4*, Tcp*);
 	//DyscoControlBlock* get_controlblock(Ipv4*, Tcp*);
 	//DyscoControlBlock* get_controlblock_supss(Ipv4*, Tcp*);
 	
 	uint32_t get_index(const std::string&);
+	bool add_backmapping(uint32_t, DyscoControlBlock*);
 	DyscoTcpSession* get_subss_by_supss(uint32_t, Ipv4*, Tcp*);
 	DyscoTcpSession* get_supss_by_subss(uint32_t, Ipv4*, Tcp*);
 	//DyscoTcpSession* get_subss(Ipv4*, Tcp*);

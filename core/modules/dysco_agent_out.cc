@@ -29,8 +29,24 @@ CommandResponse DyscoAgentOut::Init(const bess::pb::DyscoAgentOutArg& arg) {
 	dc = reinterpret_cast<DyscoCenter*>(it->second);
 	if(!dc)
 		return CommandFailure(ENODEV, "DyscoCenter module is NULL.");
+	
+	const char* port_name = arg.port().c_str();
+	it = PortBuilder::all_ports().find(port_name);
+	if(it == PortBuilder::all_ports().end()) {
+		return CommandFailure(ENODEV, "Port %s not found", port_name);
+	}
 
+	index = dc->get_index(it->second->name());
+	
 	return CommandSuccess();
+}
+
+bool DyscoAgentOut::process_syn(uint32_t i, Ipv4* ip, Tcp* tcp) {
+	DyscoControlBlock* block = get_controlblock_by_subss(i, ip, tcp);
+	if(!block)
+		return false;
+
+	dc->add_backmapping(this->index, block);
 }
 
 bool DyscoAgentOut::process_packet(bess::Packet* pkt) {
@@ -52,6 +68,9 @@ bool DyscoAgentOut::process_packet(bess::Packet* pkt) {
 	fprintf(stderr, "%s(IN)[%u]: %s:%u -> %s:%u\n", name().c_str(), pkt_index,
 		printip2(ip->src.value()), tcp->src_port.value(),
 		printip2(ip->dst.value()), tcp->dst_port.value());
+
+	if(isTCPSYN(tcp))
+		process_syn(pkt_index, ip, tcp);
 	
 	DyscoTcpSession* ss = dc->get_supss_by_subss(pkt_index, ip, tcp);
 	if(!ss) {

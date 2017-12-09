@@ -1144,9 +1144,11 @@ message DyscoCenterListArg {
 }
 
 message DyscoAgentIncArg {
-	string dc = 1;
+	string port = 1;
+	string dc = 2;
 }
 
 message DyscoAgentOutArg {
-	string dc = 1;
+	string port = 1;
+	string dc = 2;
 }

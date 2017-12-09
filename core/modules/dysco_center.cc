@@ -117,6 +117,30 @@ DyscoTcpSession* DyscoCenter::get_subss(Ipv4* ip, Tcp* tcp) {
 	return 0;
 }
 */
+
+bool DyscoCenter::add_backmapping(uint32_t i, DyscoControlBlock* block) {
+	DyscoControlBlock cb;	
+	DyscoTcpSession* revsupss;
+	DyscoTcpSession* revsubss;
+
+	revsupss = &cb.supss;
+	revsubss = &cb.subss;
+	
+	revsupss->i = i;
+	revsupss->sip = block->supss.dip;
+	revsupss->dip = block->supss.sip;
+	revsupss->sport = block->supss.dport;
+	revsupss->dport = block->supss.sport;
+
+	revsubss->i = i;
+	revsubss->sip = block->subss.dip;
+	revsubss->dip = block->subss.sip;
+	revsubss->sport = block->subss.dport;
+	revsubss->dport = block->subss.sport;
+
+	map.Insert(*revsubss, cb);
+}
+
 DyscoTcpSession* DyscoCenter::get_supss_by_subss(uint32_t i, Ipv4* ip, Tcp* tcp) {
 	DyscoTcpSession ss;
 
