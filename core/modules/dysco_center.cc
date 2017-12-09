@@ -249,6 +249,26 @@ DyscoControlBlock* DyscoCenter::get_controlblock(Ipv4* ip, Tcp* tcp) {
 }
 */
 
+DyscoControlBlock* DyscoCenter::get_controlblock_by_subss(uint32_t i, Ipv4* ip, Tcp* tcp) {
+	DyscoTcpSession ss;
+
+	ss.i = i;
+	ss.sip = htonl(ip->src.value());
+	ss.dip = htonl(ip->dst.value());
+	ss.sport = htons(tcp->src_port.value());
+	ss.dport = htons(tcp->dst_port.value());
+
+	HashTable::iterator it = map.begin();
+	while(it != map.end()) {
+		DyscoTcpSession::EqualTo equals;
+		if(equals(ss, (*it).second.subss))
+			return &(*it).second;
+		it++;
+	}
+
+	return 0;
+}
+
 DyscoControlBlock* DyscoCenter::get_controlblock_by_supss(uint32_t i, Ipv4* ip, Tcp* tcp) {
 	DyscoTcpSession ss;
 
