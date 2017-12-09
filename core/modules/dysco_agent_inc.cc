@@ -107,8 +107,16 @@ bool DyscoAgentInc::process_nonsyn(Ipv4* ip, Tcp* tcp) {
 		return false;
 
 	DyscoTcpSession* ss = dc->get_subss_by_supss(this->index, ip, tcp);
-	if(!ss)
+	if(!ss) {
+		fprintf(stderr, "%s(process_nonsyn)[%u]: (SUB not found)\n",
+			this->name().c_str(), this->index);
 		return false;
+	} else {
+		fprintf(stderr, "%s(process_nonsyn)[%u]: (SUB found) %s:%u -> %s:%u\n",
+			this->name().c_str(), this->index,
+			printip1(ss->sip), ss->sport,
+			printip1(ss->dip), ss->dport);
+	}
 	
 	ip->src = be32_t(ss->sip);
 	ip->dst = be32_t(ss->dip);
