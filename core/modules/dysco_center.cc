@@ -300,8 +300,8 @@ DyscoControlBlock* DyscoCenter::get_controlblock_by_supss(uint32_t i, Ipv4* ip, 
 	while(it != map.end()) {
 		DyscoTcpSession::EqualTo equals;
 		fprintf(stderr, "[DyscoCenter]: (SUP) %s:%u -> %s:%u\n",
-			printip0((*it).second.supss).sip), (*it).second.supss).sport,
-			printip0((*it).second.supss).sip), (*it).second.supss).dport);
+			printip0((*it).second.supss.sip), (*it).second.supss.sport,
+			printip0((*it).second.supss.sip), (*it).second.supss.dport);
 
 			
 		if(equals(ss, (*it).second.supss))
