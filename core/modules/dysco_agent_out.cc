@@ -44,7 +44,7 @@ CommandResponse DyscoAgentOut::Init(const bess::pb::DyscoAgentOutArg& arg) {
 }
 
 bool DyscoAgentOut::process_syn(uint32_t i, Ipv4* ip, Tcp* tcp) {
-	DyscoControlBlock* block = get_controlblock_by_subss(i, ip, tcp);
+	DyscoControlBlock* block = dc->get_controlblock_by_subss(i, ip, tcp);
 	if(!block)
 		return false;
 
