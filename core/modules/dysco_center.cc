@@ -211,7 +211,7 @@ DyscoControlBlock* DyscoCenter::add_mapping_filter(uint32_t i, Ipv4* ip, Tcp* tc
 	ss.i = i;
 	if(filter->i == 0)
 		ss.sip = cb.supss.sip;
-	else if(filter->i != sc_len)
+	else if(filter->i != filter->sc_len)
 		ss.sip = (((uint32_t*)filter->sc)[filter->i - 1]);
 	else
 		return 0;
