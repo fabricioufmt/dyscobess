@@ -180,13 +180,21 @@ DyscoControlBlock* DyscoCenter::get_controlblock_by_supss(uint32_t i, Ipv4* ip, 
 	
 	HashTable::iterator it = map.begin();
 	while(it != map.end()) {
-		DyscoTcpSession::EqualTo equals;	
-		if(equals(ss, (*it).second.supss))
+		DyscoTcpSession::EqualTo equals;
+		fprintf(stderr, "%u==%u, %u==%u, %u==%u, %u==%u, %u==%u\n",
+			ss.i, (*it).second.supss.i,
+			ss.sip, (*it).second.supss.sip,
+			ss.dip, (*it).second.supss.dip,
+			ss.sport, (*it).second.supss.sport,
+			ss.dport, (*it).second.supss.dport);
+		if(equals(ss, (*it).second.supss)) {
+			fprintf(stderr, "---------FOUND---------\n");
 			return &(*it).second;
+		}
 		
 		it++;
 	}
-
+	fprintf(stderr, "---------NOT FOUND---------\n");
 	return 0;
 }
 
@@ -207,8 +215,6 @@ DyscoControlBlock* DyscoCenter::add_mapping_filter(uint32_t i, Ipv4* ip, Tcp* tc
 	cb.supss.dip = htonl(ip->dst.value());
 	cb.supss.sport = htons(tcp->src_port.value());
 	cb.supss.dport = htons(tcp->dst_port.value());
-
-	fprintf(stderr, "%u %u\n", filter->i, filter->sc_len);
 	
 	if(filter->i == (filter->sc_len >> 2))
 		return 0;
