@@ -109,11 +109,15 @@ bool DyscoAgentInc::process_nonsyn(Ipv4* ip, Tcp* tcp) {
 			printip1(ss->dip), ss->dport);
 	}
 	
-	ip->src = be32_t(ss->sip);
+	/*ip->src = be32_t(ss->sip);
 	ip->dst = be32_t(ss->dip);
 	tcp->src_port = be16_t(ss->sport);
-	tcp->dst_port = be16_t(ss->dport);
-
+	tcp->dst_port = be16_t(ss->dport);*/
+	ip->src = be32_t(ntohl(ss->sip));
+	ip->dst = be32_t(ntohl(ss->dip));
+	tcp->src_port = be16_t(ntohs(ss->sport));
+	tcp->dst_port = be16_t(ntohs(ss->dport));
+	
 	ip->checksum = 0;
 	tcp->checksum = 0;
 	ip->checksum = bess::utils::CalculateIpv4Checksum(*ip);
