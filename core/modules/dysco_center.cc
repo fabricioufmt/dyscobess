@@ -135,9 +135,9 @@ DyscoTcpSession* DyscoCenter::get_supss_by_subss(uint32_t i, Ipv4* ip, Tcp* tcp)
 DyscoTcpSession* DyscoCenter::get_subss_by_supss(uint32_t i, Ipv4* ip, Tcp* tcp) {
 	DyscoControlBlock* cb = get_controlblock_by_supss(i, ip, tcp);
 	if(!cb)
-		return &cb->subss;
+		return 0;
 	
-	return 0;
+	return &cb->subss;
 }
 
 uint32_t DyscoCenter::get_index(const std::string& name) {
@@ -181,20 +181,12 @@ DyscoControlBlock* DyscoCenter::get_controlblock_by_supss(uint32_t i, Ipv4* ip, 
 	HashTable::iterator it = map.begin();
 	while(it != map.end()) {
 		DyscoTcpSession::EqualTo equals;
-		fprintf(stderr, "%u==%u, %u==%u, %u==%u, %u==%u, %u==%u\n",
-			ss.i, (*it).second.supss.i,
-			ss.sip, (*it).second.supss.sip,
-			ss.dip, (*it).second.supss.dip,
-			ss.sport, (*it).second.supss.sport,
-			ss.dport, (*it).second.supss.dport);
-		if(equals(ss, (*it).second.supss)) {
-			fprintf(stderr, "---------FOUND---------\n");
+		if(equals(ss, (*it).second.supss))
 			return &(*it).second;
-		}
 		
 		it++;
 	}
-	fprintf(stderr, "---------NOT FOUND---------\n");
+	
 	return 0;
 }
 
