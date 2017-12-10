@@ -210,7 +210,7 @@ DyscoControlBlock* DyscoCenter::add_mapping_filter(uint32_t i, Ipv4* ip, Tcp* tc
 
 	fprintf(stderr, "%u %u\n", filter->i, filter->sc_len);
 	
-	if(filter->i == filter->sc_len)
+	if(filter->i == (filter->sc_len >> 2))
 		return 0;
 	
 	ss.i = i;
