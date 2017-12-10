@@ -207,14 +207,15 @@ DyscoControlBlock* DyscoCenter::add_mapping_filter(uint32_t i, Ipv4* ip, Tcp* tc
 	cb.supss.dip = htonl(ip->dst.value());
 	cb.supss.sport = htons(tcp->src_port.value());
 	cb.supss.dport = htons(tcp->dst_port.value());
+
+	if(filter->i == filter->sc_len - 1)
+		return 0;
 	
 	ss.i = i;
 	if(filter->i == 0)
 		ss.sip = cb.supss.sip;
-	else if(filter->i != filter->sc_len)
+	else 
 		ss.sip = (((uint32_t*)filter->sc)[filter->i - 1]);
-	else
-		return 0;
 	
 	ss.dip = (((uint32_t*)filter->sc)[filter->i++]);
 	ss.sport = htons((rand() % 1000 + 10000));
