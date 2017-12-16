@@ -117,13 +117,13 @@ DyscoHashOut* DyscoCenter::insert_cb_in_reverse(DyscoHashes* dh, DyscoTcpSession
 	return cb_out;
 }
 
-DyscoHashIn* DyscoCenter::insert_cb_in(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_t* payload, uint32_t payload_sz) {
+//DyscoHashIn* DyscoCenter::insert_cb_in(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_t* payload, uint32_t payload_sz) {
+DyscoHashIn* DyscoCenter::insert_cb_in(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_t* payload, uint32_t) {
 	DyscoHashes* dh = get_hash(i);
 	if(!dh)
 		return 0;
 
 	DyscoHashIn* cb_in;
-	DyscoHashOut* cb_out;
 		
 	cb_in = new DyscoHashIn();
 	if(!cb_in)
@@ -138,7 +138,7 @@ DyscoHashIn* DyscoCenter::insert_cb_in(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_t* 
 	DyscoTcpSession* sup = cb_out->get_sup();
 	memcpy(sup, reinterpret_cast<DyscoTcpSession*>(payload), sizeof(DyscoTcpSession));
 
-	cb_out = insert_cb_in_reverse(dh, reinterpret_cast<DyscoTcpSession*>(payload), ip, tcp);
+	DyscoHashOut* cb_out = insert_cb_in_reverse(dh, reinterpret_cast<DyscoTcpSession*>(payload), ip, tcp);
 	if(!cb_out) {
 		delete cb_in;
 		return 0;
