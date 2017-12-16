@@ -78,7 +78,7 @@ uint32_t DyscoCenter::get_index(const std::string& name) {
 }
 
 DyscoHashes* DyscoCenter::get_hash(uint32_t i) {
-	map<int, DyscoHashes>::iterator it = hashes.begin();
+	map<uint32_t, DyscoHashes>::iterator it = hashes.begin();
 	while(it != hashes.end()) {
 		if(i == (*it).first)
 			return &(*it).second;
