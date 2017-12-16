@@ -56,20 +56,28 @@ bool DyscoAgentIn::process_synp(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 	DyscoHashIn* cb_in = dc->insert_cb_in(this->index, ip, tcp, payload, payload_sz);
 	if(!cb_in)
 		return false;
+
+	pkt->trim(payload_sz);
+	ip->length = ip->length - be16_t(payload_sz);
+
+	//TODO: parse TCP Options
+	//TODO: Dysco Tag
 	
 	ip->src = be32_t(ntohl(supss->sip));
 	ip->dst = be32_t(ntohl(supss->dip));
 	tcp->src_port = be16_t(ntohs(supss->sport));
 	tcp->dst_port = be16_t(ntohs(supss->dport));
 
-	pkt->trim(payload_sz);
-	ip->length = ip->length - be16_t(payload_sz);
-
 	ip->checksum = 0;
 	tcp->checksum = 0;
 	ip->checksum = bess::utils::CalculateIpv4Checksum(*ip);
 	tcp->checksum = bess::utils::CalculateIpv4TcpChecksum(*ip, *tcp);
 
+	fprintf(stderr, "%s(OUT)[index: %u]: %s:%u -> %s:%u\n",
+		this->name().c_str(), this->index,
+		printip1(ip->src.value()), tcp->src_port.value(),
+		printip1(ip->dst.value()), tcp->dst_port.value());
+	
 	return true;
 }
 

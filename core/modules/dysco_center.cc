@@ -82,12 +82,9 @@ uint32_t DyscoCenter::get_index(const std::string& name) {
 }
 
 DyscoHashes* DyscoCenter::get_hash(uint32_t i) {
-	map<uint32_t, DyscoHashes>::iterator it = hashes.begin();
-	while(it != hashes.end()) {
-		if(i == (*it).first)
-			return &(*it).second;
-		it++;
-	}
+	map<uint32_t, DyscoHashes>::iterator it = hashes.find(i);
+	if(it != hashes.end())
+		return &(*it).second;
 
 	return 0;
 }
@@ -199,6 +196,8 @@ DyscoHashIn* DyscoCenter::insert_cb_in(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_t* 
 
         dh->hash_in.insert(std::pair<DyscoTcpSession, DyscoHashIn>(*sub, *cb_in));
 	dh->hash_out.insert(std::pair<DyscoTcpSession, DyscoHashOut>(*sup, *cb_out));
+
+	
 	
 	return cb_in;
 }
