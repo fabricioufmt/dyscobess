@@ -42,7 +42,7 @@ CommandResponse DyscoAgentOut::Init(const bess::pb::DyscoAgentOutArg& arg) {
 	*/
 	index = dc->get_index(arg.ns());
 
-	inet_pton(AF_INET, arg.ip().c_str(), &ip);
+	inet_pton(AF_INET, arg.ip().c_str(), &devip);
 	
 	return CommandSuccess();
 }

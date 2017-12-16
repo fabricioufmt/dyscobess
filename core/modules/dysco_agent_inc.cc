@@ -33,7 +33,7 @@ CommandResponse DyscoAgentInc::Init(const bess::pb::DyscoAgentIncArg& arg) {
 	
 	index = dc->get_index(arg.ns());
 	
-	inet_pton(AF_INET, arg.ip().c_str(), &ip);
+	inet_pton(AF_INET, arg.ip().c_str(), &devip);
 	
 	return CommandSuccess();
 }
@@ -42,7 +42,7 @@ bool DyscoAgentInc::process_syn(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 	if(!dc)
 		return false;
 
-	DyscoControlBlock* cb = dc->get_controlblock_by_supss(this->index, pkt, ip, tcp);
+	DyscoControlBlock* cb = dc->get_controlblock_by_supss(pkt, this->index, ip, tcp);
 	if(!cb)
 		return false;
 	
