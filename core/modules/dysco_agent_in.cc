@@ -94,7 +94,7 @@ bool DyscoAgentIn::process_packet(bess::Packet* pkt) {
 		printip1(ip->src.value()), tcp->src_port.value(),
 		printip1(ip->dst.value()), tcp->dst_port.value());
 
-	DyscoHashIn* cb_in = dc->lookup_input(this->index, pkt, ip, tcp);
+	DyscoHashIn* cb_in = dc->lookup_input(this->index, ip, tcp);
 
 	if(!cb_in) {
 		if(isTCPSYN(tcp) && hasPayload(ip, tcp))

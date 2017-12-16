@@ -105,7 +105,7 @@ DyscoHashIn* DyscoCenter::lookup_input(uint32_t i, Ipv4* ip, Tcp* tcp) {
 	
 	map<DyscoTcpSession, DyscoHashIn>::iterator it = dh->hash_in.find(ss);
 	if(it != dh->hash_in.end())
-		return &(*it)->second;
+		return &(*it).second;
 
 	return 0;
 }
