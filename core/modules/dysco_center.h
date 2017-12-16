@@ -39,13 +39,26 @@ class DyscoTcpSession {
 	};
 };
 
-using class DyscoHashOut;
+class DyscoHashOut;
 
 class DyscoHashIn {
  private:
 	DyscoHashOut* cb_out;
 	DyscoTcpSession sub;
 	DyscoTcpSession sup;
+	
+ public:
+	void set_cb_out(DyscoHashOut* cb_out) {
+		this->cb_out = cb_out;
+	}
+	
+	DyscoTcpSession* get_sub() {
+		return &sub;
+	}
+	
+	DyscoTcpSession* get_sup() {
+		return &sup;
+	}
 };
 
 class DyscoHashOut {
@@ -53,6 +66,19 @@ class DyscoHashOut {
 	DyscoHashIn* cb_in;
 	DyscoTcpSession sub;
 	DyscoTcpSession sup;
+	
+ public:
+	void set_cb_in(DyscoHashIn* cb_in) {
+		this->cb_in = cb_in;
+	}
+	
+	DyscoTcpSession* get_sub() {
+		return &sub;
+	}
+	
+	DyscoTcpSession* get_sup() {
+		return &sup;
+	}
 };
 
 class DyscoHashPen {
