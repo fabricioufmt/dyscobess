@@ -102,7 +102,7 @@ bool DyscoCenter::insert_pending(DyscoHashes* dh, uint8_t* payload, uint32_t pay
 	
 	DyscoHashOut* cb_out = new DyscoHashOut();
 	if(!cb_out)
-		return 0;
+		return false;
 
 	DyscoTcpSession* sup = cb_out->get_sup();
 	DyscoTcpSession* ss = reinterpret_cast<DyscoTcpSession*>(payload);
@@ -114,11 +114,13 @@ bool DyscoCenter::insert_pending(DyscoHashes* dh, uint8_t* payload, uint32_t pay
 
 	cb_out->set_sc_len(sc_len - 1);
 	uint32_t* sc = cb_out->get_sc();
-	sc = new uint32[sc_len - 1];
+	sc = new uint32_t[sc_len - 1];
 	memcpy(sc, payload + sizeof(DyscoTcpSession) + sizeof(uint32_t), sc_len - 1);
 	
 	dh->hash_pen.insert(std::pair<DyscoTcpSession, DyscoHashOut>(*sup, *cb_out));
 	//TODO: DyscoTag
+
+	return true;
 }
 
 DyscoHashOut* DyscoCenter::insert_cb_in_reverse(DyscoTcpSession* ss_payload, Ipv4* ip, Tcp* tcp) {
@@ -159,9 +161,10 @@ DyscoHashIn* DyscoCenter::insert_cb_in(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_t* 
 	sub->dport = htons(tcp->dst_port.value());
 
 	DyscoTcpSession* sup = cb_in->get_sup();
-	memcpy(sup, reinterpret_cast<DyscoSynPacket*>(payload),  sizeof(DyscoTcpSession));
+	DyscoTcpSession* ss = reinterpret_cast<DyscoTcpSession*>(payload);
+	memcpy(sup, ss, sizeof(DyscoTcpSession));
 
-	DyscoHashOut* cb_out = insert_cb_in_reverse(dh, reinterpret_cast<DyscoTcpSession*>(payload), ip, tcp);
+	DyscoHashOut* cb_out = insert_cb_in_reverse(ss, ip, tcp);
 	if(!cb_out) {
 		delete cb_in;
 		return 0;
