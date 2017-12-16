@@ -294,8 +294,8 @@ bool DyscoCenter::add_mapping(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_t* payload, 
 		ipsrc, ipdst, ntohs(cb.supss.sport), ntohs(cb.supss.dport));
 	
 	fprintf(stderr, "DyscoCenter: %s\n", buf);
-	std::string exp(buf, strlen(buf));
-	bpf->add_filter(0, exp, cb.sc, cb.sc_len);
+	//std::string exp(buf, strlen(buf));
+	//bpf->add_filter(0, exp, cb.sc, cb.sc_len);
 	
 	return true;
 }
