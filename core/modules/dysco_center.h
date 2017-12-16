@@ -91,7 +91,7 @@ class DyscoCenter final : public Module {
 	DyscoHashOut* insert_cb_in_reverse(DyscoHashes*, DyscpTcpSession*, Ipv4*, Tcp*);
 	
  private:
-	map<int, DyscoHashes> hashes;
+	map<uint32_t, DyscoHashes> hashes;
 };
 
 #endif //BESS_MODULES_DYSCOCENTER_H_
