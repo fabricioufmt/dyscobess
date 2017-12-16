@@ -39,6 +39,8 @@ class DyscoTcpSession {
 	};
 };
 
+using DyscoHashOut;
+
 class DyscoHashIn {
  private:
 	DyscoHashOut* cb_out;
