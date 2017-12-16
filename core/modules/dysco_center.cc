@@ -82,22 +82,22 @@ bool DyscoCenter::add_backmapping(uint32_t i, DyscoControlBlock* block) {
 	revsupss = &cb.supss;
 	revsubss = &cb.subss;
 	
-	revsupss->i = i;
+	//revsupss->i = i;
 	revsupss->sip = block->supss.dip;
 	revsupss->dip = block->supss.sip;
 	revsupss->sport = block->supss.dport;
 	revsupss->dport = block->supss.sport;
 
-	revsubss->i = i;
+	//revsubss->i = i;
 	revsubss->sip = block->subss.dip;
 	revsubss->dip = block->subss.sip;
 	revsubss->sport = block->subss.dport;
 	revsubss->dport = block->subss.sport;
 
-	if(map.Find(*revsubss) != nullptr)
+	if(dcb_map[i].Find(*revsubss) != nullptr)
 		return false;
 	
-	map.Insert(*revsubss, cb);
+	dcb_map[i].Insert(*revsubss, cb);
 
 	fprintf(stderr, "[DyscoCenter](add_backmapping{SUB=>SUP})[%u]: %s:%u -> %s:%u => %s:%u -> %s:%u\n",
 		i,
@@ -202,7 +202,7 @@ DyscoControlBlock* DyscoCenter::get_controlblock_by_supss(bess::Packet* pkt, uin
 }
 
 DyscoBPF::Filter* DyscoCenter::get_filter(bess::Packet* pkt) {
-	return bpf->get_filter(pkt);
+	return bpf_map[0].get_filter(pkt);
 }
 
 bool DyscoCenter::add_policy_rule(uint32_t priority, std::string exp, uint8_t* sc, uint32_t sc_len) {

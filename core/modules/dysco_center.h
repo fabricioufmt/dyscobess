@@ -77,7 +77,7 @@ class DyscoCenter final : public Module {
  private:
 	//using HashTable = bess::utils::CuckooMap<DyscoTcpSession, DyscoControlBlock, DyscoTcpSession::Hash, DyscoTcpSession::EqualTo>;
 	//using HashTable = bess::utils::CuckooMap<uint32_t, bess::utils::CuckooMap<DyscoTcpSession, DyscoControlBlock, DyscoTcpSession::Hash, DyscoTcpSession::EqualTo>>;
-	std::map<int, HashTable> dcb_map;
+	std::map<int, HashMap> dcb_map;
 	//HashTable map;
 	std::map<int, DyscoBPF> bpf_map;
 };
