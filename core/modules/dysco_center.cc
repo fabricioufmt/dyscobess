@@ -6,6 +6,10 @@
 #include "../utils/format.h"
 #include "dysco_bpf.h"
 
+using bess::utils::Tcp;
+using bess::utils::Ipv4;
+using bess::utils::Ethernet;
+
 const Commands DyscoCenter::cmds = {
 	{"add", "DyscoCenterAddArg", MODULE_CMD_FUNC(&DyscoCenter::CommandAdd), Command::THREAD_UNSAFE},
 	{"del", "DyscoCenterDelArg", MODULE_CMD_FUNC(&DyscoCenter::CommandDel), Command::THREAD_UNSAFE},

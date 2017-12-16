@@ -79,6 +79,8 @@ bool DyscoAgentIn::process_synp(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 bool DyscoAgentIn::process_nonsyn(bess::Packet*, Ipv4*, Tcp*) {
 	if(!dc)
 		return false;
+	
+	return true;
 }
 
 bool DyscoAgentIn::process_packet(bess::Packet* pkt) {
@@ -97,7 +99,7 @@ bool DyscoAgentIn::process_packet(bess::Packet* pkt) {
 	Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
 	
 	fprintf(stderr, "%s(IN)[index: %u]: %s:%u -> %s:%u\n",
-		name().c_str(), pkt_index,
+		this->name().c_str(), this->index,
 		printip1(ip->src.value()), tcp->src_port.value(),
 		printip1(ip->dst.value()), tcp->dst_port.value());
 	
@@ -110,7 +112,7 @@ bool DyscoAgentIn::process_packet(bess::Packet* pkt) {
 		process_nonsyn(pkt, ip, tcp);
 	
 	fprintf(stderr, "%s(OUT)[index: %u]: %s:%u -> %s:%u\n",
-		name().c_str(), pkt_index,
+		this->name().c_str(), this->index,
 		printip1(ip->src.value()), tcp->src_port.value(),
 		printip1(ip->dst.value()), tcp->dst_port.value());
 	

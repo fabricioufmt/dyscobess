@@ -39,7 +39,7 @@ class DyscoTcpSession {
 	};
 };
 
-using DyscoHashOut;
+using class DyscoHashOut;
 
 class DyscoHashIn {
  private:
@@ -87,8 +87,8 @@ class DyscoCenter final : public Module {
 
 	DyscoHashes* get_hash(uint32_t);
 	uint32_t get_index(const std::string&);
-	DyscoHashIn* insert_cb_in(uint32_t, Ipv4*, Tcp*, uint8_t, uint32_t);
-	DyscoHashOut* insert_cb_in_reverse(DyscoHashes*, DyscpTcpSession*, Ipv4*, Tcp*);
+	DyscoHashIn* insert_cb_in(uint32_t, Ipv4*, Tcp*, uint8_t*, uint32_t);
+	DyscoHashOut* insert_cb_in_reverse(DyscoHashes*, DyscoTcpSession*, Ipv4*, Tcp*);
 	
  private:
 	map<uint32_t, DyscoHashes> hashes;
