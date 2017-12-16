@@ -66,8 +66,15 @@ class DyscoHashOut {
 	DyscoHashIn* cb_in;
 	DyscoTcpSession sub;
 	DyscoTcpSession sup;
+
+	uint32_t* sc;
+	uint32_t sc_len;
 	
  public:
+	void set_sc_len(uint32_t len) {
+		this->sc_len = len;
+	}
+	
 	void set_cb_in(DyscoHashIn* cb) {
 		this->cb_in = cb;
 	}
@@ -79,10 +86,10 @@ class DyscoHashOut {
 	DyscoTcpSession* get_sup() {
 		return &sup;
 	}
-};
 
-class DyscoHashPen {
-
+	uint32_t* get_sc() {
+		return sc;
+	}
 };
 
 class DyscoHashPenTag {
@@ -95,7 +102,7 @@ class DyscoHashes {
 	
 	map<DyscoTcpSession, DyscoHashIn, DyscoTcpSession::EqualTo> hash_in;
 	map<DyscoTcpSession, DyscoHashOut, DyscoTcpSession::EqualTo> hash_out;
-	map<DyscoTcpSession, DyscoHashPen, DyscoTcpSession::EqualTo> hash_pen;
+	map<DyscoTcpSession, DyscoHashOut, DyscoTcpSession::EqualTo> hash_pen;
 	map<DyscoTcpSession, DyscoHashPenTag, DyscoTcpSession::EqualTo> hash_pen_tag;
 };
 
@@ -111,13 +118,16 @@ class DyscoCenter final : public Module {
 	CommandResponse CommandAdd(const bess::pb::DyscoCenterAddArg&);
 	CommandResponse CommandDel(const bess::pb::DyscoCenterDelArg&);
 
-	DyscoHashes* get_hash(uint32_t);
+
 	uint32_t get_index(const std::string&);
 	DyscoHashIn* insert_cb_in(uint32_t, Ipv4*, Tcp*, uint8_t*, uint32_t);
-	DyscoHashOut* insert_cb_in_reverse(DyscoHashes*, DyscoTcpSession*, Ipv4*, Tcp*);
 	
  private:
 	map<uint32_t, DyscoHashes> hashes;
+
+	DyscoHashes* get_hash(uint32_t);
+	bool insert_pending(DyscoHashes*, uint8_t*, uint32_t);
+	DyscoHashOut* insert_cb_in_reverse(DyscoTcpSession*, Ipv4*, Tcp*);
 };
 
 #endif //BESS_MODULES_DYSCOCENTER_H_
