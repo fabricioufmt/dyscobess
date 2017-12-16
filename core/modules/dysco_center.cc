@@ -135,7 +135,7 @@ DyscoHashIn* DyscoCenter::insert_cb_in(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_t* 
 	sub->sport = htons(tcp->src_port.value());
 	sub->dport = htons(tcp->dst_port.value());
 
-	DyscoTcpSession* sup = cb_out->get_sup();
+	DyscoTcpSession* sup = cb_in->get_sup();
 	memcpy(sup, reinterpret_cast<DyscoTcpSession*>(payload), sizeof(DyscoTcpSession));
 
 	DyscoHashOut* cb_out = insert_cb_in_reverse(dh, reinterpret_cast<DyscoTcpSession*>(payload), ip, tcp);
