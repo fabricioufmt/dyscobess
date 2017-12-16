@@ -92,6 +92,24 @@ DyscoHashes* DyscoCenter::get_hash(uint32_t i) {
 	return 0;
 }
 
+DyscoHashIn* DyscoCenter::lookup_input(uint32_t i, Ipv4* ip, Tcp* tcp) {
+	DyscoHashes* dh = get_hash(i);
+	if(!dh)
+		return 0;
+
+	DyscoTcpSession ss;
+	ss.sip = htonl(ip->src.value());
+	ss.dip = htonl(ip->dst.value());
+	ss.sport = htons(tcp->src_port.value());
+	ss.dport = htons(tcp->dst_port.value());
+	
+	map<DyscoTcpSession, DyscoHashIn>::iterator it = dh->hash_in.find(ss);
+	if(it != dh->hash_in.end())
+		return &(*it)->second;
+
+	return 0;
+}
+
 bool DyscoCenter::insert_pending(DyscoHashes* dh, uint8_t* payload, uint32_t payload_sz) {
 	if(!dh)
 		return false;

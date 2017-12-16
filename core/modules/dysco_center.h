@@ -120,6 +120,7 @@ class DyscoCenter final : public Module {
 
 
 	uint32_t get_index(const std::string&);
+	DyscoHashIn* lookup_input(uint32_t, Ipv4*, Tcp*);
 	DyscoHashIn* insert_cb_in(uint32_t, Ipv4*, Tcp*, uint8_t*, uint32_t);
 	
  private:
