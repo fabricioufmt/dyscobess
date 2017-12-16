@@ -31,7 +31,10 @@ CommandResponse DyscoAgentInc::Init(const bess::pb::DyscoAgentIncArg& arg) {
 	if(!dc)
 		return CommandFailure(ENODEV, "DyscoCenter module is NULL.");
 	
-	index = dc->get_index(arg.port());
+	index = dc->get_index(arg.ns());
+	
+	inet_pton(AF_INET, arg.ip().c_str(), &ip);
+	
 	return CommandSuccess();
 }
 
@@ -39,16 +42,9 @@ bool DyscoAgentInc::process_syn(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 	if(!dc)
 		return false;
 
-	DyscoControlBlock* cb = dc->get_controlblock_by_supss(this->index, ip, tcp);
-	if(!cb) {
-		DyscoBPF::Filter* f = dc->get_filter(pkt);
-		if(!f)
-			return false;
-
-		cb = dc->add_mapping_filter(this->index, ip, tcp, f);
-		if(!cb)
-			return false;
-	}
+	DyscoControlBlock* cb = dc->get_controlblock_by_supss(this->index, pkt, ip, tcp);
+	if(!cb)
+		return false;
 	
 	DyscoTcpSession* ss = &cb->subss;
 	ip->src = be32_t(ntohl(ss->sip));
@@ -63,7 +59,9 @@ bool DyscoAgentInc::process_syn(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 
 	return true;
 }
-
+/**
+   High priority when receive a SYNP instead already subss mapped.
+ */
 bool DyscoAgentInc::process_synp(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 	if(!dc)
 		return false;
@@ -109,10 +107,6 @@ bool DyscoAgentInc::process_nonsyn(Ipv4* ip, Tcp* tcp) {
 			printip1(ss->dip), ss->dport);
 	}
 	
-	/*ip->src = be32_t(ss->sip);
-	ip->dst = be32_t(ss->dip);
-	tcp->src_port = be16_t(ss->sport);
-	tcp->dst_port = be16_t(ss->dport);*/
 	ip->src = be32_t(ntohl(ss->sip));
 	ip->dst = be32_t(ntohl(ss->dip));
 	tcp->src_port = be16_t(ntohs(ss->sport));

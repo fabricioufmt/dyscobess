@@ -52,7 +52,8 @@ class DyscoAgentOut final : public Module {
 	}
 
  private:
-	uint32_t index;
+	uint32_t ip;
+	uint32_t ns;
 	DyscoCenter* dc;
 };
 

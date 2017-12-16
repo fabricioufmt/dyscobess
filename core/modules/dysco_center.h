@@ -20,7 +20,6 @@ using bess::utils::Ethernet;
 
 class DyscoTcpSession {
  public:
-	uint32_t i;
 	uint32_t sip;
 	uint32_t dip;
 	uint16_t sport;
@@ -34,7 +33,7 @@ class DyscoTcpSession {
 
 	struct EqualTo {
 		bool operator()(const DyscoTcpSession& a, const DyscoTcpSession& b) const {
-			return a.i == b.i && a.sip == b.sip && a.dip == b.dip && a.sport == b.sport && a.dport == b.dport;
+			return a.sip == b.sip && a.dip == b.dip && a.sport == b.sport && a.dport == b.dport;
 		}
 	};
 };
@@ -48,6 +47,8 @@ class DyscoControlBlock {
 	uint8_t* sc;
 	uint32_t sc_len;
 };
+
+typedef bess::utils::CuckooMap<DyscoTcpSession, DyscoControlBlock, DyscoTcpSession::Hash, DyscoTcpSession::EqualTo> HashMap;
 
 class DyscoCenter final : public Module {
  public:
@@ -71,13 +72,14 @@ class DyscoCenter final : public Module {
 	DyscoTcpSession* get_subss_by_supss(uint32_t, Ipv4*, Tcp*);
 	DyscoTcpSession* get_supss_by_subss(uint32_t, Ipv4*, Tcp*);
 	DyscoControlBlock* get_controlblock_by_subss(uint32_t, Ipv4*, Tcp*);
-	DyscoControlBlock* get_controlblock_by_supss(uint32_t, Ipv4*, Tcp*);
+	DyscoControlBlock* get_controlblock_by_supss(bess::Packet*, uint32_t, Ipv4*, Tcp*);
 	
  private:
-	using HashTable = bess::utils::CuckooMap<DyscoTcpSession, DyscoControlBlock, DyscoTcpSession::Hash, DyscoTcpSession::EqualTo>;
+	//using HashTable = bess::utils::CuckooMap<DyscoTcpSession, DyscoControlBlock, DyscoTcpSession::Hash, DyscoTcpSession::EqualTo>;
 	//using HashTable = bess::utils::CuckooMap<uint32_t, bess::utils::CuckooMap<DyscoTcpSession, DyscoControlBlock, DyscoTcpSession::Hash, DyscoTcpSession::EqualTo>>;
-	HashTable map;
-	DyscoBPF* bpf;
+	std::map<int, HashTable> dcb_map;
+	//HashTable map;
+	std::map<int, DyscoBPF> bpf_map;
 };
 
 #endif //BESS_MODULES_DYSCOCENTER_H_

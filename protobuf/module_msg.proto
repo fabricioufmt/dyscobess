@@ -1127,6 +1127,9 @@ message DyscoNonSynOutArg {
 	string dyscocenter = 1;
 }
 
+/**
+	TODO: should be direct to a host.
+*/
 message DyscoCenterAddArg {
 	uint32 priority = 1;
 	uint32 sc_len = 2;
@@ -1143,12 +1146,17 @@ message DyscoCenterListArg {
 	string msg = 1;
 }
 
+/**
+	TODO: should be empty arg.
+*/
 message DyscoAgentIncArg {
-	string port = 1;
-	string dc = 2;
+	string ns = 1;
+	string ip = 2;
+	string dc = 3;
 }
 
 message DyscoAgentOutArg {
-	string port = 1;
+	string ns = 1;
+	string ip = 2;
 	string dc = 2;
 }
