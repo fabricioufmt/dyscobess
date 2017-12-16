@@ -1158,5 +1158,5 @@ message DyscoAgentIncArg {
 message DyscoAgentOutArg {
 	string ns = 1;
 	string ip = 2;
-	string dc = 2;
+	string dc = 3;
 }
