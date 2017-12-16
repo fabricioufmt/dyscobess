@@ -147,8 +147,8 @@ DyscoHashIn* DyscoCenter::insert_cb_in(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_t* 
 	cb_in->set_cb_out(cb_out);
 	cb_out->set_cb_in(cb_in);
 
-        dh->hash_in.insert(std::pair<DyscoTcpSession, DyscoHashIn>(*sub, cb_in));
-	dh->hash_out.insert(std::pair<DyscoTcpSession, DyscoHashOut>(*sup, cb_out));
+        dh->hash_in.insert(std::pair<DyscoTcpSession, DyscoHashIn>(*sub, *cb_in));
+	dh->hash_out.insert(std::pair<DyscoTcpSession, DyscoHashOut>(*sup, *cb_out));
 	
 	return 0;
 }
