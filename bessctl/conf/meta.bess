@@ -59,18 +59,24 @@ ipl.add(prefix='10.0.1.4', prefix_len=32, gate=5)
 
 dc::DyscoCenter()
 
-PortInc(port=h1) -> DyscoAgentInc(ns='h1', ip='10.0.1.1', dc=dc) -> ipl
-PortInc(port=h2_0) -> DyscoAgentInc(ns='h2', ip='10.0.1.2', dc=dc) -> ipl
-PortInc(port=h2_1) -> DyscoAgentInc(ns='h2', ip='10.0.2.2', dc=dc) -> ipl
-PortInc(port=h3_0) -> DyscoAgentInc(ns='h3', ip='10.0.1.3', dc=dc) -> ipl
-PortInc(port=h3_1) -> DyscoAgentInc(ns='h3', ip='10.0.2.3', dc=dc) -> ipl
-PortInc(port=h4) -> DyscoAgentInc(ns='h4', ip='10.0.1.4', dc=dc) -> ipl
+PortInc(port=h1) -> DyscoAgentOut(ns='h1', ip='10.0.1.1', dc=dc) -> ipl
+PortInc(port=h2_0) -> DyscoAgentOut(ns='h2', ip='10.0.1.2', dc=dc) -> ipl
+PortInc(port=h2_1) -> DyscoAgentOut(ns='h2', ip='10.0.2.2', dc=dc) -> ipl
+PortInc(port=h3_0) -> DyscoAgentOut(ns='h3', ip='10.0.1.3', dc=dc) -> ipl
+PortInc(port=h3_1) -> DyscoAgentOut(ns='h3', ip='10.0.2.3', dc=dc) -> ipl
+PortInc(port=h4) -> DyscoAgentOut(ns='h4', ip='10.0.1.4', dc=dc) -> ipl
 
-ipl:0 -> DyscoAgentOut(ns='h1', ip='10.0.1.1', dc=dc) -> Update(fields=[{'offset':0, 'size':6, 'value':17}]) -> PortOut(port=h1)
-ipl:1 -> DyscoAgentOut(ns='h2', ip='10.0.1.2', dc=dc) -> Update(fields=[{'offset':0, 'size':6, 'value':18}]) -> PortOut(port=h2_0)
-ipl:2 -> DyscoAgentOut(ns='h2', ip='10.0.2.2', dc=dc) -> Update(fields=[{'offset':0, 'size':6, 'value':38}]) -> PortOut(port=h2_1)
-ipl:3 -> DyscoAgentOut(ns='h3', ip='10.0.1.3', dc=dc) -> Update(fields=[{'offset':0, 'size':6, 'value':19}]) -> PortOut(port=h3_0)
-ipl:4 -> DyscoAgentOut(ns='h3', ip='10.0.2.3', dc=dc) -> Update(fields=[{'offset':0, 'size':6, 'value':39}]) -> PortOut(port=h3_1)
-ipl:5 -> DyscoAgentOut(ns='h4', ip='10.0.1.4', dc=dc) -> Update(fields=[{'offset':0, 'size':6, 'value':20}]) -> PortOut(port=h4)
+ipl:0 -> Update(fields=[{'offset':0, 'size':6, 'value':17}]) -> \     
+      DyscoAgentIn(ns='h1', ip='10.0.1.1', dc=dc) -> PortOut(port=h1)
+ipl:1 -> Update(fields=[{'offset':0, 'size':6, 'value':18}]) -> \
+      DyscoAgentIn(ns='h2', ip='10.0.1.2', dc=dc) -> PortOut(port=h2_0)
+ipl:2 -> Update(fields=[{'offset':0, 'size':6, 'value':38}]) -> \
+      DyscoAgentIn(ns='h2', ip='10.0.2.2', dc=dc) -> PortOut(port=h2_1)
+ipl:3 -> Update(fields=[{'offset':0, 'size':6, 'value':19}]) -> \
+      DyscoAgentIn(ns='h3', ip='10.0.1.3', dc=dc) -> PortOut(port=h3_0)
+ipl:4 -> Update(fields=[{'offset':0, 'size':6, 'value':39}]) -> \
+      DyscoAgentIn(ns='h3', ip='10.0.2.3', dc=dc) -> PortOut(port=h3_1)
+ipl:5 -> Update(fields=[{'offset':0, 'size':6, 'value':20}]) -> \
+      DyscoAgentIn(ns='h4', ip='10.0.1.4', dc=dc) -> PortOut(port=h4)
 
 dc.add(priority=1, sc_len=3, chain=['10.0.1.2', '10.0.1.3', '10.0.1.4'], filter='dst port 5001')

@@ -1,5 +1,5 @@
-#ifndef BESS_MODULES_DYSCOAGENTINC_H_
-#define BESS_MODULES_DYSCOAGENTINC_H_
+#ifndef BESS_MODULES_DYSCOAGENTIN_H_
+#define BESS_MODULES_DYSCOAGENTIN_H_
 
 #include <stdio.h>
 #include <arpa/inet.h>
@@ -21,19 +21,18 @@ using bess::utils::Ethernet;
 using bess::utils::be32_t;
 using bess::utils::be16_t;
 
-class DyscoAgentInc final : public Module {
+class DyscoAgentIn final : public Module {
  public:
 	static const gate_idx_t kNumIGates = 1;
 	static const gate_idx_t kNumOGates = 1;
 
-	DyscoAgentInc();
-	bool process_nonsyn(Ipv4*, Tcp*);
+	DyscoAgentIn();
 	bool process_packet(bess::Packet*);
-	bool insert_metadata(bess::Packet*);
 	bool process_syn(bess::Packet*, Ipv4*, Tcp*);
 	bool process_synp(bess::Packet*, Ipv4*, Tcp*);
+	bool process_nonsyn(bess::Packet*, Ipv4*, Tcp*);
 	void ProcessBatch(bess::PacketBatch*) override;
-	CommandResponse Init(const bess::pb::DyscoAgentIncArg&);
+	CommandResponse Init(const bess::pb::DyscoAgentInArg&);
 
 	inline bool isIP(Ethernet* eth) {
 		return eth->ether_type.value() == Ethernet::Type::kIpv4;
@@ -60,4 +59,4 @@ class DyscoAgentInc final : public Module {
 	DyscoCenter* dc;
 };
 
-#endif //BESS_MODULES_DYSCOAGENTINC_H_
+#endif //BESS_MODULES_DYSCOAGENTIN_H_

@@ -26,12 +26,11 @@ char* printip0(uint32_t ip) {
 }
 
 DyscoCenter::DyscoCenter() : Module() {
-	//bpf = new DyscoBPF();
 }
 
 CommandResponse DyscoCenter::CommandAdd(const bess::pb::DyscoCenterAddArg& arg) {
 	fprintf(stderr, "[DyscoCenter](CommandAdd): priority: %d, sc_len: %d, chain:", arg.priority(), arg.sc_len());
-	for(std::string s : arg.chain())
+	/*for(std::string s : arg.chain())
 		fprintf(stderr, " %s", s.c_str());
 	fprintf(stderr, ", filter: %s\n", arg.filter().c_str());
 
@@ -46,7 +45,7 @@ CommandResponse DyscoCenter::CommandAdd(const bess::pb::DyscoCenterAddArg& arg) 
 	}
 
 	//bpf->add_filter(arg.priority(), arg.filter(), sc, sc_size);
-	
+	*/
 	bess::pb::DyscoCenterListArg l;
 	l.set_msg("... Done.");	
 	return CommandSuccess(l);
@@ -74,88 +73,14 @@ CommandResponse DyscoCenter::CommandList(const bess::pb::EmptyArg&) {
 	return CommandSuccess(l);
 }
 
-bool DyscoCenter::add_backmapping(uint32_t i, DyscoControlBlock* block) {
-	DyscoControlBlock cb;	
-	DyscoTcpSession* revsupss;
-	DyscoTcpSession* revsubss;
-
-	revsupss = &cb.supss;
-	revsubss = &cb.subss;
-	
-	//revsupss->i = i;
-	revsupss->sip = block->supss.dip;
-	revsupss->dip = block->supss.sip;
-	revsupss->sport = block->supss.dport;
-	revsupss->dport = block->supss.sport;
-
-	//revsubss->i = i;
-	revsubss->sip = block->subss.dip;
-	revsubss->dip = block->subss.sip;
-	revsubss->sport = block->subss.dport;
-	revsubss->dport = block->subss.sport;
-
-	if(dcb_map[i].Find(*revsubss) != nullptr)
-		return false;
-	
-	dcb_map[i].Insert(*revsubss, cb);
-
-	fprintf(stderr, "[DyscoCenter](add_backmapping{SUB=>SUP})[%u]: %s:%u -> %s:%u => %s:%u -> %s:%u\n",
-		i,
-		printip0(ntohl(revsubss->sip)), ntohs(revsubss->sport),
-		printip0(ntohl(revsubss->dip)), ntohs(revsubss->dport),
-		printip0(ntohl(revsupss->sip)), ntohs(revsupss->sport),
-		printip0(ntohl(revsupss->dip)), ntohs(revsupss->dport));
-
-	
-	return true;
-}
-
-DyscoTcpSession* DyscoCenter::get_supss_by_subss(uint32_t i, Ipv4* ip, Tcp* tcp) {
-	DyscoTcpSession ss;
-
-	//ss.i = i;
-	ss.sip = htonl(ip->src.value());
-	ss.dip = htonl(ip->dst.value());
-	ss.sport = htons(tcp->src_port.value());
-	ss.dport = htons(tcp->dst_port.value());
-	
-	auto* result = dcb_map[i].Find(ss);
-	if(result == nullptr)
-		return 0;
-	
-	fprintf(stderr, "[DyscoCenter](get_supss_by_subss)[%u]: (SUB) %s:%u -> %s:%u\n",
-		i,
-		printip0(ntohl(ss.sip)), ntohs(ss.sport),
-		printip0(ntohl(ss.dip)), ntohs(ss.dport));
-	
-	return &result->second.supss;
-}
-
-DyscoTcpSession* DyscoCenter::get_subss_by_supss(uint32_t i, Ipv4* ip, Tcp* tcp) {
-	DyscoControlBlock* cb = get_controlblock_by_supss(i, ip, tcp);
-	if(!cb)
-		return 0;
-	
-	return &cb->subss;
-}
-
 uint32_t DyscoCenter::get_index(const std::string& name) {
 	return std::hash<std::string>()(name);
 }
 
-DyscoControlBlock* DyscoCenter::get_controlblock_by_subss(uint32_t i, Ipv4* ip, Tcp* tcp) {
-	DyscoTcpSession ss;
-
-	//ss.i = i;
-	ss.sip = htonl(ip->src.value());
-	ss.dip = htonl(ip->dst.value());
-	ss.sport = htons(tcp->src_port.value());
-	ss.dport = htons(tcp->dst_port.value());
-
-	HashMap::iterator it = dcb_map[i].begin();
-	while(it != dcb_map[i].end()) {
-		DyscoTcpSession::EqualTo equals;
-		if(equals(ss, (*it).second.subss))
+DyscoHashes* DyscoCenter::get_hash(uint32_t i) {
+	map<int, DyscoHashes>::iterator it = hashes.begin();
+	while(it != hashes.end()) {
+		if(i == (*it).first)
 			return &(*it).second;
 		it++;
 	}
@@ -163,139 +88,59 @@ DyscoControlBlock* DyscoCenter::get_controlblock_by_subss(uint32_t i, Ipv4* ip, 
 	return 0;
 }
 
-/*
-  This function checks if there is an entry on map and return it.
-  Otherwise, check if there is a policy on policy map, create an entry on map and return it.
- */
-DyscoControlBlock* DyscoCenter::get_controlblock_by_supss(bess::Packet* pkt, uint32_t i, Ipv4* ip, Tcp* tcp) {
-	DyscoTcpSession ss;
+DyscoHashOut* DyscoCenter::insert_cb_in_reverse(DyscoHashes* dh, DyscoTcpSession* ss_payload, Ipv4* ip, Tcp* tcp) {
+	if(!dh)
+		return 0;
 
-	ss.sip = htonl(ip->src.value());
-	ss.dip = htonl(ip->dst.value());
-	ss.sport = htons(tcp->src_port.value());
-	ss.dport = htons(tcp->dst_port.value());
-
-	fprintf(stderr, "[DyscoCenter](get_controlblock_by_supss)[index:%u]:%s:%u -> %s:%u\n",
-		i,
-		printip0(ip->src.value()), tcp->src_port.value(),
-		printip0(ip->dst.value()), tcp->dst_port.value());
-	HashMap::iterator it = dcb_map[i].begin();
-	//HashTable::iterator it = map.begin();
-	while(it != dcb_map[i].end()) {
-		DyscoTcpSession::EqualTo equals;
-		if(equals(ss, (*it).second.supss))
-			return &(*it).second;
+	DyscoHashOut* cb_out;
 		
-		it++;
-	}
+	cb_out = new DyscoHashOut();
+	if(!cb_out)
+		return 0;
 
-	//TODO
-	/*DyscoBPF::Filter* f = dc->get_filter(pkt);
-	if(!f)
-		return false;
+	cb_out->sup.sip = ss_payload->dip;
+	cb_out->sup.dip = ss_payload->sip;
+	cb_out->sup.sport = ss_payload->dport;
+	cb_out->sup.dport = ss_payload->sport;
 	
-	cb = dc->add_mapping_filter(this->index, ip, tcp, f);
-	if(!cb)
-		return false;
-	*/
-	return 0;
+	cb_out->sub.sip = htonl(ip->dst.value());
+	cb_out->sub.dip = htonl(ip->src.value());
+	cb_out->sub.sport = htons(tcp->dst_port.value());
+	cb_out->sub.dport = htons(tcp->src_port.value());
+
+	return cb_out;
 }
 
-DyscoBPF::Filter* DyscoCenter::get_filter(bess::Packet* pkt) {
-	return bpf_map[0].get_filter(pkt);
-}
+DyscoHashIn* DyscoCenter::insert_cb_in(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_t* payload, uint32_t payload_sz) {
+	DyscoHashes* dh = get_hash(i);
+	if(!dh)
+		return 0;
 
-bool DyscoCenter::add_policy_rule(uint32_t priority, std::string exp, uint8_t* sc, uint32_t sc_len) {
-	return bpf->add_filter(priority, exp, sc, sc_len);
-}
-
-DyscoControlBlock* DyscoCenter::add_mapping_filter(uint32_t i, Ipv4* ip, Tcp* tcp, DyscoBPF::Filter* filter) {
-	DyscoTcpSession ss;
-	DyscoControlBlock cb;
-
-	////cb.supss.i = i;
-	cb.supss.sip = htonl(ip->src.value());
-	cb.supss.dip = htonl(ip->dst.value());
-	cb.supss.sport = htons(tcp->src_port.value());
-	cb.supss.dport = htons(tcp->dst_port.value());
-	
-	if(filter->i == (filter->sc_len >> 2))
+	DyscoHashIn* cb_in;
+	DyscoHashOut* cb_out;
+		
+	cb_in = new DyscoHashIn();
+	if(!cb_in)
 		return 0;
 	
-	ss.i = i;
-	if(filter->i == 0)
-		ss.sip = cb.supss.sip;
-	else 
-		ss.sip = (((uint32_t*)filter->sc)[filter->i - 1]);
-	
-	ss.dip = (((uint32_t*)filter->sc)[filter->i++]);
-	ss.sport = htons((rand() % 1000 + 10000));
-	ss.dport = htons((rand() % 1000 + 30000));
-	cb.subss = ss;
+	cb_in->sub.sip = htonl(ip->src.value());
+	cb_in->sub.dip = htonl(ip->dst.value());
+	cb_in->sub.sport = htons(tcp->src_port.value());
+	cb_in->sub.dport = htons(tcp->dst_port.value());
 
-	map.Insert(ss, cb);
-	
-	fprintf(stderr, "[DyscoCenter](add_mapping_filter{SUP=>SUB})[%u]: %s:%u -> %s:%u => %s:%u -> %s:%u\n",
-		i,
-		printip0(ntohl(cb.supss.sip)), ntohs(cb.supss.sport),
-		printip0(ntohl(cb.supss.dip)), ntohs(cb.supss.dport),
-		printip0(ntohl(cb.subss.sip)), ntohs(cb.subss.sport),
-		printip0(ntohl(cb.subss.dip)), ntohs(cb.subss.dport));
+	memcpy(&cb_in->sup, reinterpret_cast<DyscoTcpSession*>(payload), sizeof(cb_in->sup));
 
-	return &map.Find(ss)->second;
-}
-
-bool DyscoCenter::add_mapping(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_t* payload, uint32_t payload_len) {
-	DyscoTcpSession ss;
-	DyscoControlBlock cb;
-
-	//ss.i = i;
-	ss.sip = htonl(ip->src.value());
-	ss.dip = htonl(ip->dst.value());
-	ss.sport = htons(tcp->src_port.value());
-	ss.dport = htons(tcp->dst_port.value());
-	cb.subss = ss;
-	memcpy(&cb.supss, (DyscoTcpSession*) payload, sizeof(DyscoTcpSession));
-	
-	cb.sc = 0;
-	cb.sc_len = 0;
-	uint32_t sc_len = payload_len - sizeof(DyscoTcpSession) - sizeof(uint32_t);
-	
-	if(sc_len != 0) {
-		
-		cb.sc = (uint8_t*) malloc(sc_len);
-		memcpy(cb.sc, payload + sizeof(DyscoTcpSession) + sizeof(uint32_t), sc_len);
-		cb.sc_len = sc_len;
-		cb.nextss.sip = cb.subss.dip;
-		cb.nextss.dip = *((uint32_t*) (payload + sizeof(DyscoTcpSession) + sizeof(uint32_t)));
-		cb.nextss.sport = htons((rand() % 1000 + 10000));
-		cb.nextss.dport = htons((rand() % 1000 + 30000));
+	cb_out = insert_cb_in_reverse(dh, reinterpret_cast<DyscoTcpSession*>(payload), ip, tcp);
+	if(!cb_out) {
+		delete cb_in;
+		return 0;
 	}
-	map.Insert(ss, cb);
-	
-	fprintf(stderr, "[DyscoCenter](add_mapping)[%u]: %s:%u -> %s:%u => %s:%u -> %s:%u\n",
-		i,
-		printip0(ntohl(ss.sip)), ntohs(ss.sport),
-		printip0(ntohl(ss.dip)), ntohs(ss.dport),
-		printip0(ntohl(cb.supss.sip)), ntohs(cb.supss.sport),
-		printip0(ntohl(cb.supss.dip)), ntohs(cb.supss.dport));
-	
-	//TODO: check with Ronaldo, if this is really necessary
-	char buf[256];
-	char ipsrc[INET_ADDRSTRLEN];
-	char ipdst[INET_ADDRSTRLEN];
-	struct in_addr srcip;
-	struct in_addr dstip;
-	srcip.s_addr = cb.supss.sip;
-	dstip.s_addr = cb.supss.dip;
-	inet_ntop(AF_INET, &srcip, ipsrc, INET_ADDRSTRLEN);
-	inet_ntop(AF_INET, &dstip, ipdst, INET_ADDRSTRLEN);
-	sprintf(buf, "src host %s and dst host %s and src port %u and dst port %u",
-		ipsrc, ipdst, ntohs(cb.supss.sport), ntohs(cb.supss.dport));
-	
-	fprintf(stderr, "DyscoCenter: %s\n", buf);
-	//std::string exp(buf, strlen(buf));
-	//bpf->add_filter(0, exp, cb.sc, cb.sc_len);
+
+	cb_in->cb_out = cb_out;
+	cb_out->cb_in = cb_in;
+
+        dh->hash_in.insert(std::pair<DyscoTcpSession, DyscoHashIn>(cb_in->subss, cb_in));
+	dh->hash_out.insert(std::pair<DyscoTcpSession, DyscoHashOut>(cb_out->supss, cb_out));
 	
 	return true;
 }

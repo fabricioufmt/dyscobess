@@ -14,6 +14,7 @@
 
 #include "dysco_bpf.h"
 
+using std::map;
 using bess::utils::Tcp;
 using bess::utils::Ipv4;
 using bess::utils::Ethernet;
@@ -38,17 +39,37 @@ class DyscoTcpSession {
 	};
 };
 
-class DyscoControlBlock {
- public:
-	DyscoTcpSession subss;
-	DyscoTcpSession supss;
-	DyscoTcpSession nextss;
-
-	uint8_t* sc;
-	uint32_t sc_len;
+class DyscoHashIn {
+ private:
+	DyscoHashOut* cb_out;
+	DyscoTcpSession sub;
+	DyscoTcpSession sup;
 };
 
-typedef bess::utils::CuckooMap<DyscoTcpSession, DyscoControlBlock, DyscoTcpSession::Hash, DyscoTcpSession::EqualTo> HashMap;
+class DyscoHashOut {
+ private:
+	DyscoHashIn* cb_in;
+	DyscoTcpSession sub;
+	DyscoTcpSession sup;
+};
+
+class DyscoHashPen {
+
+};
+
+class DyscoHashPenTag {
+
+};
+
+class DyscoHashes {
+ public:
+	uint32_t index;
+	
+	map<DyscoTcpSession, DyscoHashIn, DyscoTcpSession::EqualTo> hash_in;
+	map<DyscoTcpSession, DyscoHashOut, DyscoTcpSession::EqualTo> hash_out;
+	map<DyscoTcpSession, DyscoHashPen, DyscoTcpSession::EqualTo> hash_pen;
+	map<DyscoTcpSession, DyscoHashPenTag, DyscoTcpSession::EqualTo> hash_pen_tag;
+};
 
 class DyscoCenter final : public Module {
  public:
@@ -57,29 +78,18 @@ class DyscoCenter final : public Module {
 	static const gate_idx_t kNumOGates = 0;
 	
 	DyscoCenter();
-	
+
 	CommandResponse CommandList(const bess::pb::EmptyArg&);
 	CommandResponse CommandAdd(const bess::pb::DyscoCenterAddArg&);
 	CommandResponse CommandDel(const bess::pb::DyscoCenterDelArg&);
 
-	bool add_backmapping(uint32_t, DyscoControlBlock*);
-	bool add_mapping(uint32_t, Ipv4*, Tcp*, uint8_t*, uint32_t);
-	bool add_policy_rule(uint32_t, std::string, uint8_t*, uint32_t);
-	DyscoControlBlock* add_mapping_filter(uint32_t, Ipv4*, Tcp*, DyscoBPF::Filter*);
-
+	DyscoHashes* get_hash(uint32_t);
 	uint32_t get_index(const std::string&);
-	DyscoBPF::Filter* get_filter(bess::Packet*);
-	DyscoTcpSession* get_subss_by_supss(uint32_t, Ipv4*, Tcp*);
-	DyscoTcpSession* get_supss_by_subss(uint32_t, Ipv4*, Tcp*);
-	DyscoControlBlock* get_controlblock_by_subss(uint32_t, Ipv4*, Tcp*);
-	DyscoControlBlock* get_controlblock_by_supss(bess::Packet*, uint32_t, Ipv4*, Tcp*);
+	DyscoHashIn* insert_cb_in(uint32_t, Ipv4*, Tcp*, uint8_t, uint32_t);
+	DyscoHashOut* insert_cb_in_reverse(DyscoHashes*, DyscpTcpSession*, Ipv4*, Tcp*);
 	
  private:
-	//using HashTable = bess::utils::CuckooMap<DyscoTcpSession, DyscoControlBlock, DyscoTcpSession::Hash, DyscoTcpSession::EqualTo>;
-	//using HashTable = bess::utils::CuckooMap<uint32_t, bess::utils::CuckooMap<DyscoTcpSession, DyscoControlBlock, DyscoTcpSession::Hash, DyscoTcpSession::EqualTo>>;
-	std::map<int, HashMap> dcb_map;
-	//HashTable map;
-	std::map<int, DyscoBPF> bpf_map;
+	map<int, DyscoHashes> hashes;
 };
 
 #endif //BESS_MODULES_DYSCOCENTER_H_

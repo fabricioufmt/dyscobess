@@ -1149,7 +1149,7 @@ message DyscoCenterListArg {
 /**
 	TODO: should be empty arg.
 */
-message DyscoAgentIncArg {
+message DyscoAgentInArg {
 	string ns = 1;
 	string ip = 2;
 	string dc = 3;

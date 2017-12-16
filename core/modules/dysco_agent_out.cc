@@ -16,7 +16,15 @@ char* printip2(uint32_t ip) {
 
 DyscoAgentOut::DyscoAgentOut() : Module() {
 	dc = 0;
+	devip = 0;
 	index = 0;
+}
+
+bool DyscoAgentOut::insert_metadata(bess::Packet* pkt) {
+	uint32_t* metadata = (uint32_t*) _ptr_attr_with_offset<uint8_t>(0, pkt);
+	metadata[0] = index;
+	
+	return true;
 }
 
 CommandResponse DyscoAgentOut::Init(const bess::pb::DyscoAgentOutArg& arg) {
@@ -47,15 +55,59 @@ CommandResponse DyscoAgentOut::Init(const bess::pb::DyscoAgentOutArg& arg) {
 	return CommandSuccess();
 }
 
-bool DyscoAgentOut::process_syn(uint32_t i, Ipv4* ip, Tcp* tcp) {
-	DyscoControlBlock* block = dc->get_controlblock_by_subss(i, ip, tcp);
-	if(!block)
+bool DyscoAgentOut::process_syn(bess::Packet* , Ipv4* , Tcp* ) {
+	if(!dc)
 		return false;
+}
+/**
+   TODO: Do nothing?
+ */
+bool DyscoAgentOut::process_synp(bess::Packet*, Ipv4*, Tcp*) {
+	return true;
+}
 
-	return dc->add_backmapping(this->index, block);
+bool DyscoAgentOut::process_nonsyn(bess::Packet*, Ipv4* , Tcp* ) {
+	if(!dc)
+		return false;
 }
 
 bool DyscoAgentOut::process_packet(bess::Packet* pkt) {
+	if(!dc)
+		return false;
+			
+	Ethernet* eth = pkt->head_data<Ethernet*>();
+	if(!isIP(eth))
+		return false;
+
+	Ipv4* ip = reinterpret_cast<Ipv4*>(eth + 1);
+	size_t ip_hlen = ip->header_length << 2;
+	if(!isTCP(ip))
+		return false;
+
+	Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
+	
+	fprintf(stderr, "%s(IN): %s:%u -> %s:%u\n",
+		name().c_str(),
+		printip2(ip->src.value()), tcp->src_port.value(),
+		printip2(ip->dst.value()), tcp->dst_port.value());
+
+	if(isTCPSYN(tcp)) {
+		if(hasPayload(ip, tcp))
+			process_synp(pkt, ip, tcp);
+		else
+			process_syn(pkt, ip, tcp);
+	} else
+		process_nonsyn(pkt, ip, tcp);
+	
+	fprintf(stderr, "%s(OUT): %s:%u -> %s:%u\n",
+		name().c_str(),
+		printip2(ip->src.value()), tcp->src_port.value(),
+		printip2(ip->dst.value()), tcp->dst_port.value());
+	
+	return true;
+}
+
+/*bool DyscoAgentOut::process_packet(bess::Packet* pkt) {
 	if(!dc)
 		return false;
 			
@@ -97,7 +149,7 @@ bool DyscoAgentOut::process_packet(bess::Packet* pkt) {
 		printip2(ip->dst.value()), tcp->dst_port.value());
 	
 	return true;
-}
+	}*/
 
 void DyscoAgentOut::ProcessBatch(bess::PacketBatch* batch) {
 	int cnt = batch->cnt();
@@ -106,9 +158,10 @@ void DyscoAgentOut::ProcessBatch(bess::PacketBatch* batch) {
 	for(int i = 0; i < cnt; i++) {
 		pkt = batch->pkts()[i];
 		process_packet(pkt);
+		insert_metadata(pkt);
 	}
 	
 	RunChooseModule(0, batch);
 }
 
-ADD_MODULE(DyscoAgentOut, "dysco_agent_out", "processes packets outcoming")
+ADD_MODULE(DyscoAgentOut, "dysco_agent_out", "processes packets outcoming from host")
