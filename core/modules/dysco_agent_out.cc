@@ -58,6 +58,7 @@ CommandResponse DyscoAgentOut::Init(const bess::pb::DyscoAgentOutArg& arg) {
 bool DyscoAgentOut::process_syn(bess::Packet* , Ipv4* , Tcp* ) {
 	if(!dc)
 		return false;
+	return true;
 }
 /**
    TODO: Do nothing?
@@ -69,6 +70,7 @@ bool DyscoAgentOut::process_synp(bess::Packet*, Ipv4*, Tcp*) {
 bool DyscoAgentOut::process_nonsyn(bess::Packet*, Ipv4* , Tcp* ) {
 	if(!dc)
 		return false;
+	return true;
 }
 
 bool DyscoAgentOut::process_packet(bess::Packet* pkt) {
