@@ -129,6 +129,9 @@ class DyscoCenter final : public Module {
 	DyscoHashIn* lookup_input(uint32_t, Ipv4*, Tcp*);
 	DyscoHashIn* insert_cb_in(uint32_t, Ipv4*, Tcp*, uint8_t*, uint32_t);
 	
+	DyscoHashIn* lookup_input(uint32_t, Ipv4*, Tcp*);
+	bool process_syn_out(uint32_t, bess::Packet*, Ipv4*, Tcp*, DyscoHashOut*);
+	bool process_pending_packet(uint32_t, bess::Packet*, Ipv4*, Tcp*, DyscoHashOut*);
  private:
 	map<uint32_t, DyscoHashes> hashes;
 

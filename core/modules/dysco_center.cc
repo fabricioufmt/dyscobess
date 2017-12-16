@@ -4,7 +4,7 @@
 #include <arpa/inet.h>
 
 #include "../utils/format.h"
-#include "dysco_bpf.h"
+#include "dysco_policies.h"
 
 using bess::utils::Tcp;
 using bess::utils::Ipv4;
