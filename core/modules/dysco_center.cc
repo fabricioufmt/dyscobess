@@ -113,13 +113,13 @@ bool DyscoCenter::add_backmapping(uint32_t i, DyscoControlBlock* block) {
 DyscoTcpSession* DyscoCenter::get_supss_by_subss(uint32_t i, Ipv4* ip, Tcp* tcp) {
 	DyscoTcpSession ss;
 
-	ss.i = i;
+	//ss.i = i;
 	ss.sip = htonl(ip->src.value());
 	ss.dip = htonl(ip->dst.value());
 	ss.sport = htons(tcp->src_port.value());
 	ss.dport = htons(tcp->dst_port.value());
 	
-	auto* result = map.Find(ss);
+	auto* result = dcb_map[i].Find(ss);
 	if(result == nullptr)
 		return 0;
 	
@@ -146,14 +146,14 @@ uint32_t DyscoCenter::get_index(const std::string& name) {
 DyscoControlBlock* DyscoCenter::get_controlblock_by_subss(uint32_t i, Ipv4* ip, Tcp* tcp) {
 	DyscoTcpSession ss;
 
-	ss.i = i;
+	//ss.i = i;
 	ss.sip = htonl(ip->src.value());
 	ss.dip = htonl(ip->dst.value());
 	ss.sport = htons(tcp->src_port.value());
 	ss.dport = htons(tcp->dst_port.value());
 
-	HashTable::iterator it = map.begin();
-	while(it != map.end()) {
+	HashMap::iterator it = dcb_map[i].begin();
+	while(it != dcb_map[i].end()) {
 		DyscoTcpSession::EqualTo equals;
 		if(equals(ss, (*it).second.subss))
 			return &(*it).second;
