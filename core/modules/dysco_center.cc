@@ -5,6 +5,11 @@
 
 #include "../utils/format.h"
 #include "dysco_policies.h"
+#include "../utils/endian.h"
+#include "../module.h"
+#include "../utils/ip.h"
+#include "../utils/tcp.h"
+#include "../utils/ether.h"
 
 using bess::utils::Tcp;
 using bess::utils::Ipv4;
@@ -257,7 +262,7 @@ bool DyscoCenter::process_pending_packet(uint32_t i, bess::Packet* pkt, Ipv4* ip
 	DyscoTcpSession* sub = cb_out->get_sub();
 	if(cb_out->get_sc_len()) {
 		sub->sip = dh->devip;
-		sub->dip = cb_out->get_sc[0];
+		sub->dip = cb_out->get_sc()[0];
 	}
 
 	sub->sport = allocate_local_port(i);

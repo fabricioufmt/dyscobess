@@ -71,6 +71,10 @@ class DyscoHashOut {
 	uint32_t sc_len;
 	
  public:
+	void set_sc(uint32_t* sc_p) {
+		sc = sc_p;
+	}
+	
 	void set_sc_len(uint32_t len) {
 		this->sc_len = len;
 	}
