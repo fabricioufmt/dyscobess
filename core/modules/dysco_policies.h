@@ -1,5 +1,5 @@
-#ifndef BESS_MODULES_DYSCOBPF_H_
-#define BESS_MODULES_DYSCOBPF_H_
+#ifndef BESS_MODULES_DYSCOPOLICIES_H_
+#define BESS_MODULES_DYSCOPOLICIES_H_
 
 #include <pcap.h>
 #include <vector>
@@ -13,9 +13,9 @@
 
 using bpf_filter_func_t = u_int (*)(u_char *, u_int, u_int);
 
-class DyscoBPF {
+class DyscoPolicies {
  public:
-	DyscoBPF() {}
+	DyscoPolicies() {}
   
 	struct Filter {
 #ifdef __x86_64
@@ -26,17 +26,15 @@ class DyscoBPF {
 #endif
 		uint32_t priority;
 		std::string exp;
-		uint32_t i;
-		uint8_t* sc;
-		uint32_t sc_len;
+		uint32_t* sc;
+		uint32_t sc_sz;
 	};
 
 	bool Match(const Filter &, u_char *, u_int, u_int);
 	std::vector<Filter> filters_;
 
-
-	bool add_filter(uint32_t, std::string, uint8_t*, uint32_t);
-	Filter* get_filter(bess::Packet*);
+	bool add_filter(uint32_t, std::string, uint32_t*, uint32_t);
+	Filter* match_policy(bess::Packet*);
 };
 
-#endif  // BESS_MODULES_DYSCOBPF_H_
+#endif  // BESS_MODULES_DYSCOPOLICIES_H_

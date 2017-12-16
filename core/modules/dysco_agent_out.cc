@@ -48,10 +48,9 @@ CommandResponse DyscoAgentOut::Init(const bess::pb::DyscoAgentOutArg& arg) {
 
 	index = dc->get_index(reinterpret_cast<Port*>(itt->second)->name());
 	*/
-	index = dc->get_index(arg.ns());
-
 	inet_pton(AF_INET, arg.ip().c_str(), &devip);
-	
+	index = dc->get_index(arg.ns(), devip);
+
 	return CommandSuccess();
 }
 
@@ -74,9 +73,6 @@ bool DyscoAgentOut::process_nonsyn(bess::Packet*, Ipv4* , Tcp* ) {
 }
 
 bool DyscoAgentOut::process_packet(bess::Packet* pkt) {
-	if(!dc)
-		return false;
-			
 	Ethernet* eth = pkt->head_data<Ethernet*>();
 	if(!isIP(eth))
 		return false;
@@ -93,6 +89,19 @@ bool DyscoAgentOut::process_packet(bess::Packet* pkt) {
 		printip2(ip->src.value()), tcp->src_port.value(),
 		printip2(ip->dst.value()), tcp->dst_port.value());
 
+	DyscoHashOut* cb_out = dc->lookup_output(this->index, ip, tcp);
+	if(!cb_out) {
+		cb_out = dc->lookup_output_pen(this->index, ip, tcp);
+		if(cb_out) {
+			return dc->process_pending_packet(this->index, pkt, ip, tcp, cb_out);
+		}
+	}
+
+	if(isTCPSYN(tcp)) {
+		return dc->process_syn_out(this->index, pkt, ip, tcp, cb_out);
+	}
+
+	/*
 	if(isTCPSYN(tcp)) {
 		if(hasPayload(ip, tcp))
 			process_synp(pkt, ip, tcp);
@@ -105,62 +114,20 @@ bool DyscoAgentOut::process_packet(bess::Packet* pkt) {
 		name().c_str(),
 		printip2(ip->src.value()), tcp->src_port.value(),
 		printip2(ip->dst.value()), tcp->dst_port.value());
-	
+	*/
 	return true;
 }
 
-/*bool DyscoAgentOut::process_packet(bess::Packet* pkt) {
-	if(!dc)
-		return false;
-			
-	Ethernet* eth = pkt->head_data<Ethernet*>();
-	if(!isIP(eth))
-		return false;
-
-	Ipv4* ip = reinterpret_cast<Ipv4*>(eth + 1);
-	size_t ip_hlen = ip->header_length << 2;
-	if(!isTCP(ip))
-		return false;
-
-	Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
-	uint32_t pkt_index = ((uint32_t*)pkt->metadata<const char*>())[0];
-	
-	fprintf(stderr, "%s(IN)[%u]: %s:%u -> %s:%u\n", name().c_str(), pkt_index,
-		printip2(ip->src.value()), tcp->src_port.value(),
-		printip2(ip->dst.value()), tcp->dst_port.value());
-
-	if(isTCPSYN(tcp))
-		process_syn(pkt_index, ip, tcp);
-	
-	DyscoTcpSession* ss = dc->get_supss_by_subss(pkt_index, ip, tcp);
-	if(!ss)
-		return false;
-	
-	ip->src = be32_t(ntohl(ss->sip));
-	ip->dst = be32_t(ntohl(ss->dip));
-	tcp->src_port = be16_t(ntohs(ss->sport));
-	tcp->dst_port = be16_t(ntohs(ss->dport));
-
-	ip->checksum = 0;
-	tcp->checksum = 0;
-	ip->checksum = bess::utils::CalculateIpv4Checksum(*ip);
-	tcp->checksum = bess::utils::CalculateIpv4TcpChecksum(*ip, *tcp);
-	
-	fprintf(stderr, "%s(OUT)[%u]: %s:%u -> %s:%u\n", name().c_str(), pkt_index,
-		printip2(ip->src.value()), tcp->src_port.value(),
-		printip2(ip->dst.value()), tcp->dst_port.value());
-	
-	return true;
-	}*/
-
 void DyscoAgentOut::ProcessBatch(bess::PacketBatch* batch) {
-	int cnt = batch->cnt();
-
-	bess::Packet* pkt = 0;
-	for(int i = 0; i < cnt; i++) {
-		pkt = batch->pkts()[i];
-		process_packet(pkt);
-		insert_metadata(pkt);
+	if(dc) {
+		int cnt = batch->cnt();
+		
+		bess::Packet* pkt = 0;
+		for(int i = 0; i < cnt; i++) {
+			pkt = batch->pkts()[i];
+			process_packet(pkt);
+			insert_metadata(pkt);
+		}
 	}
 	
 	RunChooseModule(0, batch);

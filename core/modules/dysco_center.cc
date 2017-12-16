@@ -77,8 +77,11 @@ CommandResponse DyscoCenter::CommandList(const bess::pb::EmptyArg&) {
 	return CommandSuccess(l);
 }
 
-uint32_t DyscoCenter::get_index(const std::string& name) {
-	return std::hash<std::string>()(name);
+uint32_t DyscoCenter::get_index(const std::string& name, uint32_t ip) {
+	uint32_t index = std::hash<std::string>()(name);
+	hashes[i].devip = ip;
+	
+	return index;
 }
 
 DyscoHashes* DyscoCenter::get_hash(uint32_t i) {
@@ -102,6 +105,42 @@ DyscoHashIn* DyscoCenter::lookup_input(uint32_t i, Ipv4* ip, Tcp* tcp) {
 	
 	map<DyscoTcpSession, DyscoHashIn>::iterator it = dh->hash_in.find(ss);
 	if(it != dh->hash_in.end())
+		return &(*it).second;
+
+	return 0;
+}
+
+DyscoHashOut* DyscoCenter::lookup_output(uint32_t i, Ipv4* ip, Tcp* tcp) {
+	DyscoHashes* dh = get_hash(i);
+	if(!dh)
+		return 0;
+
+	DyscoTcpSession ss;
+	ss.sip = htonl(ip->src.value());
+	ss.dip = htonl(ip->dst.value());
+	ss.sport = htons(tcp->src_port.value());
+	ss.dport = htons(tcp->dst_port.value());
+	
+	map<DyscoTcpSession, DyscoHashOut>::iterator it = dh->hash_out.find(ss);
+	if(it != dh->hash_out.end())
+		return &(*it).second;
+
+	return 0;
+}
+
+DyscoHashOut* DyscoCenter::lookup_output_pen(uint32_t i, Ipv4* ip, Tcp* tcp) {
+	DyscoHashes* dh = get_hash(i);
+	if(!dh)
+		return 0;
+
+	DyscoTcpSession ss;
+	ss.sip = htonl(ip->src.value());
+	ss.dip = htonl(ip->dst.value());
+	ss.sport = htons(tcp->src_port.value());
+	ss.dport = htons(tcp->dst_port.value());
+	
+	map<DyscoTcpSession, DyscoHashOut>::iterator it = dh->hash_pen.find(ss);
+	if(it != dh->hash_pen.end())
 		return &(*it).second;
 
 	return 0;
@@ -197,9 +236,116 @@ DyscoHashIn* DyscoCenter::insert_cb_in(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_t* 
         dh->hash_in.insert(std::pair<DyscoTcpSession, DyscoHashIn>(*sub, *cb_in));
 	dh->hash_out.insert(std::pair<DyscoTcpSession, DyscoHashOut>(*sup, *cb_out));
 
+	return cb_in;
+}
+
+bool DyscoCenter::process_pending_packet(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) {
+	DyscoHashes* dh = get_hash(i);
+	if(!dh)
+		return false;
+
+	dh->hash_pen.erase(*cb_out->get_sup());
+
+	DyscoTcpSession* sub = cb_out->get_sub();
+	if(cb_out->get_sc_len) {
+		sub->sip = dh->devip;
+		sub->dip = cb_out->get_sc[0];
+	}
+
+	sub->sport = allocate_local_port(i);
+	sub->dport = allocate_neighbor_port(i);
+
+	//TODO: parse options
+
+	ip->src = be32_t(ntohl(sub->sip));
+	ip->dst = be32_t(ntohl(sub->dip));
+	tcp->src_port = be16_t(ntohs(sub->sport));
+	tcp->dst_port = be16_t(ntohs(sub->dport));
+
+	uint32_t payload_sz = sizeof(DyscoTcpSession) + cb_out->get_sc_len() * sizeof(uint32_t);
+	uint8_t* payload = pkt->append(payload_sz);
+	if(!payload)
+		return false;
+
+	memcpy(payload, cb_out->get_sup(), sizeof(DyscoTcpSession));
+	memcpy(payload + sizeof(DyscoTcpSession), cb_out->get_sc(), payload_sz - sizeof(DyscoTcpSession));
+
+	ip->length = ip->length + be16_t(payload_sz);
 	
+	ip->checksum = 0;
+	tcp->checksum = 0;
+	ip->checksum = bess::utils::CalculateIpv4Checksum(*ip);
+	tcp->checksum = bess::utils::CalculateIpv4TcpChecksum(*ip, *tcp);
+
+	return true;
+}
+
+DyscoHashIn* DyscoCenter::insert_cb_out_reverse(DyscoHashOut* cb_out) {
+	DyscoHashIn* cb_in = new DyscoHashIn();
+	if(!cb_in)
+		return 0;
+
+	DyscoTcpSession* supI = cb_in->get_sup();
+	DyscoTcpSession* supO = cb_out->get_sup();
+	supI->sip = supO->dip;
+	supI->dip = supO->sip;
+	supI->sport = supO->dport;
+	supI->dport = supO->sport;
+
+	DyscoTcpSession* subI = cb_in->get_sub();
+	DyscoTcpSession* subO = cb_out->get_sub();
+	subI->sip = subO->dip;
+	subI->dip = subO->sip;
+	subI->sport = subO->dport;
+	subI->dport = subO->sport;
 	
 	return cb_in;
+}
+
+bool DyscoCenter::process_syn_out(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) {
+	DyscoHashes* dh = get_hash(i);
+	if(!dh)
+		return false;
+	
+	if(!cb_out) {
+		DyscoPolicies::Filter* filter = dh->policies.match_policy(pkt);
+		if(!filter)
+			return false;
+
+		DyscoHashOut* cb_out = new DyscoHashOut();
+		cb_out->set_sc(filter->sc);
+		cb_out->set_sc_len(filter->sc_len);
+
+		DyscoTcpSession* sup = cb_out->get_sup();
+		sup->sip = htonl(ip->src.value());
+		sup->dip = htonl(ip->dst.value());
+		sup->sport = htons(tcp->src_port.value());
+		sup->dport = htons(tcp->dst_port.value());
+
+		if(filter->sc_len) {
+			DyscoTcpSession* sub = cb_out->get_sub();
+			sub->dip = filter->sc[0];
+			sub->sip = dh->devip;
+			sub->sport = allocate_local_port(i);
+			sub->sport = allocate_neighbor_port(i);
+		}
+
+		DyscoHashIn* cb_in = insert_cb_out_reverse(cb_out);
+		if(!cb_in) {
+			delete cb_out;
+			return false;
+		}
+		
+		cb_out->set_cb_in(cb_in);
+		cb_in->set_cb_out(cb_out);
+
+		dh->hash_in.insert(std::pair<DyscoTcpSession, DyscoHashIn>(*sub, *cb_in));
+		dh->hash_out.insert(std::pair<DyscoTcpSession, DyscoHashOut>(*sup, *cb_out));
+	}
+
+	//TODO: parse options
+
+	return true;
 }
 
 ADD_MODULE(DyscoCenter, "dysco_center", "Dysco center")

@@ -1,4 +1,4 @@
-#include "dysco_bpf.h"
+#include "dysco_policies.h"
 
 #ifdef __x86_64  // JIT compilation code only works in 64-bit
 /*
@@ -1053,7 +1053,7 @@ SWAP_AX();
 
 #define SNAPLEN 0xffff
 
-bool DyscoBPF::Match(const Filter &filter, u_char *pkt, u_int wirelen,
+bool DyscoPolicies::Match(const Filter &filter, u_char *pkt, u_int wirelen,
 		     u_int buflen) {
 #ifdef __x86_64
 	int ret = filter.func(pkt, wirelen, buflen);
@@ -1064,14 +1064,13 @@ bool DyscoBPF::Match(const Filter &filter, u_char *pkt, u_int wirelen,
 	return ret != 0;
 }
 
-bool DyscoBPF::add_filter(uint32_t priority, std::string exp, uint8_t* sc, uint32_t sc_len) {
+bool DyscoPolicies::add_filter(uint32_t priority, std::string exp, uint32_t* sc, uint32_t sc_len) {
 	Filter filter;
 	filter.priority = priority;
 	filter.exp = exp;
-	filter.i = 0;
 	filter.sc_len = sc_len;
-	filter.sc = (uint8_t*) malloc(sc_len);
-	memcpy(filter.sc, sc, sc_len);
+	filter.sc = new uint32_t[sc_len];
+	memcpy(filter.sc, sc, sc_len * sizeof(uint32_t));
 
 	struct bpf_program il;
 	if(pcap_compile_nopcap(SNAPLEN, DLT_EN10MB, &il,
@@ -1099,7 +1098,7 @@ bool DyscoBPF::add_filter(uint32_t priority, std::string exp, uint8_t* sc, uint3
 	return true;
 }
 
-DyscoBPF::Filter* DyscoBPF::get_filter(bess::Packet* pkt) {
+DyscoPolicies::Filter* DyscoPolicies::match_policy(bess::Packet* pkt) {
 	for(Filter& filter : filters_) {
 		if(Match(filter, pkt->head_data<uint8_t*>(), pkt->total_len(), pkt->head_len()))
 			return &filter;	

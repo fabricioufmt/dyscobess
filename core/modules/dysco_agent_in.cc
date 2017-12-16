@@ -32,9 +32,8 @@ CommandResponse DyscoAgentIn::Init(const bess::pb::DyscoAgentInArg& arg) {
 	if(!dc)
 		return CommandFailure(ENODEV, "DyscoCenter module is NULL.");
 	
-	index = dc->get_index(arg.ns());
-	
 	inet_pton(AF_INET, arg.ip().c_str(), &devip);
+	index = dc->get_index(arg.ns(), devip);
 	
 	return CommandSuccess();
 }

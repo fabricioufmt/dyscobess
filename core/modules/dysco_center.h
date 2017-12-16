@@ -12,7 +12,7 @@
 #include "../utils/cuckoo_map.h"
 #include "../utils/endian.h"
 
-#include "dysco_bpf.h"
+#include "dysco_policies.h"
 
 using std::map;
 using bess::utils::Tcp;
@@ -90,6 +90,10 @@ class DyscoHashOut {
 	uint32_t* get_sc() {
 		return sc;
 	}
+
+	uint32_t get_sc_len() {
+		return sc_len;
+	}
 };
 
 class DyscoHashPenTag {
@@ -98,7 +102,9 @@ class DyscoHashPenTag {
 
 class DyscoHashes {
  public:
-	uint32_t index;
+	uint32_t devip;
+
+	DyscoPolicies policies;
 	
 	map<DyscoTcpSession, DyscoHashIn, DyscoTcpSession::EqualTo> hash_in;
 	map<DyscoTcpSession, DyscoHashOut, DyscoTcpSession::EqualTo> hash_out;
@@ -119,7 +125,7 @@ class DyscoCenter final : public Module {
 	CommandResponse CommandDel(const bess::pb::DyscoCenterDelArg&);
 
 
-	uint32_t get_index(const std::string&);
+	uint32_t get_index(const std::string&, uint32_t);
 	DyscoHashIn* lookup_input(uint32_t, Ipv4*, Tcp*);
 	DyscoHashIn* insert_cb_in(uint32_t, Ipv4*, Tcp*, uint8_t*, uint32_t);
 	
