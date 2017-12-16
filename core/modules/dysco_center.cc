@@ -79,7 +79,7 @@ CommandResponse DyscoCenter::CommandList(const bess::pb::EmptyArg&) {
 
 uint32_t DyscoCenter::get_index(const std::string& name, uint32_t ip) {
 	uint32_t index = std::hash<std::string>()(name);
-	hashes[i].devip = ip;
+	hashes[index].devip = ip;
 	
 	return index;
 }
@@ -90,6 +90,14 @@ DyscoHashes* DyscoCenter::get_hash(uint32_t i) {
 		return &(*it).second;
 
 	return 0;
+}
+
+uint16_t DyscoCenter::allocate_local_port(uint32_t) {
+	return (rand() % 1000) + 10000;
+}
+
+uint16_t DyscoCenter::allocate_neighbor_port(uint32_t) {
+	return (rand() % 1000) + 30000;
 }
 
 DyscoHashIn* DyscoCenter::lookup_input(uint32_t i, Ipv4* ip, Tcp* tcp) {
@@ -247,7 +255,7 @@ bool DyscoCenter::process_pending_packet(uint32_t i, bess::Packet* pkt, Ipv4* ip
 	dh->hash_pen.erase(*cb_out->get_sup());
 
 	DyscoTcpSession* sub = cb_out->get_sub();
-	if(cb_out->get_sc_len) {
+	if(cb_out->get_sc_len()) {
 		sub->sip = dh->devip;
 		sub->dip = cb_out->get_sc[0];
 	}
