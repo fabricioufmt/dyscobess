@@ -48,8 +48,8 @@ class DyscoHashIn {
 	DyscoTcpSession sup;
 	
  public:
-	void set_cb_out(DyscoHashOut* cb_out) {
-		this->cb_out = cb_out;
+	void set_cb_out(DyscoHashOut* cb) {
+		this->cb_out = cb;
 	}
 	
 	DyscoTcpSession* get_sub() {
@@ -68,8 +68,8 @@ class DyscoHashOut {
 	DyscoTcpSession sup;
 	
  public:
-	void set_cb_in(DyscoHashIn* cb_in) {
-		this->cb_in = cb_in;
+	void set_cb_in(DyscoHashIn* cb) {
+		this->cb_in = cb;
 	}
 	
 	DyscoTcpSession* get_sub() {

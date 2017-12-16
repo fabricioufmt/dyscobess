@@ -130,13 +130,13 @@ DyscoHashIn* DyscoCenter::insert_cb_in(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_t* 
 		return 0;
 
 	DyscoTcpSession* sub = cb_in->get_sub();
-	sub.sip = htonl(ip->src.value());
-	sub.dip = htonl(ip->dst.value());
-	sub.sport = htons(tcp->src_port.value());
-	sub.dport = htons(tcp->dst_port.value());
+	sub->sip = htonl(ip->src.value());
+	sub->dip = htonl(ip->dst.value());
+	sub->sport = htons(tcp->src_port.value());
+	sub->dport = htons(tcp->dst_port.value());
 
 	DyscoTcpSession* sup = cb_out->get_sup();
-	memcpy(sup, reinterpret_cast<DyscoTcpSession*>(payload), sizeof(cb_in->sup));
+	memcpy(sup, reinterpret_cast<DyscoTcpSession*>(payload), sizeof(DyscoTcpSession));
 
 	cb_out = insert_cb_in_reverse(dh, reinterpret_cast<DyscoTcpSession*>(payload), ip, tcp);
 	if(!cb_out) {
@@ -147,10 +147,10 @@ DyscoHashIn* DyscoCenter::insert_cb_in(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_t* 
 	cb_in->set_cb_out(cb_out);
 	cb_out->set_cb_in(cb_in);
 
-        dh->hash_in.insert(std::pair<DyscoTcpSession, DyscoHashIn>(cb_in->subss, cb_in));
-	dh->hash_out.insert(std::pair<DyscoTcpSession, DyscoHashOut>(cb_out->supss, cb_out));
+        dh->hash_in.insert(std::pair<DyscoTcpSession, DyscoHashIn>(*sub, cb_in));
+	dh->hash_out.insert(std::pair<DyscoTcpSession, DyscoHashOut>(*sup, cb_out));
 	
-	return true;
+	return 0;
 }
 
 ADD_MODULE(DyscoCenter, "dysco_center", "Dysco center")
