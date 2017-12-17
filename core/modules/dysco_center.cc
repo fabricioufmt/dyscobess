@@ -214,9 +214,7 @@ DyscoHashIn* DyscoCenter::insert_cb_in(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_t* 
 	if(!dh)
 		return 0;
 
-	DyscoHashIn* cb_in;
-		
-	cb_in = new DyscoHashIn();
+	DyscoHashIn* cb_in = new DyscoHashIn();
 	if(!cb_in)
 		return 0;
 
@@ -233,12 +231,14 @@ DyscoHashIn* DyscoCenter::insert_cb_in(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_t* 
 	DyscoHashOut* cb_out = insert_cb_in_reverse(ss, ip, tcp);
 	if(!cb_out) {
 		delete cb_in;
+		fprintf(stderr, "%s insert_cb_in_reverse is NULL\n", name().c_str());
 		return 0;
 	}
 	
 	if(!insert_pending(dh, payload, payload_sz)) {
 			delete cb_in;
 			delete cb_out;
+			fprintf(stderr, "%s insert_pending is NULL\n", name().c_str());
 			return 0;
 	}
 	
