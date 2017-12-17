@@ -41,7 +41,6 @@ CommandResponse DyscoCenter::CommandAdd(const bess::pb::DyscoCenterAddArg& arg) 
 	uint32_t index = std::hash<std::string>()(arg.ns());
 	uint32_t sc_len = arg.sc_len();
 	uint32_t* sc = new uint32_t[sc_len];
-	uint32_t* nsc = sc;
 	uint32_t i = 0;
 	uint32_t ipchain;
 	for(std::string s : arg.chain()) {
