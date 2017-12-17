@@ -329,7 +329,10 @@ DyscoHashOut* DyscoCenter::process_syn_out(uint32_t i, bess::Packet* pkt, Ipv4* 
 	if(!dh)
 		return 0;
 
+	fprintf(stderr, "%s: process_syn_out\n", name().c_str());
+	
 	if(!dcb_out) {
+		fprintf(stderr, "%s: dcb_out is NULL.\n", name().c_str());
 		DyscoPolicies::Filter* filter = dh->policies.match_policy(pkt);
 		if(!filter)
 			return 0;
@@ -382,7 +385,7 @@ DyscoHashOut* DyscoCenter::process_syn_out(uint32_t i, bess::Packet* pkt, Ipv4* 
 
 	//TODO: parse options
 
-	return 0;
+	return dcb_out;
 }
 
 ADD_MODULE(DyscoCenter, "dysco_center", "Dysco center")
