@@ -44,10 +44,13 @@ CommandResponse DyscoCenter::CommandAdd(const bess::pb::DyscoCenterAddArg& arg) 
 
 	uint32_t i = 0;
 	for(std::string s : arg.chain()) {
-		inet_pton(AF_INET, s.c_str(), sc + 4*i);
+		inet_pton(AF_INET, s.c_str(), sc + i);
 		i++;
 	}
 
+	for(i = 0; i < sc_len; i++)
+		printf(stderr, "%u\n", sc[i]);
+	
 	DyscoHashes* dh = get_hash(index);
 	if(!dh)
 		return CommandFailure(ENODEV, "No hashes.");
