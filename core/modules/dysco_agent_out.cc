@@ -54,22 +54,16 @@ CommandResponse DyscoAgentOut::Init(const bess::pb::DyscoAgentOutArg& arg) {
 	return CommandSuccess();
 }
 
-bool DyscoAgentOut::process_syn(bess::Packet* , Ipv4* , Tcp* ) {
-	if(!dc)
-		return false;
-	return true;
-}
-/**
-   TODO: Do nothing?
- */
-bool DyscoAgentOut::process_synp(bess::Packet*, Ipv4*, Tcp*) {
+bool DyscoAgentOut::process_syn(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) {
+	if(cb_out) {
+		
+	}
+	
 	return true;
 }
 
-bool DyscoAgentOut::process_nonsyn(bess::Packet*, Ipv4* , Tcp* ) {
-	if(!dc)
-		return false;
-	return true;
+bool DyscoAgentOut::process_nonsyn(bess::Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) {
+	
 }
 
 bool DyscoAgentOut::process_packet(bess::Packet* pkt) {
@@ -91,30 +85,34 @@ bool DyscoAgentOut::process_packet(bess::Packet* pkt) {
 
 	DyscoHashOut* cb_out = dc->lookup_output(this->index, ip, tcp);
 	if(!cb_out) {
+		//There is not a mapping
 		cb_out = dc->lookup_output_pen(this->index, ip, tcp);
 		if(cb_out) {
 			return dc->process_pending_packet(this->index, pkt, ip, tcp, cb_out);
+		} else {
+			//There is not a pending mapping
+			return false;
 		}
 	}
 
-	if(isTCPSYN(tcp)) {
-		return dc->process_syn_out(this->index, pkt, ip, tcp, cb_out);
-	}
+	if(isTCPSYN(tcp))
+		cb_out = dc->process_syn_out(this->index, pkt, ip, tcp, cb_out);
 
-	/*
-	if(isTCPSYN(tcp)) {
-		if(hasPayload(ip, tcp))
-			process_synp(pkt, ip, tcp);
-		else
-			process_syn(pkt, ip, tcp);
-	} else
-		process_nonsyn(pkt, ip, tcp);
+	if(!cb_out)
+		return false;
 	
-	fprintf(stderr, "%s(OUT): %s:%u -> %s:%u\n",
-		name().c_str(),
-		printip2(ip->src.value()), tcp->src_port.value(),
-		printip2(ip->dst.value()), tcp->dst_port.value());
-	*/
+	DyscoTcpSession* ss = cb_out->get_sub();
+
+	ip->src = be32_t(ntohl(sub->sip));
+	ip->dst = be32_t(ntohl(sub->dip));
+	tcp->src_port = be16_t(ntohs(sub->sport));
+	tcp->dst_port = be16_t(ntohs(sub->dport));
+
+	ip->checksum = 0;
+	tcp->checksum = 0;
+	ip->checksum = bess::utils::CalculateIpv4Checksum(*ip);
+	tcp->checksum = bess::utils::CalculateIpv4TcpChecksum(*ip, *tcp);
+	
 	return true;
 }
 
