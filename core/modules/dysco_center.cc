@@ -265,7 +265,7 @@ DyscoHashIn* DyscoCenter::insert_cb_in(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_t* 
 		printip0(ntohl(sup->sip)), ntohs(sup->sport),
 		printip0(ntohl(sup->dip)), ntohs(sup->dport));
 
-	fprintf(stfprintf(stderr, "[index: %u] cb_out:\n", i);
+	fprintf(stderr, "[index: %u] cb_out:\n", i);
 	fprintf(stderr, "[index: %u]: (SUB)%s:%u -> %s:%u\n",
 		i,
 		printip0(ntohl(cb_out->get_sub()->sip)), ntohs(cb_out->get_sub()->sport),
