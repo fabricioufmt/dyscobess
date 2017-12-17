@@ -255,6 +255,27 @@ DyscoHashIn* DyscoCenter::insert_cb_in(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_t* 
 	cb_in->set_cb_out(cb_out);
 	cb_out->set_cb_in(cb_in);
 
+	fprintf(stderr, "[index: %u] cb_in:\n", i);
+	fprintf(stderr, "[index: %u]: (SUB)%s:%u -> %s:%u\n",
+		this->name().c_str(), this->index,
+		printip1(ntohl(sub->sip)), ntohs(sub->sport),
+		printip1(ntohl(sub->dip)), ntohs(sub->dport));
+	fprintf(stderr, "[index: %u]: (SUP)%s:%u -> %s:%u\n",
+		this->name().c_str(), this->index,
+		printip1(ntohl(sup->sip)), ntohs(sup->sport),
+		printip1(ntohl(sup->dip)), ntohs(sup->dport));
+
+	fprintf(stfprintf(stderr, "[index: %u] cb_out:\n", i);
+	fprintf(stderr, "[index: %u]: (SUB)%s:%u -> %s:%u\n",
+		this->name().c_str(), this->index,
+		printip1(ntohl(cb_out->get_sub()->sip)), ntohs(cb_out->get_sub()->sport),
+		printip1(ntohl(cb_out->get_sub()->dip)), ntohs(cb_out->get_sub()->dport));
+	fprintf(stderr, "[index: %u]: (SUP)%s:%u -> %s:%u\n",
+		this->name().c_str(), this->index,
+		printip1(ntohl(cb_out->get_sup()->sip)), ntohs(cb_out->get_sup()->sport),
+		printip1(ntohl(cb_out->get_sup()->dip)), ntohs(cb_out->get_sup()->dport));
+
+	
         dh->hash_in.insert(std::pair<DyscoTcpSession, DyscoHashIn>(*sub, *cb_in));
 	dh->hash_out.insert(std::pair<DyscoTcpSession, DyscoHashOut>(*sup, *cb_out));
 
