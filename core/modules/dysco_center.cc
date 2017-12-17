@@ -50,11 +50,11 @@ CommandResponse DyscoCenter::CommandAdd(const bess::pb::DyscoCenterAddArg& arg) 
 		i++;
 	}
 
-	DyscoHashes* hashes = get_hash(index);
-	if(!hashes)
+	DyscoHashes* dh = get_hash(index);
+	if(!dh)
 		return CommandFailure(ENODEV, "No hashes.");
 
-	hashes->policies.add_filter(arg.priority(), arg.filter(), sc, sc_len);
+	dh->policies.add_filter(arg.priority(), arg.filter(), sc, sc_len);
 	/*for(std::string s : arg.chain())
 		fprintf(stderr, " %s", s.c_str());
 	fprintf(stderr, ", filter: %s\n", arg.filter().c_str());
