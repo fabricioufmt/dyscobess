@@ -74,14 +74,14 @@ bool DyscoAgentOut::process_packet(bess::Packet* pkt) {
 	DyscoHashOut* cb_out = dc->lookup_output(this->index, ip, tcp);
 	if(!cb_out) {
 		//There is not a mapping
-		fprintf(stderr, "%s: lookup_output is NULL.\n", name()->c_str());
+		fprintf(stderr, "%s: lookup_output is NULL.\n", name().c_str());
 		cb_out = dc->lookup_output_pen(this->index, ip, tcp);
 		if(cb_out) {
-			fprintf(stderr, "%s: lookup_output_pen is not NULL.\n", name()->c_str());
+			fprintf(stderr, "%s: lookup_output_pen is not NULL.\n", name().c_str());
 			return dc->process_pending_packet(this->index, pkt, ip, tcp, cb_out);
 		} else {
 			//There is not a pending mapping
-			fprintf(stderr, "%s: lookup_output_pen is NULL.\n", name()->c_str());
+			fprintf(stderr, "%s: lookup_output_pen is NULL.\n", name().c_str());
 			return false;
 		}
 	}
