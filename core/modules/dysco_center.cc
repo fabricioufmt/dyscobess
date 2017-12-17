@@ -44,6 +44,7 @@ CommandResponse DyscoCenter::CommandAdd(const bess::pb::DyscoCenterAddArg& arg) 
 
 	uint32_t i = 0;
 	for(std::string s : arg.chain()) {
+		fprintf(stderr, "%s\n", s.c_str());
 		inet_pton(AF_INET, s.c_str(), sc + i);
 		i++;
 	}
