@@ -109,9 +109,22 @@ bool DyscoAgentIn::process_packet(bess::Packet* pkt) {
 	if(!cb_in) {
 		if(isTCPSYN(tcp) && hasPayload(ip, tcp))
 			return process_synp(pkt, ip, tcp);
+		
+		return false;
 	}
 	
-	//TODO: resto
+	//TODO: remaing
+	
+	DyscoTcpSession* sup = cb_in->get_sup();
+	ip->src = be32_t(ntohl(sup->sip));
+	ip->dst = be32_t(ntohl(sup->dip));
+	tcp->src_port = be16_t(ntohs(sup->sport));
+	tcp->dst_port = be16_t(ntohs(sup->dport));
+
+	ip->checksum = 0;
+	tcp->checksum = 0;
+	ip->checksum = bess::utils::CalculateIpv4Checksum(*ip);
+	tcp->checksum = bess::utils::CalculateIpv4TcpChecksum(*ip, *tcp);
 	
 	fprintf(stderr, "%s(OUT)[index: %u]: %s:%u -> %s:%u\n",
 		this->name().c_str(), this->index,
