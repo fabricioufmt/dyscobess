@@ -276,7 +276,7 @@ bool DyscoCenter::process_pending_packet(uint32_t i, bess::Packet* pkt, Ipv4* ip
 	tcp->dst_port = be16_t(ntohs(sub->dport));
 
 	uint32_t payload_sz = sizeof(DyscoTcpSession) + cb_out->get_sc_len() * sizeof(uint32_t);
-	uint8_t* payload = pkt->append(payload_sz);
+	uint8_t* payload = reinterpret_cast<uint_8*>(pkt->append(payload_sz));
 	if(!payload)
 		return false;
 
