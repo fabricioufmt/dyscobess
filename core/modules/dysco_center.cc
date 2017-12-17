@@ -348,7 +348,7 @@ DyscoHashOut* DyscoCenter::process_syn_out(uint32_t i, bess::Packet* pkt, Ipv4* 
 		uint32_t payload_sz = sizeof(DyscoTcpSession) + cb_out->get_sc_len() * sizeof(uint32_t);
 		uint8_t* payload = reinterpret_cast<uint8_t*>(pkt->append(payload_sz));
 		if(!payload)
-			return false;
+			return 0;
 		
 		memcpy(payload, cb_out->get_sup(), sizeof(DyscoTcpSession));
 		memcpy(payload + sizeof(DyscoTcpSession), cb_out->get_sc(), payload_sz - sizeof(DyscoTcpSession));
