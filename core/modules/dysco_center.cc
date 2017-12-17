@@ -43,9 +43,11 @@ CommandResponse DyscoCenter::CommandAdd(const bess::pb::DyscoCenterAddArg& arg) 
 	uint32_t* sc = new uint32_t[sc_len];
 	uint32_t* nsc = sc;
 	uint32_t i = 0;
+	uint32_t ipchain;
 	for(std::string s : arg.chain()) {
 		fprintf(stderr, "%s\n", s.c_str());
-		inet_pton(AF_INET, s.c_str(), nsc++);
+		inet_pton(AF_INET, s.c_str(), &ipchain);
+		memcpy(sc + i, &ipchain, sizeof(uint32_t));
 		i++;
 	}
 
