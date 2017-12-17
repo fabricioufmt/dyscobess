@@ -11,6 +11,7 @@
 
 #include "../utils/cuckoo_map.h"
 #include "../utils/endian.h"
+#include "../utils/checksum.h"
 
 #include "dysco_policies.h"
 
@@ -18,6 +19,8 @@ using std::map;
 using bess::utils::Tcp;
 using bess::utils::Ipv4;
 using bess::utils::Ethernet;
+using bess::utils::be32_t;
+using bess::utils::be16_t;
 
 class DyscoTcpSession {
  public:
@@ -143,6 +146,7 @@ class DyscoCenter final : public Module {
 	DyscoHashes* get_hash(uint32_t);
 	bool insert_pending(DyscoHashes*, uint8_t*, uint32_t);
 	DyscoHashOut* insert_cb_in_reverse(DyscoTcpSession*, Ipv4*, Tcp*);
+	DyscoHashIn* insert_cb_out_reverse(DyscoHashOut*);
 
 	uint16_t allocate_local_port(uint32_t);
 	uint16_t allocate_neighbor_port(uint32_t);

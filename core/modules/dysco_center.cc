@@ -357,11 +357,13 @@ DyscoHashOut* DyscoCenter::process_syn_out(uint32_t i, bess::Packet* pkt, Ipv4* 
 
 		dh->hash_in.insert(std::pair<DyscoTcpSession, DyscoHashIn>(*sub, *cb_in));
 		dh->hash_out.insert(std::pair<DyscoTcpSession, DyscoHashOut>(*sup, *cb_out));
+
+		return cb_out;
 	}
 
 	//TODO: parse options
 
-	return cb_out;
+	return 0;
 }
 
 ADD_MODULE(DyscoCenter, "dysco_center", "Dysco center")

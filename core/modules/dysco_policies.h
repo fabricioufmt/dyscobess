@@ -27,7 +27,7 @@ class DyscoPolicies {
 		uint32_t priority;
 		std::string exp;
 		uint32_t* sc;
-		uint32_t sc_sz;
+		uint32_t sc_len;
 	};
 
 	bool Match(const Filter &, u_char *, u_int, u_int);
