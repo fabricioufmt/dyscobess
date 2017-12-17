@@ -51,7 +51,7 @@ CommandResponse DyscoCenter::CommandAdd(const bess::pb::DyscoCenterAddArg& arg) 
 	}
 
 	for(i = 0; i < sc_len; i++)
-		fprintf(stderr, "%u\n", sc[i]);
+		fprintf(stderr, "%x\n", sc[i]);
 	
 	DyscoHashes* dh = get_hash(index);
 	if(!dh)
