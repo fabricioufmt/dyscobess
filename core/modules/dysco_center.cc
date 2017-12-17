@@ -255,10 +255,12 @@ DyscoHashIn* DyscoCenter::insert_cb_in(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_t* 
 	DyscoTcpSession* ss = reinterpret_cast<DyscoTcpSession*>(payload);
 	memcpy(sup, ss, sizeof(DyscoTcpSession));
 
-	if(!insert_pending(dh, payload, payload_sz)) {
-		delete cb_in;
-		fprintf(stderr, "[index: %u]: insert_pending is NULL\n", i);
-		return 0;
+	if(payload_sz > sizeof(DyscoTcpSession) + sizeof(uint32_t)) {
+		if(!insert_pending(dh, payload, payload_sz)) {
+			delete cb_in;
+			fprintf(stderr, "[index: %u]: insert_pending is NULL\n", i);
+			return 0;
+		}
 	}
 	fprintf(stderr, "[index: %u]: insert_pending is not NULL\n", i);
 	fprintf(stderr, "[index: %u] cb_in:\n", i);
