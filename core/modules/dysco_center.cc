@@ -38,8 +38,6 @@ DyscoCenter::DyscoCenter() : Module() {
 }
 
 CommandResponse DyscoCenter::CommandAdd(const bess::pb::DyscoCenterAddArg& arg) {
-	fprintf(stderr, "[DyscoCenter](CommandAdd): priority: %d, sc_len: %d, chain:", arg.priority(), arg.sc_len());
-
 	uint32_t index = std::hash<std::string>()(arg.ns());
 	uint32_t sc_len = arg.sc_len();
 	uint32_t* sc = new uint32_t[sc_len];
@@ -55,22 +53,7 @@ CommandResponse DyscoCenter::CommandAdd(const bess::pb::DyscoCenterAddArg& arg) 
 		return CommandFailure(ENODEV, "No hashes.");
 
 	dh->policies.add_filter(arg.priority(), arg.filter(), sc, sc_len);
-	/*for(std::string s : arg.chain())
-		fprintf(stderr, " %s", s.c_str());
-	fprintf(stderr, ", filter: %s\n", arg.filter().c_str());
-
-	uint32_t i = 0;
-	uint32_t sc_size = arg.sc_len() * sizeof(uint32_t);
-	uint8_t* sc = (uint8_t*) malloc(sc_size);
-	uint32_t a, b, c, d;
-	for(std::string s : arg.chain()) {
-		bess::utils::Parse(s, "%u.%u.%u.%u", &a, &b, &c, &d);
-		*(sc+i) = a; *(sc+i+1) = b; *(sc+i+2) = c; *(sc+i+3) = d;
-		i += 4;
-	}
-
-	//bpf->add_filter(arg.priority(), arg.filter(), sc, sc_size);
-	*/
+	
 	bess::pb::DyscoCenterListArg l;
 	l.set_msg("... Done.");	
 	return CommandSuccess(l);
