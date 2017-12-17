@@ -140,7 +140,7 @@ DyscoHashOut* DyscoCenter::lookup_output(uint32_t i, Ipv4* ip, Tcp* tcp) {
 	*/
 	map<DyscoTcpSession, DyscoHashOut>::iterator it = dh->hash_out.begin();
 	while(it != dh->hash_out.end()) {
-		fprintf("%s: sport: %u dport: %u\n", name().c_str(), (*it).first.sport, (*it).first.dport);
+		fprintf(stderr, "%s: sport: %u dport: %u\n", name().c_str(), (*it).first.sport, (*it).first.dport);
 		DyscoTcpSession::EqualTo equals;
 		if(equals((*it).first, ss))
 			return &(*it).second;
