@@ -29,9 +29,6 @@ class DyscoAgentOut final : public Module {
 	DyscoAgentOut();
 	bool process_packet(bess::Packet*);
 	bool insert_metadata(bess::Packet*);
-	bool process_syn(bess::Packet*, Ipv4*, Tcp*);
-	bool process_synp(bess::Packet*, Ipv4*, Tcp*);
-	bool process_nonsyn(bess::Packet*, Ipv4*, Tcp*);
 	void ProcessBatch(bess::PacketBatch*) override;
 	CommandResponse Init(const bess::pb::DyscoAgentOutArg&);
 

@@ -54,18 +54,6 @@ CommandResponse DyscoAgentOut::Init(const bess::pb::DyscoAgentOutArg& arg) {
 	return CommandSuccess();
 }
 
-bool DyscoAgentOut::process_syn(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) {
-	if(cb_out) {
-		
-	}
-	
-	return true;
-}
-
-bool DyscoAgentOut::process_nonsyn(bess::Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) {
-	
-}
-
 bool DyscoAgentOut::process_packet(bess::Packet* pkt) {
 	Ethernet* eth = pkt->head_data<Ethernet*>();
 	if(!isIP(eth))
@@ -103,10 +91,10 @@ bool DyscoAgentOut::process_packet(bess::Packet* pkt) {
 	
 	DyscoTcpSession* ss = cb_out->get_sub();
 
-	ip->src = be32_t(ntohl(sub->sip));
-	ip->dst = be32_t(ntohl(sub->dip));
-	tcp->src_port = be16_t(ntohs(sub->sport));
-	tcp->dst_port = be16_t(ntohs(sub->dport));
+	ip->src = be32_t(ntohl(ss->sip));
+	ip->dst = be32_t(ntohl(ss->dip));
+	tcp->src_port = be16_t(ntohs(ss->sport));
+	tcp->dst_port = be16_t(ntohs(ss->dport));
 
 	ip->checksum = 0;
 	tcp->checksum = 0;
