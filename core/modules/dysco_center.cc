@@ -248,7 +248,6 @@ DyscoHashIn* DyscoCenter::insert_cb_in(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_t* 
 
 	if(!insert_pending(dh, payload, payload_sz)) {
 		delete cb_in;
-		delete cb_out;
 		fprintf(stderr, "[index: %u]: insert_pending is NULL\n", i);
 		return 0;
 	}
