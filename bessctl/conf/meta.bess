@@ -79,4 +79,4 @@ ipl:4 -> Update(fields=[{'offset':0, 'size':6, 'value':39}]) -> \
 ipl:5 -> Update(fields=[{'offset':0, 'size':6, 'value':20}]) -> \
       DyscoAgentIn(ns='h4', ip='10.0.1.4', dc=dc) -> PortOut(port=h4)
 
-dc.add(priority=1, sc_len=3, chain=['10.0.1.2', '10.0.1.3', '10.0.1.4'], filter='dst port 5001')
+dc.add(priority=1, sc_len=3, chain=['10.0.1.2', '10.0.1.3', '10.0.1.4'], filter='dst port 5001', ns='h1')
