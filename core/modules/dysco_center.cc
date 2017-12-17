@@ -41,11 +41,11 @@ CommandResponse DyscoCenter::CommandAdd(const bess::pb::DyscoCenterAddArg& arg) 
 	uint32_t index = std::hash<std::string>()(arg.ns());
 	uint32_t sc_len = arg.sc_len();
 	uint32_t* sc = new uint32_t[sc_len];
-
+	uint32_t* nsc = sc;
 	uint32_t i = 0;
 	for(std::string s : arg.chain()) {
 		fprintf(stderr, "%s\n", s.c_str());
-		inet_pton(AF_INET, s.c_str(), sc + i);
+		inet_pton(AF_INET, s.c_str(), nsc++);
 		i++;
 	}
 
