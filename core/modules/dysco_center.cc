@@ -192,6 +192,16 @@ bool DyscoCenter::insert_pending(DyscoHashes* dh, uint8_t* payload, uint32_t pay
 	uint32_t* sc = cb_out->get_sc();
 	sc = new uint32_t[sc_len - 1];
 	memcpy(sc, payload + sizeof(DyscoTcpSession) + sizeof(uint32_t), sc_len - 1);
+
+	fprintf(stderr, "[index: %u] cb_out (pending):\n", i);
+	fprintf(stderr, "[index: %u]: (SUB)%s:%u -> %s:%u\n",
+		i,
+		printip0(ntohl(cb_out->get_sub()->sip)), ntohs(cb_out->get_sub()->sport),
+		printip0(ntohl(cb_out->get_sub()->dip)), ntohs(cb_out->get_sub()->dport));
+	fprintf(stderr, "[index: %u]: (SUP)%s:%u -> %s:%u\n",
+		i,
+		printip0(ntohl(cb_out->get_sup()->sip)), ntohs(cb_out->get_sup()->sport),
+		printip0(ntohl(cb_out->get_sup()->dip)), ntohs(cb_out->get_sup()->dport));
 	
 	dh->hash_pen.insert(std::pair<DyscoTcpSession, DyscoHashOut>(*sup, *cb_out));
 	//TODO: DyscoTag
