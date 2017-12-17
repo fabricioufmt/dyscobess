@@ -54,10 +54,10 @@ bool DyscoAgentIn::process_synp(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 
 	DyscoHashIn* cb_in = dc->insert_cb_in(this->index, ip, tcp, payload, payload_sz);
 	if(!cb_in) {
-		fprintf(stderr, "%s: cb_in is NULL\n", name().c_str());
+		fprintf(stderr, "%s: cb_in(insert) is NULL\n", name().c_str());
 		return false;
 	}
-	fprintf(stderr, "%s: cb_in is not NULL\n", name().c_str());
+	fprintf(stderr, "%s: cb_in(insert) is not NULL\n", name().c_str());
 	
 	pkt->trim(payload_sz);
 	ip->length = ip->length - be16_t(payload_sz);
@@ -107,12 +107,13 @@ bool DyscoAgentIn::process_packet(bess::Packet* pkt) {
 	DyscoHashIn* cb_in = dc->lookup_input(this->index, ip, tcp);
 
 	if(!cb_in) {
+		fprintf(stderr, "%s: cb_in(lookup) is NULL\n", name().c_str());
 		if(isTCPSYN(tcp) && hasPayload(ip, tcp))
 			return process_synp(pkt, ip, tcp);
 		
 		return false;
 	}
-	
+	fprintf(stderr, "%s: cb_in(lookup) is not NULL\n", name().c_str());
 	//TODO: remaing
 	
 	DyscoTcpSession* sup = cb_in->get_sup();

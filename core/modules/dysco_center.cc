@@ -241,17 +241,17 @@ DyscoHashIn* DyscoCenter::insert_cb_in(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_t* 
 	DyscoHashOut* cb_out = insert_cb_in_reverse(ss, ip, tcp);
 	if(!cb_out) {
 		delete cb_in;
-		fprintf(stderr, "%s insert_cb_in_reverse is NULL\n", name().c_str());
+		fprintf(stderr, "[index: %u]: insert_cb_in_reverse is NULL\n", i);
 		return 0;
 	}
-	
+	fprintf(stderr, "[index: %u]: insert_cb_in_reverse is not NULL\n", i);	
 	if(!insert_pending(dh, payload, payload_sz)) {
 			delete cb_in;
 			delete cb_out;
-			fprintf(stderr, "%s insert_pending is NULL\n", name().c_str());
+			fprintf(stderr, "[index: %u]: insert_pending is NULL\n", i);
 			return 0;
 	}
-	
+	fprintf(stderr, "[index: %u]: insert_pending is not NULL\n", i);	
 	cb_in->set_cb_out(cb_out);
 	cb_out->set_cb_in(cb_in);
 
