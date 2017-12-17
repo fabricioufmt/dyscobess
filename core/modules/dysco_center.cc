@@ -198,10 +198,10 @@ bool DyscoCenter::insert_pending(DyscoHashes* dh, uint8_t* payload, uint32_t pay
 	sup->dport = ss->dport;
 
 	cb_out->set_sc_len(sc_len - 1);
-	uint32_t* sc = cb_out->get_sc();
-	sc = new uint32_t[sc_len - 1];
+	uint32_t* sc = new uint32_t[sc_len - 1];
 	memcpy(sc, payload + sizeof(DyscoTcpSession) + sizeof(uint32_t), sc_len - 1);
-
+	cb_out->set_sc(sc);
+ 
 	fprintf(stderr, "cb_out (pending):\n");
 	fprintf(stderr, "(SUB)%s:%u -> %s:%u\n",
 		printip0(ntohl(cb_out->get_sub()->sip)), ntohs(cb_out->get_sub()->sport),
