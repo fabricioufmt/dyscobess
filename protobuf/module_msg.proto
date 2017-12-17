@@ -1135,6 +1135,7 @@ message DyscoCenterAddArg {
 	uint32 sc_len = 2;
 	repeated string chain = 3;
 	string filter = 4;
+	string ns = 5;
 }
 
 message DyscoCenterDelArg {
