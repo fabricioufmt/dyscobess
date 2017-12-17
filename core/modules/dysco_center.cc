@@ -124,10 +124,9 @@ DyscoHashIn* DyscoCenter::lookup_input(uint32_t i, Ipv4* ip, Tcp* tcp) {
 
 DyscoHashOut* DyscoCenter::lookup_output(uint32_t i, Ipv4* ip, Tcp* tcp) {
 	DyscoHashes* dh = get_hash(i);
-	fprintf(stderr, "%s: lookup_output index=%u\n", name().c_str(), i);
 	if(!dh)
 		return 0;
-
+	fprintf(stderr, "[index: %u]: lookup_output\n", i);
 	DyscoTcpSession ss;
 	ss.sip = htonl(ip->src.value());
 	ss.dip = htonl(ip->dst.value());
@@ -140,13 +139,13 @@ DyscoHashOut* DyscoCenter::lookup_output(uint32_t i, Ipv4* ip, Tcp* tcp) {
 	*/
 	map<DyscoTcpSession, DyscoHashOut>::iterator it = dh->hash_out.begin();
 	while(it != dh->hash_out.end()) {
-		fprintf(stderr, "%s: sport: %u dport: %u\n", name().c_str(), (*it).first.sport, (*it).first.dport);
+		fprintf(stderr, "[index: %u]: sport: %u dport: %u\n", i, ntohs((*it).first.sport), ntohs((*it).first.dport));
 		DyscoTcpSession::EqualTo equals;
 		if(equals((*it).first, ss))
 			return &(*it).second;
 		it++;
 	}
-	fprintf(stderr, "%s: end of lookup_output\n", name().c_str());
+	fprintf(stderr, "[index: %u]: end of lookup_output\n", i);
 	return 0;
 }
 
@@ -154,16 +153,26 @@ DyscoHashOut* DyscoCenter::lookup_output_pen(uint32_t i, Ipv4* ip, Tcp* tcp) {
 	DyscoHashes* dh = get_hash(i);
 	if(!dh)
 		return 0;
-
+	fprintf(stderr, "[index: %u]: lookup_output_pen\n", i);
 	DyscoTcpSession ss;
 	ss.sip = htonl(ip->src.value());
 	ss.dip = htonl(ip->dst.value());
 	ss.sport = htons(tcp->src_port.value());
 	ss.dport = htons(tcp->dst_port.value());
-	
+	/*
 	map<DyscoTcpSession, DyscoHashOut>::iterator it = dh->hash_pen.find(ss);
 	if(it != dh->hash_pen.end())
 		return &(*it).second;
+	*/
+	map<DyscoTcpSession, DyscoHashOut>::iterator it = dh->hash_pen.begin();
+	while(it != dh->hash_pen.end()) {
+		fprintf(stderr, "[index: %u]: sport: %u dport: %u\n", i, ntohs((*it).first.sport), ntohs((*it).first.dport));
+		DyscoTcpSession::EqualTo equals;
+		if(equals((*it).first, ss))
+			return &(*it).second;
+		it++;
+	}
+	fprintf(stderr, "[index: %u]: end of lookup_output_pen\n", i);
 
 	return 0;
 }
