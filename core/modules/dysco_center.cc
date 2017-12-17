@@ -47,9 +47,6 @@ CommandResponse DyscoCenter::CommandAdd(const bess::pb::DyscoCenterAddArg& arg) 
 		inet_pton(AF_INET, s.c_str(), sc + i);
 		i++;
 	}
-
-	for(i = 0; i < sc_len; i++)
-		fprintf(stderr, "%x\n", sc[i]);
 	
 	DyscoHashes* dh = get_hash(index);
 	if(!dh)
@@ -202,7 +199,7 @@ bool DyscoCenter::insert_pending(DyscoHashes* dh, uint8_t* payload, uint32_t pay
 
 	cb_out->set_sc_len(sc_len - 1);
 	uint32_t* sc = new uint32_t[sc_len - 1];
-	memcpy(sc, payload + sizeof(DyscoTcpSession) + sizeof(uint32_t), sc_len - 1);
+	memcpy(sc, payload + sizeof(DyscoTcpSession) + sizeof(uint32_t), (sc_len - 1) * sizeof(uint32_t));
 	cb_out->set_sc(sc);
  
 	fprintf(stderr, "cb_out (pending):\n");
