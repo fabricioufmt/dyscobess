@@ -55,6 +55,7 @@ CommandResponse DyscoAgentOut::Init(const bess::pb::DyscoAgentOutArg& arg) {
 }
 
 bool DyscoAgentOut::process_packet(bess::Packet* pkt) {
+	bool ret;
 	Ethernet* eth = pkt->head_data<Ethernet*>();
 	if(!isIP(eth))
 		return false;
@@ -77,7 +78,14 @@ bool DyscoAgentOut::process_packet(bess::Packet* pkt) {
 		cb_out = dc->lookup_output_pen(this->index, ip, tcp);
 		if(cb_out) {
 			fprintf(stderr, "%s: lookup_output_pen is not NULL.\n", name().c_str());
-			return dc->process_pending_packet(this->index, pkt, ip, tcp, cb_out);
+			ret = dc->process_pending_packet(this->index, pkt, ip, tcp, cb_out);
+
+			fprintf(stderr, "%s(OUT): %s:%u -> %s:%u\n",
+				name().c_str(),
+				printip2(ip->src.value()), tcp->src_port.value(),
+				printip2(ip->dst.value()), tcp->dst_port.value());
+			
+			return ret;
 		}
 		fprintf(stderr, "%s: lookup_output_pen is NULL.\n", name().c_str());
 	}
@@ -99,6 +107,11 @@ bool DyscoAgentOut::process_packet(bess::Packet* pkt) {
 	tcp->checksum = 0;
 	ip->checksum = bess::utils::CalculateIpv4Checksum(*ip);
 	tcp->checksum = bess::utils::CalculateIpv4TcpChecksum(*ip, *tcp);
+
+	fprintf(stderr, "%s(OUT): %s:%u -> %s:%u\n",
+		name().c_str(),
+		printip2(ip->src.value()), tcp->src_port.value(),
+		printip2(ip->dst.value()), tcp->dst_port.value());
 	
 	return true;
 }
