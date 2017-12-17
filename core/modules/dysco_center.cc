@@ -124,6 +124,7 @@ DyscoHashIn* DyscoCenter::lookup_input(uint32_t i, Ipv4* ip, Tcp* tcp) {
 
 DyscoHashOut* DyscoCenter::lookup_output(uint32_t i, Ipv4* ip, Tcp* tcp) {
 	DyscoHashes* dh = get_hash(i);
+	fprintf(stderr, "%s: lookup_output index=%u\n", name().c_str(), i);
 	if(!dh)
 		return 0;
 
@@ -132,11 +133,20 @@ DyscoHashOut* DyscoCenter::lookup_output(uint32_t i, Ipv4* ip, Tcp* tcp) {
 	ss.dip = htonl(ip->dst.value());
 	ss.sport = htons(tcp->src_port.value());
 	ss.dport = htons(tcp->dst_port.value());
-	
+	/*
 	map<DyscoTcpSession, DyscoHashOut>::iterator it = dh->hash_out.find(ss);
 	if(it != dh->hash_out.end())
 		return &(*it).second;
-
+	*/
+	map<DyscoTcpSession, DyscoHashOut>::iterator it = dh->hash_out.begin();
+	while(it != dh->hash_out.end()) {
+		fprintf("%s: sport: %u dport: %u\n", name().c_str(), (*it).first.sport, (*it).first.dport);
+		DyscoTcpSession::EqualTo equals;
+		if(equals((*it).first, ss))
+			return &(*it).second;
+		it++;
+	}
+	fprintf(stderr, "%s: end of lookup_output\n", name().c_str());
 	return 0;
 }
 
