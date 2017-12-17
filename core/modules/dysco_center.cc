@@ -336,8 +336,8 @@ DyscoHashOut* DyscoCenter::process_syn_out(uint32_t i, bess::Packet* pkt, Ipv4* 
 
 		DyscoTcpSession* sub = cb_out->get_sub();
 		if(filter->sc_len) {
-			sub->dip = filter->sc[0];
 			sub->sip = dh->devip;
+			sub->dip = filter->sc[0];
 			sub->sport = allocate_local_port(i);
 			sub->dport = allocate_neighbor_port(i);
 		} else {
@@ -345,6 +345,16 @@ DyscoHashOut* DyscoCenter::process_syn_out(uint32_t i, bess::Packet* pkt, Ipv4* 
 			return 0;
 		}
 
+		uint32_t payload_sz = sizeof(DyscoTcpSession) + cb_out->get_sc_len() * sizeof(uint32_t);
+		uint8_t* payload = reinterpret_cast<uint8_t*>(pkt->append(payload_sz));
+		if(!payload)
+			return false;
+		
+		memcpy(payload, cb_out->get_sup(), sizeof(DyscoTcpSession));
+		memcpy(payload + sizeof(DyscoTcpSession), cb_out->get_sc(), payload_sz - sizeof(DyscoTcpSession));
+
+		ip->length = ip->length + be16_t(payload_sz);
+		
 		DyscoHashIn* cb_in = insert_cb_out_reverse(cb_out);
 		if(!cb_in) {
 			delete cb_out;
