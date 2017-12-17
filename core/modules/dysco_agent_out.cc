@@ -67,8 +67,8 @@ bool DyscoAgentOut::process_packet(bess::Packet* pkt) {
 
 	Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
 	
-	fprintf(stderr, "%s(IN): %s:%u -> %s:%u\n",
-		name().c_str(),
+	fprintf(stderr, "%s(IN)[%u]: %s:%u -> %s:%u\n",
+		name().c_str(), index,
 		printip2(ip->src.value()), tcp->src_port.value(),
 		printip2(ip->dst.value()), tcp->dst_port.value());
 

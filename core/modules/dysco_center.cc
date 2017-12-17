@@ -329,14 +329,16 @@ DyscoHashOut* DyscoCenter::process_syn_out(uint32_t i, bess::Packet* pkt, Ipv4* 
 	if(!dh)
 		return 0;
 
-	fprintf(stderr, "%s: process_syn_out\n", name().c_str());
+	fprintf(stderr, "[index: %u]: process_syn_out\n", i);
 	
 	if(!dcb_out) {
-		fprintf(stderr, "%s: dcb_out is NULL.\n", name().c_str());
+		fprintf(stderr, "[index: %u]: dcb_out is NULL.\n", i);
 		DyscoPolicies::Filter* filter = dh->policies.match_policy(pkt);
-		if(!filter)
+		if(!filter) {
+			fprintf(stderr, "[index: %u]: filter is NULL.\n", i);
 			return 0;
-
+		}
+		fprintf(stderr, "[index: %u]: filter is not NULL.\n", i);
 		DyscoHashOut* cb_out = new DyscoHashOut();
 		cb_out->set_sc(filter->sc);
 		cb_out->set_sc_len(filter->sc_len);
@@ -349,11 +351,13 @@ DyscoHashOut* DyscoCenter::process_syn_out(uint32_t i, bess::Packet* pkt, Ipv4* 
 
 		DyscoTcpSession* sub = cb_out->get_sub();
 		if(filter->sc_len) {
+			fprintf(stderr, "[index: %u]: filter->sc_len != 0.\n", i);
 			sub->sip = dh->devip;
 			sub->dip = filter->sc[0];
 			sub->sport = allocate_local_port(i);
 			sub->dport = allocate_neighbor_port(i);
 		} else {
+			fprintf(stderr, "[index: %u]: filter->sc_len == 0.\n", i);
 			delete cb_out;
 			return 0;
 		}
@@ -370,10 +374,11 @@ DyscoHashOut* DyscoCenter::process_syn_out(uint32_t i, bess::Packet* pkt, Ipv4* 
 		
 		DyscoHashIn* cb_in = insert_cb_out_reverse(cb_out);
 		if(!cb_in) {
+			fprintf(stderr, "[index: %u]: cb_in is not NULL.\n", i);
 			delete cb_out;
 			return 0;
 		}
-		
+		fprintf(stderr, "[index: %u]: cb_in is NULL.\n", i);		
 		cb_out->set_cb_in(cb_in);
 		cb_in->set_cb_out(cb_out);
 
@@ -382,7 +387,7 @@ DyscoHashOut* DyscoCenter::process_syn_out(uint32_t i, bess::Packet* pkt, Ipv4* 
 
 		return cb_out;
 	}
-
+	fprintf(stderr, "[index: %u]: dcb_out is not NULL.\n", i);
 	//TODO: parse options
 
 	return dcb_out;
