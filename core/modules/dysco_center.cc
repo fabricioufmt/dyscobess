@@ -44,7 +44,7 @@ CommandResponse DyscoCenter::CommandAdd(const bess::pb::DyscoCenterAddArg& arg) 
 
 	uint32_t i = 0;
 	for(std::string s : arg.chain()) {
-		inet_pton(AF_INET, s.c_str(), sc + i);
+		inet_pton(AF_INET, s.c_str(), sc + 4*i);
 		i++;
 	}
 
@@ -97,11 +97,11 @@ DyscoHashes* DyscoCenter::get_hash(uint32_t i) {
 }
 
 uint16_t DyscoCenter::allocate_local_port(uint32_t) {
-	return (rand() % 1000) + 10000;
+	return htons((rand() % 1000) + 10000);
 }
 
 uint16_t DyscoCenter::allocate_neighbor_port(uint32_t) {
-	return (rand() % 1000) + 30000;
+	return htons((rand() % 1000) + 30000);
 }
 
 DyscoHashIn* DyscoCenter::lookup_input(uint32_t i, Ipv4* ip, Tcp* tcp) {
