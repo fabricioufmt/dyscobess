@@ -34,6 +34,7 @@ CommandResponse DyscoAgentIn::Init(const bess::pb::DyscoAgentInArg& arg) {
 	
 	inet_pton(AF_INET, arg.ip().c_str(), &devip);
 	index = dc->get_index(arg.ns(), devip);
+	ns = arg.ns();
 	
 	return CommandSuccess();
 }
@@ -54,10 +55,10 @@ bool DyscoAgentIn::process_synp(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 
 	DyscoHashIn* cb_in = dc->insert_cb_in(this->index, ip, tcp, payload, payload_sz);
 	if(!cb_in) {
-		fprintf(stderr, "%s: cb_in(insert) is NULL\n", name().c_str());
+		fprintf(stderr, "[ns:%s]%s: cb_in(insert) is NULL\n", ns.c_str(), name().c_str());
 		return false;
 	}
-	fprintf(stderr, "%s: cb_in(insert) is not NULL\n", name().c_str());
+	fprintf(stderr, "[ns:%s]%s: cb_in(insert) is not NULL\n", ns.c_str(), name().c_str());
 	
 	pkt->trim(payload_sz);
 	ip->length = ip->length - be16_t(payload_sz);
@@ -75,8 +76,8 @@ bool DyscoAgentIn::process_synp(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 	ip->checksum = bess::utils::CalculateIpv4Checksum(*ip);
 	tcp->checksum = bess::utils::CalculateIpv4TcpChecksum(*ip, *tcp);
 
-	fprintf(stderr, "%s(OUT)[index: %u]: %s:%u -> %s:%u\n",
-		this->name().c_str(), this->index,
+	fprintf(stderr, "[ns:%s]%s(OUT): %s:%u -> %s:%u\n",
+		ns.c_str(), name().c_str(),
 		printip1(ip->src.value()), tcp->src_port.value(),
 		printip1(ip->dst.value()), tcp->dst_port.value());
 	
@@ -99,21 +100,21 @@ bool DyscoAgentIn::process_packet(bess::Packet* pkt) {
 
 	Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
 	
-	fprintf(stderr, "%s(IN)[index: %u]: %s:%u -> %s:%u\n",
-		this->name().c_str(), this->index,
+	fprintf(stderr, "[ns:%s]%s(IN): %s:%u -> %s:%u\n",
+		ns.c_str(), name().c_str(),
 		printip1(ip->src.value()), tcp->src_port.value(),
 		printip1(ip->dst.value()), tcp->dst_port.value());
 
 	DyscoHashIn* cb_in = dc->lookup_input(this->index, ip, tcp);
 
 	if(!cb_in) {
-		fprintf(stderr, "%s: cb_in(lookup) is NULL\n", name().c_str());
+		fprintf(stderr, "[ns:%s]%s: cb_in(lookup) is NULL\n", ns.c_str(), name().c_str());
 		if(isTCPSYN(tcp) && hasPayload(ip, tcp))
 			return process_synp(pkt, ip, tcp);
 		
 		return false;
 	}
-	fprintf(stderr, "%s: cb_in(lookup) is not NULL\n", name().c_str());
+	fprintf(stderr, "[ns:%s]%s: cb_in(lookup) is not NULL\n", ns.c_str(), name().c_str());
 	//TODO: remaing
 	
 	DyscoTcpSession* sup = cb_in->get_sup();
@@ -127,8 +128,8 @@ bool DyscoAgentIn::process_packet(bess::Packet* pkt) {
 	ip->checksum = bess::utils::CalculateIpv4Checksum(*ip);
 	tcp->checksum = bess::utils::CalculateIpv4TcpChecksum(*ip, *tcp);
 	
-	fprintf(stderr, "%s(OUT)[index: %u]: %s:%u -> %s:%u\n",
-		this->name().c_str(), this->index,
+	fprintf(stderr, "[ns:%s]%s(OUT): %s:%u -> %s:%u\n",
+		ns.c_str(), name().c_str(),
 		printip1(ip->src.value()), tcp->src_port.value(),
 		printip1(ip->dst.value()), tcp->dst_port.value());
 	

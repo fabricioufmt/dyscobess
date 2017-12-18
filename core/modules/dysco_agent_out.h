@@ -55,6 +55,7 @@ class DyscoAgentOut final : public Module {
 	uint32_t devip;
 	uint32_t index;
 	DyscoCenter* dc;
+	std::string ns;
 };
 
 #endif //BESS_MODULES_DYSCOAGENTOUT_H_
