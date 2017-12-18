@@ -183,10 +183,13 @@ DyscoHashOut* DyscoCenter::lookup_output_pen(uint32_t i, Ipv4* ip, Tcp* tcp) {
 	*/
 	map<DyscoTcpSession, DyscoHashOut>::iterator it = dh->hash_pen.begin();
 	while(it != dh->hash_pen.end()) {
-		fprintf(stderr, "[index: %u]: sport: %u dport: %u\n", i, ntohs((*it).first.sport), ntohs((*it).first.dport));
 		DyscoTcpSession::EqualTo equals;
-		if(equals((*it).first, ss))
+		if(equals((*it).first, ss)) {
+			fprintf(stderr, "(FOUND) %s:%u -> %s:%u\n",
+				printip0(ntohl(ss.sip)), ntohs((*it).first.sport),
+				printip0(ntohl(ss.dip)), ntohs((*it).first.dport));
 			return &(*it).second;
+		}
 		it++;
 	}
 	fprintf(stderr, "[index: %u]: end of lookup_output_pen\n", i);
