@@ -108,17 +108,26 @@ DyscoHashIn* DyscoCenter::lookup_input(uint32_t i, Ipv4* ip, Tcp* tcp) {
 	DyscoHashes* dh = get_hash(i);
 	if(!dh)
 		return 0;
-
+	fprintf(stderr, "[index: %u]: lookup_input\n", i);
 	DyscoTcpSession ss;
 	ss.sip = htonl(ip->src.value());
 	ss.dip = htonl(ip->dst.value());
 	ss.sport = htons(tcp->src_port.value());
 	ss.dport = htons(tcp->dst_port.value());
-	
+	/*
 	map<DyscoTcpSession, DyscoHashIn>::iterator it = dh->hash_in.find(ss);
 	if(it != dh->hash_in.end())
 		return &(*it).second;
-
+	*/
+	map<DyscoTcpSession, DyscoHashIn>::iterator it = dh->hash_in.begin();
+	while(it != dh->hash_in.end()) {
+		fprintf(stderr, "[index: %u]: sport: %u dport: %u\n", i, ntohs((*it).first.sport), ntohs((*it).first.dport));
+		DyscoTcpSession::EqualTo equals;
+		if(equals((*it).first, ss))
+			return &(*it).second;
+		it++;
+	}
+	fprintf(stderr, "[index: %u]: end of lookup_input\n", i);
 	return 0;
 }
 
