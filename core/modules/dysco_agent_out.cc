@@ -78,6 +78,13 @@ bool DyscoAgentOut::process_packet(bess::Packet* pkt) {
 		cb_out = dc->lookup_output_pen(this->index, ip, tcp);
 		if(cb_out) {
 			fprintf(stderr, "%s: lookup_output_pen is not NULL.\n", name().c_str());
+			fprintf(stderr, "cb_out (pending):\n");
+			fprintf(stderr, "(SUB)%s:%u -> %s:%u\n",
+				printip2(ntohl(cb_out->get_sub()->sip)), ntohs(cb_out->get_sub()->sport),
+				printip2(ntohl(cb_out->get_sub()->dip)), ntohs(cb_out->get_sub()->dport));
+			fprintf(stderr, "(SUP)%s:%u -> %s:%u\n",
+				printip2(ntohl(cb_out->get_sup()->sip)), ntohs(cb_out->get_sup()->sport),
+				printip2(ntohl(cb_out->get_sup()->dip)), ntohs(cb_out->get_sup()->dport));
 			ret = dc->process_pending_packet(this->index, pkt, ip, tcp, cb_out);
 
 			fprintf(stderr, "%s(OUT): %s:%u -> %s:%u\n",
