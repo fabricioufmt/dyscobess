@@ -114,7 +114,18 @@ bool DyscoAgentIn::process_packet(bess::Packet* pkt) {
 		
 		return false;
 	}
+	DyscoTcpSession* sub = cb_in->get_sub();
+	DyscoTcpSession* sup = cb_in->get_sup();
 	fprintf(stderr, "[%s]%s: cb_in(lookup) is not NULL\n", ns.c_str(), name().c_str());
+	fprintf(stderr, "[%s] cb_in:\n", ns.c_str());
+	fprintf(stderr, "[%s]: (SUB)%s:%u -> %s:%u\n",
+		ns.c_str(),
+		printip1(ntohl(sub->sip)), ntohs(sub->sport),
+		printip1(ntohl(sub->dip)), ntohs(sub->dport));
+	fprintf(stderr, "[%s]: (SUP)%s:%u -> %s:%u\n",
+		ns.c_str(),
+		printip1(ntohl(sup->sip)), ntohs(sup->sport),
+		printip1(ntohl(sup->dip)), ntohs(sup->dport));
 	//TODO: remaing
 	
 	DyscoTcpSession* sup = cb_in->get_sup();
