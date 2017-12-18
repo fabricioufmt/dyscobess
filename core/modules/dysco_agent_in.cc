@@ -128,7 +128,6 @@ bool DyscoAgentIn::process_packet(bess::Packet* pkt) {
 		printip1(ntohl(sup->dip)), ntohs(sup->dport));
 	//TODO: remaing
 	
-	DyscoTcpSession* sup = cb_in->get_sup();
 	ip->src = be32_t(ntohl(sup->sip));
 	ip->dst = be32_t(ntohl(sup->dip));
 	tcp->src_port = be16_t(ntohs(sup->sport));
