@@ -300,7 +300,7 @@ DyscoHashIn* DyscoCenter::insert_cb_in(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_t* 
 			printip0(ntohl(cb_out->get_sup()->dip)), ntohs(cb_out->get_sup()->dport));
 
 	
-		dh->hash_out.insert(std::pair<DyscoTcpSession, DyscoHashOut>(*sup, *cb_out));	
+		dh->hash_out.insert(std::pair<DyscoTcpSession, DyscoHashOut>(*cb_out->get_sup(), *cb_out));	
 	}
 	
 	return cb_in;
