@@ -68,20 +68,20 @@ bool DyscoAgentOut::process_packet(bess::Packet* pkt) {
 
 	Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
 	
-	fprintf(stderr, "[ns:%s]%s(IN): %s:%u -> %s:%u\n",
+	fprintf(stderr, "[%s]%s(IN): %s:%u -> %s:%u\n",
 		ns.c_str(), name().c_str(),
 		printip2(ip->src.value()), tcp->src_port.value(),
 		printip2(ip->dst.value()), tcp->dst_port.value());
 
 	DyscoHashOut* cb_out = dc->lookup_output(this->index, ip, tcp);
 	if(!cb_out) {
-		fprintf(stderr, "[ns:%s]%s: lookup_output is NULL.\n", ns.c_str(), name().c_str());
+		fprintf(stderr, "[%s]%s: lookup_output is NULL.\n", ns.c_str(), name().c_str());
 		cb_out = dc->lookup_output_pen(this->index, ip, tcp);
 		if(cb_out) {
-			fprintf(stderr, "[ns:%s]%s: lookup_output_pen is not NULL.\n", ns.c_str(), name().c_str());
+			fprintf(stderr, "[%s]%s: lookup_output_pen is not NULL.\n", ns.c_str(), name().c_str());
 			ret = dc->process_pending_packet(this->index, pkt, ip, tcp, cb_out);
 			
-			fprintf(stderr, "[ns:%s]cb_out (pending):\n", ns.c_str());
+			fprintf(stderr, "[%s]cb_out (pending):\n", ns.c_str());
 			fprintf(stderr, "(SUB)%s:%u -> %s:%u\n",
 				printip2(ntohl(cb_out->get_sub()->sip)), ntohs(cb_out->get_sub()->sport),
 				printip2(ntohl(cb_out->get_sub()->dip)), ntohs(cb_out->get_sub()->dport));
@@ -89,21 +89,21 @@ bool DyscoAgentOut::process_packet(bess::Packet* pkt) {
 				printip2(ntohl(cb_out->get_sup()->sip)), ntohs(cb_out->get_sup()->sport),
 				printip2(ntohl(cb_out->get_sup()->dip)), ntohs(cb_out->get_sup()->dport));
 			
-			fprintf(stderr, "[ns:%s]%s(OUT): %s:%u -> %s:%u\n",
+			fprintf(stderr, "[%s]%s(OUT): %s:%u -> %s:%u\n",
 				ns.c_str(), name().c_str(),
 				printip2(ip->src.value()), tcp->src_port.value(),
 				printip2(ip->dst.value()), tcp->dst_port.value());
 	
 			return ret;
 		}
-		fprintf(stderr, "[ns:%s]%s: lookup_output_pen is NULL.\n", ns.c_str(), name().c_str());
+		fprintf(stderr, "[%s]%s: lookup_output_pen is NULL.\n", ns.c_str(), name().c_str());
 	}
 
 	if(isTCPSYN(tcp))
 		cb_out = dc->process_syn_out(this->index, pkt, ip, tcp, cb_out);
 
 	if(!cb_out) {
-		fprintf(stderr, "[ns:%s]%s: cb_out is NULL.\n", ns.c_str(), name().c_str());
+		fprintf(stderr, "[%s]%s: cb_out is NULL.\n", ns.c_str(), name().c_str());
 		return false;
 	}
 	
@@ -119,7 +119,7 @@ bool DyscoAgentOut::process_packet(bess::Packet* pkt) {
 	ip->checksum = bess::utils::CalculateIpv4Checksum(*ip);
 	tcp->checksum = bess::utils::CalculateIpv4TcpChecksum(*ip, *tcp);
 
-	fprintf(stderr, "[ns:%s]%s(OUT): %s:%u -> %s:%u\n",
+	fprintf(stderr, "[%s]%s(OUT): %s:%u -> %s:%u\n",
 		ns.c_str(), name().c_str(),
 		printip2(ip->src.value()), tcp->src_port.value(),
 		printip2(ip->dst.value()), tcp->dst_port.value());

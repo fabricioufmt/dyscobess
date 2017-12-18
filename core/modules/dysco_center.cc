@@ -241,6 +241,7 @@ DyscoHashIn* DyscoCenter::insert_cb_in(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_t* 
 	if(!dh)
 		return 0;
 
+	DyscoHainOut* cb_out = NULL;
 	DyscoHashIn* cb_in = new DyscoHashIn();
 	if(!cb_in)
 		return 0;
@@ -261,7 +262,20 @@ DyscoHashIn* DyscoCenter::insert_cb_in(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_t* 
 			fprintf(stderr, "[index: %u]: insert_pending is NULL\n", i);
 			return 0;
 		}
+	} else {
+		fprintf(stderr, "[index: %u]: insert_cb_in_reverse\n", i);
+		cb_out = insert_cb_in_reverse(ss, ip, tcp);
+		if(!cb_out) {
+			delete cb_in;
+			fprintf(stderr, "[index: %u]: insert_cb_in_reverse is NULL\n", i);
+			return 0;
+		}
+		fprintf(stderr, "[index: %u]: insert_cb_in_reverse is not NULL\n", i);	
+			
+		cb_in->set_cb_out(cb_out);
+		cb_out->set_cb_in(cb_in);
 	}
+	
 	fprintf(stderr, "[index: %u]: insert_pending is not NULL\n", i);
 	fprintf(stderr, "[index: %u] cb_in:\n", i);
 	fprintf(stderr, "[index: %u]: (SUB)%s:%u -> %s:%u\n",
@@ -272,8 +286,22 @@ DyscoHashIn* DyscoCenter::insert_cb_in(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_t* 
 		i,
 		printip0(ntohl(sup->sip)), ntohs(sup->sport),
 		printip0(ntohl(sup->dip)), ntohs(sup->dport));
-	
 	dh->hash_in.insert(std::pair<DyscoTcpSession, DyscoHashIn>(*sub, *cb_in));
+
+	if(cb_out) {
+		fprintf(stderr, "[index: %u] cb_out:\n", i);
+		fprintf(stderr, "[index: %u]: (SUB)%s:%u -> %s:%u\n",
+			i,
+			printip0(ntohl(cb_out->get_sub()->sip)), ntohs(cb_out->get_sub()->sport),
+			printip0(ntohl(cb_out->get_sub()->dip)), ntohs(cb_out->get_sub()->dport));
+		fprintf(stderr, "[index: %u]: (SUP)%s:%u -> %s:%u\n",
+			i,
+			printip0(ntohl(cb_out->get_sup()->sip)), ntohs(cb_out->get_sup()->sport),
+			printip0(ntohl(cb_out->get_sup()->dip)), ntohs(cb_out->get_sup()->dport));
+
+	
+		dh->hash_out.insert(std::pair<DyscoTcpSession, DyscoHashOut>(*sup, *cb_out));	
+	}
 	
 	return cb_in;
 	
