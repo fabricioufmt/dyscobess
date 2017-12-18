@@ -241,7 +241,7 @@ DyscoHashIn* DyscoCenter::insert_cb_in(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_t* 
 	if(!dh)
 		return 0;
 
-	DyscoHainOut* cb_out = NULL;
+	DyscoHashOut* cb_out = NULL;
 	DyscoHashIn* cb_in = new DyscoHashIn();
 	if(!cb_in)
 		return 0;
