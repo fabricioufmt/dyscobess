@@ -91,8 +91,6 @@ bool DyscoAgentOut::process_packet(bess::Packet* pkt) {
 				printip2(ntohl(cb_out->get_sup()->sip)), ntohs(cb_out->get_sup()->sport),
 				printip2(ntohl(cb_out->get_sup()->dip)), ntohs(cb_out->get_sup()->dport));
 
-			DyscoHashIn* cb_in = dc->insert_cb_in_reverse2(cb_out);
-			dh->hash_in.insert(std::pair<DyscoTcpSession, DyscoHashIn>(*cb_in->get_sub(), *cb_in));
 			
 			fprintf(stderr, "[%s]%s(OUT): %s:%u -> %s:%u\n",
 				ns.c_str(), name().c_str(),
