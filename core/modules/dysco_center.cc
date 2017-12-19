@@ -120,7 +120,7 @@ DyscoHashIn* DyscoCenter::lookup_input(uint32_t i, Ipv4* ip, Tcp* tcp) {
 	if(it != dh->hash_in.end())
 		return &(*it).second;
 	*/
-	DyscoTcpSession::EqualTo equals;
+	DyscoTcpSessionEqualTo equals;
 	unordered_map<DyscoTcpSession, DyscoHashIn>::iterator it = dh->hash_in.begin();
 	while(it != dh->hash_in.end()) {
 		fprintf(stderr, "(it) %s:%u -> %s:%u\n",
@@ -156,7 +156,7 @@ DyscoHashOut* DyscoCenter::lookup_output(uint32_t i, Ipv4* ip, Tcp* tcp) {
 	if(it != dh->hash_out.end())
 		return &(*it).second;
 	*/
-	DyscoTcpSession::EqualTo equals;
+	DyscoTcpSessionEqualTo equals;
 	unordered_map<DyscoTcpSession, DyscoHashOut>::iterator it = dh->hash_out.begin();
 	while(it != dh->hash_out.end()) {
 		fprintf(stderr, "(it) %s:%u -> %s:%u\n",
@@ -191,7 +191,7 @@ DyscoHashOut* DyscoCenter::lookup_output_pen(uint32_t i, Ipv4* ip, Tcp* tcp) {
 	if(it != dh->hash_pen.end())
 		return &(*it).second;
 	*/
-	DyscoTcpSession::EqualTo equals;
+	DyscoTcpSessionEqualTo equals;
 	unordered_map<DyscoTcpSession, DyscoHashOut>::iterator it = dh->hash_pen.begin();
 	while(it != dh->hash_pen.end()) {
 		fprintf(stderr, "(it) %s:%u -> %s:%u\n",
@@ -453,7 +453,7 @@ bool DyscoCenter::process_pending_packet(uint32_t i, bess::Packet* pkt, Ipv4* ip
 	
 	//dh->hash_in.insert(std::pair<DyscoTcpSession, DyscoHashIn>(*cb_in->get_sub(), *cb_in));
 
-	DyscoTcpSession::EqualTo equals;
+	DyscoTcpSessionEqualTo equals;
 	it = dh->hash_in.begin();
 	while(it != dh->hash_in.end()) {
 		if(equals((*it).first, *cb_in->get_sub())) {
