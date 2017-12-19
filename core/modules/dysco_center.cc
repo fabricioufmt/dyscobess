@@ -446,8 +446,8 @@ bool DyscoCenter::process_pending_packet(uint32_t i, bess::Packet* pkt, Ipv4* ip
 			printip0(ntohl((*it).first.sip)), ntohs((*it).first.sport),
 			printip0(ntohl((*it).first.dip)), ntohs((*it).first.dport));
 		fprintf(stderr, "(it) VAL: %s:%u -> %s:%u\n",
-			printip0(ntohl((*it).second.sub.sip)), ntohs((*it).second.sub.sport),
-			printip0(ntohl((*it).second.sub.dip)), ntohs((*it).second.sub.dport));
+			printip0(ntohl((*it).second.get_sub()->sip)), ntohs((*it).second.get_sub()->sport),
+			printip0(ntohl((*it).second.get_sub()->dip)), ntohs((*it).second.get_sub()->dport));
 		it++;
 	}
 	
