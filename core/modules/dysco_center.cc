@@ -395,8 +395,6 @@ bool DyscoCenter::process_pending_packet(uint32_t i, bess::Packet* pkt, Ipv4* ip
 
 	uint32_t payload_sz = sizeof(DyscoTcpSession) + cb_out->get_sc_len() * sizeof(uint32_t);
 	uint8_t* payload = reinterpret_cast<uint8_t*>(pkt->append(payload_sz));
-	if(!payload)
-		return false;
 
 	memcpy(payload, cb_out->get_sup(), sizeof(DyscoTcpSession));
 	memcpy(payload + sizeof(DyscoTcpSession), cb_out->get_sc(), payload_sz - sizeof(DyscoTcpSession));
@@ -409,6 +407,12 @@ bool DyscoCenter::process_pending_packet(uint32_t i, bess::Packet* pkt, Ipv4* ip
 	tcp->checksum = bess::utils::CalculateIpv4TcpChecksum(*ip, *tcp);
 
 	return true;
+}
+
+DyscoHashIn* DyscoCenter::insert_cb_in_reverse(DyscoHashOut* cb_out) {
+	DyscoHashIn* cb_in = new DyscoHashIn();
+	if(!cb_in)
+		return 0;
 }
 
 DyscoHashIn* DyscoCenter::insert_cb_out_reverse(DyscoHashOut* cb_out) {

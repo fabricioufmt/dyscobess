@@ -80,6 +80,8 @@ bool DyscoAgentOut::process_packet(bess::Packet* pkt) {
 		if(cb_out) {
 			fprintf(stderr, "[%s]%s: lookup_output_pen is not NULL.\n", ns.c_str(), name().c_str());
 			ret = dc->process_pending_packet(this->index, pkt, ip, tcp, cb_out);
+			if(!ret)
+				return false;
 			
 			fprintf(stderr, "[%s]cb_out (pending):\n", ns.c_str());
 			fprintf(stderr, "(SUB)%s:%u -> %s:%u\n",
@@ -88,6 +90,9 @@ bool DyscoAgentOut::process_packet(bess::Packet* pkt) {
 			fprintf(stderr, "(SUP)%s:%u -> %s:%u\n",
 				printip2(ntohl(cb_out->get_sup()->sip)), ntohs(cb_out->get_sup()->sport),
 				printip2(ntohl(cb_out->get_sup()->dip)), ntohs(cb_out->get_sup()->dport));
+
+			DyscoHashIn* cb_in = dc->insert_cb_in_reverse(cb_out);
+			dh->hash_in.insert(std::pair<DyscoTcpSession, DyscoHashIn>(*cb_in->get_sub(), *cb_in));
 			
 			fprintf(stderr, "[%s]%s(OUT): %s:%u -> %s:%u\n",
 				ns.c_str(), name().c_str(),

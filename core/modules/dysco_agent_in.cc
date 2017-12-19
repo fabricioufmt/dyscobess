@@ -106,7 +106,6 @@ bool DyscoAgentIn::process_packet(bess::Packet* pkt) {
 		printip1(ip->dst.value()), tcp->dst_port.value());
 
 	DyscoHashIn* cb_in = dc->lookup_input(this->index, ip, tcp);
-
 	if(!cb_in) {
 		fprintf(stderr, "[%s]%s: cb_in(lookup) is NULL\n", ns.c_str(), name().c_str());
 		if(isTCPSYN(tcp) && hasPayload(ip, tcp))
