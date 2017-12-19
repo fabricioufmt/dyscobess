@@ -478,20 +478,18 @@ DyscoHashIn* DyscoCenter::insert_cb_out_reverse(DyscoHashOut* cb_out) {
 }
 
 DyscoHashOut* DyscoCenter::process_syn_out(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* dcb_out) {
+	fprintf(stderr, "process_syn_out\n");
 	DyscoHashes* dh = get_hash(i);
 	if(!dh)
 		return 0;
-
-	fprintf(stderr, "[index: %u]: process_syn_out\n", i);
 	
 	if(!dcb_out) {
-		fprintf(stderr, "[index: %u]: dcb_out is NULL.\n", i);
 		DyscoPolicies::Filter* filter = dh->policies.match_policy(pkt);
 		if(!filter) {
-			fprintf(stderr, "[index: %u]: filter is NULL.\n", i);
+			fprintf(stderr, "do not match with any policy.");
 			return 0;
 		}
-		fprintf(stderr, "[index: %u]: filter is not NULL.\n", i);
+
 		DyscoHashOut* cb_out = new DyscoHashOut();
 		cb_out->set_sc(filter->sc);
 		cb_out->set_sc_len(filter->sc_len);
@@ -504,21 +502,19 @@ DyscoHashOut* DyscoCenter::process_syn_out(uint32_t i, bess::Packet* pkt, Ipv4* 
 
 		DyscoTcpSession* sub = cb_out->get_sub();
 		if(filter->sc_len) {
-			fprintf(stderr, "[index: %u]: filter->sc_len != 0.\n", i);
+			fprintf(stderr, "sc != 0 (OK)\n");
 			sub->sip = dh->devip;
 			sub->dip = filter->sc[0];
 			sub->sport = allocate_local_port(i);
 			sub->dport = allocate_neighbor_port(i);
 		} else {
-			fprintf(stderr, "[index: %u]: filter->sc_len == 0.\n", i);
+			fprintf(stderr, "sc == 0 (NOK)\n");
 			delete cb_out;
 			return 0;
 		}
 
 		uint32_t payload_sz = sizeof(DyscoTcpSession) + cb_out->get_sc_len() * sizeof(uint32_t);
 		uint8_t* payload = reinterpret_cast<uint8_t*>(pkt->append(payload_sz));
-		if(!payload)
-			return 0;
 		
 		memcpy(payload, cb_out->get_sup(), sizeof(DyscoTcpSession));
 		memcpy(payload + sizeof(DyscoTcpSession), cb_out->get_sc(), payload_sz - sizeof(DyscoTcpSession));
@@ -527,31 +523,27 @@ DyscoHashOut* DyscoCenter::process_syn_out(uint32_t i, bess::Packet* pkt, Ipv4* 
 		
 		DyscoHashIn* cb_in = insert_cb_out_reverse(cb_out);
 		if(!cb_in) {
-			fprintf(stderr, "[index: %u]: cb_in is not NULL.\n", i);
+			fprintf(stderr, "cb_in for reverse (NOK).\n");
 			delete cb_out;
 			return 0;
 		}
-		fprintf(stderr, "[index: %u]: cb_in is NULL.\n", i);		
+
 		cb_out->set_cb_in(cb_in);
 		cb_in->set_cb_out(cb_out);
 
-		fprintf(stderr, "[index: %u] cb_in (adding on in: SUB):\n", i);
-		fprintf(stderr, "[index: %u]: (SUB)%s:%u -> %s:%u\n",
-			i,
+		fprintf(stderr, "cb_in (adding on in: SUB):\n");
+		fprintf(stderr, "(SUB)%s:%u -> %s:%u\n",
 			printip0(ntohl(cb_in->get_sub()->sip)), ntohs(cb_in->get_sub()->sport),
 			printip0(ntohl(cb_in->get_sub()->dip)), ntohs(cb_in->get_sub()->dport));
-		fprintf(stderr, "[index: %u]: (SUP)%s:%u -> %s:%u\n",
-			i,
+		fprintf(stderr, "(SUP)%s:%u -> %s:%u\n",
 			printip0(ntohl(cb_in->get_sup()->sip)), ntohs(cb_in->get_sup()->sport),
 			printip0(ntohl(cb_in->get_sup()->dip)), ntohs(cb_in->get_sup()->dport));
 
-		fprintf(stderr, "[index: %u] cb_out (adding on out: SUP):\n", i);
-		fprintf(stderr, "[index: %u]: (SUB)%s:%u -> %s:%u\n",
-			i,
+		fprintf(stderr, "cb_out (adding on out: SUP):\n");
+		fprintf(stderr, "(SUB)%s:%u -> %s:%u\n",
 			printip0(ntohl(cb_out->get_sub()->sip)), ntohs(cb_out->get_sub()->sport),
 			printip0(ntohl(cb_out->get_sub()->dip)), ntohs(cb_out->get_sub()->dport));
-		fprintf(stderr, "[index: %u]: (SUP)%s:%u -> %s:%u\n",
-			i,
+		fprintf(stderr, "(SUP)%s:%u -> %s:%u\n",
 			printip0(ntohl(cb_out->get_sup()->sip)), ntohs(cb_out->get_sup()->sport),
 			printip0(ntohl(cb_out->get_sup()->dip)), ntohs(cb_out->get_sup()->dport));
 		
@@ -560,7 +552,7 @@ DyscoHashOut* DyscoCenter::process_syn_out(uint32_t i, bess::Packet* pkt, Ipv4* 
 
 		return cb_out;
 	}
-	fprintf(stderr, "[index: %u]: dcb_out is not NULL.\n", i);
+	fprintf(stderr, "dcb_out is not NULL.\n", i);
 	//TODO: parse options
 
 	return dcb_out;

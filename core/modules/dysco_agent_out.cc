@@ -96,14 +96,13 @@ bool DyscoAgentOut::process_packet(bess::Packet* pkt) {
 	
 			return ret;
 		}
-		fprintf(stderr, "[%s]%s: lookup_output_pen is NULL.\n", ns.c_str(), name().c_str());
 	}
 
 	if(isTCPSYN(tcp))
 		cb_out = dc->process_syn_out(this->index, pkt, ip, tcp, cb_out);
 
 	if(!cb_out) {
-		fprintf(stderr, "[%s]%s: cb_out is NULL.\n", ns.c_str(), name().c_str());
+		fprintf(stderr, "[%s]%s: does not any mapping\n", ns.c_str(), name().c_str());
 		return false;
 	}
 	
