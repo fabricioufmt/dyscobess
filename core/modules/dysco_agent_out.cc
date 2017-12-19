@@ -75,23 +75,20 @@ bool DyscoAgentOut::process_packet(bess::Packet* pkt) {
 
 	DyscoHashOut* cb_out = dc->lookup_output(this->index, ip, tcp);
 	if(!cb_out) {
-		fprintf(stderr, "[%s]%s: lookup_output is NULL.\n", ns.c_str(), name().c_str());
 		cb_out = dc->lookup_output_pen(this->index, ip, tcp);
 		if(cb_out) {
-			fprintf(stderr, "[%s]%s: lookup_output_pen is not NULL.\n", ns.c_str(), name().c_str());
 			ret = dc->process_pending_packet(this->index, pkt, ip, tcp, cb_out);
 			if(!ret)
 				return false;
 			
-			fprintf(stderr, "[%s]cb_out (pending):\n", ns.c_str());
+			/*fprintf(stderr, "[%s]cb_out (pending):\n", ns.c_str());
 			fprintf(stderr, "(SUB)%s:%u -> %s:%u\n",
 				printip2(ntohl(cb_out->get_sub()->sip)), ntohs(cb_out->get_sub()->sport),
 				printip2(ntohl(cb_out->get_sub()->dip)), ntohs(cb_out->get_sub()->dport));
 			fprintf(stderr, "(SUP)%s:%u -> %s:%u\n",
 				printip2(ntohl(cb_out->get_sup()->sip)), ntohs(cb_out->get_sup()->sport),
-				printip2(ntohl(cb_out->get_sup()->dip)), ntohs(cb_out->get_sup()->dport));
+				printip2(ntohl(cb_out->get_sup()->dip)), ntohs(cb_out->get_sup()->dport));*/
 
-			
 			fprintf(stderr, "[%s]%s(OUT): %s:%u -> %s:%u\n",
 				ns.c_str(), name().c_str(),
 				printip2(ip->src.value()), tcp->src_port.value(),

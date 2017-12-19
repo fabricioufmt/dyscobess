@@ -105,10 +105,11 @@ uint16_t DyscoCenter::allocate_neighbor_port(uint32_t) {
 }
 
 DyscoHashIn* DyscoCenter::lookup_input(uint32_t i, Ipv4* ip, Tcp* tcp) {
+	fprintf(stderr, "lookup_input\n");
 	DyscoHashes* dh = get_hash(i);
 	if(!dh)
 		return 0;
-	fprintf(stderr, "[index: %u]: lookup_input\n", i);
+
 	DyscoTcpSession ss;
 	ss.sip = htonl(ip->src.value());
 	ss.dip = htonl(ip->dst.value());
@@ -119,30 +120,32 @@ DyscoHashIn* DyscoCenter::lookup_input(uint32_t i, Ipv4* ip, Tcp* tcp) {
 	if(it != dh->hash_in.end())
 		return &(*it).second;
 	*/
+	DyscoTcpSession::EqualTo equals;
 	map<DyscoTcpSession, DyscoHashIn>::iterator it = dh->hash_in.begin();
 	while(it != dh->hash_in.end()) {
 		fprintf(stderr, "(it) %s:%u -> %s:%u\n",
 			printip0(ntohl((*it).first.sip)), ntohs((*it).first.sport),
 			printip0(ntohl((*it).first.dip)), ntohs((*it).first.dport));
-		DyscoTcpSession::EqualTo equals;
 		if(equals((*it).first, ss)) {
 			fprintf(stderr, "(FOUND) %s:%u -> %s:%u\n",
-				printip0(ntohl(ss.sip)), ntohs((*it).first.sport),
-				printip0(ntohl(ss.dip)), ntohs((*it).first.dport));
+				printip0(ntohl(ss.sip)), ntohs(ss.sport),
+				printip0(ntohl(ss.dip)), ntohs(ss.dport));
 			
 			return &(*it).second;
 		}
 		it++;
 	}
-	fprintf(stderr, "[index: %u]: end of lookup_input\n", i);
+	fprintf(stderr, "end of lookup_input\n");
 	return 0;
 }
 
 DyscoHashOut* DyscoCenter::lookup_output(uint32_t i, Ipv4* ip, Tcp* tcp) {
+	fprintf(stderr, "lookup_output\n");
+	
 	DyscoHashes* dh = get_hash(i);
 	if(!dh)
 		return 0;
-	fprintf(stderr, "[index: %u]: lookup_output\n", i);
+	
 	DyscoTcpSession ss;
 	ss.sip = htonl(ip->src.value());
 	ss.dip = htonl(ip->dst.value());
@@ -153,27 +156,31 @@ DyscoHashOut* DyscoCenter::lookup_output(uint32_t i, Ipv4* ip, Tcp* tcp) {
 	if(it != dh->hash_out.end())
 		return &(*it).second;
 	*/
+	DyscoTcpSession::EqualTo equals;
 	map<DyscoTcpSession, DyscoHashOut>::iterator it = dh->hash_out.begin();
 	while(it != dh->hash_out.end()) {
-		DyscoTcpSession::EqualTo equals;
+		fprintf(stderr, "(it) %s:%u -> %s:%u\n",
+			printip0(ntohl((*it).first.sip)), ntohs((*it).first.sport),
+			printip0(ntohl((*it).first.dip)), ntohs((*it).first.dport));
 		if(equals((*it).first, ss)) {
 			fprintf(stderr, "(FOUND) %s:%u -> %s:%u\n",
-				printip0(ntohl(ss.sip)), ntohs((*it).first.sport),
-				printip0(ntohl(ss.dip)), ntohs((*it).first.dport));
+				printip0(ntohl(ss.sip)), ntohs(ss.sport),
+				printip0(ntohl(ss.dip)), ntohs(ss.dport));
 			
 			return &(*it).second;
 		}
 		it++;
 	}
-	fprintf(stderr, "[index: %u]: end of lookup_output\n", i);
+	fprintf(stderr, "end of lookup_output\n");
 	return 0;
 }
 
 DyscoHashOut* DyscoCenter::lookup_output_pen(uint32_t i, Ipv4* ip, Tcp* tcp) {
+	fprintf(stderr, "lookup_output_pen\n");
 	DyscoHashes* dh = get_hash(i);
 	if(!dh)
 		return 0;
-	fprintf(stderr, "[index: %u]: lookup_output_pen\n", i);
+
 	DyscoTcpSession ss;
 	ss.sip = htonl(ip->src.value());
 	ss.dip = htonl(ip->dst.value());
@@ -184,18 +191,21 @@ DyscoHashOut* DyscoCenter::lookup_output_pen(uint32_t i, Ipv4* ip, Tcp* tcp) {
 	if(it != dh->hash_pen.end())
 		return &(*it).second;
 	*/
+	DyscoTcpSession::EqualTo equals;
 	map<DyscoTcpSession, DyscoHashOut>::iterator it = dh->hash_pen.begin();
 	while(it != dh->hash_pen.end()) {
-		DyscoTcpSession::EqualTo equals;
+		fprintf(stderr, "(it) %s:%u -> %s:%u\n",
+			printip0(ntohl((*it).first.sip)), ntohs((*it).first.sport),
+			printip0(ntohl((*it).first.dip)), ntohs((*it).first.dport));
 		if(equals((*it).first, ss)) {
 			fprintf(stderr, "(FOUND) %s:%u -> %s:%u\n",
-				printip0(ntohl(ss.sip)), ntohs((*it).first.sport),
-				printip0(ntohl(ss.dip)), ntohs((*it).first.dport));
+				printip0(ntohl(ss.sip)), ntohs(ss.sport),
+				printip0(ntohl(ss.dip)), ntohs(ss.dport));
 			return &(*it).second;
 		}
 		it++;
 	}
-	fprintf(stderr, "[index: %u]: end of lookup_output_pen\n", i);
+	fprintf(stderr, "end of lookup_output_pen\n");
 
 	return 0;
 }
@@ -410,15 +420,14 @@ bool DyscoCenter::process_pending_packet(uint32_t i, bess::Packet* pkt, Ipv4* ip
 	tcp->checksum = bess::utils::CalculateIpv4TcpChecksum(*ip, *tcp);
 
 	DyscoHashIn* cb_in = insert_cb_in_reverse2(cb_out);
-	fprintf(stderr, "[index: %u] cb_in (adding on in: SUB):\n", i);
-	fprintf(stderr, "[index: %u]: (SUB)%s:%u -> %s:%u\n",
-		i,
+	fprintf(stderr, "cb_in (adding on hash_in: SUB):\n");
+	fprintf(stderr, "(SUB)%s:%u -> %s:%u\n",
 		printip0(ntohl(cb_in->get_sub()->sip)), ntohs(cb_in->get_sub()->sport),
 		printip0(ntohl(cb_in->get_sub()->dip)), ntohs(cb_in->get_sub()->dport));
-	fprintf(stderr, "[index: %u]: (SUP)%s:%u -> %s:%u\n",
-		i,
+	fprintf(stderr, "(SUP)%s:%u -> %s:%u\n",
 		printip0(ntohl(cb_in->get_sup()->sip)), ntohs(cb_in->get_sup()->sport),
 		printip0(ntohl(cb_in->get_sup()->dip)), ntohs(cb_in->get_sup()->dport));
+	
 	dh->hash_in.insert(std::pair<DyscoTcpSession, DyscoHashIn>(*cb_in->get_sub(), *cb_in));
 	
 	return true;
