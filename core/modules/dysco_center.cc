@@ -547,7 +547,8 @@ DyscoHashOut* DyscoCenter::process_syn_out(uint32_t i, bess::Packet* pkt, Ipv4* 
 			fprintf(stderr, "do not match with any policy.");
 			return 0;
 		}
-
+		fprintf(stderr, "match with a policy.");
+		
 		DyscoHashOut* cb_out = new DyscoHashOut();
 		cb_out->set_sc(filter->sc);
 		cb_out->set_sc_len(filter->sc_len);
@@ -589,7 +590,7 @@ DyscoHashOut* DyscoCenter::process_syn_out(uint32_t i, bess::Packet* pkt, Ipv4* 
 		cb_out->set_cb_in(cb_in);
 		cb_in->set_cb_out(cb_out);
 		
-		fprintf(stderr, "cb_in (adding on hash_in: SUB):\n");
+		fprintf(stderr, "cb_in (reverse--adding on hash_in: SUB):\n");
 		fprintf(stderr, "(SUB)%s:%u -> %s:%u\n",
 			printip0(ntohl(cb_in->get_sub()->sip)), ntohs(cb_in->get_sub()->sport),
 			printip0(ntohl(cb_in->get_sub()->dip)), ntohs(cb_in->get_sub()->dport));
