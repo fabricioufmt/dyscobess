@@ -406,6 +406,9 @@ bool DyscoCenter::process_pending_packet(uint32_t i, bess::Packet* pkt, Ipv4* ip
 	ip->checksum = bess::utils::CalculateIpv4Checksum(*ip);
 	tcp->checksum = bess::utils::CalculateIpv4TcpChecksum(*ip, *tcp);
 
+	DyscoHashIn* cb_in = insert_cb_in_reverse2(cb_out);
+	dh->hash_in.insert(std::pair<DyscoTcpSession, DyscoHashIn>(*cb_in->get_sub(), *cb_in));
+	
 	return true;
 }
 
