@@ -389,7 +389,7 @@ bool DyscoCenter::process_pending_packet(uint32_t i, bess::Packet* pkt, Ipv4* ip
 	fprintf(stderr, "removing hash_pen entry\n");
 	dh->hash_pen.erase(*cb_out->get_sup());
 
-	fprintf(stderr, "cb_out (removed in hash_pen):\n");
+	fprintf(stderr, "cb_out (bef--removed in hash_pen):\n");
 	fprintf(stderr, "(SUB)%s:%u -> %s:%u\n",
 		printip0(ntohl(cb_out->get_sub()->sip)), ntohs(cb_out->get_sub()->sport),
 		printip0(ntohl(cb_out->get_sub()->dip)), ntohs(cb_out->get_sub()->dport));
@@ -406,6 +406,16 @@ bool DyscoCenter::process_pending_packet(uint32_t i, bess::Packet* pkt, Ipv4* ip
 	sub->sport = allocate_local_port(i);
 	sub->dport = allocate_neighbor_port(i);
 
+	fprintf(stderr, "cb_out (aft--removed in hash_pen):\n");
+	fprintf(stderr, "(SUB)%s:%u -> %s:%u\n",
+		printip0(ntohl(cb_out->get_sub()->sip)), ntohs(cb_out->get_sub()->sport),
+		printip0(ntohl(cb_out->get_sub()->dip)), ntohs(cb_out->get_sub()->dport));
+	fprintf(stderr, "(SUP)%s:%u -> %s:%u\n",
+		printip0(ntohl(cb_out->get_sup()->sip)), ntohs(cb_out->get_sup()->sport),
+		printip0(ntohl(cb_out->get_sup()->dip)), ntohs(cb_out->get_sup()->dport));
+
+	dh->hash_out.insert(std::pair<DyscoTcpSession, DyscoHashIn>(*cb_out->get_sup(), *cb_out));
+	
 	//TODO: parse options
 
 	ip->src = be32_t(ntohl(sub->sip));
@@ -426,8 +436,8 @@ bool DyscoCenter::process_pending_packet(uint32_t i, bess::Packet* pkt, Ipv4* ip
 	ip->checksum = bess::utils::CalculateIpv4Checksum(*ip);
 	tcp->checksum = bess::utils::CalculateIpv4TcpChecksum(*ip, *tcp);
 
-	DyscoHashIn* cb_in = insert_cb_in_reverse2(cb_out);
-	fprintf(stderr, "cb_in (adding on hash_in: SUB):\n");
+	DyscoHashIn* cb_in = insert_cb_out_reverse(cb_out);
+	fprintf(stderr, "cb_in (reverse--adding on hash_in: SUB):\n");
 	fprintf(stderr, "(SUB)%s:%u -> %s:%u\n",
 		printip0(ntohl(cb_in->get_sub()->sip)), ntohs(cb_in->get_sub()->sport),
 		printip0(ntohl(cb_in->get_sub()->dip)), ntohs(cb_in->get_sub()->dport));
