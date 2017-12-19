@@ -2,6 +2,7 @@
 #define BESS_MODULES_DYSCOCENTER_H_
 
 #include <vector>
+#include <unordered_map>
 #include <rte_hash_crc.h>
 
 #include "../module.h"
