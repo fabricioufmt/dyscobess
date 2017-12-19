@@ -471,7 +471,8 @@ bool DyscoCenter::process_pending_packet(uint32_t i, bess::Packet* pkt, Ipv4* ip
 		fprintf(stderr, "(SUP)%s:%u -> %s:%u\n",
 			printip0(ntohl(cb_in->get_sup()->sip)), ntohs(cb_in->get_sup()->sport),
 			printip0(ntohl(cb_in->get_sup()->dip)), ntohs(cb_in->get_sup()->dport));
-		dh->hash_in.insert(std::make_pair(*cb_in->get_sub(), *cb_in));	
+		//dh->hash_in.insert(std::make_pair(*cb_in->get_sub(), *cb_in));
+		dh->hash_in.insert(std::pair<DyscoTcpSession, DyscoHashIn>(*cb_in->get_sub(), *cb_in));
 	}
 
 	/*LIST FOR TEST*/
