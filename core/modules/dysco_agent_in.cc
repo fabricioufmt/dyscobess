@@ -55,10 +55,9 @@ bool DyscoAgentIn::process_synp(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 
 	DyscoHashIn* cb_in = dc->insert_cb_in(this->index, ip, tcp, payload, payload_sz);
 	if(!cb_in) {
-		fprintf(stderr, "[%s]%s: cb_in(insert) is NULL\n", ns.c_str(), name().c_str());
+		fprintf(stderr, "do not create map\n");
 		return false;
 	}
-	fprintf(stderr, "[%s]%s: cb_in(insert) is not NULL\n", ns.c_str(), name().c_str());
 	
 	pkt->trim(payload_sz);
 	ip->length = ip->length - be16_t(payload_sz);

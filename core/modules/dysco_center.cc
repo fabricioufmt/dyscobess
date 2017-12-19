@@ -235,7 +235,7 @@ bool DyscoCenter::insert_pending(DyscoHashes* dh, uint8_t* payload, uint32_t pay
 	memcpy(sc, payload + sizeof(DyscoTcpSession) + sizeof(uint32_t), (sc_len - 1) * sizeof(uint32_t));
 	cb_out->set_sc(sc);
  
-	fprintf(stderr, "cb_out (adding on pend SUP):\n");
+	fprintf(stderr, "cb_out (adding on hash_pen SUP):\n");
 	fprintf(stderr, "(SUB)%s:%u -> %s:%u\n",
 		printip0(ntohl(cb_out->get_sub()->sip)), ntohs(cb_out->get_sub()->sport),
 		printip0(ntohl(cb_out->get_sub()->dip)), ntohs(cb_out->get_sub()->dport));
@@ -386,8 +386,17 @@ bool DyscoCenter::process_pending_packet(uint32_t i, bess::Packet* pkt, Ipv4* ip
 	if(!dh)
 		return false;
 
+	fprintf(stderr, "removing hash_pen entry\n");
 	dh->hash_pen.erase(*cb_out->get_sup());
 
+	fprintf(stderr, "cb_out (removed in hash_pen):\n");
+	fprintf(stderr, "(SUB)%s:%u -> %s:%u\n",
+		printip0(ntohl(cb_out->get_sub()->sip)), ntohs(cb_out->get_sub()->sport),
+		printip0(ntohl(cb_out->get_sub()->dip)), ntohs(cb_out->get_sub()->dport));
+	fprintf(stderr, "(SUP)%s:%u -> %s:%u\n",
+		printip0(ntohl(cb_out->get_sup()->sip)), ntohs(cb_out->get_sup()->sport),
+		printip0(ntohl(cb_out->get_sup()->dip)), ntohs(cb_out->get_sup()->dport));
+	
 	DyscoTcpSession* sub = cb_out->get_sub();
 	if(cb_out->get_sc_len()) {
 		sub->sip = dh->devip;
