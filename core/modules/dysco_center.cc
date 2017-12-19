@@ -295,16 +295,17 @@ DyscoHashIn* DyscoCenter::insert_cb_in(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_t* 
 			fprintf(stderr, "insert_pending is NULL\n");
 			return 0;
 		}
-		//} else {
-		cb_out = insert_cb_in_reverse(ss, ip, tcp);
-		if(!cb_out) {
-			delete cb_in;
-			return 0;
-		}
-			
-		cb_in->set_cb_out(cb_out);
-		cb_out->set_cb_in(cb_in);
-		//}
+	}
+	//} else {
+	cb_out = insert_cb_in_reverse(ss, ip, tcp);
+	if(!cb_out) {
+		delete cb_in;
+		return 0;
+	}
+	
+	cb_in->set_cb_out(cb_out);
+	cb_out->set_cb_in(cb_in);
+	//}
 	
 	fprintf(stderr, "2cb_in (adding on hash_in: SUB):\n");
 	fprintf(stderr, "(SUB)%s:%u -> %s:%u\n",
