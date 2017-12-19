@@ -413,6 +413,22 @@ DyscoHashIn* DyscoCenter::insert_cb_in_reverse(DyscoHashOut* cb_out) {
 	DyscoHashIn* cb_in = new DyscoHashIn();
 	if(!cb_in)
 		return 0;
+
+	DyscoTcpSession* supI = cb_in->get_sup();
+	DyscoTcpSession* supO = cb_out->get_sup();
+	supI->sip = supO->dip;
+	supI->dip = supO->sip;
+	supI->sport = supO->dport;
+	supI->dport = supO->sport;
+
+	DyscoTcpSession* subI = cb_in->get_sub();
+	DyscoTcpSession* subO = cb_out->get_sub();
+	subI->sip = subO->dip;
+	subI->dip = subO->sip;
+	subI->sport = subO->dport;
+	subI->dport = subO->sport;
+	
+	return cb_in;
 }
 
 DyscoHashIn* DyscoCenter::insert_cb_out_reverse(DyscoHashOut* cb_out) {
