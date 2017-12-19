@@ -552,7 +552,7 @@ DyscoHashOut* DyscoCenter::process_syn_out(uint32_t i, bess::Packet* pkt, Ipv4* 
 
 		return cb_out;
 	}
-	fprintf(stderr, "dcb_out is not NULL.\n", i);
+	fprintf(stderr, "dcb_out is not NULL.\n");
 	//TODO: parse options
 
 	return dcb_out;
