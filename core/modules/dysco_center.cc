@@ -414,7 +414,7 @@ bool DyscoCenter::process_pending_packet(uint32_t i, bess::Packet* pkt, Ipv4* ip
 		printip0(ntohl(cb_out->get_sup()->sip)), ntohs(cb_out->get_sup()->sport),
 		printip0(ntohl(cb_out->get_sup()->dip)), ntohs(cb_out->get_sup()->dport));
 
-	dh->hash_out.insert(std::pair<DyscoTcpSession, DyscoHashIn>(*cb_out->get_sup(), *cb_out));
+	dh->hash_out.insert(std::pair<DyscoTcpSession, DyscoHashOut>(*cb_out->get_sup(), *cb_out));
 	
 	//TODO: parse options
 
