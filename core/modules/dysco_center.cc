@@ -465,7 +465,7 @@ bool DyscoCenter::process_pending_packet(uint32_t i, bess::Packet* pkt, Ipv4* ip
 
 	if(it == dh->hash_in.end()) {
 		fprintf(stderr, "key is not found... adding OK\n");
-		dh->hash_in.insert(std::make_pair(sub1, *cb_in));	
+		dh->hash_in.insert(std::make_pair(*cb_in->get_sub(), *cb_in));	
 	}
 
 	/*LIST FOR TEST*/
