@@ -140,6 +140,8 @@ class DyscoCenter final : public Module {
 	DyscoHashOut* lookup_output_pen(uint32_t, Ipv4*, Tcp*);
 	DyscoHashOut* process_syn_out(uint32_t, bess::Packet*, Ipv4*, Tcp*, DyscoHashOut*);
 	bool process_pending_packet(uint32_t, bess::Packet*, Ipv4*, Tcp*, DyscoHashOut*);
+
+	DyscoHashIn* insert_cb_in_reverse2(DyscoHashOut*);
  private:
 	map<uint32_t, DyscoHashes> hashes;
 

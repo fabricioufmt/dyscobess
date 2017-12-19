@@ -409,7 +409,7 @@ bool DyscoCenter::process_pending_packet(uint32_t i, bess::Packet* pkt, Ipv4* ip
 	return true;
 }
 
-DyscoHashIn* DyscoCenter::insert_cb_in_reverse(DyscoHashOut* cb_out) {
+DyscoHashIn* DyscoCenter::insert_cb_in_reverse2(DyscoHashOut* cb_out) {
 	DyscoHashIn* cb_in = new DyscoHashIn();
 	if(!cb_in)
 		return 0;
