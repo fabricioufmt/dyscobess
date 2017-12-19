@@ -29,6 +29,18 @@ class DyscoTcpSession {
 	uint16_t sport;
 	uint16_t dport;
 
+	bool operator<(const DyscoTcpSession& t) const {
+		if(t.sip == sip) {
+			if(t.sport == sport) {
+				if(t.dip == dip)
+					return t.sport < sport;
+				return t.dip < dip;
+			}
+			return t.sport < sport;
+		}
+		return t.sip < t.sip;
+	}
+	
 	struct Hash {
 		std::size_t operator()(const DyscoTcpSession& t) const {
 			return rte_hash_crc(&t, sizeof(uint64_t), 0);
