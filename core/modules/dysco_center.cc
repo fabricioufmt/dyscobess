@@ -121,6 +121,9 @@ DyscoHashIn* DyscoCenter::lookup_input(uint32_t i, Ipv4* ip, Tcp* tcp) {
 	*/
 	map<DyscoTcpSession, DyscoHashIn>::iterator it = dh->hash_in.begin();
 	while(it != dh->hash_in.end()) {
+		fprintf(stderr, "(it) %s:%u -> %s:%u\n",
+			printip0(ntohl((*it).first.sip)), ntohs((*it).first.sport),
+			printip0(ntohl((*it).first..dip)), ntohs((*it).first.dport));
 		DyscoTcpSession::EqualTo equals;
 		if(equals((*it).first, ss)) {
 			fprintf(stderr, "(FOUND) %s:%u -> %s:%u\n",
