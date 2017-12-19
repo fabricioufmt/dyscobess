@@ -452,16 +452,16 @@ bool DyscoCenter::process_pending_packet(uint32_t i, bess::Packet* pkt, Ipv4* ip
 	}
 	
 	//dh->hash_in.insert(std::pair<DyscoTcpSession, DyscoHashIn>(*cb_in->get_sub(), *cb_in));
-	DyscoTcpSession sub = *cb_in->get_sub();
-	if(dh->hash_in.find(sub) == dh->hash_in.end()) {
+	DyscoTcpSession sub1 = *cb_in->get_sub();
+	if(dh->hash_in.find(sub1) == dh->hash_in.end()) {
 		fprintf(stderr, "key is not found... adding OK\n");
-		dh->hash_in.insert(std::make_pair(sub, *cb_in));
+		dh->hash_in.insert(std::make_pair(sub1, *cb_in));
 	} else {
 		fprintf(stderr, "key is found... replacing\n");
 		fprintf(stderr, "(old key) %s:%u -> %s:%u\n",
 			printip0(ntohl(cb_in->get_sub()->sip)), ntohs(cb_in->get_sub()->sport),
 			printip0(ntohl(cb_in->get_sub()->dip)), ntohs(cb_in->get_sub()->dport));
-		dh->hash_in[sub] = *cb_in;
+		dh->hash_in[su1b] = *cb_in;
 	}
 	
 	/*LIST FOR TEST*/
