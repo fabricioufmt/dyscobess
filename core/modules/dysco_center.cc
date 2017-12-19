@@ -439,8 +439,24 @@ bool DyscoCenter::process_pending_packet(uint32_t i, bess::Packet* pkt, Ipv4* ip
 		printip0(ntohl(cb_in->get_sup()->sip)), ntohs(cb_in->get_sup()->sport),
 		printip0(ntohl(cb_in->get_sup()->dip)), ntohs(cb_in->get_sup()->dport));
 	
+	fprintf(stderr, "PRINT HASH_IN (BEF)\n");
+	map<DyscoTcpSession, DyscoHashIn>::iterator it = dh->hash_in.begin();
+	while(it != dh->hash_in.end()) {
+		fprintf(stderr, "(it) %s:%u -> %s:%u\n",
+			printip0(ntohl((*it).first.sip)), ntohs((*it).first.sport),
+			printip0(ntohl((*it).first.dip)), ntohs((*it).first.dport));
+		it++;
+	}
 	dh->hash_in.insert(std::pair<DyscoTcpSession, DyscoHashIn>(*cb_in->get_sub(), *cb_in));
-	
+	/*LIST FOR TEST*/
+	fprintf(stderr, "PRINT HASH_IN (AFT)\n");
+	it = dh->hash_in.begin();
+	while(it != dh->hash_in.end()) {
+		fprintf(stderr, "(it) %s:%u -> %s:%u\n",
+			printip0(ntohl((*it).first.sip)), ntohs((*it).first.sport),
+			printip0(ntohl((*it).first.dip)), ntohs((*it).first.dport));
+		it++;
+	}
 	return true;
 }
 
