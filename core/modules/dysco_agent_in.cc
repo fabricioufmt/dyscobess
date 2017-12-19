@@ -107,16 +107,18 @@ bool DyscoAgentIn::process_packet(bess::Packet* pkt) {
 
 	DyscoHashIn* cb_in = dc->lookup_input(this->index, ip, tcp);
 	if(!cb_in) {
-		fprintf(stderr, "[%s]%s: cb_in(lookup) is NULL\n", ns.c_str(), name().c_str());
 		if(isTCPSYN(tcp) && hasPayload(ip, tcp))
 			return process_synp(pkt, ip, tcp);
+
+		fprintf(stderr, "[%s]%s: does not have any entry\n",
+			ns.c_str(), name().c_str());
 		
 		return false;
 	}
+	
 	DyscoTcpSession* sub = cb_in->get_sub();
 	DyscoTcpSession* sup = cb_in->get_sup();
-	fprintf(stderr, "[%s]%s: cb_in(lookup) is not NULL\n", ns.c_str(), name().c_str());
-	fprintf(stderr, "[%s] cb_in:\n", ns.c_str());
+	/*fprintf(stderr, "[%s] cb_in:\n", ns.c_str());
 	fprintf(stderr, "[%s]: (SUB)%s:%u -> %s:%u\n",
 		ns.c_str(),
 		printip1(ntohl(sub->sip)), ntohs(sub->sport),
@@ -124,7 +126,7 @@ bool DyscoAgentIn::process_packet(bess::Packet* pkt) {
 	fprintf(stderr, "[%s]: (SUP)%s:%u -> %s:%u\n",
 		ns.c_str(),
 		printip1(ntohl(sup->sip)), ntohs(sup->sport),
-		printip1(ntohl(sup->dip)), ntohs(sup->dport));
+		printip1(ntohl(sup->dip)), ntohs(sup->dport));*/
 	//TODO: remaing
 	
 	ip->src = be32_t(ntohl(sup->sip));
