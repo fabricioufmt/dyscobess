@@ -116,7 +116,7 @@ bool DyscoAgentIn::process_packet(bess::Packet* pkt) {
 		return false;
 	}
 	
-	DyscoTcpSession* sub = cb_in->get_sub();
+	//DyscoTcpSession* sub = cb_in->get_sub();
 	DyscoTcpSession* sup = cb_in->get_sup();
 	/*fprintf(stderr, "[%s] cb_in:\n", ns.c_str());
 	fprintf(stderr, "[%s]: (SUB)%s:%u -> %s:%u\n",
