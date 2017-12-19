@@ -38,7 +38,7 @@ class DyscoTcpSession {
 			}
 			return t.sport < sport;
 		}
-		return t.sip < t.sip;
+		return t.sip < sip;
 	}
 	
 	struct Hash {
