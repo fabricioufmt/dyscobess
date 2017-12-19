@@ -459,8 +459,8 @@ bool DyscoCenter::process_pending_packet(uint32_t i, bess::Packet* pkt, Ipv4* ip
 	} else {
 		fprintf(stderr, "key is found... replacing\n");
 		fprintf(stderr, "(old key) %s:%u -> %s:%u\n",
-			printip0(ntohl(cb_in->get_sub()->sip)), ntohs(cb_in->get_sub()->sport),
-			printip0(ntohl(cb_in->get_sub()->dip)), ntohs(cb_in->get_sub()->dport));
+			printip0(ntohl(sub1.sip)), ntohs(sub1.sport),
+			printip0(ntohl(sub1.dip)), ntohs(sub1.dport));
 		dh->hash_in[sub1] = *cb_in;
 	}
 	
