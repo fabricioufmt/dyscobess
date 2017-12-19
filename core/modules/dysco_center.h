@@ -15,7 +15,7 @@
 
 #include "dysco_policies.h"
 
-using std::map;
+using std::unordered_map;
 using bess::utils::Tcp;
 using bess::utils::Ipv4;
 using bess::utils::Ethernet;
@@ -28,30 +28,20 @@ class DyscoTcpSession {
 	uint32_t dip;
 	uint16_t sport;
 	uint16_t dport;
+};
 
-	bool operator<(const DyscoTcpSession& t) const {
-		if(t.sip == sip) {
-			if(t.sport == sport) {
-				if(t.dip == dip)
-					return t.sport < sport;
-				return t.dip < dip;
-			}
-			return t.sport < sport;
-		}
-		return t.sip < sip;
+class DyscoTcpSessionHash {
+ public:
+	std::size_t operator()(const DyscoTcpSession& t) const {
+		return rte_hash_crc(&t, sizeof(uint64_t), 0);
+	}	
+};
+
+class DyscoTcpSessionEqualTo {
+ public:
+	bool operator()(const DyscoTcpSession& a, const DyscoTcpSession& b) const {
+		return a.sip == b.sip && a.dip == b.dip && a.sport == b.sport && a.dport == b.dport;
 	}
-	
-	struct Hash {
-		std::size_t operator()(const DyscoTcpSession& t) const {
-			return rte_hash_crc(&t, sizeof(uint64_t), 0);
-		}
-	};
-
-	struct EqualTo {
-		bool operator()(const DyscoTcpSession& a, const DyscoTcpSession& b) const {
-			return a.sip == b.sip && a.dip == b.dip && a.sport == b.sport && a.dport == b.dport;
-		}
-	};
 };
 
 class DyscoHashOut;
@@ -121,14 +111,16 @@ class DyscoHashPenTag {
 
 class DyscoHashes {
  public:
+	std::string ns;
+	uint32_t index;
 	uint32_t devip;
 
 	DyscoPolicies policies;
 	
-	map<DyscoTcpSession, DyscoHashIn, DyscoTcpSession::EqualTo> hash_in;
-	map<DyscoTcpSession, DyscoHashOut, DyscoTcpSession::EqualTo> hash_out;
-	map<DyscoTcpSession, DyscoHashOut, DyscoTcpSession::EqualTo> hash_pen;
-	map<DyscoTcpSession, DyscoHashPenTag, DyscoTcpSession::EqualTo> hash_pen_tag;
+	unordered_map<DyscoTcpSession, DyscoHashIn, DyscoTcpSessionHash> hash_in;
+	unordered_map<DyscoTcpSession, DyscoHashOut, DyscoTcpSessionHash> hash_out;
+	unordered_map<DyscoTcpSession, DyscoHashOut, DyscoTcpSessionHash> hash_pen;
+	unordered_map<DyscoTcpSession, DyscoHashPenTag, DyscoTcpSessionHash> hash_pen_tag;
 };
 
 class DyscoCenter final : public Module {
@@ -143,7 +135,6 @@ class DyscoCenter final : public Module {
 	CommandResponse CommandAdd(const bess::pb::DyscoCenterAddArg&);
 	CommandResponse CommandDel(const bess::pb::DyscoCenterDelArg&);
 
-
 	uint32_t get_index(const std::string&, uint32_t);
 	DyscoHashIn* lookup_input(uint32_t, Ipv4*, Tcp*);
 	DyscoHashIn* insert_cb_in(uint32_t, Ipv4*, Tcp*, uint8_t*, uint32_t);
@@ -155,7 +146,7 @@ class DyscoCenter final : public Module {
 
 	DyscoHashIn* insert_cb_in_reverse2(DyscoHashOut*);
  private:
-	map<uint32_t, DyscoHashes> hashes;
+	unordered_map<uint32_t, DyscoHashes> hashes;
 
 	DyscoHashes* get_hash(uint32_t);
 	bool insert_pending(DyscoHashes*, uint8_t*, uint32_t);

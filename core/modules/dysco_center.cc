@@ -89,7 +89,7 @@ uint32_t DyscoCenter::get_index(const std::string& name, uint32_t ip) {
 }
 
 DyscoHashes* DyscoCenter::get_hash(uint32_t i) {
-	map<uint32_t, DyscoHashes>::iterator it = hashes.find(i);
+	unordered_map<uint32_t, DyscoHashes>::iterator it = hashes.find(i);
 	if(it != hashes.end())
 		return &(*it).second;
 
