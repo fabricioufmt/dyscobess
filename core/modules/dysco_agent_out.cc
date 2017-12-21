@@ -68,61 +68,72 @@ bool DyscoAgentOut::process_packet(bess::Packet* pkt) {
 
 	Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
 	
-	/*fprintf(stderr, "\n[%s]%s(IN): %s:%u -> %s:%u\n",
-		ns.c_str(), name().c_str(),
-		printip2(ip->src.value()), tcp->src_port.value(),
-		printip2(ip->dst.value()), tcp->dst_port.value());
-	*/
 	DyscoHashOut* cb_out = dc->lookup_output(this->index, ip, tcp);
 	if(!cb_out) {
-		cb_out = dc->lookup_output_pen(this->index, ip, tcp);
-		if(cb_out) {
-			ret = dc->process_pending_packet(this->index, pkt, ip, tcp, cb_out);
-			if(!ret)
-				return false;
-			
-			/*fprintf(stderr, "[%s]cb_out (pending):\n", ns.c_str());
-			fprintf(stderr, "(SUB)%s:%u -> %s:%u\n",
-				printip2(ntohl(cb_out->get_sub()->sip)), ntohs(cb_out->get_sub()->sport),
-				printip2(ntohl(cb_out->get_sub()->dip)), ntohs(cb_out->get_sub()->dport));
-			fprintf(stderr, "(SUP)%s:%u -> %s:%u\n",
-				printip2(ntohl(cb_out->get_sup()->sip)), ntohs(cb_out->get_sup()->sport),
-				printip2(ntohl(cb_out->get_sup()->dip)), ntohs(cb_out->get_sup()->dport));*/
+		cb_out = dc->lookup_output_pending(this->index, ip, tcp);
+		if(cb_out)
+			return dc->handle_mb_out(this->index, pkt, ip, tcp, cb_out);
 
-			/*fprintf(stderr, "[%s]%s(OUT): %s:%u -> %s:%u\n",
-				ns.c_str(), name().c_str(),
-				printip2(ip->src.value()), tcp->src_port.value(),
-				printip2(ip->dst.value()), tcp->dst_port.value());
-			*/
-			return ret;
+		cb_out = dc->lookup_pending_tag(this->index, ip, tcp);
+		if(cb_out) {
+			update_five_tuple(pkt, ip, tcp, cb_out);
+			return dc->handle_mb_out(this->index, pkt, ip, tcp, cb_out)
 		}
 	}
 
-	if(isTCPSYN(tcp))
+	if(isTCPSYN(tcp)) {
 		cb_out = dc->process_syn_out(this->index, pkt, ip, tcp, cb_out);
+		return cb_out ? true : false;
+	}
 
 	if(!cb_out) {
-		//fprintf(stderr, "[%s]%s: does not any mapping\n", ns.c_str(), name().c_str());
 		return false;
-	}
-	
-	DyscoTcpSession* ss = cb_out->get_sub();
+	//L.1462 -- dysco_output.c ???
 
-	ip->src = be32_t(ntohl(ss->sip));
-	ip->dst = be32_t(ntohl(ss->dip));
-	tcp->src_port = be16_t(ntohs(ss->sport));
-	tcp->dst_port = be16_t(ntohs(ss->dport));
+	translate_out(pkt, ip, tcp, cb_out);
+	
+	/*fprintf(stderr, "[%s]%s(OUT): %s:%u -> %s:%u\n\n",
+		ns.c_str(), name().c_str(),
+		printip2(ip->src.value()), tcp->src_port.value(),
+		printip2(ip->dst.value()), tcp->dst_port.value());*/
+		
+	return true;
+}
+
+bool DyscoAgentOut::update_five_tuple(Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) {
+	if(!cb_out)
+		return false;
+	
+	cb_out->sup.sip = htonl(ip->src.value());
+	cb_out->sup.dip = htonl(ip->dst.value());
+	cb_out->sup.sport = htons(tcp->src_port.value());
+	cb_out->sup.dport = htons(tcp->dst_port.value());
+	
+	return true;
+}
+
+//bool DyscoAgentOut::translate_out(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) {
+bool DyscoAgentOut::translate_out(bess::Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) {
+	//TODO
+	out_hdr_rewrite(ip, tcp, cb_out->sub);
+	
+	return true;
+}
+
+bool DyscoAgentOut::out_hdr_rewrite(Ipv4* ip, Tcp* tcp, DyscoTcpSession* sub) {
+	if(!sup)
+		return false;
+
+	ip->src = be32_t(ntohl(sub->sip));
+	ip->dst = be32_t(ntohl(sub->dip));
+	tcp->src_port = be16_t(ntohs(sub->sport));
+	tcp->dst_port = be16_t(ntohs(sub->dport));
 
 	ip->checksum = 0;
 	tcp->checksum = 0;
 	ip->checksum = bess::utils::CalculateIpv4Checksum(*ip);
 	tcp->checksum = bess::utils::CalculateIpv4TcpChecksum(*ip, *tcp);
 
-	/*	fprintf(stderr, "[%s]%s(OUT): %s:%u -> %s:%u\n\n",
-		ns.c_str(), name().c_str(),
-		printip2(ip->src.value()), tcp->src_port.value(),
-		printip2(ip->dst.value()), tcp->dst_port.value());
-*/	
 	return true;
 }
 

@@ -32,6 +32,12 @@ class DyscoAgentOut final : public Module {
 	void ProcessBatch(bess::PacketBatch*) override;
 	CommandResponse Init(const bess::pb::DyscoAgentOutArg&);
 
+ private:
+	uint32_t devip;
+	uint32_t index;
+	DyscoCenter* dc;
+	std::string ns;
+
 	inline bool isIP(Ethernet* eth) {
 		return eth->ether_type.value() == Ethernet::Type::kIpv4;
 	}
@@ -51,11 +57,9 @@ class DyscoAgentOut final : public Module {
 		return ip->length.value() - ip_hlen - tcp_hlen;
 	}
 
- private:
-	uint32_t devip;
-	uint32_t index;
-	DyscoCenter* dc;
-	std::string ns;
+	bool update_five_tuple(Ipv4*, Tcp*, DyscoHashOut*);
+	bool translate_out(bess::Packet*, Ipv4*, Tcp*, DyscoHashOut*);
+	bool out_hdr_rewrite(Ipv4*, Tcp*, DyscoTcpSession*);
 };
 
 #endif //BESS_MODULES_DYSCOAGENTOUT_H_

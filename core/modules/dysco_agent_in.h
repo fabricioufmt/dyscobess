@@ -28,11 +28,15 @@ class DyscoAgentIn final : public Module {
 
 	DyscoAgentIn();
 	bool process_packet(bess::Packet*);
-	bool process_syn(bess::Packet*, Ipv4*, Tcp*);
-	bool process_synp(bess::Packet*, Ipv4*, Tcp*);
-	bool process_nonsyn(bess::Packet*, Ipv4*, Tcp*);
+	bool rx_initiation_new(bess::Packet*, Ipv4*, Tcp*);
 	void ProcessBatch(bess::PacketBatch*) override;
 	CommandResponse Init(const bess::pb::DyscoAgentInArg&);
+
+ private:
+	uint32_t devip;
+	uint32_t index;
+	DyscoCenter* dc;
+	std::string ns;
 
 	inline bool isIP(Ethernet* eth) {
 		return eth->ether_type.value() == Ethernet::Type::kIpv4;
@@ -46,6 +50,10 @@ class DyscoAgentIn final : public Module {
 		return tcp->flags == Tcp::Flag::kSyn;
 	}
 
+	inline bool isTCPACK(Tcp* tcp) {
+		return tcp->flags == Tcp::Flag::kAck;
+	}
+
 	inline bool hasPayload(Ipv4* ip, Tcp* tcp) {
 		size_t ip_hlen = ip->header_length << 2;
 		size_t tcp_hlen = tcp->offset << 2;
@@ -53,11 +61,9 @@ class DyscoAgentIn final : public Module {
 		return ip->length.value() - ip_hlen - tcp_hlen;
 	}
 
- private:
-	uint32_t devip;
-	uint32_t index;
-	DyscoCenter* dc;
-	std::string ns;
+	bool in_hdr_rewrite(Ipv4*, Tcp*, DyscoTcpSession*);
+	bool parse_tcp_syn_opt_r(Tcp*, DyscoHashIn*);
+	bool insert_tag(bess::Packet*, Ipv4*, Tcp*, DyscoHashIn*);
 };
 
 #endif //BESS_MODULES_DYSCOAGENTIN_H_
