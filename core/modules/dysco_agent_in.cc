@@ -55,7 +55,7 @@ bool DyscoAgentIn::process_synp(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 
 	DyscoHashIn* cb_in = dc->insert_cb_in(this->index, ip, tcp, payload, payload_sz);
 	if(!cb_in) {
-		fprintf(stderr, "do not create map\n");
+		//fprintf(stderr, "do not create map\n");
 		return false;
 	}
 	
@@ -75,11 +75,11 @@ bool DyscoAgentIn::process_synp(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 	ip->checksum = bess::utils::CalculateIpv4Checksum(*ip);
 	tcp->checksum = bess::utils::CalculateIpv4TcpChecksum(*ip, *tcp);
 
-	fprintf(stderr, "[%s]%s(OUT): %s:%u -> %s:%u\n\n",
+	/*fprintf(stderr, "[%s]%s(OUT): %s:%u -> %s:%u\n\n",
 		ns.c_str(), name().c_str(),
 		printip1(ip->src.value()), tcp->src_port.value(),
 		printip1(ip->dst.value()), tcp->dst_port.value());
-	
+	*/
 	return true;
 }
 
@@ -99,18 +99,18 @@ bool DyscoAgentIn::process_packet(bess::Packet* pkt) {
 
 	Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
 	
-	fprintf(stderr, "\n[%s]%s(IN): %s:%u -> %s:%u\n",
+	/*fprintf(stderr, "\n[%s]%s(IN): %s:%u -> %s:%u\n",
 		ns.c_str(), name().c_str(),
 		printip1(ip->src.value()), tcp->src_port.value(),
 		printip1(ip->dst.value()), tcp->dst_port.value());
-
+	*/
 	DyscoHashIn* cb_in = dc->lookup_input(this->index, ip, tcp);
 	if(!cb_in) {
 		if(isTCPSYN(tcp) && hasPayload(ip, tcp))
 			return process_synp(pkt, ip, tcp);
 
-		fprintf(stderr, "[%s]%s: does not have any entry\n",
-			ns.c_str(), name().c_str());
+		//fprintf(stderr, "[%s]%s: does not have any entry\n",
+		//	ns.c_str(), name().c_str());
 		
 		return false;
 	}
@@ -138,11 +138,11 @@ bool DyscoAgentIn::process_packet(bess::Packet* pkt) {
 	ip->checksum = bess::utils::CalculateIpv4Checksum(*ip);
 	tcp->checksum = bess::utils::CalculateIpv4TcpChecksum(*ip, *tcp);
 	
-	fprintf(stderr, "[%s]%s(OUT): %s:%u -> %s:%u\n",
+	/*fprintf(stderr, "[%s]%s(OUT): %s:%u -> %s:%u\n",
 		ns.c_str(), name().c_str(),
 		printip1(ip->src.value()), tcp->src_port.value(),
 		printip1(ip->dst.value()), tcp->dst_port.value());
-	
+	*/
 	return true;
 }
 

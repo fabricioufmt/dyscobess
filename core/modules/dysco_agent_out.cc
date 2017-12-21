@@ -68,11 +68,11 @@ bool DyscoAgentOut::process_packet(bess::Packet* pkt) {
 
 	Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
 	
-	fprintf(stderr, "\n[%s]%s(IN): %s:%u -> %s:%u\n",
+	/*fprintf(stderr, "\n[%s]%s(IN): %s:%u -> %s:%u\n",
 		ns.c_str(), name().c_str(),
 		printip2(ip->src.value()), tcp->src_port.value(),
 		printip2(ip->dst.value()), tcp->dst_port.value());
-
+	*/
 	DyscoHashOut* cb_out = dc->lookup_output(this->index, ip, tcp);
 	if(!cb_out) {
 		cb_out = dc->lookup_output_pen(this->index, ip, tcp);
@@ -89,11 +89,11 @@ bool DyscoAgentOut::process_packet(bess::Packet* pkt) {
 				printip2(ntohl(cb_out->get_sup()->sip)), ntohs(cb_out->get_sup()->sport),
 				printip2(ntohl(cb_out->get_sup()->dip)), ntohs(cb_out->get_sup()->dport));*/
 
-			fprintf(stderr, "[%s]%s(OUT): %s:%u -> %s:%u\n",
+			/*fprintf(stderr, "[%s]%s(OUT): %s:%u -> %s:%u\n",
 				ns.c_str(), name().c_str(),
 				printip2(ip->src.value()), tcp->src_port.value(),
 				printip2(ip->dst.value()), tcp->dst_port.value());
-	
+			*/
 			return ret;
 		}
 	}
@@ -102,7 +102,7 @@ bool DyscoAgentOut::process_packet(bess::Packet* pkt) {
 		cb_out = dc->process_syn_out(this->index, pkt, ip, tcp, cb_out);
 
 	if(!cb_out) {
-		fprintf(stderr, "[%s]%s: does not any mapping\n", ns.c_str(), name().c_str());
+		//fprintf(stderr, "[%s]%s: does not any mapping\n", ns.c_str(), name().c_str());
 		return false;
 	}
 	
@@ -118,11 +118,11 @@ bool DyscoAgentOut::process_packet(bess::Packet* pkt) {
 	ip->checksum = bess::utils::CalculateIpv4Checksum(*ip);
 	tcp->checksum = bess::utils::CalculateIpv4TcpChecksum(*ip, *tcp);
 
-	fprintf(stderr, "[%s]%s(OUT): %s:%u -> %s:%u\n\n",
+	/*	fprintf(stderr, "[%s]%s(OUT): %s:%u -> %s:%u\n\n",
 		ns.c_str(), name().c_str(),
 		printip2(ip->src.value()), tcp->src_port.value(),
 		printip2(ip->dst.value()), tcp->dst_port.value());
-	
+*/	
 	return true;
 }
 
