@@ -397,7 +397,7 @@ bool DyscoCenter::process_pending_packet(uint32_t i, bess::Packet* pkt, Ipv4* ip
 		printip0(ntohl(cb_in->get_sup()->sip)), ntohs(cb_in->get_sup()->sport),
 		printip0(ntohl(cb_in->get_sup()->dip)), ntohs(cb_in->get_sup()->dport));
 	
-	/*fprintf(stderr, "PRINT HASH_IN (BEF)\n");*/
+	fprintf(stderr, "PRINT HASH_IN (BEF)\n");*/
 	unordered_map<DyscoTcpSession, DyscoHashIn, DyscoTcpSessionHash>::iterator it = dh->hash_in.begin();
 	/*while(it != dh->hash_in.end()) {
 		fprintf(stderr, "(it) KEY: %s:%u -> %s:%u\n",
