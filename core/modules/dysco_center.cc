@@ -438,7 +438,7 @@ bool DyscoCenter::process_pending_packet(uint32_t i, bess::Packet* pkt, Ipv4* ip
 	fprintf(stderr, "PRINT HASH_IN (AFT)\n");
 	it = dh->hash_in.begin();
 	while(it != dh->hash_in.end()) {
-		/*fprintf(stderr, "(it) KEY: %s:%u -> %s:%u\n",
+		fprintf(stderr, "(it) KEY: %s:%u -> %s:%u\n",
 			printip0(ntohl((*it).first.sip)), ntohs((*it).first.sport),
 			printip0(ntohl((*it).first.dip)), ntohs((*it).first.dport));
 		fprintf(stderr, "(it) VAL: %s:%u -> %s:%u\n",
