@@ -336,7 +336,9 @@ bool DyscoCenter::insert_cb_out(uint32_t i, DyscoHashOut* cb_out, uint8_t two_pa
 		return false;
 
 	dh->hash_out.insert(std::pair<DyscoTcpSession, DyscoHashOut>(cb_out->sup, *cb_out));
-	cb_out->cb_in = insert_cb_out_reverse(i, cb_out, two_paths); same above
+	cb_out->cb_in = insert_cb_out_reverse(i, cb_out, two_paths);
+
+	return true;
 }
 
 bool DyscoCenter::out_hdr_rewrite(Ipv4* ip, Tcp* tcp, DyscoTcpSession* sub) {
@@ -630,7 +632,7 @@ DyscoHashOut* DyscoCenter::process_syn_out(uint32_t i, bess::Packet* pkt, Ipv4* 
 		if(!cb_out->sack_ok)
 			cb_in_aux->sack_ok = 0;
 
-		out_hdr_rewrite(ip, tcp, cb_out->sub);
+		out_hdr_rewrite(ip, tcp, &cb_out->sub);
 		fix_tcp_ip_csum(ip, tcp);
 	}
 

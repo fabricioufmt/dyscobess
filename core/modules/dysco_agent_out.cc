@@ -56,7 +56,6 @@ CommandResponse DyscoAgentOut::Init(const bess::pb::DyscoAgentOutArg& arg) {
 }
 
 bool DyscoAgentOut::process_packet(bess::Packet* pkt) {
-	bool ret;
 	Ethernet* eth = pkt->head_data<Ethernet*>();
 	if(!isIP(eth))
 		return false;
@@ -86,7 +85,7 @@ bool DyscoAgentOut::process_packet(bess::Packet* pkt) {
 		return cb_out ? true : false;
 	}
 
-	if(!cb_out) {
+	if(!cb_out)
 		return false;
 	//L.1462 -- dysco_output.c ???
 

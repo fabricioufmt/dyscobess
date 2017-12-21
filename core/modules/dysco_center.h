@@ -140,7 +140,7 @@ class DyscoHashOut {
 		use_np_seq:1,
 		use_np_ack:1,
 		state_t:1,
-		free_sc;1;
+		free_sc:1;
 	uint8_t ack_add:1,
 		seq_add:1,
 		sack_ok:1,

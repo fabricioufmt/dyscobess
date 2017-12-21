@@ -56,8 +56,6 @@ bool DyscoAgentIn::rx_initiation_new(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 
 	uint8_t* payload = reinterpret_cast<uint8_t*>(tcp) + tcp_hlen;
 	uint32_t payload_sz = ip->length.value() - ip_hlen - tcp_hlen;
-	DyscoTcpSession* supss = reinterpret_cast<DyscoTcpSession*>(payload);
-
 	DyscoHashIn* cb_in = dc->insert_cb_in(this->index, ip, tcp, payload, payload_sz);
 	if(!cb_in)
 		return false;
@@ -67,7 +65,7 @@ bool DyscoAgentIn::rx_initiation_new(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 
 	parse_tcp_syn_opt_r(tcp, cb_in);
 	insert_tag(pkt, ip, tcp, cb_in);
-	in_hdr_rewrite(ip, tcp, cb_in->sup);
+	in_hdr_rewrite(ip, tcp, &cb_in->sup);
 	
 	/*fprintf(stderr, "[%s]%s(OUT): %s:%u -> %s:%u\n\n",
 		ns.c_str(), name().c_str(),
@@ -116,7 +114,7 @@ bool DyscoAgentIn::process_packet(bess::Packet* pkt) {
 		//L.811 -- dysco_input.c
 	}
 	
-	in_hdr_rewrite(ip, tcp, cb_in->sup);
+	in_hdr_rewrite(ip, tcp, &cb_in->sup);
 	
 	/*fprintf(stderr, "[%s]%s(OUT): %s:%u -> %s:%u\n",
 		ns.c_str(), name().c_str(),
@@ -126,7 +124,7 @@ bool DyscoAgentIn::process_packet(bess::Packet* pkt) {
 	return true;
 }
 
-bool DyscoAgentInc::in_hdr_rewrite(Ipv4* ip, Tcp* tcp, DyscoTcpSession* sup) {
+bool DyscoAgentIn::in_hdr_rewrite(Ipv4* ip, Tcp* tcp, DyscoTcpSession* sup) {
 	if(!sup)
 		return false;
 	
