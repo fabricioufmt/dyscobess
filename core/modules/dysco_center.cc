@@ -640,7 +640,7 @@ DyscoHashOut* DyscoCenter::process_syn_out(uint32_t i, bess::Packet* pkt, Ipv4* 
 		if(!filter)
 			return 0;
 		
-		cb_out = create_cb_out(ip, tcp, filter);
+		cb_out = create_cb_out(i, ip, tcp, filter);
 		if(!cb_out)
 			return 0;
 
