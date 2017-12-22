@@ -178,6 +178,28 @@ DyscoHashOut* DyscoCenter::lookup_output_pending(uint32_t i, Ipv4* ip, Tcp* tcp)
 	return 0;
 }
 
+DyscoHashOut* DyscoCenter::lookup_pending_tag(uint32_t i, Ipv4* ip, Tcp* tcp) {
+	DyscoHashes* dh = get_hash(i);
+	if(!dh)
+		return 0;
+
+	DyscoTcpSession ss;
+	ss.sip = htonl(ip->src.value());
+	ss.dip = htonl(ip->dst.value());
+	ss.sport = htons(tcp->src_port.value());
+	ss.dport = htons(tcp->dst_port.value());
+	
+	DyscoTcpSessionEqualTo equals;
+	unordered_map<DyscoTcpSession, DyscoHashPenTag, DyscoTcpSessionHash>::iterator it = dh->hash_pen_tag.begin();
+	while(it != dh->hash_pen_tag.end()) {
+		if(equals((*it).first, ss))
+			return &(*it).second;
+		it++;
+	}
+
+	return 0;
+}
+
 bool DyscoCenter::insert_pending(DyscoHashes* dh, uint8_t* payload, uint32_t payload_sz) {
 	if(!dh)
 		return false;
