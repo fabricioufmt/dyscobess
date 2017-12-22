@@ -359,7 +359,7 @@ bool DyscoCenter::out_hdr_rewrite(Ipv4* ip, Tcp* tcp, DyscoTcpSession* sub) {
 	return true;
 }
 
-bool DyscoCenter::remove_tag(bess::Paclet*, Ipv4*, Tcp*) {
+bool DyscoCenter::remove_tag(bess::Packet*, Ipv4*, Tcp*) {
 	//TODO
 	//L.108 -- dysco_output.c
 	//verify code.
@@ -415,7 +415,7 @@ bool DyscoCenter::handle_mb_out(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp* tc
 	if(cb_out->tag_ok)
 		remove_tag(pkt, ip, tcp);
 
-	add_sc(pkt, ip, tcp, cb_out);
+	add_sc(pkt, ip, cb_out);
 	fix_tcp_ip_csum(ip, tcp);
 
 	return true;
