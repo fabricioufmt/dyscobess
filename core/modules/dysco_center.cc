@@ -104,6 +104,22 @@ uint16_t DyscoCenter::allocate_neighbor_port(uint32_t) {
 	return htons((rand() % 1000) + 30000);
 }
 
+DyscoHashIn* DyscoCenter::lookup_input(uint32_t i, DyscoTcpSession* ss) {
+	DyscoHashes* dh = get_hash(i);
+	if(!dh)
+		return 0;
+
+	DyscoTcpSessionEqualTo equals;
+	unordered_map<DyscoTcpSession, DyscoHashIn, DyscoTcpSessionHash>::iterator it = dh->hash_in.begin();
+	while(it != dh->hash_in.end()) {
+		if(equals((*it).first, *ss))
+			return &(*it).second;
+		it++;
+	}
+	
+	return 0;
+}
+
 DyscoHashIn* DyscoCenter::lookup_input(uint32_t i, Ipv4* ip, Tcp* tcp) {
 	DyscoHashes* dh = get_hash(i);
 	if(!dh)
@@ -114,16 +130,8 @@ DyscoHashIn* DyscoCenter::lookup_input(uint32_t i, Ipv4* ip, Tcp* tcp) {
 	ss.dip = htonl(ip->dst.value());
 	ss.sport = htons(tcp->src_port.value());
 	ss.dport = htons(tcp->dst_port.value());
-	
-	DyscoTcpSessionEqualTo equals;
-	unordered_map<DyscoTcpSession, DyscoHashIn, DyscoTcpSessionHash>::iterator it = dh->hash_in.begin();
-	while(it != dh->hash_in.end()) {
-		if(equals((*it).first, ss))
-			return &(*it).second;
-		it++;
-	}
-	
-	return 0;
+
+	return lookup_input(i, &ss);
 }
 
 DyscoHashOut* DyscoCenter::lookup_output(uint32_t i, Ipv4* ip, Tcp* tcp) {
