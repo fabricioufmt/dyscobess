@@ -70,8 +70,11 @@ bool DyscoAgentOut::process_packet(bess::Packet* pkt) {
 	DyscoHashOut* cb_out = dc->lookup_output(this->index, ip, tcp);
 	if(!cb_out) {
 		cb_out = dc->lookup_output_pending(this->index, ip, tcp);
-		if(cb_out)
+		if(cb_out) {
+			fprintf(stderr, "cb_out is not NULL\n");
 			return dc->handle_mb_out(this->index, pkt, ip, tcp, cb_out);
+		}
+		fprintf(stderr, "cb_out is NULL\n");
 
 		cb_out = dc->lookup_pending_tag(this->index, ip, tcp);
 		if(cb_out) {
