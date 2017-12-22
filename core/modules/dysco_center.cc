@@ -624,7 +624,7 @@ DyscoHashOut* DyscoCenter::process_syn_out(uint32_t i, bess::Packet* pkt, Ipv4* 
 		local_sub.sport = cb_out->sup.dport;
 		local_sub.dport = cb_out->sup.sport;
 
-		cb_in_aux = lookup_input(i, &local_sub);
+		cb_in_aux = lookup_input_by_ss(i, &local_sub);
 		if(!cb_in_aux)
 			return 0;
 
