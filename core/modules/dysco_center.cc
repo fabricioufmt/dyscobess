@@ -650,7 +650,7 @@ DyscoHashOut* DyscoCenter::process_syn_out(uint32_t i, bess::Packet* pkt, Ipv4* 
 		cb_out = create_cb_out(i, ip, tcp, filter);
 		if(!cb_out)
 			return 0;
-		fprintf(stderr, "inserting cb_out\n");
+		
 		insert_cb_out(i, cb_out, 0);
 	}
 
