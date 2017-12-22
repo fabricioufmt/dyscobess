@@ -394,6 +394,13 @@ bool DyscoCenter::add_sc(bess::Packet* pkt, Ipv4* ip, DyscoHashOut* cb_out) {
 	return true;
 }
 
+bool DyscoCenter::out_tx_init(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) {
+	if(!add_sc(pkt, cb_out))
+		return false;
+
+	return fix_tcp_ip_csum(ip, tcp);
+}
+
 bool DyscoCenter::fix_tcp_ip_csum(Ipv4* ip, Tcp* tcp) {
 	ip->checksum = 0;
 	tcp->checksum = 0;
@@ -685,6 +692,11 @@ DyscoHashOut* DyscoCenter::process_syn_out(uint32_t i, bess::Packet* pkt, Ipv4* 
 
 		out_hdr_rewrite(ip, tcp, &cb_out->sub);
 		fix_tcp_ip_csum(ip, tcp);
+
+		return cb_out;
+	} else {
+		out_hdr_rewrite(ip, tcp, &cb_out->sub);
+		out_tx_init(pkt, ip, tcp, cb_out);
 	}
 
 	return cb_out;

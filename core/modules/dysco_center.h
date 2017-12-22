@@ -215,6 +215,7 @@ class DyscoCenter final : public Module {
 	bool parse_tcp_syn_opt_s(Tcp*, DyscoHashOut*);
 	DyscoHashIn* lookup_input_by_ss(uint32_t, DyscoTcpSession*);
 	DyscoHashOut* create_cb_out(uint32_t, Ipv4*, Tcp*, DyscoPolicies::Filter*);
+	bool out_tx_init(bess::Packet*, Ipv4*, Tcp*, DyscoHashOut*);
 	uint16_t allocate_local_port(uint32_t);
 	uint16_t allocate_neighbor_port(uint32_t);
 	
