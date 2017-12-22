@@ -75,8 +75,8 @@ bool DyscoAgentOut::process_packet(bess::Packet* pkt) {
 
 		cb_out = dc->lookup_pending_tag(this->index, ip, tcp);
 		if(cb_out) {
-			update_five_tuple(pkt, ip, tcp, cb_out);
-			return dc->handle_mb_out(this->index, pkt, ip, tcp, cb_out)
+			update_five_tuple(ip, tcp, cb_out);
+			return dc->handle_mb_out(this->index, pkt, ip, tcp, cb_out);
 		}
 	}
 
@@ -114,13 +114,13 @@ bool DyscoAgentOut::update_five_tuple(Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) 
 //bool DyscoAgentOut::translate_out(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) {
 bool DyscoAgentOut::translate_out(bess::Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) {
 	//TODO
-	out_hdr_rewrite(ip, tcp, cb_out->sub);
+	out_hdr_rewrite(ip, tcp, &cb_out->sub);
 	
 	return true;
 }
 
 bool DyscoAgentOut::out_hdr_rewrite(Ipv4* ip, Tcp* tcp, DyscoTcpSession* sub) {
-	if(!sup)
+	if(!sub)
 		return false;
 
 	ip->src = be32_t(ntohl(sub->sip));

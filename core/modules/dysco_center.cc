@@ -289,7 +289,7 @@ DyscoHashIn* DyscoCenter::insert_cb_in(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_t* 
 DyscoHashIn* DyscoCenter::insert_cb_out_reverse(uint32_t i, DyscoHashOut* cb_out, uint8_t two_paths) {
 	DyscoHashes* dh = get_hash(i);
 	if(!dh)
-		return false;
+		return 0;
 	
 	DyscoHashIn* cb_in = new DyscoHashIn();
 	if(!cb_in)
@@ -346,7 +346,7 @@ bool DyscoCenter::insert_cb_out(uint32_t i, DyscoHashOut* cb_out, uint8_t two_pa
 }
 
 bool DyscoCenter::out_hdr_rewrite(Ipv4* ip, Tcp* tcp, DyscoTcpSession* sub) {
-	if(!sup)
+	if(!sub)
 		return false;
 
 	ip->src = be32_t(ntohl(sub->sip));
@@ -359,14 +359,14 @@ bool DyscoCenter::out_hdr_rewrite(Ipv4* ip, Tcp* tcp, DyscoTcpSession* sub) {
 	return true;
 }
 
-bool DyscoCenter::remove_tag(Ipv4*, Tcp*) {
+bool DyscoCenter::remove_tag(bess::Paclet*, Ipv4*, Tcp*) {
 	//TODO
 	//L.108 -- dysco_output.c
 	//verify code.
 	return true;
 }
 
-bool DyscoCenter::add_sc(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) {
+bool DyscoCenter::add_sc(bess::Packet* pkt, Ipv4* ip, DyscoHashOut* cb_out) {
 	if(!cb_out)
 		return false;
 
@@ -409,7 +409,7 @@ bool DyscoCenter::handle_mb_out(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp* tc
 	cb_out->out_iseq = cb_out->in_iseq = tcp->seq_num.value();
 	parse_tcp_syn_opt_s(tcp, cb_out);
 
-	insert_cb_out(i, pkt, ip, tcp, cb_out, 0);
+	insert_cb_out(i, cb_out, 0);
 	out_hdr_rewrite(ip, tcp, &cb_out->sub);
 
 	if(cb_out->tag_ok)
@@ -418,6 +418,11 @@ bool DyscoCenter::handle_mb_out(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp* tc
 	add_sc(pkt, ip, tcp, cb_out);
 	fix_tcp_ip_csum(ip, tcp);
 
+	return true;
+}
+
+bool DyscoCenter::parse_tcp_syn_opt_s(Tcp*, DyscoHashOut*) {
+	//TODO
 	return true;
 }
 
@@ -477,7 +482,7 @@ bool DyscoCenter::handle_mb_out(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp* tc
 	tcp->checksum = bess::utils::CalculateIpv4TcpChecksum(*ip, *tcp);
 
 	DyscoHashIn* cb_in = insert_cb_out_reverse(cb_out);
-	/*fprintf(stderr, "cb_in (reverse--adding on hash_in: SUB):\n");
+	fprintf(stderr, "cb_in (reverse--adding on hash_in: SUB):\n");
 	fprintf(stderr, "(SUB)%s:%u -> %s:%u\n",
 		printip0(ntohl(cb_in->get_sub()->sip)), ntohs(cb_in->get_sub()->sport),
 		printip0(ntohl(cb_in->get_sub()->dip)), ntohs(cb_in->get_sub()->dport));
@@ -487,7 +492,7 @@ bool DyscoCenter::handle_mb_out(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp* tc
 	
 	fprintf(stderr, "PRINT HASH_IN (BEF)\n");
 	unordered_map<DyscoTcpSession, DyscoHashIn, DyscoTcpSessionHash>::iterator it = dh->hash_in.begin();
-	/*while(it != dh->hash_in.end()) {
+	while(it != dh->hash_in.end()) {
 		fprintf(stderr, "(it) KEY: %s:%u -> %s:%u\n",
 			printip0(ntohl((*it).first.sip)), ntohs((*it).first.sport),
 			printip0(ntohl((*it).first.dip)), ntohs((*it).first.dport));
@@ -618,8 +623,8 @@ DyscoHashOut* DyscoCenter::process_syn_out(uint32_t i, bess::Packet* pkt, Ipv4* 
 		cb_out->in_iseq = cb_out->out_iseq = tcp->seq_num.value();
 		cb_out->in_iack = cb_out->out_iack = tcp->ack_num.value() - 1;
 
-		cb_in_aux->in_iseq = cb_in_aux->out->iseq = cb_out->out_iack;
-		cb_in_aux->in_iack = cb_in_aux->out->iack = cb_out->out_iseq;
+		cb_in_aux->in_iseq = cb_in_aux->out_iseq = cb_out->out_iack;
+		cb_in_aux->in_iack = cb_in_aux->out_iack = cb_out->out_iseq;
 
 		cb_in_aux->seq_delta = cb_in_aux->ack_delta = 0;
 

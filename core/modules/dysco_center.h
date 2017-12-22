@@ -96,7 +96,7 @@ class DyscoHashIn {
 		ts_ok:1,
 		ts_add:1,
 		tsr_add:1,
-		ws_os:1;
+		ws_ok:1;
 	uint8_t padding;
 	
 	uint32_t skb_iif;
@@ -206,15 +206,17 @@ class DyscoCenter final : public Module {
 	DyscoHashIn* insert_cb_out_reverse(uint32_t, DyscoHashOut*, uint8_t);
 	
 	bool out_hdr_rewrite(Ipv4*, Tcp*, DyscoTcpSession*);
-	bool remove_tag(Ipv4*, Tcp*);
-	bool add_sc(bess::Packet*, Ipv4*, Tcp*, DyscoHashOut*);
+	bool remove_tag(bess::Packet*, Ipv4*, Tcp*);
+	bool add_sc(bess::Packet*, Ipv4*, DyscoHashOut*);
 	bool fix_tcp_ip_csum(Ipv4*, Tcp*);
 
 	DyscoHashIn* lookup_input(uint32_t, DyscoTcpSession*);
 	DyscoHashOut* insert_cb_in_reverse(DyscoTcpSession*, Ipv4*, Tcp*);
+	bool parse_tcp_syn_opt_s(Tcp*, DyscoHashOut*);
 
-
-
+	inline bool isTCPACK(Tcp* tcp) {
+		return tcp->flags == Tcp::Flag::kAck;
+	}
 
 	
 	bool insert_pending(DyscoHashes*, uint8_t*, uint32_t);
