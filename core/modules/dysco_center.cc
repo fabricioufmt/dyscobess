@@ -395,7 +395,7 @@ bool DyscoCenter::add_sc(bess::Packet* pkt, Ipv4* ip, DyscoHashOut* cb_out) {
 }
 
 bool DyscoCenter::out_tx_init(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) {
-	if(!add_sc(pkt, cb_out))
+	if(!add_sc(pkt, ip, cb_out))
 		return false;
 
 	return fix_tcp_ip_csum(ip, tcp);
