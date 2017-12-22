@@ -601,6 +601,35 @@ DyscoHashIn* DyscoCenter::insert_cb_out_reverse(DyscoHashOut* cb_out) {
 	return cb_in;
 }*/
 
+DyscoHashOut* DyscoCenter::create_cb_out(uint32_t i, Ipv4* ip, Tcp* tcp, DyscoPolicies::Filter* filter) {
+	DyscoHashes* dh = get_hash(i);
+	if(!dh)
+		return 0;
+	
+	DyscoHashOut* cb_out = new DyscoHashOut();
+	if(!cb_out)
+		return 0;
+
+	cb_out->sc = filter->sc;
+	cb_out->sc_len = filter->sc_len;
+	
+	cb_out->sup.sip = htonl(ip->src.value());
+	cb_out->sup.dip = htonl(ip->dst.value());
+	cb_out->sup.sport = htons(tcp->src_port.value());
+	cb_out->sup.dport = htons(tcp->dst_port.value());
+
+	if(cb_out->sc_len) {
+		cb_out->sub.sip = dh->devip;
+		cb_out->sub.dip = cb_out->sc[0];
+		cb_out->sub.sport = allocate_local_port(i);
+		cb_out->sub.dport = allocate_neighbor_port(i);
+		return cb_out;
+	}
+
+	delete cb_out;
+	return 0;
+}
+
 DyscoHashOut* DyscoCenter::process_syn_out(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) {
 	DyscoHashes* dh = get_hash(i);
 	if(!dh)
@@ -611,7 +640,7 @@ DyscoHashOut* DyscoCenter::process_syn_out(uint32_t i, bess::Packet* pkt, Ipv4* 
 		if(!filter)
 			return 0;
 		
-		cb_out = new DyscoHashOut();
+		cb_out = create_cb_out(ip, tcp, filter);
 		if(!cb_out)
 			return 0;
 

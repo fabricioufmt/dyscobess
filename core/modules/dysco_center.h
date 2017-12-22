@@ -214,7 +214,9 @@ class DyscoCenter final : public Module {
 	DyscoHashOut* insert_cb_in_reverse(DyscoTcpSession*, Ipv4*, Tcp*);
 	bool parse_tcp_syn_opt_s(Tcp*, DyscoHashOut*);
 	DyscoHashIn* lookup_input_by_ss(uint32_t, DyscoTcpSession*);
-
+	DyscoHashOut* create_cb_out(uint32_t, Ipv4*, Tcp*, DyscoPolicies::Filter*);
+	uint16_t allocate_local_port(uint32_t);
+	uint16_t allocate_neighbor_port(uint32_t);
 	
 	inline bool isTCPACK(Tcp* tcp) {
 		return tcp->flags == Tcp::Flag::kAck;
@@ -225,8 +227,7 @@ class DyscoCenter final : public Module {
 	//DyscoHashOut* insert_cb_in_reverse(DyscoTcpSession*, Ipv4*, Tcp*);
 	//DyscoHashIn* insert_cb_out_reverse(DyscoHashOut*);
 
-	uint16_t allocate_local_port(uint32_t);
-	uint16_t allocate_neighbor_port(uint32_t);
+	
 
 
 	
