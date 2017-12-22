@@ -213,7 +213,7 @@ class DyscoCenter final : public Module {
 	DyscoHashIn* lookup_input(uint32_t, DyscoTcpSession*);
 	DyscoHashOut* insert_cb_in_reverse(DyscoTcpSession*, Ipv4*, Tcp*);
 	bool parse_tcp_syn_opt_s(Tcp*, DyscoHashOut*);
-	DyscoHashIn* lookup_input(uint32_t, DyscoTcpSession*);
+	DyscoHashIn* lookup_input_by_ss(uint32_t, DyscoTcpSession*);
 
 	
 	inline bool isTCPACK(Tcp* tcp) {

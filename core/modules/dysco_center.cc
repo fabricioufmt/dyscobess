@@ -104,7 +104,7 @@ uint16_t DyscoCenter::allocate_neighbor_port(uint32_t) {
 	return htons((rand() % 1000) + 30000);
 }
 
-DyscoHashIn* DyscoCenter::lookup_input(uint32_t i, DyscoTcpSession* ss) {
+DyscoHashIn* DyscoCenter::lookup_input_by_ss(uint32_t i, DyscoTcpSession* ss) {
 	DyscoHashes* dh = get_hash(i);
 	if(!dh)
 		return 0;
@@ -131,7 +131,7 @@ DyscoHashIn* DyscoCenter::lookup_input(uint32_t i, Ipv4* ip, Tcp* tcp) {
 	ss.sport = htons(tcp->src_port.value());
 	ss.dport = htons(tcp->dst_port.value());
 
-	return lookup_input(i, &ss);
+	return lookup_input_by_ss(i, &ss);
 }
 
 DyscoHashOut* DyscoCenter::lookup_output(uint32_t i, Ipv4* ip, Tcp* tcp) {
