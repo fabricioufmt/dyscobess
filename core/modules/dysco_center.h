@@ -146,7 +146,7 @@ class DyscoHashOut {
 		sack_ok:1,
 		ts_ok:1,
 		ts_add:1,
-		ws_os:1,
+		ws_ok:1,
 		tsr_add:1,
 		tag_ok:1;
 	uint8_t padding;
@@ -211,7 +211,11 @@ class DyscoCenter final : public Module {
 	bool fix_tcp_ip_csum(Ipv4*, Tcp*);
 
 	DyscoHashIn* lookup_input(uint32_t, DyscoTcpSession*);
-	
+	DyscoHashOut* insert_cb_in_reverse(DyscoTcpSession*, Ipv4*, Tcp*);
+
+
+
+
 	
 	bool insert_pending(DyscoHashes*, uint8_t*, uint32_t);
 	//DyscoHashOut* insert_cb_in_reverse(DyscoTcpSession*, Ipv4*, Tcp*);

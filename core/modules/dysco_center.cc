@@ -182,7 +182,7 @@ bool DyscoCenter::insert_pending(DyscoHashes* dh, uint8_t* payload, uint32_t pay
 	if(!cb_out)
 		return false;
 
-	DyscoTcpSession* sup = cb_out->get_sup();
+	DyscoTcpSession* sup = &cb_out->sup;
 	DyscoTcpSession* ss = reinterpret_cast<DyscoTcpSession*>(payload);
 
 	sup->sip = ss->sip;
@@ -190,10 +190,10 @@ bool DyscoCenter::insert_pending(DyscoHashes* dh, uint8_t* payload, uint32_t pay
 	sup->sport = ss->sport;
 	sup->dport = ss->dport;
 
-	cb_out->set_sc_len(sc_len - 1);
+	cb_out->sc_len = sc_len - 1;
 	uint32_t* sc = new uint32_t[sc_len - 1];
 	memcpy(sc, payload + sizeof(DyscoTcpSession) + sizeof(uint32_t), (sc_len - 1) * sizeof(uint32_t));
-	cb_out->set_sc(sc);
+	cb_out->sc = sc;
 	/*
 	fprintf(stderr, "cb_out (adding on hash_pen SUP):\n");
 	fprintf(stderr, "(SUB)%s:%u -> %s:%u\n",
@@ -287,7 +287,11 @@ DyscoHashIn* DyscoCenter::insert_cb_in(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_t* 
 }
 
 DyscoHashIn* DyscoCenter::insert_cb_out_reverse(uint32_t i, DyscoHashOut* cb_out, uint8_t two_paths) {
-	DyscoHashIn cb_in = new DyscoHashIn();
+	DyscoHashes* dh = get_hash(i);
+	if(!dh)
+		return false;
+	
+	DyscoHashIn* cb_in = new DyscoHashIn();
 	if(!cb_in)
 		return 0;
 
@@ -405,8 +409,8 @@ bool DyscoCenter::handle_mb_out(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp* tc
 	cb_out->out_iseq = cb_out->in_iseq = tcp->seq_num.value();
 	parse_tcp_syn_opt_s(tcp, cb_out);
 
-	insert_cb_out(i, pkt, ip, tcp, cb_out, false);
-	out_hdr_rewrite(ip, tcp, cb_out->sub);
+	insert_cb_out(i, pkt, ip, tcp, cb_out, 0);
+	out_hdr_rewrite(ip, tcp, &cb_out->sub);
 
 	if(cb_out->tag_ok)
 		remove_tag(pkt, ip, tcp);
@@ -417,14 +421,14 @@ bool DyscoCenter::handle_mb_out(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp* tc
 	return true;
 }
 
-bool DyscoCenter::process_pending_packet(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) {
+/*bool DyscoCenter::process_pending_packet(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) {
 	DyscoHashes* dh = get_hash(i);
 	if(!dh)
 		return false;
 
 	//fprintf(stderr, "removing hash_pen entry\n");
 	dh->hash_pen.erase(*cb_out->get_sup());
-	/*
+	
 	fprintf(stderr, "cb_out (bef--removed in hash_pen):\n");
 	fprintf(stderr, "(SUB)%s:%u -> %s:%u\n",
 		printip0(ntohl(cb_out->get_sub()->sip)), ntohs(cb_out->get_sub()->sport),
@@ -432,7 +436,7 @@ bool DyscoCenter::process_pending_packet(uint32_t i, bess::Packet* pkt, Ipv4* ip
 	fprintf(stderr, "(SUP)%s:%u -> %s:%u\n",
 		printip0(ntohl(cb_out->get_sup()->sip)), ntohs(cb_out->get_sup()->sport),
 		printip0(ntohl(cb_out->get_sup()->dip)), ntohs(cb_out->get_sup()->dport));
-	*/
+	
 	DyscoTcpSession* sub = cb_out->get_sub();
 	if(cb_out->get_sc_len()) {
 		sub->sip = dh->devip;
@@ -442,14 +446,14 @@ bool DyscoCenter::process_pending_packet(uint32_t i, bess::Packet* pkt, Ipv4* ip
 	sub->sport = allocate_local_port(i);
 	sub->dport = allocate_neighbor_port(i);
 
-	/*fprintf(stderr, "cb_out (aft--removed in hash_pen):\n");
+	fprintf(stderr, "cb_out (aft--removed in hash_pen):\n");
 	fprintf(stderr, "(SUB)%s:%u -> %s:%u\n",
 		printip0(ntohl(cb_out->get_sub()->sip)), ntohs(cb_out->get_sub()->sport),
 		printip0(ntohl(cb_out->get_sub()->dip)), ntohs(cb_out->get_sub()->dport));
 	fprintf(stderr, "(SUP)%s:%u -> %s:%u\n",
 		printip0(ntohl(cb_out->get_sup()->sip)), ntohs(cb_out->get_sup()->sport),
 		printip0(ntohl(cb_out->get_sup()->dip)), ntohs(cb_out->get_sup()->dport));
-	*/
+	
 	dh->hash_out.insert(std::pair<DyscoTcpSession, DyscoHashOut>(*cb_out->get_sup(), *cb_out));
 	
 	//TODO: parse options
@@ -481,7 +485,7 @@ bool DyscoCenter::process_pending_packet(uint32_t i, bess::Packet* pkt, Ipv4* ip
 		printip0(ntohl(cb_in->get_sup()->sip)), ntohs(cb_in->get_sup()->sport),
 		printip0(ntohl(cb_in->get_sup()->dip)), ntohs(cb_in->get_sup()->dport));
 	
-	fprintf(stderr, "PRINT HASH_IN (BEF)\n");*/
+	fprintf(stderr, "PRINT HASH_IN (BEF)\n");
 	unordered_map<DyscoTcpSession, DyscoHashIn, DyscoTcpSessionHash>::iterator it = dh->hash_in.begin();
 	/*while(it != dh->hash_in.end()) {
 		fprintf(stderr, "(it) KEY: %s:%u -> %s:%u\n",
@@ -491,7 +495,7 @@ bool DyscoCenter::process_pending_packet(uint32_t i, bess::Packet* pkt, Ipv4* ip
 			printip0(ntohl((*it).second.get_sub()->sip)), ntohs((*it).second.get_sub()->sport),
 			printip0(ntohl((*it).second.get_sub()->dip)), ntohs((*it).second.get_sub()->dport));
 		it++;
-	}*/
+	}
 	
 	//dh->hash_in.insert(std::pair<DyscoTcpSession, DyscoHashIn>(*cb_in->get_sub(), *cb_in));
 
@@ -506,19 +510,19 @@ bool DyscoCenter::process_pending_packet(uint32_t i, bess::Packet* pkt, Ipv4* ip
 	}
 
 	if(it == dh->hash_in.end()) {
-		/*fprintf(stderr, "key is not found... adding OK\n");
+		fprintf(stderr, "key is not found... adding OK\n");
 		fprintf(stderr, "(SUB)%s:%u -> %s:%u\n",
 			printip0(ntohl(cb_in->get_sub()->sip)), ntohs(cb_in->get_sub()->sport),
 			printip0(ntohl(cb_in->get_sub()->dip)), ntohs(cb_in->get_sub()->dport));
 		fprintf(stderr, "(SUP)%s:%u -> %s:%u\n",
 			printip0(ntohl(cb_in->get_sup()->sip)), ntohs(cb_in->get_sup()->sport),
-			printip0(ntohl(cb_in->get_sup()->dip)), ntohs(cb_in->get_sup()->dport));*/
+			printip0(ntohl(cb_in->get_sup()->dip)), ntohs(cb_in->get_sup()->dport));
 		//dh->hash_in.insert(std::make_pair(*cb_in->get_sub(), *cb_in));
 		//dh->hash_in.insert(dh->hash_in.begin(), std::pair<DyscoTcpSession, DyscoHashIn>(*cb_in->get_sub(), *cb_in));
 		dh->hash_in[*cb_in->get_sub()] = *cb_in;
 	}
 
-	/*LIST FOR TEST
+	LIST FOR TEST
 	fprintf(stderr, "PRINT HASH_IN (AFT)\n");
 	it = dh->hash_in.begin();
 	while(it != dh->hash_in.end()) {
@@ -531,10 +535,10 @@ bool DyscoCenter::process_pending_packet(uint32_t i, bess::Packet* pkt, Ipv4* ip
 		
 		it++;
 	}
-		*/
+		
 	return true;
 }
-
+*/
 /*DyscoHashIn* DyscoCenter::insert_cb_in_reverse2(DyscoHashOut* cb_out) {
 	DyscoHashIn* cb_in = new DyscoHashIn();
 	if(!cb_in)
