@@ -165,15 +165,17 @@ bool DyscoAgentIn::process_packet(bess::Packet* pkt) {
 
 	Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
 	
-	/*fprintf(stderr, "\n[%s]%s(IN): %s:%u -> %s:%u\n",
+	fprintf(stderr, "\n[%s]%s(IN): %s:%u -> %s:%u\n",
 		ns.c_str(), name().c_str(),
 		printip1(ip->src.value()), tcp->src_port.value(),
-		printip1(ip->dst.value()), tcp->dst_port.value());*/
+		printip1(ip->dst.value()), tcp->dst_port.value());
 	
 	DyscoHashIn* cb_in = dc->lookup_input(this->index, ip, tcp);
 	if(!cb_in) {
-		if(isTCPSYN(tcp) && hasPayload(ip, tcp))
+		if(isTCPSYN(tcp) && hasPayload(ip, tcp)) {
+			fprintf(stderr, "reach here\n");
 			return rx_initiation_new(pkt, ip, tcp);
+		}
 		
 		return false;
 	}
