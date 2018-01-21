@@ -145,10 +145,10 @@ bool DyscoAgentIn::rx_initiation_new(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 	insert_tag(pkt, ip, tcp, cb_in);
 	in_hdr_rewrite(ip, tcp, &cb_in->sup);
 	
-	/*fprintf(stderr, "[%s]%s(OUT): %s:%u -> %s:%u\n\n",
+	fprintf(stderr, "[%s]%s(OUT): %s:%u -> %s:%u\n\n",
 		ns.c_str(), name().c_str(),
 		printip1(ip->src.value()), tcp->src_port.value(),
-		printip1(ip->dst.value()), tcp->dst_port.value());*/
+		printip1(ip->dst.value()), tcp->dst_port.value());
 
 	return true;
 }
@@ -172,10 +172,8 @@ bool DyscoAgentIn::process_packet(bess::Packet* pkt) {
 	
 	DyscoHashIn* cb_in = dc->lookup_input(this->index, ip, tcp);
 	if(!cb_in) {
-		if(isTCPSYN(tcp) && hasPayload(ip, tcp)) {
-			fprintf(stderr, "reach here\n");
+		if(isTCPSYN(tcp) && hasPayload(ip, tcp))
 			return rx_initiation_new(pkt, ip, tcp);
-		}
 		
 		return false;
 	}
