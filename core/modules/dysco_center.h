@@ -23,6 +23,7 @@ using bess::utils::Ethernet;
 using bess::utils::be32_t;
 using bess::utils::be16_t;
 
+#define DYSCO_TCP_OPTION 253
 #define DYSCO_TCP_OPTION_LEN 8
 
 enum {
@@ -61,6 +62,14 @@ class DyscoTcpSessionEqualTo {
 	bool operator()(const DyscoTcpSession& a, const DyscoTcpSession& b) const {
 		return a.sip == b.sip && a.dip == b.dip && a.sport == b.sport && a.dport == b.dport;
 	}
+};
+
+class DyscoTcpOption {
+ public:
+	uint8_t kind;
+	uint8_t len;
+	uint16_t padding;
+	uint32_t tag;
 };
 
 class DyscoHashOut;
@@ -165,11 +174,12 @@ class DyscoHashes {
 	uint32_t devip;
 
 	DyscoPolicies policies;
+	uint32_t dysco_tag;
 	
 	unordered_map<DyscoTcpSession, DyscoHashIn, DyscoTcpSessionHash> hash_in;
 	unordered_map<DyscoTcpSession, DyscoHashOut, DyscoTcpSessionHash> hash_out;
 	unordered_map<DyscoTcpSession, DyscoHashOut, DyscoTcpSessionHash> hash_pen;
-	unordered_map<DyscoTcpSession, DyscoHashPenTag, DyscoTcpSessionHash> hash_pen_tag;
+	unordered_map<uint32_t, DyscoHashOut> hash_pen_tag;
 };
 
 class DyscoCenter final : public Module {
@@ -194,7 +204,7 @@ class DyscoCenter final : public Module {
 	bool handle_mb_out(uint32_t, bess::Packet*, Ipv4*, Tcp*, DyscoHashOut*);
 	DyscoHashOut* process_syn_out(uint32_t, bess::Packet*, Ipv4*, Tcp*, DyscoHashOut*);
 
-	
+	uint32_t get_dysco_tag(uint32_t);
 
 
  private:

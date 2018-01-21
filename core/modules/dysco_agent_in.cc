@@ -39,17 +39,91 @@ CommandResponse DyscoAgentIn::Init(const bess::pb::DyscoAgentInArg& arg) {
 	return CommandSuccess();
 }
 
-bool DyscoAgentIn::parse_tcp_syn_opt_r(Tcp*, DyscoHashIn*) {
-	//TODO
+bool DyscoAgentIn::parse_tcp_syn_opt_r(Tcp* tcp, DyscoHashIn* cb_in) {
+	uint32_t len = (tcp->offset << 4) - sizeof(Tcp);
+	uint8_t* ptr = reinterpret_cast<uint8_t>(tcp + 1);
+
+	cb_in->sack_ok = 0;
+
+	uint32_t opcode, opsize;
+	while(len > 0) {
+		opcode = *ptr++;
+		switch(opcode) {
+		case TCPOPT_EOL:
+			return false;
+			
+		case TCPOPT_NOP:
+			len--;
+			continue;
+
+		default:
+			opsize = *ptr++;
+			if(opsize < 2)
+				return false;
+			
+			if(opsize > len)
+				return false;
+			
+			switch(opsize) {
+			case TCPOPT_WINDOW:
+				if(opsize == TCPOLEN_WINDOW) {
+					uint8_t snd_wscale = *(uint8_t*)ptr;
+					
+					cb_in->ws_ok = 1;
+					cb_in->ws_delta = 0;
+					if (snd_wscale > 14)
+						snd_wscale = 14;
+					
+					cb_in->ws_in = cb_in->ws_out = snd_wscale;
+				}
+				
+				break;
+				
+			case TCPOPT_TIMESTAMP:
+				if(opsize == TCPOLEN_TIMESTAMP) {
+					if(tcp->flags & Tcp::kAck) {
+						uint32_t ts, tsr;
+						
+						cb_in->ts_ok = 1;
+						ts = reinterpret_cast<uint32_t>(ptr);
+						tsr = reinterpret_cast<uint32_t>(ptr + 4);
+						cb_in->ts_in = cb_in->ts_out = ts;
+						cb_in->tsr_in = cb_in->tsr_out = tsr;
+						
+						cb_in->ts_delta = cb_in->tsr_delta = 0;
+					}
+				}
+				
+				break;
+				
+			case TCPOPT_SACK_PERM:
+				if(opsize == TCPOLEN_SACK_PERM)
+					cb_in->sack_ok = 1;
+				
+				break;
+
+			ptr += opsize - 2;
+			len -= opsize;
+		}
+	}
+	
 	return true;
 }
 
-bool DyscoAgentIn::insert_tag(bess::Packet*, Ipv4*, Tcp*, DyscoHashIn*) {
-	//TODO
+bool DyscoAgentIn::insert_tag(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashIn*) {
+	uint32_t tag = dc->get_dysco_tag(this->index);
+	DyscoTcpOption* dopt = reinterpret_cast<DyscoTcpOption*>(pkt->append(DYSCO_TCP_OPTION_LEN));
+	dopt->kind = DYSCO_TCP_OPTION;
+	dopt->len = DYSCO_TCP_OPTION_LEN;
+	dopt->padding = 0;
+	dopt->tag = tag;
+
+	tcp->offset += (DYSCO_TCP_OPTION_LEN << 2);
+	ip->length = ip->length + be16_t(DYSCO_TCP_OPTION_LEN);
+	
 	return true;
 }
 
-// TCP SYN+PAYLOAD packet
 bool DyscoAgentIn::rx_initiation_new(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 	size_t ip_hlen = ip->header_length << 2;
 	size_t tcp_hlen = tcp->offset << 2;

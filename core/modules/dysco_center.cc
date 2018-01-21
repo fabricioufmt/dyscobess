@@ -2,6 +2,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <net/tcp.h>
 
 #include "../utils/format.h"
 #include "dysco_policies.h"
@@ -96,6 +97,14 @@ DyscoHashes* DyscoCenter::get_hash(uint32_t i) {
 	return 0;
 }
 
+uint32_t DyscoCenter::get_dysco_tag(uint32_t i) {
+	DyscoHashes* dh = get_hash(i);
+	if(!dh)
+		return 0;
+	
+	return dh->dysco_tag++;
+}
+
 uint16_t DyscoCenter::allocate_local_port(uint32_t) {
 	return htons((rand() % 1000) + 10000);
 }
@@ -178,8 +187,11 @@ DyscoHashOut* DyscoCenter::lookup_output_pending(uint32_t i, Ipv4* ip, Tcp* tcp)
 	return 0;
 }
 
-DyscoHashOut* DyscoCenter::lookup_pending_tag(uint32_t, Ipv4*, Tcp*) {
-	//TODO
+DyscoHashOut* DyscoCenter::lookup_pending_tag(uint32_t i, Ipv4*, Tcp*) {
+	DyscoHashes* dh = get_hash(i);
+	if(!dh)
+		return 0;
+	
 	return 0;
 }
 
@@ -209,6 +221,7 @@ bool DyscoCenter::insert_pending(DyscoHashes* dh, uint8_t* payload, uint32_t pay
 	cb_out->sc = sc;
 	
 	dh->hash_pen.insert(std::pair<DyscoTcpSession, DyscoHashOut>(*sup, *cb_out));
+	//dh->hash_pen_tag.insert(std::pair<uint32_t, DyscoHashOut>(
 	//TODO: DyscoTag
 
 	return true;
@@ -364,10 +377,12 @@ bool DyscoCenter::out_hdr_rewrite(Ipv4* ip, Tcp* tcp, DyscoTcpSession* sub) {
 	return true;
 }
 
-bool DyscoCenter::remove_tag(bess::Packet*, Ipv4*, Tcp*) {
-	//TODO
-	//L.108 -- dysco_output.c
-	//verify code.
+bool DyscoCenter::remove_tag(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
+	tcp->offset -= (DYSCO_TCP_OPTION_LEN >> 2);
+	ip->length = ip->length - be16_t(DYSCO_TCP_OPTION_LEN);
+
+	pkt->trim(DYSCO_TCP_OPTION_LEN);
+	
 	return true;
 }
 
@@ -433,8 +448,82 @@ bool DyscoCenter::handle_mb_out(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp* tc
 	return true;
 }
 
-bool DyscoCenter::parse_tcp_syn_opt_s(Tcp*, DyscoHashOut*) {
-	//TODO
+bool DyscoCenter::parse_tcp_syn_opt_s(Tcp* tcp, DyscoHashOut* cb_out) {
+	uint32_t len = (tcp->offset << 4) - sizeof(Tcp);
+	uint8_t* ptr = reinterpret_cast<uint8_t>(tcp + 1);
+
+	cb_out->sack_ok = 0;
+
+	uint32_t opcode, opsize;
+	while(len > 0) {
+		opcode = *ptr++;
+		
+		switch(opcode) {
+		case TCPOPT_EOL:
+			return false;
+			
+		case TCPOPT_NOP:
+			len--;
+			continue;
+
+		default:
+			opsize = *ptr++;
+			if(opsize < 2)
+				return false;
+			
+			if(opsize > len)
+				return false;
+			
+			switch(opsize) {
+			case TCPOPT_WINDOW:
+				if(opsize == TCPOLEN_WINDOW) {
+					uint8_t snd_wscale = *(uint8_t*)ptr;
+					
+					cb_out->ws_ok = 1;
+					cb_out->ws_delta = 0;
+					if (snd_wscale > 14)
+						snd_wscale = 14;
+					
+					cb_out->ws_in = cb_out->ws_out = snd_wscale;
+				}
+				
+				break;
+				
+			case TCPOPT_TIMESTAMP:
+				if(opsize == TCPOLEN_TIMESTAMP) {
+					if(tcp->flags & Tcp::kAck) {
+						uint32_t ts, tsr;
+						
+						cb_out->ts_ok = 1;
+						ts = reinterpret_cast<uint32_t>(ptr);
+						tsr = reinterpret_cast<uint32_t>(ptr + 4);
+						cb_out->ts_in = cb_out->ts_out = ts;
+						cb_out->tsr_in = cb_out->tsr_out = tsr;
+						
+						cb_out->ts_delta = cb_out->tsr_delta = 0;
+					}
+				}
+				
+				break;
+				
+			case TCPOPT_SACK_PERM:
+				if(opsize == TCPOLEN_SACK_PERM)
+					cb_out->sack_ok = 1;
+				
+				break;
+
+			case DYSCO_TCP_OPTION:
+				cb_out->tag_ok = 1;
+				cb_out->dysco_tag = *(uint32_t*)ptr;
+				
+				break;
+			}
+
+			ptr += opsize - 2;
+			len -= opsize;
+		}
+	}
+	
 	return true;
 }
 
