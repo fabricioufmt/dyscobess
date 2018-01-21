@@ -276,6 +276,11 @@ DyscoHashIn* DyscoCenter::insert_cb_in(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_t* 
 	DyscoTcpSession* ss = reinterpret_cast<DyscoTcpSession*>(payload);
 	memcpy(&cb_in->sup, ss, sizeof(DyscoTcpSession));
 
+	//debug
+	fprintf(stderr, "[DyscoCenter] insert_cb_in method, printing supss: %s:%u -> %s:%u\n",
+		printip0(ss->sip), ntohs(ss->sport),
+		printip0(ss->dip), ntohs(ss->dport));
+	
 	cb_in->two_paths = 0;
 	//L.218  -- dysco_input.c
 

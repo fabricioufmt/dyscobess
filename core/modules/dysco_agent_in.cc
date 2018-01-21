@@ -144,7 +144,8 @@ bool DyscoAgentIn::rx_initiation_new(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 	parse_tcp_syn_opt_r(tcp, cb_in);
 	insert_tag(pkt, ip, tcp, cb_in);
 	in_hdr_rewrite(ip, tcp, &cb_in->sup);
-	
+
+	//debug
 	fprintf(stderr, "[%s]%s(OUT): %s:%u -> %s:%u\n\n",
 		ns.c_str(), name().c_str(),
 		printip1(ip->src.value()), tcp->src_port.value(),
@@ -164,8 +165,9 @@ bool DyscoAgentIn::process_packet(bess::Packet* pkt) {
 		return false;
 
 	Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
-	
-	fprintf(stderr, "\n[%s]%s(IN): %s:%u -> %s:%u\n",
+
+	//debug
+	fprintf(stderr, "[%s]%s(IN): %s:%u -> %s:%u\n",
 		ns.c_str(), name().c_str(),
 		printip1(ip->src.value()), tcp->src_port.value(),
 		printip1(ip->dst.value()), tcp->dst_port.value());
