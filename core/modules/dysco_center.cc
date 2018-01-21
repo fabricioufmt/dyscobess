@@ -2,7 +2,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include <net/tcp.h>
+#include <netinet/tcp.h>
 
 #include "../utils/format.h"
 #include "dysco_policies.h"
