@@ -139,7 +139,7 @@ bool DyscoAgentIn::rx_initiation_new(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 		return false;
 
 	//debug
-	fprintf(stderr, "IPHLEN, TCPHLEN, PAYLOAD_SZ: %u %u %u\n", ip_hlen, tcp_hlen, payload_sz);
+	fprintf(stderr, "IPHLEN, TCPHLEN, PAYLOAD_SZ: %lu %lu %u\n", ip_hlen, tcp_hlen, payload_sz);
 	
 	pkt->trim(payload_sz);
 	ip->length = ip->length - be16_t(payload_sz);
