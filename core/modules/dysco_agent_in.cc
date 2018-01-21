@@ -1,3 +1,4 @@
+#include <netinet/tcp.h>
 #include "dysco_agent_in.h"
 #include "../module_graph.h"
 
@@ -41,7 +42,7 @@ CommandResponse DyscoAgentIn::Init(const bess::pb::DyscoAgentInArg& arg) {
 
 bool DyscoAgentIn::parse_tcp_syn_opt_r(Tcp* tcp, DyscoHashIn* cb_in) {
 	uint32_t len = (tcp->offset << 4) - sizeof(Tcp);
-	uint8_t* ptr = reinterpret_cast<uint8_t>(tcp + 1);
+	uint8_t* ptr = reinterpret_cast<uint8_t*>(tcp + 1);
 
 	cb_in->sack_ok = 0;
 
