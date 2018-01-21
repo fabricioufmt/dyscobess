@@ -69,16 +69,24 @@ bool DyscoAgentOut::process_packet(bess::Packet* pkt) {
 	
 	DyscoHashOut* cb_out = dc->lookup_output(this->index, ip, tcp);
 	if(!cb_out) {
+		//debug
+		fprintf(stderr, "[DyscoAgentOut] cb_out is NULL\n");
 		cb_out = dc->lookup_output_pending(this->index, ip, tcp);
-		if(cb_out)
+		if(cb_out) {
+			fprintf(stderr, "[DyscoAgentOut] lookup_output_pending is not NULL\n");
 			return dc->handle_mb_out(this->index, pkt, ip, tcp, cb_out);
+		}
 
 		cb_out = dc->lookup_pending_tag(this->index, ip, tcp);
 		if(cb_out) {
+			fprintf(stderr, "[DyscoAgentOut] lookup_pending_tag is not NULL\n");
 			update_five_tuple(ip, tcp, cb_out);
 			return dc->handle_mb_out(this->index, pkt, ip, tcp, cb_out);
 		}
 	}
+
+	//debug
+	fprintf("[DyscoAgentOut] passes cb_out if-statements\n");
 
 	if(isTCPSYN(tcp)) {
 		cb_out = dc->process_syn_out(this->index, pkt, ip, tcp, cb_out);
