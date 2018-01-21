@@ -137,6 +137,9 @@ bool DyscoAgentIn::rx_initiation_new(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 	DyscoHashIn* cb_in = dc->insert_cb_in(this->index, ip, tcp, payload, payload_sz);
 	if(!cb_in)
 		return false;
+
+	//debug
+	fprintf(stderr, "IPHLEN, TCPHLEN, PAYLOAD_SZ: %u %u %u\n", ip_hlen, tcp_hlen, payload_sz);
 	
 	pkt->trim(payload_sz);
 	ip->length = ip->length - be16_t(payload_sz);
