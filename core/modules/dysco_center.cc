@@ -497,8 +497,8 @@ bool DyscoCenter::parse_tcp_syn_opt_s(Tcp* tcp, DyscoHashOut* cb_out) {
 						cb_out->ts_ok = 1;
 						//ts = reinterpret_cast<uint32_t>(ptr);
 						//tsr = reinterpret_cast<uint32_t>(ptr + 4);
-						ts = (uint32_t)(ptr);
-						tsr = (uint32_t)(ptr + 4);
+						ts = (uint32_t)(*ptr);
+						tsr = (uint32_t)(*(ptr + 4));
 						cb_out->ts_in = cb_out->ts_out = ts;
 						cb_out->tsr_in = cb_out->tsr_out = tsr;
 						
