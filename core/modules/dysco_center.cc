@@ -423,7 +423,7 @@ bool DyscoCenter::handle_mb_out(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp* tc
 		return false;
 
 	dh->hash_pen.erase(cb_out->sup);
-	dh->hash_pen_tag.erase(cb_out->sup);
+	//dh->hash_pen_tag.erase(cb_out->sup);
 
 	if(cb_out->sc_len) {
 		cb_out->sub.sip = dh->devip;
