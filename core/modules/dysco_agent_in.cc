@@ -86,8 +86,10 @@ bool DyscoAgentIn::parse_tcp_syn_opt_r(Tcp* tcp, DyscoHashIn* cb_in) {
 						uint32_t ts, tsr;
 						
 						cb_in->ts_ok = 1;
-						ts = reinterpret_cast<uint32_t>(ptr);
-						tsr = reinterpret_cast<uint32_t>(ptr + 4);
+						//ts = reinterpret_cast<uint32_t>(ptr);
+						//tsr = reinterpret_cast<uint32_t>(ptr + 4);
+						ts = (uint32_t)(ptr);
+						tsr = (uint32_t)(ptr + 4);
 						cb_in->ts_in = cb_in->ts_out = ts;
 						cb_in->tsr_in = cb_in->tsr_out = tsr;
 						
@@ -105,6 +107,7 @@ bool DyscoAgentIn::parse_tcp_syn_opt_r(Tcp* tcp, DyscoHashIn* cb_in) {
 
 			ptr += opsize - 2;
 			len -= opsize;
+			}
 		}
 	}
 	
