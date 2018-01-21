@@ -450,7 +450,7 @@ bool DyscoCenter::handle_mb_out(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp* tc
 
 bool DyscoCenter::parse_tcp_syn_opt_s(Tcp* tcp, DyscoHashOut* cb_out) {
 	uint32_t len = (tcp->offset << 4) - sizeof(Tcp);
-	uint8_t* ptr = reinterpret_cast<uint8_t>(tcp + 1);
+	uint8_t* ptr = reinterpret_cast<uint8_t*>(tcp + 1);
 
 	cb_out->sack_ok = 0;
 
@@ -495,8 +495,10 @@ bool DyscoCenter::parse_tcp_syn_opt_s(Tcp* tcp, DyscoHashOut* cb_out) {
 						uint32_t ts, tsr;
 						
 						cb_out->ts_ok = 1;
-						ts = reinterpret_cast<uint32_t>(ptr);
-						tsr = reinterpret_cast<uint32_t>(ptr + 4);
+						//ts = reinterpret_cast<uint32_t>(ptr);
+						//tsr = reinterpret_cast<uint32_t>(ptr + 4);
+						ts = (uint32_t)(ptr);
+						tsr = (uint32_t)(ptr + 4);
 						cb_out->ts_in = cb_out->ts_out = ts;
 						cb_out->tsr_in = cb_out->tsr_out = tsr;
 						
@@ -506,8 +508,8 @@ bool DyscoCenter::parse_tcp_syn_opt_s(Tcp* tcp, DyscoHashOut* cb_out) {
 				
 				break;
 				
-			case TCPOPT_SACK_PERM:
-				if(opsize == TCPOLEN_SACK_PERM)
+			case TCPOPT_SACK_PERMITTED:
+				if(opsize == TCPOLEN_SACK_PERMITTED)
 					cb_out->sack_ok = 1;
 				
 				break;
