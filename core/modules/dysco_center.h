@@ -72,6 +72,12 @@ class DyscoTcpOption {
 	uint32_t tag;
 };
 
+class DyscoTcpTs {
+ public:
+	uint32_t ts;
+	uint32_t tsr;
+};
+
 class DyscoHashOut;
 
 class DyscoHashIn {

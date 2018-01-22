@@ -61,8 +61,15 @@ class DyscoAgentIn final : public Module {
 		return ip->length.value() - ip_hlen - tcp_hlen;
 	}
 
+	bool remove_sc(bess::Packet, Ipv4*, Tcp*);
 	bool in_hdr_rewrite(Ipv4*, Tcp*, DyscoTcpSession*);
 	bool insert_tag(bess::Packet*, Ipv4*, Tcp*, DyscoHashIn*);
+
+	bool in_rewrite_seq(Tcp*, DyscoHashIn*);
+	bool in_rewrite_ack(Tcp*, DyscoHashIn*);
+	bool in_rewrite_ts(Tcp*, DyscoHashIn*);
+	bool in_rewrite_rcv_wnd(Tcp*, DyscoHashIn*);
+	DyscoTcpTs* get_ts_option(Tcp*);
 };
 
 #endif //BESS_MODULES_DYSCOAGENTIN_H_
