@@ -139,8 +139,8 @@ bool DyscoAgentIn::rx_initiation_new(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 		return false;
 
 	//debug
-	fprintf(stderr, "IPHLEN, TCPHLEN, PAYLOAD_SZ: %lu %lu %u\n", ip_hlen, tcp_hlen, payload_sz);
-	fprintf(stderr, "PAYLOAD: ");
+	fprintf(stderr, "[DyscoAgentIn] rx_initiation_new method, IPHLEN, TCPHLEN, PAYLOAD_SZ: %lu %lu %u\n", ip_hlen, tcp_hlen, payload_sz);
+	fprintf(stderr, "[DyscoAgentIn] rx_initiation_new method, PAYLOAD: ");
 	for(uint32_t i = 0; i < payload_sz; i++)
 		fprintf(stderr, "%x ", payload[i]);
 	fprintf(stderr, "\n\n");

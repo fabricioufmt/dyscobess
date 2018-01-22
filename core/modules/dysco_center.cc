@@ -412,9 +412,11 @@ bool DyscoCenter::add_sc(bess::Packet* pkt, Ipv4* ip, DyscoHashOut* cb_out) {
 	for(uint32_t i = 0; i < payload_sz; i++)
 		fprintf(stderr, "%x ", payload[i]);
 	fprintf(stderr, "\n\n");
-
+	//debug
+	fprintf(stderr, "[DyscoCenter] add_sc method, printing old ip size: %u", ip->length.value());
 	ip->length = ip->length + be16_t(payload_sz);
-
+	//debug
+	fprintf(stderr, "[DyscoCenter] add_sc method, printing new ip size: %u", ip->length.value());
 	return true;
 }
 
