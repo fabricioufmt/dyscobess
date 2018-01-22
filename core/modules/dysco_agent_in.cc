@@ -122,7 +122,7 @@ bool DyscoAgentIn::insert_tag(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashIn
 	dopt->padding = 0;
 	dopt->tag = tag;
 
-	tcp->offset += (DYSCO_TCP_OPTION_LEN << 2);
+	tcp->offset += (DYSCO_TCP_OPTION_LEN >> 2);
 	ip->length = ip->length + be16_t(DYSCO_TCP_OPTION_LEN);
 	
 	return true;
