@@ -206,7 +206,7 @@ class DyscoCenter final : public Module {
 
 	uint32_t get_dysco_tag(uint32_t);
 
-
+	DyscoHashOut* lookup_output_by_ss(uint32_t, DyscoTcpSession*);
  private:
 	unordered_map<uint32_t, DyscoHashes> hashes;
 
@@ -223,6 +223,7 @@ class DyscoCenter final : public Module {
 	DyscoHashIn* lookup_input(uint32_t, DyscoTcpSession*);
 	DyscoHashOut* insert_cb_in_reverse(DyscoTcpSession*, Ipv4*, Tcp*);
 	bool parse_tcp_syn_opt_s(Tcp*, DyscoHashOut*);
+	bool parse_tcp_syn_opt_r(Tcp*, DyscoHashIn*);
 	DyscoHashIn* lookup_input_by_ss(uint32_t, DyscoTcpSession*);
 	DyscoHashOut* create_cb_out(uint32_t, Ipv4*, Tcp*, DyscoPolicies::Filter*);
 	bool out_tx_init(bess::Packet*, Ipv4*, Tcp*, DyscoHashOut*);

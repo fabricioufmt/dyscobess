@@ -62,7 +62,6 @@ class DyscoAgentIn final : public Module {
 	}
 
 	bool in_hdr_rewrite(Ipv4*, Tcp*, DyscoTcpSession*);
-	bool parse_tcp_syn_opt_r(Tcp*, DyscoHashIn*);
 	bool insert_tag(bess::Packet*, Ipv4*, Tcp*, DyscoHashIn*);
 };
 

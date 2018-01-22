@@ -40,80 +40,6 @@ CommandResponse DyscoAgentIn::Init(const bess::pb::DyscoAgentInArg& arg) {
 	return CommandSuccess();
 }
 
-bool DyscoAgentIn::parse_tcp_syn_opt_r(Tcp* tcp, DyscoHashIn* cb_in) {
-	uint32_t len = (tcp->offset << 4) - sizeof(Tcp);
-	uint8_t* ptr = reinterpret_cast<uint8_t*>(tcp + 1);
-
-	cb_in->sack_ok = 0;
-
-	uint32_t opcode, opsize;
-	while(len > 0) {
-		opcode = *ptr++;
-		switch(opcode) {
-		case TCPOPT_EOL:
-			return false;
-			
-		case TCPOPT_NOP:
-			len--;
-			continue;
-
-		default:
-			opsize = *ptr++;
-			if(opsize < 2)
-				return false;
-			
-			if(opsize > len)
-				return false;
-			
-			switch(opsize) {
-			case TCPOPT_WINDOW:
-				if(opsize == TCPOLEN_WINDOW) {
-					uint8_t snd_wscale = *(uint8_t*)ptr;
-					
-					cb_in->ws_ok = 1;
-					cb_in->ws_delta = 0;
-					if (snd_wscale > 14)
-						snd_wscale = 14;
-					
-					cb_in->ws_in = cb_in->ws_out = snd_wscale;
-				}
-				
-				break;
-				
-			case TCPOPT_TIMESTAMP:
-				if(opsize == TCPOLEN_TIMESTAMP) {
-					if(tcp->flags & Tcp::kAck) {
-						uint32_t ts, tsr;
-						
-						cb_in->ts_ok = 1;
-						//ts = reinterpret_cast<uint32_t>(ptr);
-						//tsr = reinterpret_cast<uint32_t>(ptr + 4);
-						ts = (uint32_t)(*ptr);
-						tsr = (uint32_t)(*(ptr + 4));
-						cb_in->ts_in = cb_in->ts_out = ts;
-						cb_in->tsr_in = cb_in->tsr_out = tsr;
-						
-						cb_in->ts_delta = cb_in->tsr_delta = 0;
-					}
-				}
-				
-				break;
-				
-			case TCPOPT_SACK_PERMITTED:
-				if(opsize == TCPOLEN_SACK_PERMITTED)
-					cb_in->sack_ok = 1;
-				
-				break;
-
-			ptr += opsize - 2;
-			len -= opsize;
-			}
-		}
-	}
-	
-	return true;
-}
-
 bool DyscoAgentIn::insert_tag(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashIn*) {
 	uint32_t tag = dc->get_dysco_tag(this->index);
 	DyscoTcpOption* dopt = reinterpret_cast<DyscoTcpOption*>(pkt->append(DYSCO_TCP_OPTION_LEN));
@@ -141,7 +67,7 @@ bool DyscoAgentIn::rx_initiation_new(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 	pkt->trim(payload_sz);
 	ip->length = ip->length - be16_t(payload_sz);
 
-	parse_tcp_syn_opt_r(tcp, cb_in);
+	dc->parse_tcp_syn_opt_r(tcp, cb_in);
 	insert_tag(pkt, ip, tcp, cb_in);
 	in_hdr_rewrite(ip, tcp, &cb_in->sup);
 
@@ -183,6 +109,7 @@ bool DyscoAgentIn::process_packet(bess::Packet* pkt) {
 	if(isTCPSYN(tcp)) {
 		if(isTCPACK(tcp)) {
 			//L.796 -- dysco_input.c
+			dc->set_ack_number_out(this->index, tcp, cb_in);
 		} else {
 			//L.803 -- dysco_input.c
 		}
@@ -195,11 +122,12 @@ bool DyscoAgentIn::process_packet(bess::Packet* pkt) {
 	}
 	
 	in_hdr_rewrite(ip, tcp, &cb_in->sup);
-	
-	/*fprintf(stderr, "[%s]%s(OUT): %s:%u -> %s:%u\n",
+
+	//debug
+	fprintf(stderr, "[%s]%s(OUT): %s:%u -> %s:%u\n",
 		ns.c_str(), name().c_str(),
 		printip1(ip->src.value()), tcp->src_port.value(),
-		printip1(ip->dst.value()), tcp->dst_port.value());*/
+		printip1(ip->dst.value()), tcp->dst_port.value());
 
 	return true;
 }

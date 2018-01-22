@@ -143,16 +143,10 @@ DyscoHashIn* DyscoCenter::lookup_input(uint32_t i, Ipv4* ip, Tcp* tcp) {
 	return lookup_input_by_ss(i, &ss);
 }
 
-DyscoHashOut* DyscoCenter::lookup_output(uint32_t i, Ipv4* ip, Tcp* tcp) {
+DyscoHashOut* DyscoCenter::lookup_output_by_ss(uint32_t i, DyscoTcpSession* ss) {
 	DyscoHashes* dh = get_hash(i);
 	if(!dh)
 		return 0;
-	
-	DyscoTcpSession ss;
-	ss.sip = htonl(ip->src.value());
-	ss.dip = htonl(ip->dst.value());
-	ss.sport = htons(tcp->src_port.value());
-	ss.dport = htons(tcp->dst_port.value());
 	
 	DyscoTcpSessionEqualTo equals;
 	unordered_map<DyscoTcpSession, DyscoHashOut, DyscoTcpSessionHash>::iterator it = dh->hash_out.begin();
@@ -163,6 +157,20 @@ DyscoHashOut* DyscoCenter::lookup_output(uint32_t i, Ipv4* ip, Tcp* tcp) {
 	}
 	
 	return 0;
+}
+
+DyscoHashOut* DyscoCenter::lookup_output(uint32_t i, Ipv4* ip, Tcp* tcp) {
+	DyscoHashes* dh = get_hash(i);
+	if(!dh)
+		return 0;
+
+	DyscoTcpSession ss;
+	ss.sip = htonl(ip->src.value());
+	ss.dip = htonl(ip->dst.value());
+	ss.sport = htons(tcp->src_port.value());
+	ss.dport = htons(tcp->dst_port.value());
+	
+	return lookup_output_by_ss(i, &ss);
 }
 
 DyscoHashOut* DyscoCenter::lookup_output_pending(uint32_t i, Ipv4* ip, Tcp* tcp) {
@@ -449,6 +457,114 @@ bool DyscoCenter::handle_mb_out(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp* tc
 	add_sc(pkt, ip, cb_out);
 	fix_tcp_ip_csum(ip, tcp);
 
+	return true;
+}
+
+bool DyscoCenter::set_ack_number_out(uint32_t i, Tcp* tcp, DyscoHashIn* cb_in) {
+	cb_in->in_iseq = cb_in->out_iseq = tcp->seq_num.value();
+	cb_in->in_iack = cb_in->out_iack = tcp->ack_num.value() - 1;
+	cb_in->seq_delta = cb_in->ack_delta = 0;
+
+	DyscoTcpSession ss;
+	ss.sip = cb_in->sup.dip;
+	ss.dip = cb_in->sup.sip;
+	ss.sport = cb_in->sup.dport;
+	ss.dport = cb_in->sup.sport;
+
+	DyscoHashOut* cb_out = lookup_output_by_ss(i, &ss);
+
+	if(!cb_out)
+		return false;
+
+	cb_out->out_iack = cb_out->in_iack = tcp->seq_num.value();
+	cb_out->out_iseq = cb_out->in_iseq = tcp->ack_num.value() - 1;
+
+	parse_tcp_syn_opt_r(tcp, cb_in);
+	if(cb_in->ts_ok) {
+		cb_out->ts_ok = 1;
+		cb_out->tsr_out = cb_out->tsr_in = cb_in->ts_in;
+		cb_out->ts_out = cb_out->ts_in = cb_in->tsr_in;
+
+		cb_out->ts_delta = cb_out->tsr_delta = 0;
+	}
+
+	if(!cb_in->sack_ok)
+		cb_out->sack_ok = 0;
+
+	return true;
+}
+
+bool DyscoCenter::parse_tcp_syn_opt_r(Tcp* tcp, DyscoHashIn* cb_in) {
+	uint32_t len = (tcp->offset << 4) - sizeof(Tcp);
+	uint8_t* ptr = reinterpret_cast<uint8_t*>(tcp + 1);
+
+	cb_in->sack_ok = 0;
+
+	uint32_t opcode, opsize;
+	while(len > 0) {
+		opcode = *ptr++;
+		switch(opcode) {
+		case TCPOPT_EOL:
+			return false;
+			
+		case TCPOPT_NOP:
+			len--;
+			continue;
+
+		default:
+			opsize = *ptr++;
+			if(opsize < 2)
+				return false;
+			
+			if(opsize > len)
+				return false;
+			
+			switch(opsize) {
+			case TCPOPT_WINDOW:
+				if(opsize == TCPOLEN_WINDOW) {
+					uint8_t snd_wscale = *(uint8_t*)ptr;
+					
+					cb_in->ws_ok = 1;
+					cb_in->ws_delta = 0;
+					if (snd_wscale > 14)
+						snd_wscale = 14;
+					
+					cb_in->ws_in = cb_in->ws_out = snd_wscale;
+				}
+				
+				break;
+				
+			case TCPOPT_TIMESTAMP:
+				if(opsize == TCPOLEN_TIMESTAMP) {
+					if(tcp->flags & Tcp::kAck) {
+						uint32_t ts, tsr;
+						
+						cb_in->ts_ok = 1;
+						//ts = reinterpret_cast<uint32_t>(ptr);
+						//tsr = reinterpret_cast<uint32_t>(ptr + 4);
+						ts = (uint32_t)(*ptr);
+						tsr = (uint32_t)(*(ptr + 4));
+						cb_in->ts_in = cb_in->ts_out = ts;
+						cb_in->tsr_in = cb_in->tsr_out = tsr;
+						
+						cb_in->ts_delta = cb_in->tsr_delta = 0;
+					}
+				}
+				
+				break;
+				
+			case TCPOPT_SACK_PERMITTED:
+				if(opsize == TCPOLEN_SACK_PERMITTED)
+					cb_in->sack_ok = 1;
+				
+				break;
+
+			ptr += opsize - 2;
+			len -= opsize;
+			}
+		}
+	}
+	
 	return true;
 }
 
