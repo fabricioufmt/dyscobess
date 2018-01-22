@@ -413,10 +413,10 @@ bool DyscoCenter::add_sc(bess::Packet* pkt, Ipv4* ip, DyscoHashOut* cb_out) {
 		fprintf(stderr, "%x ", payload[i]);
 	fprintf(stderr, "\n\n");
 	//debug
-	fprintf(stderr, "[DyscoCenter] add_sc method, printing old ip size: %u", ip->length.value());
+	fprintf(stderr, "[DyscoCenter] add_sc method, printing old ip size: %u\n", ip->length.value());
 	ip->length = ip->length + be16_t(payload_sz);
 	//debug
-	fprintf(stderr, "[DyscoCenter] add_sc method, printing new ip size: %u", ip->length.value());
+	fprintf(stderr, "[DyscoCenter] add_sc method, printing new ip size: %u\n", ip->length.value());
 	return true;
 }
 
@@ -458,8 +458,12 @@ bool DyscoCenter::handle_mb_out(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp* tc
 	insert_cb_out(i, cb_out, 0);
 	out_hdr_rewrite(ip, tcp, &cb_out->sub);
 
-	if(cb_out->tag_ok)
+	if(cb_out->tag_ok) {
+		fprintf(stderr, "[DyscoCenter] handle_mb_out method, tag_ok is true\n");
 		remove_tag(pkt, ip, tcp);
+	} else
+		fprintf(stderr, "[DyscoCenter] handle_mb_out method, tag_ok is false\n");
+	remove_tag(pkt, ip, tcp);
 
 	add_sc(pkt, ip, cb_out);
 	fix_tcp_ip_csum(ip, tcp);
