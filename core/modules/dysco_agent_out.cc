@@ -86,7 +86,7 @@ bool DyscoAgentOut::process_packet(bess::Packet* pkt) {
 	}
 
 	//debug
-	fprintf("[DyscoAgentOut] passes cb_out if-statements\n");
+	fprintf(stderr, "[DyscoAgentOut] passes cb_out if-statements\n");
 
 	if(isTCPSYN(tcp)) {
 		cb_out = dc->process_syn_out(this->index, pkt, ip, tcp, cb_out);
