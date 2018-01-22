@@ -276,11 +276,6 @@ DyscoHashIn* DyscoCenter::insert_cb_in(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_t* 
 	DyscoTcpSession* ss = reinterpret_cast<DyscoTcpSession*>(payload);
 	memcpy(&cb_in->sup, ss, sizeof(DyscoTcpSession));
 
-	//debug
-	fprintf(stderr, "[DyscoCenter] insert_cb_in method, printing supss: %s:%u -> %s:%u\n",
-		printip0(ntohl(ss->sip)), ntohs(ss->sport),
-		printip0(ntohl(ss->dip)), ntohs(ss->dport));
-	
 	cb_in->two_paths = 0;
 	//L.218  -- dysco_input.c
 
@@ -398,25 +393,10 @@ bool DyscoCenter::add_sc(bess::Packet* pkt, Ipv4* ip, DyscoHashOut* cb_out) {
 	uint32_t payload_sz = sizeof(DyscoTcpSession) + cb_out->sc_len * sizeof(uint32_t);
 	uint8_t* payload = reinterpret_cast<uint8_t*>(pkt->append(payload_sz));
 
-	//debug
-	DyscoTcpSession* ss = &cb_out->sup;
-	fprintf(stderr, "[DyscoCenter] add_sc method, printing supss: %s:%u -> %s:%u\n",
-		printip0(ntohl(ss->sip)), ntohs(ss->sport),
-		printip0(ntohl(ss->dip)), ntohs(ss->dport));
-	
 	memcpy(payload, &cb_out->sup, sizeof(DyscoTcpSession));
 	memcpy(payload + sizeof(DyscoTcpSession), cb_out->sc, payload_sz - sizeof(DyscoTcpSession));
 
-	//debug
-	fprintf(stderr, "[DyscoCenter] add_sc method, printing payload: ");
-	for(uint32_t i = 0; i < payload_sz; i++)
-		fprintf(stderr, "%x ", payload[i]);
-	fprintf(stderr, "\n\n");
-	//debug
-	fprintf(stderr, "[DyscoCenter] add_sc method, printing old ip size: %u\n", ip->length.value());
 	ip->length = ip->length + be16_t(payload_sz);
-	//debug
-	fprintf(stderr, "[DyscoCenter] add_sc method, printing new ip size: %u\n", ip->length.value());
 	return true;
 }
 
@@ -458,6 +438,7 @@ bool DyscoCenter::handle_mb_out(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp* tc
 	insert_cb_out(i, cb_out, 0);
 	out_hdr_rewrite(ip, tcp, &cb_out->sub);
 
+	//verify cb_out->tag_ok always false
 	if(cb_out->tag_ok) {
 		fprintf(stderr, "[DyscoCenter] handle_mb_out method, tag_ok is true\n");
 		remove_tag(pkt, ip, tcp);
