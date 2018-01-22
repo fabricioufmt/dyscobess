@@ -397,7 +397,13 @@ bool DyscoCenter::add_sc(bess::Packet* pkt, Ipv4* ip, DyscoHashOut* cb_out) {
 
 	uint32_t payload_sz = sizeof(DyscoTcpSession) + cb_out->sc_len * sizeof(uint32_t);
 	uint8_t* payload = reinterpret_cast<uint8_t*>(pkt->append(payload_sz));
-		
+
+	//debug
+	DyscoTcpSession* ss = &cb_out->sup;
+	fprintf(stderr, "[DyscoCenter] add_sc method, printing supss: %s:%u -> %s:%u\n",
+		printip0(ntohl(ss->sip)), ntohs(ss->sport),
+		printip0(ntohl(ss->dip)), ntohs(ss->dport));
+	
 	memcpy(payload, &cb_out->sup, sizeof(DyscoTcpSession));
 	memcpy(payload + sizeof(DyscoTcpSession), cb_out->sc, payload_sz - sizeof(DyscoTcpSession));
 
