@@ -187,7 +187,7 @@ DyscoHashOut* DyscoCenter::lookup_output_pending(uint32_t i, Ipv4* ip, Tcp* tcp)
 	DyscoTcpSessionEqualTo equals;
 	unordered_map<DyscoTcpSession, DyscoHashOut, DyscoTcpSessionHash>::iterator it = dh->hash_pen.begin();
 	while(it != dh->hash_pen.end()) {
-		if(equals((*it).first, ss)) {
+		if(equals((*it).first, ss))
 			return &(*it).second;
 		it++;
 	}
