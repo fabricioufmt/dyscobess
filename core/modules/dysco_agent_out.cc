@@ -92,9 +92,6 @@ bool DyscoAgentOut::process_packet(bess::Packet* pkt) {
 		}
 	}
 
-	//debug
-	fprintf(stderr, "[%s][DyscoAgentOut] lookup_output isn't NULL\n", ns.c_str());
-
 	if(isTCPSYN(tcp)) {
 			//debug
 		fprintf(stderr, "[%s][DyscoAgentOut] calling process_syn_out method\n", ns.c_str());
