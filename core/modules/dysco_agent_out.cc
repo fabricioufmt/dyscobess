@@ -69,26 +69,28 @@ bool DyscoAgentOut::process_packet(bess::Packet* pkt) {
 	
 	DyscoHashOut* cb_out = dc->lookup_output(this->index, ip, tcp);
 	if(!cb_out) {
-		//debug
-		fprintf(stderr, "[DyscoAgentOut] cb_out is NULL\n");
 		cb_out = dc->lookup_output_pending(this->index, ip, tcp);
 		if(cb_out) {
-			fprintf(stderr, "[DyscoAgentOut] lookup_output_pending is not NULL\n");
+			//debug
+			fprintf(stderr, "[%s][DyscoAgentOut] output_pending isn't NULL and calling handle_mb_out method\n", ns.c_str());
 			return dc->handle_mb_out(this->index, pkt, ip, tcp, cb_out);
 		}
 
 		cb_out = dc->lookup_pending_tag(this->index, ip, tcp);
 		if(cb_out) {
-			fprintf(stderr, "[DyscoAgentOut] lookup_pending_tag is not NULL\n");
+			//debug
+			fprintf(stderr, "[%s][DyscoAgentOut] output_pending_tag isn't NULL and calling handle_mb_out method\n");
 			update_five_tuple(ip, tcp, cb_out);
 			return dc->handle_mb_out(this->index, pkt, ip, tcp, cb_out);
 		}
 	}
 
 	//debug
-	fprintf(stderr, "[DyscoAgentOut] passes cb_out if-statements\n");
+	fprintf(stderr, "[%s][DyscoAgentOut] lookup_output isn't NULL\n", ns.c_str());
 
 	if(isTCPSYN(tcp)) {
+			//debug
+		fprintf(stderr, "[%s][DyscoAgentOut] calling process_syn_out method\n", ns.c_str());
 		cb_out = dc->process_syn_out(this->index, pkt, ip, tcp, cb_out);
 		return cb_out ? true : false;
 	}
@@ -98,7 +100,8 @@ bool DyscoAgentOut::process_packet(bess::Packet* pkt) {
 	//L.1462 -- dysco_output.c ???
 
 	translate_out(pkt, ip, tcp, cb_out);
-	
+
+	//debug
 	/*fprintf(stderr, "[%s]%s(OUT): %s:%u -> %s:%u\n\n",
 		ns.c_str(), name().c_str(),
 		printip2(ip->src.value()), tcp->src_port.value(),
