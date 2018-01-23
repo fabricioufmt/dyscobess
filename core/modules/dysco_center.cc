@@ -201,7 +201,7 @@ DyscoHashOut* DyscoCenter::lookup_pending_tag_by_tag(uint32_t i, uint32_t tag) {
 		return 0;
 
 	unordered_map<uint32_t, DyscoHashOut>::iterator it = dh->hash_pen_tag.begin();
-	while(it != dh->hash_pen.end()) {
+	while(it != dh->hash_pen_tag.end()) {
 		if((*it).first == tag)
 			return &(*it).second;
 		it++;
