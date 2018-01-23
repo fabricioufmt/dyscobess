@@ -79,7 +79,7 @@ bool DyscoAgentOut::process_packet(bess::Packet* pkt) {
 		cb_out = dc->lookup_pending_tag(this->index, ip, tcp);
 		if(cb_out) {
 			//debug
-			fprintf(stderr, "[%s][DyscoAgentOut] output_pending_tag isn't NULL and calling handle_mb_out method\n");
+			fprintf(stderr, "[%s][DyscoAgentOut] output_pending_tag isn't NULL and calling handle_mb_out method\n", ns.c_str());
 			update_five_tuple(ip, tcp, cb_out);
 			return dc->handle_mb_out(this->index, pkt, ip, tcp, cb_out);
 		}
