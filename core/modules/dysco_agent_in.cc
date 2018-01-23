@@ -292,7 +292,7 @@ bool DyscoAgentIn::in_hdr_rewrite2(Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
 	if(!cb_in)
 		return false;
 
-	DyscoTcpSession* sup = &cb_in->supss;
+	DyscoTcpSession* sup = &cb_in->sup;
 	
 	ip->src = be32_t(ntohl(sup->sip));
 	ip->dst = be32_t(ntohl(sup->dip));
