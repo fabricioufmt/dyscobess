@@ -204,7 +204,7 @@ class DyscoCenter final : public Module {
 	DyscoHashIn* lookup_input(uint32_t, Ipv4*, Tcp*);
 	DyscoHashOut* lookup_output(uint32_t, Ipv4*, Tcp*);
 	DyscoHashOut* lookup_output_pending(uint32_t, Ipv4*, Tcp*);
-	DyscoHashOut* lookup_pending_tag(uint32_t, Ipv4*, Tcp*);
+	DyscoHashOut* lookup_pending_tag(uint32_t, Tcp*);
 
 	DyscoHashIn* insert_cb_in(uint32_t, Ipv4*, Tcp*, uint8_t*, uint32_t);
 	bool handle_mb_out(uint32_t, bess::Packet*, Ipv4*, Tcp*, DyscoHashOut*);
@@ -233,6 +233,7 @@ class DyscoCenter final : public Module {
 	DyscoHashOut* insert_cb_in_reverse(DyscoTcpSession*, Ipv4*, Tcp*);
 
 	DyscoHashIn* lookup_input_by_ss(uint32_t, DyscoTcpSession*);
+	DyscoHashOut* lookup_pending_tag_by_tag(uint32_t, uint32_t);
 	DyscoHashOut* create_cb_out(uint32_t, Ipv4*, Tcp*, DyscoPolicies::Filter*);
 	bool out_tx_init(bess::Packet*, Ipv4*, Tcp*, DyscoHashOut*);
 	uint16_t allocate_local_port(uint32_t);

@@ -195,10 +195,53 @@ DyscoHashOut* DyscoCenter::lookup_output_pending(uint32_t i, Ipv4* ip, Tcp* tcp)
 	return 0;
 }
 
-DyscoHashOut* DyscoCenter::lookup_pending_tag(uint32_t i, Ipv4*, Tcp*) {
+DyscoHashOut* DyscoCenter::lookup_pending_tag_by_tag(uint32_t i, uint32_t tag) {
 	DyscoHashes* dh = get_hash(i);
 	if(!dh)
 		return 0;
+
+	unordered_map<uint32_t, DyscoHashOut>::iterator it = dh->hash_pen_tag.begin();
+	while(it != dh->hash_pen.end()) {
+		if((*it).first == tag)
+			return &(*it).second;
+		it++;
+	}
+
+	return 0;
+}
+
+DyscoHashOut* DyscoCenter::lookup_pending_tag(uint32_t i, Tcp* tcp) {
+	DyscoHashes* dh = get_hash(i);
+	if(!dh)
+		return 0;
+
+	DyscoHashOut* cb_out;
+	DyscoHashOut cb_out_aux;
+
+	cb_out_aux.tag_ok = 0;
+	cb_out_aux.sub.sip = 0;
+	cb_out_aux.sub.sport = 0;
+	parse_tcp_syn_opt_s(tcp, &cb_out_aux);
+
+	if(cb_out_aux.tag_ok) {
+		cb_out = lookup_pending_tag_by_tag(i, cb_out_aux.dysco_tag);
+		if(cb_out) {
+			cb_out->ws_ok = cb_out_aux.ws_ok;
+			cb_out->ws_delta = 0;
+			cb_out->ws_in = cb_out->ws_out = cb_out_aux.ws_in;
+
+			cb_out->ts_ok = cb_out_aux.ts_ok;
+			cb_out->ts_delta = 0;
+			cb_out->ts_in = cb_out->ts_out = cb_out_aux.ts_in;
+
+			cb_out->sack_ok = cb_out_aux.sack_ok;
+
+			cb_out->tag_ok = 1;
+			cb_out->dysco_tag = cb_out_aux.dysco_tag;
+		}
+
+		return cb_out;
+	}
 	
 	return 0;
 }
@@ -285,6 +328,7 @@ DyscoHashIn* DyscoCenter::insert_cb_in(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_t* 
 	memcpy(&cb_in->sup, ss, sizeof(DyscoTcpSession));
 
 	cb_in->two_paths = 0;
+	//Check Ronaldo
 	//L.218  -- dysco_input.c
 
 	cb_in->seq_delta = cb_in->ack_delta = 0;
@@ -430,7 +474,7 @@ bool DyscoCenter::handle_mb_out(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp* tc
 		return false;
 
 	dh->hash_pen.erase(cb_out->sup);
-	//dh->hash_pen_tag.erase(cb_out->sup);
+	//TODO: dh->hash_pen_tag.erase(cb_out->sup);
 
 	if(cb_out->sc_len) {
 		cb_out->sub.sip = dh->devip;
