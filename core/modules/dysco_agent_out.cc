@@ -66,6 +66,13 @@ bool DyscoAgentOut::process_packet(bess::Packet* pkt) {
 		return false;
 
 	Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
+
+	//debug
+	fprintf(stderr, "[%s][DyscoAgentOut] receives %s:%u -> %s:%u\n\n",
+		ns.c_str(),
+		printip2(ip->src.value()), tcp->src_port.value(),
+		printip2(ip->dst.value()), tcp->dst_port.value());
+
 	
 	DyscoHashOut* cb_out = dc->lookup_output(this->index, ip, tcp);
 	if(!cb_out) {

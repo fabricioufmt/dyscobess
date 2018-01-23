@@ -104,8 +104,8 @@ bool DyscoAgentIn::process_packet(bess::Packet* pkt) {
 	Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
 
 	//debug
-	fprintf(stderr, "[%s]%s(IN): %s:%u -> %s:%u\n",
-		ns.c_str(), name().c_str(),
+	fprintf(stderr, "[%s][DyscoAgentIn] receives %s:%u -> %s:%u\n",
+		ns.c_str(),
 		printip1(ip->src.value()), tcp->src_port.value(),
 		printip1(ip->dst.value()), tcp->dst_port.value());
 	
