@@ -87,6 +87,8 @@ bool DyscoAgentIn::remove_sc(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 
 	pkt->trim(payload_sz);
 	ip->length = ip->length - be16_t(payload_sz);
+
+	return true;
 }
 
 bool DyscoAgentIn::process_packet(bess::Packet* pkt) {
@@ -170,6 +172,11 @@ bool DyscoAgentIn::in_rewrite_seq(Tcp* tcp, DyscoHashIn* cb_in) {
 	return true;
 }
 
+bool DyscoAgentIn::tcp_sack(Tcp*, DyscoHashIn*) {
+	//L.219 -- dysco_output.c
+	return true;
+}
+
 bool DyscoAgentIn::in_rewrite_ack(Tcp* tcp, DyscoHashIn* cb_in) {
 	if(!cb_in)
 		return false;
@@ -196,8 +203,8 @@ DyscoTcpTs* DyscoAgentIn::get_ts_option(Tcp* tcp) {
 	uint32_t len = (tcp->offset << 4) - sizeof(Tcp);
 	uint8_t* ptr = reinterpret_cast<uint8_t*>(tcp + 1);
 
-	int opcode;
-	int opsize;
+	uint32_t opcode;
+	uint32_t opsize;
 	while(len > 0) {
 		opcode = *ptr++;
 		switch(opcode) {
@@ -232,7 +239,7 @@ bool DyscoAgentIn::in_rewrite_ts(Tcp* tcp, DyscoHashIn* cb_in) {
 		return false;
 
 	DyscoTcpTs* ts = get_ts_option(tcp);
-	if(!tcp_ts)
+	if(!ts)
 		return false;
 
 	uint32_t new_ts, new_tsr;
@@ -267,7 +274,7 @@ bool DyscoAgentIn::in_rewrite_rcv_wnd(Tcp* tcp, DyscoHashIn* cb_in) {
 	if(!cb_in)
 		return false;
 
-	if(cb->ws_delta) {
+	if(cb_in->ws_delta) {
 		uint16_t new_win;
 		uint32_t wnd = tcp->window.value();
 
