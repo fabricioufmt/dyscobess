@@ -72,6 +72,8 @@ class DyscoAgentIn final : public Module {
 	bool in_rewrite_rcv_wnd(Tcp*, DyscoHashIn*);
 	bool tcp_sack(Tcp*, DyscoHashIn*);
 	DyscoTcpTs* get_ts_option(Tcp*);
+	bool in_two_paths_data_seg(Tcp*, DyscoHashIn*);
+	bool in_two_paths_ack(Tcp*, DyscoHashIn*);
 };
 
 #endif //BESS_MODULES_DYSCOAGENTIN_H_
