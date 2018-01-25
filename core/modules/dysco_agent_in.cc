@@ -122,7 +122,6 @@ bool DyscoAgentIn::process_packet(bess::Packet* pkt) {
 
 	if(isTCPSYN(tcp)) {
 		if(isTCPACK(tcp)) {
-			//L.796 -- dysco_input.c
 			dc->set_ack_number_out(this->index, tcp, cb_in);
 			in_hdr_rewrite2(ip, tcp, cb_in);
 			
@@ -140,7 +139,11 @@ bool DyscoAgentIn::process_packet(bess::Packet* pkt) {
 	}
 
 	if(cb_in->two_paths) {
-		//L.811 -- dysco_input.c
+		if(hasPayload(ip, tcp)) {
+			if(!in_two_paths_data_seg(tcp, cb_in))
+				return false;
+		} else
+			in_two_paths_ack(tcp, cb_in);
 	}
 	
 	in_hdr_rewrite(ip, tcp, &cb_in->sup);
@@ -150,6 +153,77 @@ bool DyscoAgentIn::process_packet(bess::Packet* pkt) {
 		ns.c_str(), name().c_str(),
 		printip1(ip->src.value()), tcp->src_port.value(),
 		printip1(ip->dst.value()), tcp->dst_port.value());*/
+
+	return true;
+}
+
+bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in) {
+	DyscoHashOut* cb_out = cb_in->cb_out;
+	if(!cb_out)
+		return false;
+
+	if(!cb_out->old_path) {
+		DyscoHashOut* old_out = cb_out->other_path;
+
+		if(!old_out)
+			return false;
+
+		if(old_out->state == DYSCO_SYN_SENT || old_out->state == DYSCO_SYN_RECEIVED) {
+			uint32_t seq = tcp->seq_num.value();
+			uint32_t delta;
+
+			if(cb_out->in_iack < cb_out->out_iack) {
+				delta = cb_out->out_iack - cb_out->in_iack;
+				seq -= delta;
+			} else {
+				delta = cb_out->in_iack - cb_out->out_iack;
+				seq += delta;
+			}
+
+			if(old_out->valid_ack_cut) {
+				if(before(seq, old_out->ack_cutoff))
+					old_out->ack_cutoff = seq;
+			} else {
+				old_out->ack_cutoff = seq;
+				old_out->valid_ack_cut = 1;
+			}
+		}
+	}
+
+	return true;
+}
+
+bool DyscoAgentIn::in_two_paths_data_ack(Tcp* tcp, DyscoHashIn* cb_in) {
+	uint32_t ack_seq = tcp->ack_num.value();
+
+	DyscoHashOut* cb_out = cb_in->cb_out;
+	if(!cb_out)
+		return false;
+
+	if(cb_out->old_path) {
+		if(cb_out->state_t) {
+			if(cb_out->state == DYSCO_ESTABLISHED)
+				cb_in->two_paths = false;
+		} else {
+			if(!after(cb_out->seq_cutoff, ack_seq)) {
+				cb_out->use_np_seq = true;
+				cb_in->two_paths = false;
+			}
+		}
+	} else {
+		cb_out = cb_out->other_path;
+		if(!cb_out)
+			return false;
+
+		if(cb_out->state_t && cb_out->state == DYSCO_ESTABLISHED)
+			cb_in->two_paths = false;
+		else {
+			if(!after(cb_out->seq_cutoff, ack_seq)) {
+				cb_out->use_np_seq = true;
+				cb_in->two_paths = false;
+			}
+		}
+	}
 
 	return true;
 }
