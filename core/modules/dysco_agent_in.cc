@@ -1,7 +1,13 @@
-#include <net/tcp.h>
+//#include <net/tcp.h>
 #include <netinet/tcp.h>
 #include "dysco_agent_in.h"
 #include "../module_graph.h"
+
+static inline bool before(uint32_t seq1, uint32_t seq2) {
+	return (int32_t)(seq1 - seq2) < 0;
+}
+#define after(seq2, seq1) before(seq1, seq2)
+
 
 char* printip1(uint32_t ip) {
 	uint8_t bytes[4];
