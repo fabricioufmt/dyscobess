@@ -1,3 +1,4 @@
+#include <net/tcp.h>
 #include <netinet/tcp.h>
 #include "dysco_agent_in.h"
 #include "../module_graph.h"
