@@ -50,6 +50,10 @@ class DyscoAgentOut final : public Module {
 		return tcp->flags == Tcp::Flag::kSyn;
 	}
 
+	inline bool isTCPACK(Tcp* tcp) {
+		return tcp->flags == Tcp::Flag::kAck;
+	}
+
 	inline bool hasPayload(Ipv4* ip, Tcp* tcp) {
 		size_t ip_hlen = ip->header_length << 2;
 		size_t tcp_hlen = tcp->offset << 2;
@@ -60,6 +64,12 @@ class DyscoAgentOut final : public Module {
 	bool update_five_tuple(Ipv4*, Tcp*, DyscoHashOut*);
 	bool translate_out(bess::Packet*, Ipv4*, Tcp*, DyscoHashOut*);
 	bool out_hdr_rewrite(Ipv4*, Tcp*, DyscoTcpSession*);
+
+	bool out_rewrite_seq(Tcp*, DyscoHashOut*);
+	bool out_rewrite_ack(Tcp*, DyscoHashOut*);
+	bool out_rewrite_ts(Tcp*, DyscoHashOut*);
+	bool out_rewrite_rcv_wnd(Tcp*, DyscoHashOut*);
+	uint8_t* get_ts_option(Tcp*);
 };
 
 #endif //BESS_MODULES_DYSCOAGENTOUT_H_

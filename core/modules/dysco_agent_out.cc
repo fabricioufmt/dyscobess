@@ -101,6 +101,10 @@ bool DyscoAgentOut::process_packet(bess::Packet* pkt) {
 
 	if(!cb_out)
 		return false;
+
+	if(cb_out->my_tp && isTCPACK(tcp))
+		if(!cb_out->state_t)
+			fix_rcv_window(cb_out);
 	//L.1462 -- dysco_output.c ???
 
 	translate_out(pkt, ip, tcp, cb_out);
@@ -126,9 +130,203 @@ bool DyscoAgentOut::update_five_tuple(Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) 
 	return true;
 }
 
-//bool DyscoAgentOut::translate_out(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) {
+DyscoHashOut* DyscoAgentOut::pick_path_seq(DyscoHashOut* cb_out, uint32_t seq) {
+	if(cb_out->state_t) {
+		if(cb_out->state == DYSCO_ESTABLISHED)
+			cb_out = cb_out->other_path;
+	} else if(cb_out->use_np_seq) {
+		cb_out = cb_out->other_path;
+	} else if(!before(seq, cb_out->seq_cutoff))
+		cb_out = cb_out->other_path;
+
+	return cb_out;
+}
+
+DyscoHashOut* DyscoAgentOut::pick_path_ack(Tcp* tcp, DyscoHashOut* cb_out) {
+	uint32_t ack = tcp->ack_num.value();
+
+	if(cb_out->state_t) {
+		if(cb_out->state == DYSCO_ESTABLISHED)
+			cb_out = cb_out->other_path;
+	} else if(cb_out->valid_ack_cut) {
+		if(cb_out->use_np_ack) {
+			cb_out = cb_out->other_path;
+		} else if(!after(cb_out->ack_cutoff, ack)) {
+			if(tcp->flags & Tcp::kFin)
+				cb_out = cb_out->other_path;
+			else {
+				tcp->ack_num = be32_t(cb_out->ack_cutoff);
+				cb_out->ack_ctr++;
+				if(cb_out->ack_ctr > 1)
+					cb_out->use_np_ack = true;
+			}
+		}
+	}
+
+	return cb_out;
+}
+
+bool DyscoAgentOut::out_rewrite_seq(Tcp* tcp, DyscoHashOut* cb_out) {
+	if(cb_out->seq_delta) {
+		uint32_t new_seq;
+		uint32_t seq = tcp->seq_num.value();
+
+		if(cb_out->seq_add)
+			new_seq = seq + cb_out->seq_delta;
+		else
+			new_seq = seq - cb_out->seq_delta;
+
+		tcp->seq_num = be32_t(new_seq);
+
+		return true;
+	}
+
+	return false;
+}
+
+bool DyscoAgentOut::out_rewrite_ack(Tcp* tcp, DyscoHashOut* cb_out) {
+	if(cb_out->ack_delta) {
+		uint32_t new_ack;
+		uint32_t ack = tcp->ack_num.value();
+
+		if(cb_out->ack_add)
+			new_ack = ack + cb_out->ack_delta;
+		else
+			new_ack = ack - cb_out->ack_delta;
+
+		if(cb_out->sack_ok)
+			tcp_sack(tcp, cb_out->ack_delta, cb_out->ack_add);
+		
+		tcp->ack_num = be32_t(new_ack);
+
+		return true;
+	}
+
+	return false;
+}
+
+uint8_t* DyscoAgentOut::get_ts_option(Tcp* tcp) {
+	uint8_t* ptr;
+	uint32_t length;
+
+	length = (tcp->offset * 4) - sizeof(Tcp);
+	ptr = (uint8_t*)(tcp + 1);
+
+	while(length > 0) {
+		uint32_t opcode = *ptr++;
+		uint32_t opsize;
+
+		switch(opcode) {
+		case TCPOPT_EOL:
+			return 0;
+			
+		case TCPOPT_NOP:
+			length--;
+			continue;
+
+		default:
+			opsize = *ptr++;
+			if(opsize < 2)
+				return 0;
+			
+			if(opsize > length)
+				return 0;
+			
+			if(opcode == TCPOPT_TIMESTAMP && opsize == TCPOLEN_TIMESTAMP)
+				return ptr;
+			
+			ptr += opsize - 2;
+			length -= opsize;			
+		}
+	}
+	
+	return 0;
+}
+
+bool DyscoAgentOut::out_rewrite_ts(Tcp* tcp, DyscoHashOut* cb_out) {
+	DyscoTcpTs* ts = (DyscoTcpTs*) get_ts_option(tcp);
+	if(!ts)
+		return false;
+
+	uint32_t new_ts, new_tsr;
+	
+	if(cb_out->ts_delta) {
+		if(cb_out->ts_add)
+			new_ts = ntohl(ts->ts) + cb_out->ts_delta;
+		else
+			new_ts = ntohl(ts->ts) - cb_out->ts_delta;
+
+		ts->ts = htonl(new_ts);
+	}
+
+	if(cb_out->tsr_delta) {
+		if(cb_out->tsr_add)
+			new_tsr = ntohl(ts->tsr) + cb_out->tsr_delta;
+		else
+			new_tsr = ntohl(ts->tsr) - cb_out->tsr_delta;
+
+		ts->tsr = htonl(new_tsr);
+	}
+	
+	return true;
+}
+
+bool DyscoAgentOut::out_rewrite_rcv_wnd(Tcp* tcp, DyscoHashOut* cb_out) {
+	if(cb_out->ws_delta) {
+		uint16_t new_win;
+		uint32_t wnd = tcp->window.value();
+
+		wnd <<= cb_out->ws_in;
+		wnd >>= cb_out->ws_out;
+		tcp->window = be16_t(new_win);
+
+		return true;
+	}
+
+	return false;
+}
+
 bool DyscoAgentOut::translate_out(bess::Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) {
-	//TODO
+	size_t ip_hlen = ip->header_length << 2;
+	size_t tcp_hlen = tcp->offset << 2;
+	uint32_t seg_sz = ip->length.value() - ip_hlen - tcp_hlen;
+	uint32_t seq = tcp->seq_num.value() + seg_sz;
+
+	DyscoHashOut* other_path = cb_out->other_path;
+	if(!other_path) {
+		if(seg_sz > 0 && after(seq, cb_out->seq_cutoff))
+			cb_out->seq_cutoff = seq;
+	} else {
+		if(cb_out->state == DYSCO_ESTABLISHED) {
+			if(seg_sz > 0)
+				cb_out = pick_path_seq(cb_out, seq);
+			else
+				cb_out = pick_path_ack(tcp, cb_out);
+		} else if(cb_out->state == DYSCO_SYN_SENT) {
+			if(seg_sz > 0) {
+				if(after(seq, cb_out->seq_cutoff))
+					cb_out->seq_cutoff = seq;
+			} else
+				cb_out = pick_path_ack(tcp, cb_out);
+		} else if(cb_out->state == DYSCO_SYN_RECEIVED) {
+			if(seg_sz > 0) {
+				cb_out = pick_path_seq(cb_out, seq);
+				//if(!cb_out->old_path)
+
+			} else
+				cb_out = pick_path_ack(tcp, cb_out);
+		}
+	}
+
+	out_rewrite_seq(tcp, cb_out);
+	out_rewrite_ack(tcp, cb_out);
+
+	if(cb_out->ts_ok)
+		out_rewrite_ts(tcp, cb_out);
+
+	if(cb_out->ws_ok)
+		out_rewrite_rcv_wnd(tcp, cb_out);
+	
 	out_hdr_rewrite(ip, tcp, &cb_out->sub);
 	
 	return true;
