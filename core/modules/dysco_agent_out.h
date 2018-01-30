@@ -65,6 +65,8 @@ class DyscoAgentOut final : public Module {
 	bool translate_out(bess::Packet*, Ipv4*, Tcp*, DyscoHashOut*);
 	bool out_hdr_rewrite(Ipv4*, Tcp*, DyscoTcpSession*);
 
+	DyscoHashOut* pick_path_seq(DyscoHashOut*, uint32_t);
+	DyscoHashOut* pick_path_ack(Tcp*, DyscoHashOut*);
 	bool out_rewrite_seq(Tcp*, DyscoHashOut*);
 	bool out_rewrite_ack(Tcp*, DyscoHashOut*);
 	bool out_rewrite_ts(Tcp*, DyscoHashOut*);

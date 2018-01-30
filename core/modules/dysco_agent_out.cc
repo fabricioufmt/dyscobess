@@ -102,9 +102,9 @@ bool DyscoAgentOut::process_packet(bess::Packet* pkt) {
 	if(!cb_out)
 		return false;
 
-	if(cb_out->my_tp && isTCPACK(tcp))
-		if(!cb_out->state_t)
-			fix_rcv_window(cb_out);
+	//if(cb_out->my_tp && isTCPACK(tcp))
+	//	if(!cb_out->state_t)
+	//		fix_rcv_window(cb_out);
 	//L.1462 -- dysco_output.c ???
 
 	translate_out(pkt, ip, tcp, cb_out);
