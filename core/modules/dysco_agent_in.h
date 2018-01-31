@@ -27,8 +27,6 @@ class DyscoAgentIn final : public Module {
 	static const gate_idx_t kNumOGates = 1;
 
 	DyscoAgentIn();
-	bool input(bess::Packet*);
-
 	void ProcessBatch(bess::PacketBatch*) override;
 	CommandResponse Init(const bess::pb::DyscoAgentInArg&);
 

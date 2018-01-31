@@ -86,7 +86,7 @@ bool DyscoAgentIn::remove_sc(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 //insert_cb_in_reverse is in dysco_center.cc
 
 //L.191
-DyscoHashIn* DyscoAgentIn::insert_cb_input(uint32_t index, Ipv4* ip, Tcp* tcp, uint8_t*, payload, uint32_t payload_sz) {
+DyscoHashIn* DyscoAgentIn::insert_cb_input(uint32_t index, Ipv4* ip, Tcp* tcp, uint8_t* payload, uint32_t payload_sz) {
 	return dc->insert_cb_input(index, ip, tcp, payload, payload_sz);
 }
 

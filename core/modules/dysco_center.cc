@@ -788,7 +788,7 @@ DyscoHashOut* DyscoCenter::process_syn_out(uint32_t i, bess::Packet* pkt, Ipv4* 
 }
 
 /*
-  Dysco methods
+  TCP methods
  */
 DyscoTcpTs* DyscoCenter::get_ts_option(Tcp* tcp) {
 	uint32_t len = (tcp->offset << 4) - sizeof(Tcp);
@@ -825,8 +825,11 @@ DyscoTcpTs* DyscoCenter::get_ts_option(Tcp* tcp) {
 	return 0;
 }
 
+/*
+  Dysco methods
+ */
 bool DyscoCenter::insert_tag(uint32_t index, bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
-	uint32_t tag = dc->get_dysco_tag(index);
+	uint32_t tag = get_dysco_tag(index);
 	DyscoTcpOption* dopt = reinterpret_cast<DyscoTcpOption*>(pkt->append(DYSCO_TCP_OPTION_LEN));
 	dopt->kind = DYSCO_TCP_OPTION;
 	dopt->len = DYSCO_TCP_OPTION_LEN;

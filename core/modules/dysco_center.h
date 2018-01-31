@@ -222,12 +222,14 @@ class DyscoCenter final : public Module {
 	bool set_ack_number_out(uint32_t, Tcp*, DyscoHashIn*);
 
 
-
-
+	/*
+	  TCP methods
+	 */
+	DyscoTcpTs* get_ts_option(Tcp*);
+	
 	/*
 	  Dysco methods
 	 */
-	DyscoTcpTs* get_ts_option(Tcp*);
 	bool insert_tag(uint32_t, bess::Packet*, Ipv4*, Tcp*);
 	
  private:
