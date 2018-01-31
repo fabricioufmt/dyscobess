@@ -596,10 +596,10 @@ bool DyscoCenter::tcp_sack(Tcp* tcp, uint32_t delta, uint8_t add) {
 						uint32_t new_ack_l, new_ack_r;
 						if(add) {
 							new_ack_l = htonl(ntohl(*left_edge) + delta);
-							new_ack_l = htonl(ntohl(*right_edge) + delta);						
+							new_ack_r = htonl(ntohl(*right_edge) + delta);						
 						} else {
 							new_ack_l = htonl(ntohl(*left_edge) - delta);
-							new_ack_l = htonl(ntohl(*right_edge) - delta);						
+							new_ack_r = htonl(ntohl(*right_edge) - delta);						
 						}
 
 						*left_edge = new_ack_l;
