@@ -365,7 +365,7 @@ bool DyscoAgentOut::output(bess::Packet* pkt) {
 		printip2(ip->dst.value()), tcp->dst_port.value());*/
 
 	
-	DyscoHashOut* cb_out = dc->lookup_out(this->index, ip, tcp);
+	DyscoHashOut* cb_out = dc->lookup_output(this->index, ip, tcp);
 	if(!cb_out) {
 		cb_out = dc->lookup_output_pending(this->index, ip, tcp);
 		if(cb_out) {

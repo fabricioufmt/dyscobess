@@ -73,20 +73,16 @@ bool DyscoAgentIn::remove_sc(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 }
 
 //L.82
-//insert_pending function -- in DyscoCenter
+//insert_pending method -- in DyscoCenter
 
 //L.133
-//insert_cb_in_reverse -- in DyscoCenter
+//insert_cb_in_reverse method -- in DyscoCenter
 
 //L.191
-DyscoHashIn* DyscoAgentIn::insert_cb_input(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_t* payload, uint32_t payload_sz) {
-	return dc->insert_cb_input(i, ip, tcp, payload, payload_sz);
-}
+//insert_cb_input method -- in DyscoCenter
 
 //L.258
-DyscoHashIn* DyscoAgentIn::lookup_input(uint32_t i, Ipv4* ip, Tcp* tcp) {
-	return dc->lookup_input(i, ip, tcp);
-}
+//lookup_input method -- in DyscoCenter
 
 //Ronaldo: Simple Checksum computation?
 //L.282
@@ -245,7 +241,7 @@ bool DyscoAgentIn::rx_initiation_new(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 
 	if(payload_sz) {
 		uint8_t* payload = reinterpret_cast<uint8_t*>(tcp) + tcp_hlen;
-		DyscoHashIn* cb_in = insert_cb_input(this->index, ip, tcp, payload, payload_sz);
+		DyscoHashIn* cb_in = dc->insert_cb_input(this->index, ip, tcp, payload, payload_sz);
 		if(!cb_in)
 			return false;
 		
@@ -368,7 +364,7 @@ bool DyscoAgentIn::input(bess::Packet* pkt) {
 		printip1(ip->src.value()), tcp->src_port.value(),
 		printip1(ip->dst.value()), tcp->dst_port.value());*/
 	
-	DyscoHashIn* cb_in = lookup_input(this->index, ip, tcp);
+	DyscoHashIn* cb_in = dc->lookup_input(this->index, ip, tcp);
 	if(!cb_in) {
 		if(isTCPSYN(tcp) && hasPayload(ip, tcp)) {
 			//debug

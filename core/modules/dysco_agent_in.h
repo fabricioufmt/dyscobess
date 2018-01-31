@@ -64,8 +64,6 @@ class DyscoAgentIn final : public Module {
 	 */
  
 	bool remove_sc(bess::Packet*, Ipv4*, Tcp*);
-	DyscoHashIn* insert_cb_input(uint32_t, Ipv4*, Tcp*, uint8_t*, uint32_t);
-	DyscoHashIn* lookup_input(uint32_t, Ipv4*, Tcp*);
 	bool in_hdr_rewrite(Ipv4*, Tcp*, DyscoTcpSession*);
 	bool in_rewrite_seq(Tcp*, DyscoHashIn*);
 	bool in_rewrite_ack(Tcp*, DyscoHashIn*);
