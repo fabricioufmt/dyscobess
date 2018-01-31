@@ -27,8 +27,7 @@ class DyscoAgentOut final : public Module {
 	static const gate_idx_t kNumOGates = 1;
 
 	DyscoAgentOut();
-	bool process_packet(bess::Packet*);
-	bool insert_metadata(bess::Packet*);
+
 	void ProcessBatch(bess::PacketBatch*) override;
 	CommandResponse Init(const bess::pb::DyscoAgentOutArg&);
 
@@ -38,6 +37,8 @@ class DyscoAgentOut final : public Module {
 	DyscoCenter* dc;
 	std::string ns;
 
+	bool insert_metadata(bess::Packet*);
+	
 	inline bool isIP(Ethernet* eth) {
 		return eth->ether_type.value() == Ethernet::Type::kIpv4;
 	}
@@ -61,17 +62,17 @@ class DyscoAgentOut final : public Module {
 		return ip->length.value() - ip_hlen - tcp_hlen;
 	}
 
-	bool update_five_tuple(Ipv4*, Tcp*, DyscoHashOut*);
-	bool translate_out(bess::Packet*, Ipv4*, Tcp*, DyscoHashOut*);
 	bool out_hdr_rewrite(Ipv4*, Tcp*, DyscoTcpSession*);
-
-	DyscoHashOut* pick_path_seq(DyscoHashOut*, uint32_t);
-	DyscoHashOut* pick_path_ack(Tcp*, DyscoHashOut*);
+	bool out_hdr_rewrite_csum(Ipv4*, Tcp*, DyscoTcpSession*);
 	bool out_rewrite_seq(Tcp*, DyscoHashOut*);
 	bool out_rewrite_ack(Tcp*, DyscoHashOut*);
 	bool out_rewrite_ts(Tcp*, DyscoHashOut*);
 	bool out_rewrite_rcv_wnd(Tcp*, DyscoHashOut*);
-	uint8_t* get_ts_option(Tcp*);
+	DyscoHashOut* pick_path_seq(DyscoHashOut*, uint32_t);
+	DyscoHashOut* pick_path_ack(Tcp*, DyscoHashOut*);
+	bool out_translate(bess::Packet*, Ipv4*, Tcp*, DyscoHashOut*);
+	bool update_five_tuple(Ipv4*, Tcp*, DyscoHashOut*);
+	bool output(bess::Packet*);
 };
 
 #endif //BESS_MODULES_DYSCOAGENTOUT_H_
