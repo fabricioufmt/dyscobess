@@ -787,4 +787,56 @@ DyscoHashOut* DyscoCenter::process_syn_out(uint32_t i, bess::Packet* pkt, Ipv4* 
 	return cb_out;
 }
 
+/*
+  Dysco methods
+ */
+DyscoTcpTs* DyscoCenter::get_ts_option(Tcp* tcp) {
+	uint32_t len = (tcp->offset << 4) - sizeof(Tcp);
+	uint8_t* ptr = reinterpret_cast<uint8_t*>(tcp + 1);
+
+	uint32_t opcode;
+	uint32_t opsize;
+	while(len > 0) {
+		opcode = *ptr++;
+		switch(opcode) {
+		case TCPOPT_EOL:
+			return 0;
+
+		case TCPOPT_NOP:
+			len--;
+			continue;
+
+		default:
+			opsize = *ptr++;
+			if(opsize < 2)
+				return 0;
+
+			if(opsize > len)
+				return 0;
+
+			if(opcode == TCPOPT_TIMESTAMP && opsize == TCPOLEN_TIMESTAMP)
+				return reinterpret_cast<DyscoTcpTs*>(ptr);
+
+			ptr += opsize - 2;
+			len -= opsize;
+		}
+	}
+
+	return 0;
+}
+
+bool DyscoCenter::insert_tag(uint32_t index, bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
+	uint32_t tag = dc->get_dysco_tag(index);
+	DyscoTcpOption* dopt = reinterpret_cast<DyscoTcpOption*>(pkt->append(DYSCO_TCP_OPTION_LEN));
+	dopt->kind = DYSCO_TCP_OPTION;
+	dopt->len = DYSCO_TCP_OPTION_LEN;
+	dopt->padding = 0;
+	dopt->tag = tag;
+
+	tcp->offset += (DYSCO_TCP_OPTION_LEN >> 2);
+	ip->length = ip->length + be16_t(DYSCO_TCP_OPTION_LEN);
+	
+	return true;
+}
+
 ADD_MODULE(DyscoCenter, "dysco_center", "Dysco center")

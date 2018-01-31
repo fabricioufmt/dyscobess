@@ -220,6 +220,16 @@ class DyscoCenter final : public Module {
 	bool parse_tcp_syn_opt_s(Tcp*, DyscoHashOut*);
 	bool parse_tcp_syn_opt_r(Tcp*, DyscoHashIn*);
 	bool set_ack_number_out(uint32_t, Tcp*, DyscoHashIn*);
+
+
+
+
+	/*
+	  Dysco methods
+	 */
+	DyscoTcpTs* get_ts_option(Tcp*);
+	bool insert_tag(uint32_t, bess::Packet*, Ipv4*, Tcp*);
+	
  private:
 	unordered_map<uint32_t, DyscoHashes> hashes;
 

@@ -27,8 +27,8 @@ class DyscoAgentIn final : public Module {
 	static const gate_idx_t kNumOGates = 1;
 
 	DyscoAgentIn();
-	bool process_packet(bess::Packet*);
-	bool rx_initiation_new(bess::Packet*, Ipv4*, Tcp*);
+	bool input(bess::Packet*);
+
 	void ProcessBatch(bess::PacketBatch*) override;
 	CommandResponse Init(const bess::pb::DyscoAgentInArg&);
 
@@ -61,19 +61,37 @@ class DyscoAgentIn final : public Module {
 		return ip->length.value() - ip_hlen - tcp_hlen;
 	}
 
+	/*
+	  Dysco methods
+	 */
+ 
 	bool remove_sc(bess::Packet*, Ipv4*, Tcp*);
+	DyscoHashIn* insert_cb_input(uint32_t, Ipv4*, Tcp*, uint8_t*, uint32_t);
+	DyscoHashIn* lookup_input(uint32_t, Ipv4*, Tcp*);
 	bool in_hdr_rewrite(Ipv4*, Tcp*, DyscoTcpSession*);
-	bool in_hdr_rewrite2(Ipv4*, Tcp*, DyscoHashIn*);
-	bool insert_tag(bess::Packet*, Ipv4*, Tcp*, DyscoHashIn*);
-
 	bool in_rewrite_seq(Tcp*, DyscoHashIn*);
 	bool in_rewrite_ack(Tcp*, DyscoHashIn*);
 	bool in_rewrite_ts(Tcp*, DyscoHashIn*);
 	bool in_rewrite_rcv_wnd(Tcp*, DyscoHashIn*);
+	bool in_hdr_rewrite_csum(Ipv4*, Tcp*, DyscoHashIn*);
+	bool rx_initiation_new(bess::Packet*, Ipv4*, Tcp*);
+	bool set_ack_number_out(uint32_t, Tcp*, DyscoHashIn*);
+	//bool set_zero_window(Tcp*);
+	bool in_two_paths_ack(Tcp*, DyscoHashIn*);
+	bool in_two_paths_data_seg(Tcp*, DyscoHashIn*);
+	bool input(bess::Packet*);
+
+
+
+
+
+
+
+
+	
+
 	bool tcp_sack(Tcp*, DyscoHashIn*);
 	DyscoTcpTs* get_ts_option(Tcp*);
-	bool in_two_paths_data_seg(Tcp*, DyscoHashIn*);
-	bool in_two_paths_ack(Tcp*, DyscoHashIn*);
 };
 
 #endif //BESS_MODULES_DYSCOAGENTIN_H_
