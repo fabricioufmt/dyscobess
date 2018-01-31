@@ -832,7 +832,8 @@ DyscoTcpTs* DyscoCenter::get_ts_option(Tcp* tcp) {
 	return 0;
 }
 
-bool DyscoCenter::tcp_sack(Tcp* tcp, uint32_t delta, uint8_t add) {
+//bool DyscoCenter::tcp_sack(Tcp* tcp, uint32_t delta, uint8_t add) {
+bool DyscoCenter::tcp_sack(Tcp*, uint32_t, uint8_t) {
 	return true;
 }
 
