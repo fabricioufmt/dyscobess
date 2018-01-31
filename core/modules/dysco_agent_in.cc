@@ -143,7 +143,7 @@ bool DyscoAgentIn::in_rewrite_ack(Tcp* tcp, DyscoHashIn* cb_in) {
 			new_ack = ack - ntohl(cb_in->ack_delta);
 
 		if(cb_in->sack_ok)
-			tcp_sack(tcp, cb_in);
+			dc->tcp_sack(tcp, cb_in);
 		
 		tcp->ack_num = be32_t(new_ack);
 	}
@@ -423,13 +423,6 @@ bool DyscoAgentIn::input(bess::Packet* pkt) {
 
 
 
-
-
-
-bool DyscoAgentIn::tcp_sack(Tcp*, DyscoHashIn*) {
-	//L.219 -- dysco_output.c
-	return true;
-}
 
 
 

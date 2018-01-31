@@ -832,6 +832,10 @@ DyscoTcpTs* DyscoCenter::get_ts_option(Tcp* tcp) {
 	return 0;
 }
 
+bool DyscoCenter::tcp_sack(Tcp*, DyscoHashIn*) {
+	return true;
+}
+
 /*
   Dysco methods
  */

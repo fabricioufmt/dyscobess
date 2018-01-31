@@ -228,6 +228,7 @@ class DyscoCenter final : public Module {
 	DyscoTcpTs* get_ts_option(Tcp*);
 	bool after(uint32_t, uint32_t);
 	bool before(uint32_t, uint32_t);
+	bool tcp_sack(Tcp*, DyscoHashIn*);
 	
 	/*
 	  Dysco methods
