@@ -832,8 +832,62 @@ DyscoTcpTs* DyscoCenter::get_ts_option(Tcp* tcp) {
 	return 0;
 }
 
-//bool DyscoCenter::tcp_sack(Tcp* tcp, uint32_t delta, uint8_t add) {
-bool DyscoCenter::tcp_sack(Tcp*, uint32_t, uint8_t) {
+bool DyscoCenter::tcp_sack(Tcp* tcp, uint32_t delta, uint8_t add) {
+	uint32_t len = (tcp->offset << 4) - sizeof(Tcp);
+	uint8_t* ptr = reinterpret_cast<uint8_t*>(tcp + 1);
+
+	uint32_t opcode;
+	uint32_t opsize;
+	while(len > 0) {
+		opcode = *ptr++;
+		switch(opcode) {
+		case TCPOPT_EOL:
+			return 0;
+
+		case TCPOPT_NOP:
+			len--;
+			continue;
+
+		default:
+			opsize = *ptr++;
+			if(opsize < 2)
+				return 0;
+
+			if(opsize > len)
+				return 0;
+
+			if(opcode == TCPOPT_SACK) {
+				if((opsize >= (TCPOLEN_SACK_BASE + TCPOLEN_SACK_PERBLOCK))
+				   &&
+				   !((opsize - TCPOLEN_SACK_BASE) % TCPOLEN_SACK_PERBLOCK)) {
+					uint8_t* lptr = ptr;
+					uint32_t blen = opsize - 2;
+
+					while(blen > 0) {
+						uint32_t* left_edge = (uint32_t*) lptr;
+						uint32_t* right_edge = (uint32_t*) (lptr + 4);
+						uint32_t new_ack_l, new_ack_r;
+						if(add) {
+							new_ack_l = htonl(ntohl(*left_edge) + delta);
+							new_ack_l = htonl(ntohl(*right_edge) + delta);						
+						} else {
+							new_ack_l = htonl(ntohl(*left_edge) - delta);
+							new_ack_l = htonl(ntohl(*right_edge) - delta);						
+						}
+
+						*left_edge = new_ack_l;
+						*right_edge = new_ack_r;
+
+						lptr += 8;
+						blen -= 8;
+					}
+				}
+			}
+			ptr += opsize - 2;
+			len -= opsize;
+		}
+	}
+
 	return true;
 }
 
