@@ -196,7 +196,7 @@ bool DyscoAgentOut::out_rewrite_ack(Tcp* tcp, DyscoHashOut* cb_out) {
 			new_ack = ack - cb_out->ack_delta;
 
 		if(cb_out->sack_ok)
-			tcp_sack(tcp, cb_out->ack_delta, cb_out->ack_add);
+			dc->tcp_sack(tcp, cb_out->ack_delta, cb_out->ack_add);
 		
 		tcp->ack_num = be32_t(new_ack);
 
