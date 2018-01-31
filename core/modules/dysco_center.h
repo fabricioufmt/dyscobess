@@ -226,6 +226,8 @@ class DyscoCenter final : public Module {
 	  TCP methods
 	 */
 	DyscoTcpTs* get_ts_option(Tcp*);
+	bool after(uint32_t, uint32_t);
+	bool before(uint32_t, uint32_t);
 	
 	/*
 	  Dysco methods

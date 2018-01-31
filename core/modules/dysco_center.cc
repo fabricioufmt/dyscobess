@@ -790,6 +790,13 @@ DyscoHashOut* DyscoCenter::process_syn_out(uint32_t i, bess::Packet* pkt, Ipv4* 
 /*
   TCP methods
  */
+bool DyscoCenter::before(uint32_t seq1, uint32_t seq2) {
+	return (int32_t)(seq1 - seq2) < 0;
+}
+bool DyscoCenter::after(uint32_t seq2, uint32_t seq1) {
+	return before(seq1, seq2);
+}
+
 DyscoTcpTs* DyscoCenter::get_ts_option(Tcp* tcp) {
 	uint32_t len = (tcp->offset << 4) - sizeof(Tcp);
 	uint8_t* ptr = reinterpret_cast<uint8_t*>(tcp + 1);

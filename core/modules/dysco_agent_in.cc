@@ -3,12 +3,6 @@
 #include "dysco_agent_in.h"
 #include "../module_graph.h"
 
-static inline bool before(uint32_t seq1, uint32_t seq2) {
-	return (int32_t)(seq1 - seq2) < 0;
-}
-#define after(seq2, seq1) before(seq1, seq2)
-
-
 //debug
 char* printip1(uint32_t ip) {
 	uint8_t bytes[4];
@@ -295,7 +289,7 @@ bool DyscoAgentIn::in_two_paths_ack(Tcp* tcp, DyscoHashIn* cb_in) {
 			if(cb_out->state == DYSCO_ESTABLISHED)
 				cb_in->two_paths = false;
 		} else {
-			if(!after(cb_out->seq_cutoff, ack_seq)) {
+			if(!dc->after(cb_out->seq_cutoff, ack_seq)) {
 				cb_out->use_np_seq = true;
 				cb_in->two_paths = false;
 			}
@@ -308,7 +302,7 @@ bool DyscoAgentIn::in_two_paths_ack(Tcp* tcp, DyscoHashIn* cb_in) {
 		if(cb_out->state_t && cb_out->state == DYSCO_ESTABLISHED)
 			cb_in->two_paths = false;
 		else {
-			if(!after(cb_out->seq_cutoff, ack_seq)) {
+			if(!dc->after(cb_out->seq_cutoff, ack_seq)) {
 				cb_out->use_np_seq = true;
 				cb_in->two_paths = false;
 			}
@@ -343,7 +337,7 @@ bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in) {
 			}
 
 			if(old_out->valid_ack_cut) {
-				if(before(seq, old_out->ack_cutoff))
+				if(dc->before(seq, old_out->ack_cutoff))
 					old_out->ack_cutoff = seq;
 			} else {
 				old_out->ack_cutoff = seq;
