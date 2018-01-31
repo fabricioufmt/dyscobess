@@ -210,7 +210,7 @@ class DyscoCenter final : public Module {
 	DyscoHashOut* lookup_output_pending(uint32_t, Ipv4*, Tcp*);
 	DyscoHashOut* lookup_pending_tag(uint32_t, Tcp*);
 
-	DyscoHashIn* insert_cb_in(uint32_t, Ipv4*, Tcp*, uint8_t*, uint32_t);
+	DyscoHashIn* insert_cb_input(uint32_t, Ipv4*, Tcp*, uint8_t*, uint32_t);
 	bool handle_mb_out(uint32_t, bess::Packet*, Ipv4*, Tcp*, DyscoHashOut*);
 	DyscoHashOut* process_syn_out(uint32_t, bess::Packet*, Ipv4*, Tcp*, DyscoHashOut*);
 
