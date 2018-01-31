@@ -142,8 +142,9 @@ bool DyscoAgentIn::in_rewrite_ack(Tcp* tcp, DyscoHashIn* cb_in) {
 		else
 			new_ack = ack - ntohl(cb_in->ack_delta);
 
-		if(cb_in->sack_ok)
-			dc->tcp_sack(tcp, cb_in);
+		//TODO
+		//if(cb_in->sack_ok)
+		//	dc->tcp_sack(tcp, cb_in);
 		
 		tcp->ack_num = be32_t(new_ack);
 	}

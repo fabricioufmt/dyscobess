@@ -274,12 +274,11 @@ bool DyscoAgentOut::out_rewrite_ts(Tcp* tcp, DyscoHashOut* cb_out) {
 
 bool DyscoAgentOut::out_rewrite_rcv_wnd(Tcp* tcp, DyscoHashOut* cb_out) {
 	if(cb_out->ws_delta) {
-		uint16_t new_win;
 		uint32_t wnd = tcp->window.value();
 
 		wnd <<= cb_out->ws_in;
 		wnd >>= cb_out->ws_out;
-		tcp->window = be16_t(new_win);
+		tcp->window = be16_t(wnd);
 
 		return true;
 	}
