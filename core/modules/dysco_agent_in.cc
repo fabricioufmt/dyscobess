@@ -256,7 +256,7 @@ bool DyscoAgentIn::rx_initiation_new(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 			return false;
 		
 		remove_sc(pkt, ip, tcp);
-		parse_tcp_syn_opt_r(tcp, cb_in);
+		dc->parse_tcp_syn_opt_r(tcp, cb_in);
 		dc->insert_tag(this->index, pkt, ip, tcp);
 		in_hdr_rewrite(ip, tcp, &cb_in->sup);
 	}
