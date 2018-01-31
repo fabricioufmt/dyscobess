@@ -365,13 +365,13 @@ bool DyscoAgentOut::output(bess::Packet* pkt) {
 		printip2(ip->dst.value()), tcp->dst_port.value());*/
 
 	
-	DyscoHashOut* cb_out = dc->out_lookup(this->index, ip, tcp);
+	DyscoHashOut* cb_out = dc->lookup_out(this->index, ip, tcp);
 	if(!cb_out) {
 		cb_out = dc->lookup_output_pending(this->index, ip, tcp);
 		if(cb_out) {
 			//debug
 			fprintf(stderr, "[%s][DyscoAgentOut] output_pending isn't NULL and calling handle_mb_out method\n", ns.c_str());
-			return dc->handle_mb_out(this->index, pkt, ip, tcp, cb_out);
+			return dc->out_handle_mb(this->index, pkt, ip, tcp, cb_out);
 		}
 
 		cb_out = dc->lookup_pending_tag(this->index, tcp);
@@ -379,7 +379,7 @@ bool DyscoAgentOut::output(bess::Packet* pkt) {
 			//debug
 			fprintf(stderr, "[%s][DyscoAgentOut] output_pending_tag isn't NULL and calling handle_mb_out method\n", ns.c_str());
 			update_five_tuple(ip, tcp, cb_out);
-			return dc->handle_mb_out(this->index, pkt, ip, tcp, cb_out);
+			return dc->out_handle_mb(this->index, pkt, ip, tcp, cb_out);
 		}
 	}
 
