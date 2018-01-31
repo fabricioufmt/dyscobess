@@ -86,13 +86,13 @@ bool DyscoAgentIn::remove_sc(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 //insert_cb_in_reverse is in dysco_center.cc
 
 //L.191
-DyscoHashIn* DyscoAgentIn::insert_cb_input(uint32_t index, Ipv4* ip, Tcp* tcp, uint8_t* payload, uint32_t payload_sz) {
-	return dc->insert_cb_input(index, ip, tcp, payload, payload_sz);
+DyscoHashIn* DyscoAgentIn::insert_cb_input(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_t* payload, uint32_t payload_sz) {
+	return dc->insert_cb_input(i, ip, tcp, payload, payload_sz);
 }
 
 //L.258
-DyscoHashIn* DyscoAgentIn::lookup_input(uint32_t index, Ipv4* ip, Tcp* tcp) {
-	return dc->lookup_input(index, ip, tcp);
+DyscoHashIn* DyscoAgentIn::lookup_input(uint32_t i, Ipv4* ip, Tcp* tcp) {
+	return dc->lookup_input(i, ip, tcp);
 }
 
 //Ronaldo: Simple Checksum computation?
@@ -271,8 +271,8 @@ bool DyscoAgentIn::rx_initiation_new(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 }
 
 //L.545
-bool DyscoAgentIn::set_ack_number_out(uint32_t index, Tcp* tcp, DyscoHashIn* cb_in) {
-	return dc->set_ack_number_out(index, tcp, cb_in);
+bool DyscoAgentIn::set_ack_number_out(uint32_t i, Tcp* tcp, DyscoHashIn* cb_in) {
+	return dc->set_ack_number_out(i, tcp, cb_in);
 }
 
 //L.601
