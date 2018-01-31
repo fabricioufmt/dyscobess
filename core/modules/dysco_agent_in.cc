@@ -257,7 +257,7 @@ bool DyscoAgentIn::rx_initiation_new(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 		
 		remove_sc(pkt, ip, tcp);
 		parse_tcp_syn_opt_r(tcp, cb_in);
-		dc->insert_tag(this->index, pkt, ip, tcp, cb_in);
+		dc->insert_tag(this->index, pkt, ip, tcp);
 		in_hdr_rewrite(ip, tcp, &cb_in->sup);
 	}
 	
@@ -395,7 +395,7 @@ bool DyscoAgentIn::input(bess::Packet* pkt) {
 			if(hasPayload(ip, tcp)) {
 				fprintf(stderr, "[%s][DyscoAgentInc] it's retransmission of TCP SYN w payload\n", ns.c_str());
 				remove_sc(pkt, ip, tcp);
-				dc->insert_tag(this->index, pkt, ip, tcp, cb_in);
+				dc->insert_tag(this->index, pkt, ip, tcp);
 				in_hdr_rewrite(ip, tcp, &cb_in->sup);
 			}
 		}
