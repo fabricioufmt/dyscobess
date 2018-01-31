@@ -1,4 +1,3 @@
-//#include <net/tcp.h>
 #include <netinet/tcp.h>
 #include "dysco_agent_in.h"
 #include "../module_graph.h"
@@ -74,10 +73,10 @@ bool DyscoAgentIn::remove_sc(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 }
 
 //L.82
-//inserting_pending function is in dysco_center.cc
+//insert_pending function -- in DyscoCenter
 
 //L.133
-//insert_cb_in_reverse is in dysco_center.cc
+//insert_cb_in_reverse -- in DyscoCenter
 
 //L.191
 DyscoHashIn* DyscoAgentIn::insert_cb_input(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_t* payload, uint32_t payload_sz) {
@@ -157,7 +156,7 @@ bool DyscoAgentIn::in_rewrite_ts(Tcp* tcp, DyscoHashIn* cb_in) {
 	if(!cb_in)
 		return false;
 
-	DyscoTcpTs* ts = get_ts_option(tcp);
+	DyscoTcpTs* ts = dc->get_ts_option(tcp);
 	if(!ts)
 		return false;
 
@@ -416,27 +415,5 @@ bool DyscoAgentIn::input(bess::Packet* pkt) {
 
 	return true;
 }
-
-
-
-
-
-
-
-
-
-
-
-DyscoTcpTs* DyscoAgentIn::get_ts_option(Tcp* tcp) {
-	return dc->get_ts_option(tcp);
-}
-
-
-
-
-
-
-
-
 
 ADD_MODULE(DyscoAgentIn, "dysco_agent_in", "processes packets incoming to host")

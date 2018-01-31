@@ -89,7 +89,6 @@ class DyscoAgentIn final : public Module {
 	
 
 	bool tcp_sack(Tcp*, DyscoHashIn*);
-	DyscoTcpTs* get_ts_option(Tcp*);
 };
 
 #endif //BESS_MODULES_DYSCOAGENTIN_H_

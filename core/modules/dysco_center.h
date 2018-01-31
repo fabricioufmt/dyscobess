@@ -209,76 +209,77 @@ class DyscoCenter final : public Module {
 	CommandResponse CommandAdd(const bess::pb::DyscoCenterAddArg&);
 	CommandResponse CommandDel(const bess::pb::DyscoCenterDelArg&);
 
-	uint32_t get_index(const std::string&, uint32_t);
-	DyscoHashIn* lookup_input(uint32_t, Ipv4*, Tcp*);
+	/*
+	  TCP methods
+	*/
+	bool after(uint32_t, uint32_t);
+	bool before(uint32_t, uint32_t);
+	DyscoTcpTs* get_ts_option(Tcp*);
+	bool tcp_sack(Tcp*, uint32_t, uint8_t);
+	bool parse_tcp_syn_opt_s(Tcp*, DyscoHashOut*);
+	bool parse_tcp_syn_opt_r(Tcp*, DyscoHashIn*);
+
+	/*
+	  Control methods
+	*/
+	uint32_t get_index(const std::string&, uint32_t);	
+	DyscoHashIn* lookup_input(uint32_t, DyscoTcpSession*);
 	DyscoHashOut* lookup_output(uint32_t, Ipv4*, Tcp*);
 	DyscoHashOut* lookup_output_pending(uint32_t, Ipv4*, Tcp*);
 	DyscoHashOut* lookup_pending_tag(uint32_t, Tcp*);
 
-	DyscoHashIn* insert_cb_input(uint32_t, Ipv4*, Tcp*, uint8_t*, uint32_t);
-	bool handle_mb_out(uint32_t, bess::Packet*, Ipv4*, Tcp*, DyscoHashOut*);
-	DyscoHashOut* process_syn_out(uint32_t, bess::Packet*, Ipv4*, Tcp*, DyscoHashOut*);
-
-	uint32_t get_dysco_tag(uint32_t);
-
-	DyscoHashOut* lookup_output_by_ss(uint32_t, DyscoTcpSession*);
-	bool parse_tcp_syn_opt_s(Tcp*, DyscoHashOut*);
-	bool parse_tcp_syn_opt_r(Tcp*, DyscoHashIn*);
-	bool set_ack_number_out(uint32_t, Tcp*, DyscoHashIn*);
-
-
 	/*
-	  TCP methods
-	 */
-	DyscoTcpTs* get_ts_option(Tcp*);
-	bool after(uint32_t, uint32_t);
-	bool before(uint32_t, uint32_t);
-	bool tcp_sack(Tcp*, uint32_t, uint8_t);
+	  Dysco methods (INPUT)
+	*/
+	DyscoHashIn* insert_cb_input(uint32_t, Ipv4*, Tcp*, uint8_t*, uint32_t);
+	bool set_ack_number_out(uint32_t, Tcp*, DyscoHashIn*);
+	bool insert_tag(uint32_t, bess::Packet*, Ipv4*, Tcp*);
 	
 	/*
-	  Dysco methods
-	 */
-	bool insert_tag(uint32_t, bess::Packet*, Ipv4*, Tcp*);
+	  Dysco methods (OUTPUT)
+	*/
+	DyscoHashOut* out_syn(uint32_t, bess::Packet*, Ipv4*, Tcp*, DyscoHashOut*);
+	bool out_handle_mb(uint32_t, bess::Packet*, Ipv4*, Tcp*, DyscoHashOut*);
+	bool out_hdr_rewrite(Ipv4*, Tcp*, DyscoTcpSession*);
 	
  private:
 	unordered_map<uint32_t, DyscoHashes> hashes;
-
-	DyscoHashes* get_hash(uint32_t);
-
-	bool insert_cb_out(uint32_t, DyscoHashOut*, uint8_t);
-	DyscoHashIn* insert_cb_out_reverse(uint32_t, DyscoHashOut*, uint8_t);
-	
-	bool out_hdr_rewrite(Ipv4*, Tcp*, DyscoTcpSession*);
-	bool remove_tag(bess::Packet*, Ipv4*, Tcp*);
-	bool add_sc(bess::Packet*, Ipv4*, DyscoHashOut*);
-	bool fix_tcp_ip_csum(Ipv4*, Tcp*);
-
-	DyscoHashIn* lookup_input(uint32_t, DyscoTcpSession*);
-	DyscoHashOut* insert_cb_in_reverse(DyscoTcpSession*, Ipv4*, Tcp*);
-
-	DyscoHashIn* lookup_input_by_ss(uint32_t, DyscoTcpSession*);
-	DyscoHashOut* lookup_pending_tag_by_tag(uint32_t, uint32_t);
-	DyscoHashOut* create_cb_out(uint32_t, Ipv4*, Tcp*, DyscoPolicies::Filter*);
-	bool out_tx_init(bess::Packet*, Ipv4*, Tcp*, DyscoHashOut*);
-	uint16_t allocate_local_port(uint32_t);
-	uint16_t allocate_neighbor_port(uint32_t);
 	
 	inline bool isTCPACK(Tcp* tcp) {
 		return tcp->flags == Tcp::Flag::kAck;
 	}
-
 	
+	/*
+	  TCP methods
+	*/
+	bool fix_tcp_ip_csum(Ipv4*, Tcp*);
+	
+	/*
+	  Control methods
+	*/
+	DyscoHashes* get_hash(uint32_t);
+	uint32_t get_dysco_tag(uint32_t);	
+	uint16_t allocate_local_port(uint32_t);
+	uint16_t allocate_neighbor_port(uint32_t);
+	DyscoHashIn* lookup_input_by_ss(uint32_t, DyscoTcpSession*);
+	DyscoHashOut* lookup_output_by_ss(uint32_t, DyscoTcpSession*);
+	DyscoHashOut* lookup_pending_tag_by_tag(uint32_t, uint32_t);
+
+	/*
+	  Dysco methods (INPUT)
+	*/
 	bool insert_pending(DyscoHashes*, uint8_t*, uint32_t);
-	//DyscoHashOut* insert_cb_in_reverse(DyscoTcpSession*, Ipv4*, Tcp*);
-	//DyscoHashIn* insert_cb_out_reverse(DyscoHashOut*);
+	DyscoHashOut* insert_cb_in_reverse(DyscoTcpSession*, Ipv4*, Tcp*);
 
-	
-
-
-	
-	bool process_pending_packet(uint32_t, bess::Packet*, Ipv4*, Tcp*, DyscoHashOut*);
-
-	DyscoHashIn* insert_cb_in_reverse2(DyscoHashOut*);
+	/*
+	  Dysco methods (OUTPUT)
+	*/
+	DyscoHashOut* create_cb_out(uint32_t, Ipv4*, Tcp*, DyscoPolicies::Filter*);
+	bool out_tx_init(bess::Packet*, Ipv4*, Tcp*, DyscoHashOut*);
+	bool insert_cb_out(uint32_t, DyscoHashOut*, uint8_t);
+	DyscoHashIn* insert_cb_out_reverse(uint32_t, DyscoHashOut*, uint8_t);
+	bool remove_tag(bess::Packet*, Ipv4*, Tcp*);
+	bool add_sc(bess::Packet*, Ipv4*, DyscoHashOut*);
 };
 
 #endif //BESS_MODULES_DYSCOCENTER_H_
