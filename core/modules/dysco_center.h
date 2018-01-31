@@ -16,6 +16,11 @@
 
 #include "dysco_policies.h"
 
+#define TCPOLEN_SACK_BASE 2
+#define TCPOLEN_SACK_PERBLOCK 8
+
+
+
 using std::unordered_map;
 using bess::utils::Tcp;
 using bess::utils::Ipv4;
