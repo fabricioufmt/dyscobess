@@ -204,6 +204,22 @@ DyscoHashOut* DyscoCenter::lookup_output_pending(uint32_t i, Ipv4* ip, Tcp* tcp)
 	return 0;
 }
 
+DyscoHashOut* DyscoCenter::lookup_reconfig_by_ss(uint32_t i, DyscoTcpSession* ss) {
+	DyscoHashes* dh = get_hash(i);
+	if(!dh)
+		return 0;
+	
+	DyscoTcpSessionEqualTo equals;
+	unordered_map<DyscoTcpSession, DyscoCbReconfig, DyscoTcpSessionHash>::iterator it = dh->hash_reconfig.begin();
+	while(it != dh->hash_reconfig.end()) {
+		if(equals((*it).first, *ss))
+			return &(*it).second;
+		it++;
+	}
+	
+	return 0;
+}
+
 DyscoHashOut* DyscoCenter::lookup_pending_tag_by_tag(uint32_t i, uint32_t tag) {
 	DyscoHashes* dh = get_hash(i);
 	if(!dh)
@@ -409,7 +425,7 @@ bool DyscoCenter::set_ack_number_out(uint32_t i, Tcp* tcp, DyscoHashIn* cb_in) {
 /************************************************************************/
 /*
   Dysco methods (OUTPUT)
- */
+*/
 
 DyscoHashOut* DyscoCenter::create_cb_out(uint32_t i, Ipv4* ip, Tcp* tcp, DyscoPolicies::Filter* filter) {
 	DyscoHashes* dh = get_hash(i);
@@ -927,6 +943,46 @@ bool DyscoCenter::add_sc(bess::Packet* pkt, Ipv4* ip, DyscoHashOut* cb_out) {
 	memcpy(payload + sizeof(DyscoTcpSession), cb_out->sc, payload_sz - sizeof(DyscoTcpSession));
 
 	ip->length = ip->length + be16_t(payload_sz);
+	return true;
+}
+
+/************************************************************************/
+/************************************************************************/
+/*
+  Dysco methods (CONTROL INPUT)
+*/
+bool DyscoCenter::insert_hash_reconfig(uint32_t i, DyscoCbReconfig* rcb) {
+	DyscoHashes* dh = get_hash(i);
+	if(!dh)
+		return false;
+
+	DyscoTcpSession* ss = &rcb->super;
+	dh->hash_reconfig.insert(std::pair<DyscoTcpSession, DyscoCbReconfig>(*ss, *rcb));
+
+	return true;
+}
+
+bool DyscoCenter::remove_reconfig(uint32_t i, DyscoCbReconfig* rcb) {
+	DyscoHashes* dh = get_hash(i);
+	if(!dh)
+		return false;
+
+	dh->hash_reconfig.erase(rcb->super);
+
+	return true;
+}
+
+bool DyscoCenter::replace_cb_leftA(DyscoCbReconfig* rcb, DyscoControlMessage* cmsg) {
+	DyscoHashOut* old_dcb = rcb->old_dcb;
+
+	if(old_dcb->state == DYSCO_SYN_SENT)
+		old_dcb->state = DYSCO_ESTABLISHED;
+
+	cmsg->seqCutoff = htonl(old_dcb->seq_cutoff);
+
+	//Ronaldo:
+	//rec_done??
+
 	return true;
 }
 

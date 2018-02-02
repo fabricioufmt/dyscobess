@@ -16,11 +16,6 @@
 
 #include "dysco_policies.h"
 
-#define TCPOLEN_SACK_BASE 2
-#define TCPOLEN_SACK_PERBLOCK 8
-
-
-
 using std::unordered_map;
 using bess::utils::Tcp;
 using bess::utils::Ipv4;
@@ -30,6 +25,8 @@ using bess::utils::be16_t;
 
 #define DYSCO_TCP_OPTION 253
 #define DYSCO_TCP_OPTION_LEN 8
+#define TCPOLEN_SACK_BASE 2
+#define TCPOLEN_SACK_PERBLOCK 8
 
 enum {
 	DYSCO_ONE_PATH = 0,
@@ -178,8 +175,62 @@ class DyscoHashOut {
 	uint32_t ack_ctr;
 };
 
-class DyscoHashPenTag {
+class DyscoCbReconfig {
+	DyscoTcpSession super;
+	DyscoTcpSession leftSS;
+	DyscoTcpSession rightSS;
+	DyscoTcpSession sub_out;
+	DyscoTcpSession sub_in;
 
+	DyscoHashOut* old_dcb;
+	DyscoHashOut* new_dcb;
+
+	//Ronaldo:
+	//timespec rec_begin, rec_end
+
+	uint32_t leftIseq;
+	uint32_t leftIack;
+	uint32_t leftIts;
+	uint32_t leftItsr;
+	uint16_t leftIws;
+	uint16_t leftIwsr;
+
+	//Ronaldo:
+	//uint_8 nh_mac[6]
+
+	uint8_t sack_ok;
+};
+
+class DyscoControlMessage {
+	uint16_t mtype;
+	DyscoTcpSession super;
+	DyscoTcpSession leftSS;
+	DyscoTcpSession rightSS;
+	uint32_t leftA;
+	uint32_t rightA;
+
+	uint16_t sport;
+	uint16_t dport;
+
+	uint32_t leftIseq;
+	uint32_t leftIack;
+
+	uint32_t rightIseq;
+	uint32_t rightIack;
+
+	uint32_t seqCutoff;
+
+	uint32_t leftIts;
+	uint32_t leftItsr;
+
+	uint16_t leftIws;
+	uint16_t leftIwsr;
+
+	uint16_t sackOk;
+	uint16_t semantic;
+
+	uint32_t srcMB;
+	uint32_t dstMB;
 };
 
 class DyscoHashes {
@@ -195,6 +246,8 @@ class DyscoHashes {
 	unordered_map<DyscoTcpSession, DyscoHashOut, DyscoTcpSessionHash> hash_out;
 	unordered_map<DyscoTcpSession, DyscoHashOut, DyscoTcpSessionHash> hash_pen;
 	unordered_map<uint32_t, DyscoHashOut> hash_pen_tag;
+
+	unordered_map<DyscoTcpSession, DyscoCbReconfig, DyscoTcpSessionHash> hash_reconfig;
 };
 
 class DyscoCenter final : public Module {
@@ -225,9 +278,15 @@ class DyscoCenter final : public Module {
 	uint32_t get_index(const std::string&, uint32_t);	
 	DyscoHashIn* lookup_input(uint32_t, Ipv4*, Tcp*);
 	DyscoHashOut* lookup_output(uint32_t, Ipv4*, Tcp*);
+	DyscoHashOut* lookup_output_by_ss(uint32_t, DyscoTcpSession*);
 	DyscoHashOut* lookup_output_pending(uint32_t, Ipv4*, Tcp*);
 	DyscoHashOut* lookup_pending_tag(uint32_t, Tcp*);
-
+	
+	DyscoHashOut* lookup_reconfig_by_ss(uint32_t, DyscoTcpSession*);
+	bool insert_rcb_control_input(uint32_t, DyscoCbReconfig*);
+	bool remove_reconfig(uint32_t, DyscoCbReconfig*);
+	bool replace_cb_leftA(DyscoCbReconfig*, DyscoControlMessage*);
+		
 	/*
 	  Dysco methods (INPUT)
 	*/
@@ -262,7 +321,6 @@ class DyscoCenter final : public Module {
 	uint16_t allocate_local_port(uint32_t);
 	uint16_t allocate_neighbor_port(uint32_t);
 	DyscoHashIn* lookup_input_by_ss(uint32_t, DyscoTcpSession*);
-	DyscoHashOut* lookup_output_by_ss(uint32_t, DyscoTcpSession*);
 	DyscoHashOut* lookup_pending_tag_by_tag(uint32_t, uint32_t);
 
 	/*

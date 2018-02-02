@@ -59,7 +59,7 @@ void DyscoAgentIn::ProcessBatch(bess::PacketBatch* batch) {
 /************************************************************************/
 /*
   Dysco codes below. Some methods are just wrapper for DyscoCenter method.
- */
+*/
 
 bool DyscoAgentIn::remove_sc(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 	size_t ip_hlen = ip->header_length << 2;
@@ -411,5 +411,369 @@ bool DyscoAgentIn::input(bess::Packet* pkt) {
 
 	return true;
 }
+
+/************************************************************************/
+/************************************************************************/
+/*
+  Dysco codes below. Control input
+*/
+
+DyscoCbReconfig* DyscoAgentIn::insert_rcb_control_input(Ipv4* ip, DyscoControlMessage* cmsg) {
+	DyscoCbReconfig* rcb = new DyscoCbReconfig();
+
+	rcb->super = cmsg->super;
+	rcb->leftSS = cmsg->leftSS;
+	rcb->rightSS = cmsg->rightSS;
+	rcb->sub_in.sip = ip->src.value();
+	rcb->sub_in.dip = ip->dst.value();
+	rcb->sub_in.sport = cmsg->sport;
+	rcb->sub_in.dport = cmsg->dport;
+	rcb->sub_out.sip = 0;
+
+	rcb->leftIseq = ntohl(cmsg->leftIseq);
+	rcb->leftIack = ntohl(cmsg->leftIack);
+
+	rcb->leftIts = ntohl(cmsg->leftIts);
+	rcb->leftItsr = ntohl(cmsg->leftItsr);
+
+	rcb->leftIws = ntohl(cmsg->leftIws);
+	rcb->leftIwsr = ntohl(cmsg->leftIwsr);
+
+	rcb->sack_ok = ntohs(cmsg->sackOk);
+
+	if(!dc->insert_hash_reconfig(this->index, rcb))
+		return 0;
+	
+	return rcb;
+}
+
+DyscoHashOut* build_cb_in_reverse(Ipv4* ip, DyscoCbReconfig* rcb) {
+	DyscoHashOut* cb_out = new DyscoHashOut();
+
+	cb_out->super.sip = rcb->super.dip;
+	cb_out->super.dip = rcb->super.sip;
+	cb_out->super.sport = rcb->super.dport;
+	cb_out->super.dport = rcb->super.sport;
+
+	cb_out->sub.sip = ip->dst.value();
+	cb_out->sub.dip = ip->src.value();
+	cb_out->sub.sport = rcb->sub_in.dport;
+	cb_out->sub.dport = rcb->sub_in.sport;
+
+	cb_out->out_iseq = cb_out->in_iseq = rcb->leftIack;
+	cb_out->out_iack = cb_out->in_iack = rcb->leftIseq;
+
+	return cb_out;
+}
+
+bool DyscoAgentIn::compute_deltas_in(DyscoHashIn* cb_in, DyscoHashOut* old_out, DyscoCbReconfig* rcb) {
+	cb_in->out_iseq = old_out->in_iack;
+	cb_in->out_iack = old_out->in_iseq;
+
+	if(cb_in->in_iseq < cb_in->out_iseq) {
+		cb_in->seq_delta = cb_in->out_iseq - cb_in->in_iseq;
+		cb_in->seq_add = true;
+	} else {
+		cb_in->seq_delta = cb_in->in_iseq - cb_in->out_iseq;
+		cb_in->seq_add = false;
+	}
+
+	if(cb_in->in_iack < cb_in->out_iack) {
+		cb_in->ack_delta = cb_in->out_iack - cb_in->in_iack;
+		cb_in->ack_add = true;
+	} else {
+		cb_in->ack_delta = cb_in->in_iack - cb_in->out_iack;
+		cb_in->ack_add = false;
+	}
+
+	if(rcb->leftIts) {
+		cb_in->ts_ok = 1;
+		cb_in->ts_in = rcb->leftIts;
+		cb_in->ts_out = old_out->cb_in->ts_out;
+
+		if(cb_in->ts_in < cb_in->ts_out) {
+			cb_in->ts_delta = cb_in->ts_out - cb_in->ts_in;
+			cb_in->ts_add = true;
+		} else {
+			cb_in->ts_delta = cb_in->ts_in - cb_in->ts_out;
+			cb_in->ts_add = false;
+		}
+
+		cb_in->tsr_in = rcb->leftItsr;
+		cb_in->tsr_out = old_out->cb_in->tsr_out;
+
+		if(cb->tsr_in < cb_in->tsr_out) {
+			cb_in->tsr_delta = cb_in->tsr_out - cb_in->tsr_in;
+			cb_in->tsr_add = true;
+		} else {
+			cb_in->tsr_delta = cb_in->tsr_in - cb_in->tsr_out;
+			cb_in->tsr_add = false;
+		}
+	} else
+		cb_in->ts_ok = 0;
+
+	if(rcb->leftIws) {
+		cb_in->ws_ok = 1;
+		cb_in->ws_in = rcb->leftIws;
+		cb_in->ws_out = old_out->ws_in;
+
+		if(cb_in->ws_in < cb_in->ws_out)
+			cb_in->ws_delta = cb_in->ws_out - cb_in->ws_in;
+		else
+			cb_in->ws_delta = cb_in->ws_in - cb_in->ws_out;
+	} else
+		cb_in->ws_ok = 0;
+
+	cb_in->sack_ok = rcb->sack_ok;
+}
+
+bool DyscoAgentIn::compute_deltas_out(DyscoHashOut* cb_out, DyscoHashOut* old_out, DyscoCbReconfig* rcb) {
+	cb_out->in_iseq = old_out->in_iseq;
+	cb_out->in_iack = old_out->in_iack;
+
+	if(cb_out->in_iseq < cb_out->out_iseq) {
+		cb_out->seq_delta = cb_out->out_iseq - cb_out->in_iseq;
+		cb_out->seq_add = true;
+	} else {
+		cb_out->seq_delta = cb_out->in_iseq - cb_out->out_iseq;
+		cb_out->seq_add = false;
+	}
+
+	if(cb_out->in_iack < cb_out->out_iack) {
+		cb_out->ack_delta = cb_out->out_iack - cb_out->in_iack;
+		cb_out->ack_add = true;
+	} else {
+		cb_out->ack_delta = cb_out->in_iack - cb_out->out_iack;
+		cb_out->ack_add = false;
+	}
+
+	if(rcb->leftIts) {
+		cb_out->ts_ok = 1;
+		cb_out->ts_in = old_out->ts_in;
+		cb_out->ts_out = rcb->leftItsr;
+
+		if(cb_out->ts_in < cb_out->ts_out) {
+			cb_out->ts_delta = cb_out->ts_out - cb_out->ts_in;
+			cb_out->ts_add = true;
+		} else {
+			cb_out->ts_delta = cb_out->ts_in - cb_out->ts_out;
+			cb_out->ts_add = false;
+		}
+
+		cb_out->tsr_in = old_out->tsr_in;
+		cb_out->tsr_out = rcb->leftIts;
+
+		if(cb_out->tsr_in < cb_out->tsr_out) {
+			cb_out->tsr_delta = cb_out->tsr_out - cb_out->tsr_in;
+			cb_out->tsr_add = true;
+		} else {
+			cb_out->tsr_delta = cb_out->tsr_in - cb_out->tsr_out;
+			cb_out->tsr_add = false;
+		}
+	}
+
+	if(rcb->leftIwsr) {
+		cb_out->ws_ok = 1;
+		cb_out->ws_in = old_out->ws_in;
+		cb_out->ws_out = rcb->leftIwsr;
+
+		if(cb_out->ws_in < cb_out->ws_out)
+			cb_out->ws_delta = cb_out->ws_out - cb_out->ws_in;
+		else
+			cb_out->ws_delta = cb_out->ws_in - cb_out->ws_out;
+	} else
+		cb_out->ws_ok = 0;
+
+	cb_out->sack_ok = rcb->sack_ok;
+
+	return true;
+}
+
+bool DyscoAgentIn::control_config_rightA(DyscoCbReconfig* rcb, DyscoControlMessage* cmsg, DyscoHashIn* cb_in, DyscoHashOut* cb_out) {
+	DyscoTcpSession local_ss;
+
+	local_ss.sip = cmsg->rightSS.dip;
+	local_ss.dip = cmsg->rightSS.sip;
+	local_ss.sport = cmsg->rightSS.dport;
+	local_ss.dport = cmsg->rightSS.sport;
+
+	DyscoHashOut* old_out = dc->lookup_output_by_ss(this->index, &local_ss);
+
+	if(!old_out) {
+		delete cb_in;
+		dc->remove_reconfig(this->index, rcb);
+
+		return false;
+	}
+
+	cb_in->super = cmsg->rightSS;
+	compute_deltas_in(cb_in, old_out, rcb);
+	compute_deltas_out(cb_out, old_out, rcb);
+	cb_in->two_paths = true;
+
+	rcb->old_dcb = old_out;
+	rcb->new_dcb = cb_out;
+
+	cb_out->other_path = old_out;
+
+	if(ntohs(cmsg->semantic) == STATE_TRANSFER)
+		old_out->state_t = true;
+
+	return true;
+}
+
+bool DyscoAgentIn::control_reconfig_in(Ipv4* ip, DyscoCbReconfig* rcb, DyscoControlMessage* cmsg) {
+	DyscoHashIn* cb_in = new DyscoHashIn();
+
+	cb_in->sub = rcb->sub_in;
+	cb_in->in_iseq = rcb->leftIseq;
+	cb_in->in_iack = rcb->leftIack;
+	cb_in->two_paths = false;
+
+	DyscoHashOut* cb_out = build_cb_in_reverse(ip, tcp, rcb);
+	if(!cb_out) {
+		delete cb_in;
+		dc->remove_reconfig(this->index, rcb);
+
+		return false;
+	}
+
+	cb_out->cb_in = cb_in;
+	cb_in->cb_out = cb_out;
+
+	//verify htonl
+	if(ip->dst.value() == cmsg->rightA) {
+		if(!control_config_rightA(rcb, cmsg, cb_in, cb_out))
+			return 0;
+	} else {
+		cb_in->super = rcb->super;
+		cb_in->out_iseq = rcb->leftIseq;
+		cb_in->out_iack = rcb->leftIack;
+		cb_in->seq_delta = cb_in->ack_delta = 0;
+
+		if(rcb->leftIts) {
+			cb_in->ts_in = cb_in->ts_out = rcb->leftIts;
+			cb_in->ts_delta = 0;
+			cb_in->ts_ok = 1;
+		} else
+			cb_in->ts_ok = 0;
+
+		if(rcb->leftIws) {
+			cb_in->ws_in = cb_in->ws_out = rcb->leftIws;
+			cb_in->ws_delta = 0;
+			cb_in->ws_ok = 1;
+		} else
+			cb_in->ws_ok = 0;
+
+		cb_out->sack_ok = cb_in->sack_ok = rcb->sack_ok;
+		//insert cb_out;
+	}
+
+	//insert cb_in;
+}
+
+// or UDP* udp?
+bool DyscoAgentIn::control_input(Ipv4* ip, Tcp* tcp) {
+
+	DyscoControlMessage* csmg;
+	DyscoCbReconfig* rcb;
+
+	/*
+	  cmsg is filled by packet payload
+	 */
+	
+	switch(cmsg->mtype) {
+	case DYSCO_SYN:
+		rcb = dc->lookup_reconfig(this->index, &cmsg->super);
+
+		if(rcb)
+			return true;
+
+		rcb = insert_rcb_control_input(ip, cmsg);;
+		if(!rcb)
+			return false;
+
+		return control_reconfig_in(pkt, rcb, cmsg);
+
+	case DYSCO_SYN_ACK:
+		//verify htonl
+		if(ip->dst.value() == cmsg->leftA) {
+			DyscoHashOut* cb_out = dc->lookup_output_by_ss(this->index, &cmsg->leftSS);
+
+			if(!cb_out)
+				return true;
+
+			if(cb_out->state == DYSCO_ESTABLISHED) {
+				// It is a retransmission
+				break;
+			}
+
+			cb_out->ack_cutoff = ntohl(cmsg->seqCutoff);
+			cb_out->valid_ack_cut = true;
+		}
+		break;
+
+	case DYSCO_ACK:
+		rcb = dc->lookup_reconfig_by_ss(this->index, &cmsg->super);
+
+		if(!rcb)
+			break;
+
+		//verify htonl
+		if(cmsg->rightA == ip->dst.value()) {
+			DyscoHashOut* old_out;
+			DyscoHashOut* new_out;
+			uint32_t old_out_ack_cutoff;
+
+			if(!rcb->old_dcb)
+				break;
+
+			old_out = rcb->old_dcb;
+
+			if(!old_out->other_path)
+				break;
+
+			new_out = old_out->other_path;
+			old_out_ack_cutoff = ntohl(cmsg->seqCutoff);
+			if(new_out->in_iack < new_out->out_iack) {
+				uint32_t delta = new_out->out_iack - new_out->in_iack;
+				old_out_ack_cutoff += delta;
+			}
+
+			if(out_out->state == DYSCO_ESTABLISHED)
+				return true;
+
+			if(!old_out->state_t) {
+				old_out->ack_cutoff = old_out_ack_cutoff;
+				old_out->valid_ack_cut = true;
+				old_out->state = DYSCO_ESTABLISHED;
+			}
+		}
+	case DYSCO_FIN:
+		break;
+
+	case DYSCO_STATE_TRANSFERRED:
+		rcb = dc->lookup_reconfig_by_ss(this->index, &cmsg->super);
+
+		if(!rcb)
+			return true;
+
+		// verify htonl
+		if(ip->dst.value() == cmsg->leftA) {
+			dc->replace_cb_leftA(rcb, cmsg);
+		} else if(ip->dst.value() == cmsg->rightA) {
+			DyscoHashOut* cb_out = rcb->old_dcb;
+			cb_out->state = DYSCO_ESTABLISHED;
+		}
+
+		break;
+	}
+
+	//skb modifies???
+
+	return true;
+}
+
+
 
 ADD_MODULE(DyscoAgentIn, "dysco_agent_in", "processes packets incoming to host")

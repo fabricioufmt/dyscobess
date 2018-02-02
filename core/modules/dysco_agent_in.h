@@ -78,9 +78,16 @@ class DyscoAgentIn final : public Module {
 	bool input(bess::Packet*);
 
 
-
-
-
+	/*
+	  Control methods
+	 */
+	DyscoCbReconfig* insert_rcb_control_input(Ipv4*, DyscoControlMessage*);
+	DyscoHashOut* build_cb_in_reverse(Ipv4*, DyscoCbReconfig*);
+	bool compute_deltas_in(DyscoHashIn*, DyscoHashOut*, DyscoCbReconfig*);
+	bool compute_deltas_out(DyscoHashOut*, DyscoHashOut*, DyscoCbReconfig*);
+	bool control_config_rightA(DyscoCbReconfig*, DyscoControlMessage*, DyscoHashIn*, DyscoHashOut*);
+	bool control_reconfig_in(Ipv4*, DyscoCbReconfig*, DyscoControlMessage*);
+	bool control_input(Ipv4*, Tcp*);
 
 
 
