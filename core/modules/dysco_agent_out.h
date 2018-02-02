@@ -73,6 +73,16 @@ class DyscoAgentOut final : public Module {
 	bool out_translate(bess::Packet*, Ipv4*, Tcp*, DyscoHashOut*);
 	bool update_five_tuple(Ipv4*, Tcp*, DyscoHashOut*);
 	bool output(bess::Packet*);
+	/*
+	  CONTROL
+	 */
+
+	DyscoCbReconfig* insert_cb_control(Ipv4*, DyscoControlMessage*);
+	bool control_insert_out(DyscoCbReconfig*);
+	bool replace_cb_rightA(DyscoControlMessage*);
+	bool replace_cb_leftA(DyscoCbReconfig*, DyscoControlMessage*);
+	bool control_output_syn(Ipv4*, DyscoControlMessage*);
+	bool control_output(Ipv4*);
 };
 
 #endif //BESS_MODULES_DYSCOAGENTOUT_H_

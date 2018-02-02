@@ -683,7 +683,7 @@ bool DyscoAgentIn::control_input(Ipv4* ip) {
 	DyscoCbReconfig* rcb;
 
 	/*
-	  cmsg is filled by packet payload
+	  cmsg will be filled by packet payload
 	 */
 	cmsg = 0;//test
 	
