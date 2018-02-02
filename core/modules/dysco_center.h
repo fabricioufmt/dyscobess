@@ -122,7 +122,7 @@ class DyscoHashIn {
  public:
 	DyscoTcpSession sub;
 	DyscoTcpSession sup;
-	DyscoHashOut* cb_out;
+	DyscoHashOut* dcb_out;
 
 	uint32_t in_iseq;
 	uint32_t in_iack;
@@ -157,7 +157,7 @@ class DyscoHashIn {
 
 class DyscoHashOut {
  public:
-	DyscoHashIn* cb_in;
+	DyscoHashIn* dcb_in;
 	DyscoTcpSession sub;
 	DyscoTcpSession sup;
 
@@ -322,7 +322,9 @@ class DyscoCenter final : public Module {
 	bool insert_hash_output(uint32_t, DyscoHashOut*);
 	bool remove_reconfig(uint32_t, DyscoCbReconfig*);
 	bool replace_cb_leftA(DyscoCbReconfig*, DyscoControlMessage*);
-		
+	uint16_t allocate_local_port(uint32_t);
+	uint16_t allocate_neighbor_port(uint32_t);
+	
 	/*
 	  Dysco methods (INPUT)
 	*/
@@ -336,7 +338,7 @@ class DyscoCenter final : public Module {
 	DyscoHashOut* out_syn(uint32_t, bess::Packet*, Ipv4*, Tcp*, DyscoHashOut*);
 	bool out_handle_mb(uint32_t, bess::Packet*, Ipv4*, Tcp*, DyscoHashOut*);
 	bool out_hdr_rewrite(Ipv4*, Tcp*, DyscoTcpSession*);
-	
+	bool insert_cb_out(uint32_t, DyscoHashOut*, uint8_t);
  private:
 	unordered_map<uint32_t, DyscoHashes> hashes;
 	
@@ -354,8 +356,6 @@ class DyscoCenter final : public Module {
 	*/
 	DyscoHashes* get_hash(uint32_t);
 	uint32_t get_dysco_tag(uint32_t);	
-	uint16_t allocate_local_port(uint32_t);
-	uint16_t allocate_neighbor_port(uint32_t);
 	DyscoHashIn* lookup_input_by_ss(uint32_t, DyscoTcpSession*);
 	DyscoHashOut* lookup_pending_tag_by_tag(uint32_t, uint32_t);
 
@@ -370,7 +370,6 @@ class DyscoCenter final : public Module {
 	*/
 	DyscoHashOut* create_cb_out(uint32_t, Ipv4*, Tcp*, DyscoPolicies::Filter*);
 	bool out_tx_init(bess::Packet*, Ipv4*, Tcp*, DyscoHashOut*);
-	bool insert_cb_out(uint32_t, DyscoHashOut*, uint8_t);
 	DyscoHashIn* insert_cb_out_reverse(uint32_t, DyscoHashOut*, uint8_t);
 	bool remove_tag(bess::Packet*, Ipv4*, Tcp*);
 	bool add_sc(bess::Packet*, Ipv4*, DyscoHashOut*);
