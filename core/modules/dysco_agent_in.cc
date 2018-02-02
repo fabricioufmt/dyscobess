@@ -632,7 +632,7 @@ bool DyscoAgentIn::control_reconfig_in(Ipv4* ip, DyscoCbReconfig* rcb, DyscoCont
 	cb_in->in_iack = rcb->leftIack;
 	cb_in->two_paths = false;
 
-	DyscoHashOut* cb_out = build_cb_in_reverse(ip, tcp, rcb);
+	DyscoHashOut* cb_out = build_cb_in_reverse(ip, rcb);
 	if(!cb_out) {
 		delete cb_in;
 		dc->remove_reconfig(this->index, rcb);
