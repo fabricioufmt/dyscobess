@@ -502,7 +502,7 @@ bool DyscoAgentIn::compute_deltas_in(DyscoHashIn* cb_in, DyscoHashOut* old_out, 
 		cb_in->tsr_in = rcb->leftItsr;
 		cb_in->tsr_out = old_out->cb_in->tsr_out;
 
-		if(cb->tsr_in < cb_in->tsr_out) {
+		if(cb_in->tsr_in < cb_in->tsr_out) {
 			cb_in->tsr_delta = cb_in->tsr_out - cb_in->tsr_in;
 			cb_in->tsr_add = true;
 		} else {
@@ -525,6 +525,8 @@ bool DyscoAgentIn::compute_deltas_in(DyscoHashIn* cb_in, DyscoHashOut* old_out, 
 		cb_in->ws_ok = 0;
 
 	cb_in->sack_ok = rcb->sack_ok;
+
+	return true;
 }
 
 bool DyscoAgentIn::compute_deltas_out(DyscoHashOut* cb_out, DyscoHashOut* old_out, DyscoCbReconfig* rcb) {
@@ -677,7 +679,7 @@ bool DyscoAgentIn::control_reconfig_in(Ipv4* ip, DyscoCbReconfig* rcb, DyscoCont
 // or UDP* udp?
 bool DyscoAgentIn::control_input(Ipv4* ip) {
 
-	DyscoControlMessage* csmg;
+	DyscoControlMessage* cmsg;
 	DyscoCbReconfig* rcb;
 
 	/*
@@ -687,7 +689,7 @@ bool DyscoAgentIn::control_input(Ipv4* ip) {
 	
 	switch(cmsg->mtype) {
 	case DYSCO_SYN:
-		rcb = dc->lookup_reconfig(this->index, &cmsg->super);
+		rcb = dc->lookup_reconfig_by_ss(this->index, &cmsg->super);
 
 		if(rcb)
 			return true;
