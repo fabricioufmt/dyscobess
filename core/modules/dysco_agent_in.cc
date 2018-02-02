@@ -450,10 +450,10 @@ DyscoCbReconfig* DyscoAgentIn::insert_rcb_control_input(Ipv4* ip, DyscoControlMe
 DyscoHashOut* build_cb_in_reverse(Ipv4* ip, DyscoCbReconfig* rcb) {
 	DyscoHashOut* cb_out = new DyscoHashOut();
 
-	cb_out->super.sip = rcb->super.dip;
-	cb_out->super.dip = rcb->super.sip;
-	cb_out->super.sport = rcb->super.dport;
-	cb_out->super.dport = rcb->super.sport;
+	cb_out->sup.sip = rcb->super.dip;
+	cb_out->sup.dip = rcb->super.sip;
+	cb_out->sup.sport = rcb->super.dport;
+	cb_out->sup.dport = rcb->super.sport;
 
 	cb_out->sub.sip = ip->dst.value();
 	cb_out->sub.dip = ip->src.value();
@@ -606,7 +606,7 @@ bool DyscoAgentIn::control_config_rightA(DyscoCbReconfig* rcb, DyscoControlMessa
 		return false;
 	}
 
-	cb_in->super = cmsg->rightSS;
+	cb_in->sup = cmsg->rightSS;
 	compute_deltas_in(cb_in, old_out, rcb);
 	compute_deltas_out(cb_out, old_out, rcb);
 	cb_in->two_paths = true;
@@ -646,7 +646,7 @@ bool DyscoAgentIn::control_reconfig_in(Ipv4* ip, DyscoCbReconfig* rcb, DyscoCont
 		if(!control_config_rightA(rcb, cmsg, cb_in, cb_out))
 			return 0;
 	} else {
-		cb_in->super = rcb->super;
+		cb_in->sup = rcb->super;
 		cb_in->out_iseq = rcb->leftIseq;
 		cb_in->out_iack = rcb->leftIack;
 		cb_in->seq_delta = cb_in->ack_delta = 0;
@@ -666,14 +666,16 @@ bool DyscoAgentIn::control_reconfig_in(Ipv4* ip, DyscoCbReconfig* rcb, DyscoCont
 			cb_in->ws_ok = 0;
 
 		cb_out->sack_ok = cb_in->sack_ok = rcb->sack_ok;
-		//insert cb_out;
+		dc->insert_hash_output(this->index, cb_out);
 	}
 
-	//insert cb_in;
+	dc->insert_hash_input(this->index, cb_in);
+
+	return true;
 }
 
 // or UDP* udp?
-bool DyscoAgentIn::control_input(Ipv4* ip, Tcp* tcp) {
+bool DyscoAgentIn::control_input(Ipv4* ip) {
 
 	DyscoControlMessage* csmg;
 	DyscoCbReconfig* rcb;
@@ -681,6 +683,7 @@ bool DyscoAgentIn::control_input(Ipv4* ip, Tcp* tcp) {
 	/*
 	  cmsg is filled by packet payload
 	 */
+	cmsg = 0;//test
 	
 	switch(cmsg->mtype) {
 	case DYSCO_SYN:
@@ -693,7 +696,7 @@ bool DyscoAgentIn::control_input(Ipv4* ip, Tcp* tcp) {
 		if(!rcb)
 			return false;
 
-		return control_reconfig_in(pkt, rcb, cmsg);
+		return control_reconfig_in(ip, rcb, cmsg);
 
 	case DYSCO_SYN_ACK:
 		//verify htonl
@@ -740,7 +743,7 @@ bool DyscoAgentIn::control_input(Ipv4* ip, Tcp* tcp) {
 				old_out_ack_cutoff += delta;
 			}
 
-			if(out_out->state == DYSCO_ESTABLISHED)
+			if(old_out->state == DYSCO_ESTABLISHED)
 				return true;
 
 			if(!old_out->state_t) {

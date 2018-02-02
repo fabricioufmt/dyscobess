@@ -87,7 +87,7 @@ class DyscoAgentIn final : public Module {
 	bool compute_deltas_out(DyscoHashOut*, DyscoHashOut*, DyscoCbReconfig*);
 	bool control_config_rightA(DyscoCbReconfig*, DyscoControlMessage*, DyscoHashIn*, DyscoHashOut*);
 	bool control_reconfig_in(Ipv4*, DyscoCbReconfig*, DyscoControlMessage*);
-	bool control_input(Ipv4*, Tcp*);
+	bool control_input(Ipv4*);
 
 
 

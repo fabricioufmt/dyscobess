@@ -176,6 +176,7 @@ class DyscoHashOut {
 };
 
 class DyscoCbReconfig {
+ public:
 	DyscoTcpSession super;
 	DyscoTcpSession leftSS;
 	DyscoTcpSession rightSS;
@@ -202,6 +203,7 @@ class DyscoCbReconfig {
 };
 
 class DyscoControlMessage {
+ public:
 	uint16_t mtype;
 	DyscoTcpSession super;
 	DyscoTcpSession leftSS;
@@ -282,8 +284,10 @@ class DyscoCenter final : public Module {
 	DyscoHashOut* lookup_output_pending(uint32_t, Ipv4*, Tcp*);
 	DyscoHashOut* lookup_pending_tag(uint32_t, Tcp*);
 	
-	DyscoHashOut* lookup_reconfig_by_ss(uint32_t, DyscoTcpSession*);
-	bool insert_rcb_control_input(uint32_t, DyscoCbReconfig*);
+	DyscoCbReconfig* lookup_reconfig_by_ss(uint32_t, DyscoTcpSession*);
+	bool insert_hash_reconfig(uint32_t, DyscoCbReconfig*);
+	bool insert_hash_input(uint32_t, DyscoHashIn*);
+	bool insert_hash_output(uint32_t, DyscoHashOut*);
 	bool remove_reconfig(uint32_t, DyscoCbReconfig*);
 	bool replace_cb_leftA(DyscoCbReconfig*, DyscoControlMessage*);
 		
