@@ -447,7 +447,7 @@ DyscoCbReconfig* DyscoAgentIn::insert_rcb_control_input(Ipv4* ip, DyscoControlMe
 	return rcb;
 }
 
-DyscoHashOut* build_cb_in_reverse(Ipv4* ip, DyscoCbReconfig* rcb) {
+DyscoHashOut* DyscoAgentIn::build_cb_in_reverse(Ipv4* ip, DyscoCbReconfig* rcb) {
 	DyscoHashOut* cb_out = new DyscoHashOut();
 
 	cb_out->sup.sip = rcb->super.dip;
