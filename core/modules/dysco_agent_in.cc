@@ -489,7 +489,7 @@ bool DyscoAgentIn::compute_deltas_in(DyscoHashIn* cb_in, DyscoHashOut* old_out, 
 	if(rcb->leftIts) {
 		cb_in->ts_ok = 1;
 		cb_in->ts_in = rcb->leftIts;
-		cb_in->ts_out = old_out->cb_in->ts_out;
+		cb_in->ts_out = old_out->dcb_in->ts_out;
 
 		if(cb_in->ts_in < cb_in->ts_out) {
 			cb_in->ts_delta = cb_in->ts_out - cb_in->ts_in;
@@ -500,7 +500,7 @@ bool DyscoAgentIn::compute_deltas_in(DyscoHashIn* cb_in, DyscoHashOut* old_out, 
 		}
 
 		cb_in->tsr_in = rcb->leftItsr;
-		cb_in->tsr_out = old_out->cb_in->tsr_out;
+		cb_in->tsr_out = old_out->dcb_in->tsr_out;
 
 		if(cb_in->tsr_in < cb_in->tsr_out) {
 			cb_in->tsr_delta = cb_in->tsr_out - cb_in->tsr_in;
@@ -640,8 +640,8 @@ bool DyscoAgentIn::control_reconfig_in(Ipv4* ip, DyscoCbReconfig* rcb, DyscoCont
 		return false;
 	}
 
-	cb_out->cb_in = cb_in;
-	cb_in->cb_out = cb_out;
+	cb_out->dcb_in = cb_in;
+	cb_in->dcb_out = cb_out;
 
 	//verify htonl
 	if(ip->dst.value() == cmsg->rightA) {

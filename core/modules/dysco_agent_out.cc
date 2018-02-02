@@ -542,7 +542,7 @@ bool DyscoAgentOut::control_output_syn(Ipv4* ip, DyscoControlMessage* cmsg) {
 
 			return true;
 		} else {
-			old_dcb = dc->lookup_hash_output(this->index, &cmsg->leftSS);
+			old_dcb = dc->lookup_output_by_ss(this->index, &cmsg->leftSS);
 
 			if(!old_dcb)
 				return false;
@@ -568,7 +568,7 @@ bool DyscoAgentOut::control_output_syn(Ipv4* ip, DyscoControlMessage* cmsg) {
 
 		rcb->old_dcb = old_dcb;
 
-		new_dcb->super = rcb->super;
+		new_dcb->sup = rcb->super;
 		new_dcb->sub = rcb->sub_out;
 
 		new_dcb->out_iseq = new_dcb->in_iseq = rcb->leftIseq;
