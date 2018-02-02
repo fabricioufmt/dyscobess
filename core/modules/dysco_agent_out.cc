@@ -475,7 +475,7 @@ bool DyscoAgentOut::control_insert_out(DyscoCbReconfig* rcb) {
 }
 
 bool DyscoAgentOut::replace_cb_rightA(DyscoControlMessage* cmsg) {
-	DyscoCbReconfig* rcb = dc->lookup_hash_reconfig(this->index, &cmsg->super);
+	DyscoCbReconfig* rcb = dc->lookup_reconfig_by_ss(this->index, &cmsg->super);
 
 	if(!rcb)
 		return false;
@@ -515,7 +515,7 @@ bool DyscoAgentOut::replace_cb_leftA(DyscoCbReconfig* rcb, DyscoControlMessage* 
 }
 
 bool DyscoAgentOut::control_output_syn(Ipv4* ip, DyscoControlMessage* cmsg) {
-	DyscoCbReconfig* rcb = dc->lookup_hash_reconfig(this->index, &cmsg->super);
+	DyscoCbReconfig* rcb = dc->lookup_reconfig_by_ss(this->index, &cmsg->super);
 
 	//verify htonl
 	if(ip->src.value() == cmsg->leftA) {
