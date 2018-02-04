@@ -40,6 +40,9 @@ class DyscoAgentOut final : public Module {
 	DyscoCenter* dc;
 	std::string ns;
 
+	int netns_fd_;
+	char ipaddress[16];
+	
 	bool insert_metadata(bess::Packet*);
 	
 	inline bool isIP(Ethernet* eth) {
