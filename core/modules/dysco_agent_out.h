@@ -31,6 +31,9 @@ class DyscoAgentOut final : public Module {
 	void ProcessBatch(bess::PacketBatch*) override;
 	CommandResponse Init(const bess::pb::DyscoAgentOutArg&);
 
+	//Dysco
+	bool get_port_information();
+
  private:
 	uint32_t devip;
 	uint32_t index;

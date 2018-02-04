@@ -50,14 +50,16 @@ CommandResponse DyscoAgentOut::Init(const bess::pb::DyscoAgentOutArg& arg) {
 
 	index = dc->get_index(reinterpret_cast<Port*>(itt->second)->name());
 	*/
-	inet_pton(AF_INET, arg.ip().c_str(), &devip);
+	/*inet_pton(AF_INET, arg.ip().c_str(), &devip);
 	index = dc->get_index(arg.ns(), devip);
-	ns = arg.ns();
+	ns = arg.ns();*/
 
 	return CommandSuccess();
 }
 
 void DyscoAgentOut::ProcessBatch(bess::PacketBatch* batch) {
+	get_port_information();
+	
 	if(dc) {
 		int cnt = batch->cnt();
 		
@@ -70,6 +72,27 @@ void DyscoAgentOut::ProcessBatch(bess::PacketBatch* batch) {
 	}
 	
 	RunChooseModule(0, batch);
+}
+
+bool DyscoAgentOut::get_port_information() {
+	gate_idx_t igate_idx = 0; //always 1 input gate (DyscoVPortIn)
+
+	if(!is_active_gate<bess::IGate>(igates(), ogate_idx))
+		return false;
+
+	bess::IGate* igate = igates()[igate_idx];
+	if(!igate)
+		return false;
+
+	Module* m_prev = igate->ogates_upstream()[0]->module();
+	DyscoVPort* dysco_port_in = reinterpret_cast<DyscoVPort*>(m_prev);
+	if(!dysco_port_in)
+		return false;
+	
+	netns_fd_ = dysco_port_in->netns_fd_;
+	memcpy(ipaddress, dysco_port_in->ipaddress, sizeof(ipaddress));
+
+	return true;
 }
 
 /************************************************************************/

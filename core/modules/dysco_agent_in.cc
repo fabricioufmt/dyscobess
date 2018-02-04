@@ -64,7 +64,7 @@ bool DyscoAgentIn::get_port_information() {
 	gate_idx_t ogate_idx = 0; //always 1 output gate (DyscoVPortOut)
 
 	if(!is_active_gate<bess::OGate>(ogates(), ogate_idx))
-	  return false;
+		return false;
 
 	bess::OGate* ogate = ogates()[ogate_idx];
 	if(!ogate)
