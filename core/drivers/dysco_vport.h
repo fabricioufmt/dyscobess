@@ -30,7 +30,7 @@ class DyscoVPort final : public Port {
 	void *AllocBar(struct tx_queue_opts *txq_opts,
 		       struct rx_queue_opts *rxq_opts);
 	int SetIPAddrSingle(const std::string &ip_addr);
-	CommandResponse SetIPAddr(const bess::pb::VPortArg &arg);
+	CommandResponse SetIPAddr(const bess::pb::DyscoVPortArg &arg);
 	
 	int fd_;
 	

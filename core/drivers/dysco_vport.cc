@@ -327,7 +327,7 @@ int DyscoVPort::SetIPAddrSingle(const std::string &ip_addr) {
 	return 0;
 }
 
-CommandResponse DyscoVPort::SetIPAddr(const bess::pb::VPortArg &arg) {
+CommandResponse DyscoVPort::SetIPAddr(const bess::pb::DyscoVPortArg &arg) {
 	int child_pid = 0;
 
 	int ret = 0;
@@ -424,7 +424,7 @@ void DyscoVPort::DeInit() {
 	FreeBar();
 }
 
-CommandResponse DyscoVPort::Init(const bess::pb::VPortArg &arg) {
+CommandResponse DyscoVPort::Init(const bess::pb::DyscoVPortArg &arg) {
 	CommandResponse err;
 	int ret;
 	phys_addr_t phy_addr;
@@ -450,13 +450,13 @@ CommandResponse DyscoVPort::Init(const bess::pb::VPortArg &arg) {
 		strncpy(ifname_, name().c_str(), IFNAMSIZ);
 	}
 
-	if (arg.cpid_case() == bess::pb::VPortArg::kDocker) {
+	if (arg.cpid_case() == bess::pb::DyscoVPortArg::kDocker) {
 		err = docker_container_pid(arg.docker(), &container_pid_);
 		if (err.error().code() != 0)
 			goto fail;
-	} else if (arg.cpid_case() == bess::pb::VPortArg::kContainerPid) {
+	} else if (arg.cpid_case() == bess::pb::DyscoVPortArg::kContainerPid) {
 		container_pid_ = arg.container_pid();
-	} else if (arg.cpid_case() == bess::pb::VPortArg::kNetns) {
+	} else if (arg.cpid_case() == bess::pb::DyscoVPortArg::kNetns) {
 		netns_fd_ = open(arg.netns().c_str(), O_RDONLY);
 		if (netns_fd_ < 0) {
 			err = CommandFailure(EINVAL, "Invalid network namespace %s",
