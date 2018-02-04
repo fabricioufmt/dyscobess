@@ -1,6 +1,7 @@
 #include <netinet/tcp.h>
 #include "dysco_agent_out.h"
 #include "../module_graph.h"
+#include "../drivers/dysco_vport.h"
 
 //debug
 char* printip2(uint32_t ip) {
@@ -77,7 +78,7 @@ void DyscoAgentOut::ProcessBatch(bess::PacketBatch* batch) {
 bool DyscoAgentOut::get_port_information() {
 	gate_idx_t igate_idx = 0; //always 1 input gate (DyscoVPortIn)
 
-	if(!is_active_gate<bess::IGate>(igates(), ogate_idx))
+	if(!is_active_gate<bess::IGate>(igates(), igate_idx))
 		return false;
 
 	bess::IGate* igate = igates()[igate_idx];
