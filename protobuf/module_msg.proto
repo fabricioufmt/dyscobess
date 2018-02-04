@@ -1161,3 +1161,16 @@ message DyscoAgentOutArg {
 	string ip = 2;
 	string dc = 3;
 }
+
+message DyscoPortIncCommandSetBurstArg {
+  uint64 burst = 1; /// The maximum "burst" of packets (ie, the maximum batch size)
+}
+
+message DyscoPortIncArg {
+  string port = 1; /// The portname to connect to.
+  bool prefetch = 2; /// Whether or not to prefetch packets from the port.
+}
+
+message DyscoPortOutArg {
+  string port = 1; /// The portname to connect to.
+}
