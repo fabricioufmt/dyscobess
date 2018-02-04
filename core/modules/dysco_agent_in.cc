@@ -72,7 +72,7 @@ bool DyscoAgentIn::get_port_information() {
 		return false;
 	
 	netns_fd_ = dysco_port_out->netns_fd_;
-	ipaddress = dysco_port_out->ipaddress;
+	memcpy(ipaddress, dysco_port_out->ipaddress, sizeof(ipaddress));
 
 	return true;
 }
