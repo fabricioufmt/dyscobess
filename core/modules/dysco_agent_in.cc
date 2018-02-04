@@ -55,6 +55,27 @@ void DyscoAgentIn::ProcessBatch(bess::PacketBatch* batch) {
 	RunChooseModule(0, batch);
 }
 
+bool DyscoAgentIn::get_port_information() {
+	gate_idx_t ogate_idx = 0; //always 1 output gate (DyscoVPortOut)
+
+	if(!is_active_gate<bess::OGate>(ogates_, ogate_idx))
+		return false;
+
+	bess::OGate* ogate = ogates_[ogate_idx];
+	if(!ogate)
+		return false;
+
+	Module* m_next = ogate->next();
+	DyscoVPortOut* dysco_port_out = reinterpret_cast<DyscoVPort*>(m_next);
+	if(!dysco_port_out)
+		return false;
+	
+	netns_fd_ = dysco_port_out->netns_fd_;
+	ipaddress = dysco_port_out->ipaddress;
+
+	return true;
+}
+
 /************************************************************************/
 /************************************************************************/
 /*

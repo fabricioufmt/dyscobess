@@ -315,7 +315,10 @@ int DyscoVPort::SetIPAddrSingle(const std::string &ip_addr) {
 	fp = popen(buf, "r");
 	if (!fp)
 		return -errno;
-
+	//Dysco
+	memset(ipaddress, 0, sizeof(ipaddress));
+	memcpy(ipaddress, ip_addr.c_str(), ip_addr.length());
+	
 	ret = pclose(fp);
 	exit_code = WEXITSTATUS(ret);
 	if (exit_code)

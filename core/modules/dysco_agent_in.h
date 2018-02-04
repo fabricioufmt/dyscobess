@@ -30,11 +30,17 @@ class DyscoAgentIn final : public Module {
 	void ProcessBatch(bess::PacketBatch*) override;
 	CommandResponse Init(const bess::pb::DyscoAgentInArg&);
 
+	//Dysco
+	bool get_port_information();
+
  private:
 	uint32_t devip;
 	uint32_t index;
 	DyscoCenter* dc;
 	std::string ns;
+
+	int netns_fd_;
+	char ipaddress[16];
 
 	inline bool isIP(Ethernet* eth) {
 		return eth->ether_type.value() == Ethernet::Type::kIpv4;
