@@ -9,7 +9,7 @@ class DyscoVPort final : public Port {
  DyscoVPort() : fd_(), bar_(), map_(), netns_fd_(), container_pid_() {}
 	void InitDriver() override;
 	
-	CommandResponse Init(const bess::pb::VPortArg &arg);
+	CommandResponse Init(const bess::pb::DyscoVPortArg &arg);
 	void DeInit() override;
 
 	int RecvPackets(queue_t qid, bess::Packet **pkts, int max_cnt) override;
