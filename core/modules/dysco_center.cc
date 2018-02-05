@@ -99,7 +99,7 @@ CommandResponse DyscoCenter::CommandList(const bess::pb::EmptyArg&) {
   Control methods (use internal)
  */
 
-uint32_t DyscoCenter::get_index(std::string ns, uint32_t ip) {
+uint32_t DyscoCenter::get_index(const std::string& ns, uint32_t ip) {
 	uint32_t index = std::hash<std::string>()(ns);
 	hashes[index].devip = ip;
 	
