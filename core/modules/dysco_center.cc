@@ -104,22 +104,12 @@ uint32_t DyscoCenter::get_index2(int netns_fd_, uint32_t ip) {
 }
 
 DyscoHashes* DyscoCenter::get_hash(uint32_t i) {
-	/*unordered_map<uint32_t, DyscoHashes>::iterator it = hashes.find(i);
+	unordered_map<uint32_t, DyscoHashes>::iterator it = hashes.find(i);
 	if(it != hashes.end()) {
-		fprintf(stderr, "[DyscoCenter] get_hash: %u\n", (*it).first);
+		fprintf(stderr, "[DyscoCenter] get_hash: %u found\n", (*it).first);
 		return &(*it).second;
 	}
 
-	return 0;*/
-	unordered_map<uint32_t, DyscoHashes>::iterator it = hashes.begin();
-	while(it != hashes.end()) {
-		fprintf(stderr, "[DyscoCenter] get_hash (i == first): %u == %u\n", i, (*it).first);
-		if(i == (*it).first) {
-			fprintf(stderr, "[DyscoCenter] found\n");
-			return &(*it).second;
-		}
-		it++;
-	}
 	fprintf(stderr, "[DyscoCenter] not found\n");
 	return 0;
 }
