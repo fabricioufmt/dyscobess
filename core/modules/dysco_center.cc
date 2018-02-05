@@ -41,7 +41,6 @@ DyscoCenter::DyscoCenter() : Module() {
 
 CommandResponse DyscoCenter::CommandAdd(const bess::pb::DyscoCenterAddArg& arg) {
 	uint32_t index = std::hash<std::string>()(arg.ns());
-	fprintf(stderr, "CommandAdd: arg.ns value: %s (hash: %u)\n", arg.ns().c_str(), index);
 	uint32_t sc_len = arg.sc_len();
 	uint32_t* sc = new uint32_t[sc_len];
 	
@@ -52,8 +51,14 @@ CommandResponse DyscoCenter::CommandAdd(const bess::pb::DyscoCenterAddArg& arg) 
 	}
 	
 	DyscoHashes* dh = get_hash(index);
-	if(!dh)
-		return CommandFailure(ENODEV, "No hashes.");
+	if(!dh) {
+		dh = new DyscoHashes();
+		dh->ns = arg.ns;
+		dh->index = index;
+		
+		hashes.insert(std::make_pair<uint32_t, DyscoHashes>(index, *dh));
+		//return CommandFailure(ENODEV, "No hashes.");
+	}
 
 	dh->policies.add_filter(arg.priority(), arg.filter(), sc, sc_len);
 	
