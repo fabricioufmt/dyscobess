@@ -85,7 +85,7 @@ bool DyscoAgentIn::get_port_information() {
 	ns = dysco_port_out->ns;
 	devip = dysco_port_out->devip;
 	netns_fd_ = dysco_port_out->netns_fd_;
-	index = dc->get_index(ns, devip);
+	index = dc->get_index(&ns, devip);
 
 	return true;
 }
