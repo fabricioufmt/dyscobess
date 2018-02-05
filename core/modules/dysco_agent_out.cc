@@ -55,11 +55,13 @@ CommandResponse DyscoAgentOut::Init(const bess::pb::DyscoAgentOutArg& arg) {
 	index = dc->get_index(arg.ns(), devip);
 	ns = arg.ns();*/
 
+	get_port_information();
+
 	return CommandSuccess();
 }
 
 void DyscoAgentOut::ProcessBatch(bess::PacketBatch* batch) {
-	get_port_information();
+	//get_port_information();
 	
 	if(dc) {
 		int cnt = batch->cnt();
@@ -68,7 +70,7 @@ void DyscoAgentOut::ProcessBatch(bess::PacketBatch* batch) {
 		for(int i = 0; i < cnt; i++) {
 			pkt = batch->pkts()[i];
 			output(pkt);
-			insert_metadata(pkt);
+			//insert_metadata(pkt);
 		}
 	}
 	
@@ -383,12 +385,11 @@ bool DyscoAgentOut::output(bess::Packet* pkt) {
 	Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
 
 	//debug
-	/*fprintf(stderr, "[%s][DyscoAgentOut] receives %s:%u -> %s:%u\n",
+	fprintf(stderr, "[%s][DyscoAgentOut] receives %s:%u -> %s:%u\n",
 		ns.c_str(),
 		printip2(ip->src.value()), tcp->src_port.value(),
-		printip2(ip->dst.value()), tcp->dst_port.value());*/
+		printip2(ip->dst.value()), tcp->dst_port.value());
 
-	
 	DyscoHashOut* cb_out = dc->lookup_output(this->index, ip, tcp);
 	if(!cb_out) {
 		cb_out = dc->lookup_output_pending(this->index, ip, tcp);
@@ -405,6 +406,9 @@ bool DyscoAgentOut::output(bess::Packet* pkt) {
 			update_five_tuple(ip, tcp, cb_out);
 			return dc->out_handle_mb(this->index, pkt, ip, tcp, cb_out);
 		}
+	} else {
+		//debug
+		fprintf(stderr, "[%s][DyscoAgentOut] output_pending_tag isn't NULL and calling handle_mb_out method\n", ns.c_str());
 	}
 
 	if(isTCPSYN(tcp)) {
