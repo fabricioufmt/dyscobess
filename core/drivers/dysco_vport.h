@@ -48,6 +48,7 @@ class DyscoVPort final : public Port {
 	int container_pid_;
 	//Dysco
 	uint32_t devip;
+	std::string ns;
 };
 
 #endif  // BESS_DRIVERS_DYSCO_VPORT_H_

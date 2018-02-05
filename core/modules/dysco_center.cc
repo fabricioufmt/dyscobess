@@ -61,7 +61,10 @@ CommandResponse DyscoCenter::CommandAdd(const bess::pb::DyscoCenterAddArg& arg) 
 		//return CommandFailure(ENODEV, "No hashes.");
 	}
 
-	dh->policies.add_filter(arg.priority(), arg.filter(), sc, sc_len);
+	if(dh->policies.add_filter(arg.priority(), arg.filter(), sc, sc_len))
+		fprintf(stderr, "[DyscoCenter] add_filter is OK\n");
+	else
+		fprintf(stderr, "[DyscoCenter] add_filter is not OK\n");
 	
 	bess::pb::DyscoCenterListArg l;
 	l.set_msg("... Done.");	
