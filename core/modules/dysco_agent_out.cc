@@ -81,21 +81,28 @@ void DyscoAgentOut::ProcessBatch(bess::PacketBatch* batch) {
 bool DyscoAgentOut::get_port_information() {
 	gate_idx_t igate_idx = 0; //always 1 input gate (DyscoVPortIn)
 
-	if(!is_active_gate<bess::IGate>(igates(), igate_idx))
+	if(!is_active_gate<bess::IGate>(igates(), igate_idx)) {
+		fprintf(stderr, "1\n");
 		return false;
+	}
+	
 
 	bess::IGate* igate = igates()[igate_idx];
-	if(!igate)
+	if(!igate) {
+		fprintf(stderr, "2\n");
 		return false;
+	}
 
 	Module* m_prev = igate->ogates_upstream()[0]->module();
 	DyscoVPort* dysco_port_in = reinterpret_cast<DyscoVPort*>(m_prev);
-	if(!dysco_port_in)
+	if(!dysco_port_in) {
+		fprintf(stderr, "3\n");
 		return false;
+	}
 	
 	netns_fd_ = dysco_port_in->netns_fd_;
 	memcpy(ipaddress, dysco_port_in->ipaddress, sizeof(ipaddress));
-
+	fprintf(stderr, "4\n");
 	return true;
 }
 
