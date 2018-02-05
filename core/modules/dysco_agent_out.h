@@ -39,8 +39,8 @@ class DyscoAgentOut final : public Module {
 	uint32_t index;
 	DyscoCenter* dc;
 	std::string ns;
-
 	int netns_fd_;
+	bool info_flag;
 	
 	bool insert_metadata(bess::Packet*);
 	

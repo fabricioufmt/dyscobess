@@ -38,8 +38,8 @@ class DyscoAgentIn final : public Module {
 	uint32_t index;
 	DyscoCenter* dc;
 	std::string ns;
-
 	int netns_fd_;
+	bool info_flag;
 
 	inline bool isIP(Ethernet* eth) {
 		return eth->ether_type.value() == Ethernet::Type::kIpv4;

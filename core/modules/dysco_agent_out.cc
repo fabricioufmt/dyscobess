@@ -21,6 +21,9 @@ DyscoAgentOut::DyscoAgentOut() : Module() {
 	dc = 0;
 	devip = 0;
 	index = 0;
+
+	netns_fd_ = 0;
+	info_flag = false;
 }
 
 bool DyscoAgentOut::insert_metadata(bess::Packet* pkt) {
@@ -79,6 +82,9 @@ void DyscoAgentOut::ProcessBatch(bess::PacketBatch* batch) {
 }
 
 bool DyscoAgentOut::get_port_information() {
+	if(info_flag)
+		return true;
+	
 	gate_idx_t igate_idx = 0; //always 1 input gate (DyscoVPortIn)
 
 	if(!is_active_gate<bess::IGate>(igates(), igate_idx)) {
@@ -99,7 +105,8 @@ bool DyscoAgentOut::get_port_information() {
 		fprintf(stderr, "3\n");
 		return false;
 	}
-	
+
+	info_flag = true;
 	netns_fd_ = dysco_port_in->netns_fd_;
 	fprintf(stderr, "%s: netns_fd_ = %d\n", name().c_str(), netns_fd_);
 	devip = dysco_port_in->devip;
