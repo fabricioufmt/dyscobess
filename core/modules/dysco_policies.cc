@@ -1100,6 +1100,7 @@ bool DyscoPolicies::add_filter(uint32_t priority, std::string exp, uint32_t* sc,
 
 DyscoPolicies::Filter* DyscoPolicies::match_policy(bess::Packet* pkt) {
 	for(Filter& filter : filters_) {
+		fprintf(stderr, "[DyscoPolicies]: filters\n");
 		if(Match(filter, pkt->head_data<uint8_t*>(), pkt->total_len(), pkt->head_len()))
 			return &filter;	
 	}
