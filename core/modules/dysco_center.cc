@@ -472,21 +472,28 @@ bool DyscoCenter::out_tx_init(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOu
 
 DyscoHashOut* DyscoCenter::out_syn(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) {
 	DyscoHashes* dh = get_hash(i);
-	if(!dh)
+	if(!dh) {
+		//debug
+		fprintf(stderr, "[DyscoCenter] 0\n");
 		return 0;
-	
+	}
+	//debug
+	fprintf(stderr, "[DyscoCenter] 1\n");
 	if(!cb_out) {
 		DyscoPolicies::Filter* filter = dh->policies.match_policy(pkt);
 		if(!filter)
 			return 0;
-		
+		//debug
+		fprintf(stderr, "[DyscoCenter] 2\n");		
 		cb_out = create_cb_out(i, ip, tcp, filter);
 		if(!cb_out)
 			return 0;
-		
+		//debug
+		fprintf(stderr, "[DyscoCenter] 3\n");
 		insert_cb_out(i, cb_out, 0);
 	}
-
+	//debug
+	fprintf(stderr, "[DyscoCenter] 4\n");
 	cb_out->seq_cutoff = tcp->seq_num.value();
 	parse_tcp_syn_opt_s(tcp, cb_out);
 	if(isTCPACK(tcp)) {
