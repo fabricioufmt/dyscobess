@@ -55,14 +55,14 @@ CommandResponse DyscoAgentOut::Init(const bess::pb::DyscoAgentOutArg& arg) {
 	index = dc->get_index(arg.ns(), devip);
 	ns = arg.ns();*/
 
-	if(!get_port_information())
-		return CommandFailure(ENODEV, "DyscoVPort module is NULL.");
+	//if(!get_port_information())
+	//	return CommandFailure(ENODEV, "DyscoVPort module is NULL.");
 
 	return CommandSuccess();
 }
 
 void DyscoAgentOut::ProcessBatch(bess::PacketBatch* batch) {
-	//get_port_information();
+	get_port_information();
 	
 	if(dc) {
 		int cnt = batch->cnt();
@@ -81,10 +81,10 @@ void DyscoAgentOut::ProcessBatch(bess::PacketBatch* batch) {
 bool DyscoAgentOut::get_port_information() {
 	gate_idx_t igate_idx = 0; //always 1 input gate (DyscoVPortIn)
 
-	/*if(!is_active_gate<bess::IGate>(igates(), igate_idx)) {
+	if(!is_active_gate<bess::IGate>(igates(), igate_idx)) {
 		fprintf(stderr, "1\n");
 		return false;
-		}*/
+	}
 	
 
 	bess::IGate* igate = igates()[igate_idx];
