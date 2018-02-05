@@ -51,8 +51,15 @@ CommandResponse DyscoCenter::CommandAdd(const bess::pb::DyscoCenterAddArg& arg) 
 	}
 	
 	DyscoHashes* dh = get_hash(index);
-	if(!dh)
-		return CommandFailure(ENODEV, "No hashes.");
+	if(!dh) {
+		dh = new DyscoHashes();
+		dh->ns = arg.ns();
+		dh->index = index;
+		
+		//hashes.insert(std::make_pair<uint32_t, DyscoHashes>(&index, *dh));
+		hashes[index] = *dh;
+		//return CommandFailure(ENODEV, "No hashes.");
+	}
 
 	dh->policies.add_filter(arg.priority(), arg.filter(), sc, sc_len);
 	
@@ -97,9 +104,21 @@ uint32_t DyscoCenter::get_index2(int netns_fd_, uint32_t ip) {
 }
 
 DyscoHashes* DyscoCenter::get_hash(uint32_t i) {
-	unordered_map<uint32_t, DyscoHashes>::iterator it = hashes.find(i);
-	if(it != hashes.end())
+	/*unordered_map<uint32_t, DyscoHashes>::iterator it = hashes.find(i);
+	if(it != hashes.end()) {
+		fprintf(stderr, "[DyscoCenter] get_hash: %u\n", (*it).first);
 		return &(*it).second;
+	}
+
+	return 0;*/
+	unordered_map<uint32_t, DyscoHashes>::iterator it = hashes.begin();
+	while(it != hashes.end()) {
+		fprintf(stderr, "[DyscoCenter] get_hash: %u == %u\n", i, (*it).first);
+		if(i == (*it).first) {
+			return &(*it).second;
+		}
+		it++;
+	}
 
 	return 0;
 }
@@ -465,21 +484,28 @@ bool DyscoCenter::out_tx_init(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOu
 
 DyscoHashOut* DyscoCenter::out_syn(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) {
 	DyscoHashes* dh = get_hash(i);
-	if(!dh)
+	if(!dh) {
+		//debug
+		fprintf(stderr, "[DyscoCenter] out_syn: 0 (index: %u)\n", i);
 		return 0;
-	
+	}
+	//debug
+	fprintf(stderr, "[DyscoCenter] out_syn: 1\n");
 	if(!cb_out) {
 		DyscoPolicies::Filter* filter = dh->policies.match_policy(pkt);
 		if(!filter)
 			return 0;
-		
+		//debug
+		fprintf(stderr, "[DyscoCenter] 2\n");		
 		cb_out = create_cb_out(i, ip, tcp, filter);
 		if(!cb_out)
 			return 0;
-		
+		//debug
+		fprintf(stderr, "[DyscoCenter] 3\n");
 		insert_cb_out(i, cb_out, 0);
 	}
-
+	//debug
+	fprintf(stderr, "[DyscoCenter] 4\n");
 	cb_out->seq_cutoff = tcp->seq_num.value();
 	parse_tcp_syn_opt_s(tcp, cb_out);
 	if(isTCPACK(tcp)) {

@@ -55,6 +55,9 @@ CommandResponse DyscoAgentOut::Init(const bess::pb::DyscoAgentOutArg& arg) {
 	index = dc->get_index(arg.ns(), devip);
 	ns = arg.ns();*/
 
+	//if(!get_port_information())
+	//	return CommandFailure(ENODEV, "DyscoVPort module is NULL.");
+
 	return CommandSuccess();
 }
 
@@ -68,7 +71,7 @@ void DyscoAgentOut::ProcessBatch(bess::PacketBatch* batch) {
 		for(int i = 0; i < cnt; i++) {
 			pkt = batch->pkts()[i];
 			output(pkt);
-			insert_metadata(pkt);
+			//insert_metadata(pkt);
 		}
 	}
 	
@@ -78,24 +81,35 @@ void DyscoAgentOut::ProcessBatch(bess::PacketBatch* batch) {
 bool DyscoAgentOut::get_port_information() {
 	gate_idx_t igate_idx = 0; //always 1 input gate (DyscoVPortIn)
 
-	if(!is_active_gate<bess::IGate>(igates(), igate_idx))
+	if(!is_active_gate<bess::IGate>(igates(), igate_idx)) {
+		fprintf(stderr, "1\n");
 		return false;
+	}
+	
 
 	bess::IGate* igate = igates()[igate_idx];
-	if(!igate)
+	if(!igate) {
+		fprintf(stderr, "2\n");
 		return false;
+	}
 
 	Module* m_prev = igate->ogates_upstream()[0]->module();
 	DyscoVPort* dysco_port_in = reinterpret_cast<DyscoVPort*>(m_prev);
-	if(!dysco_port_in)
+	if(!dysco_port_in) {
+		fprintf(stderr, "3\n");
 		return false;
+	}
 	
 	netns_fd_ = dysco_port_in->netns_fd_;
 	memcpy(ipaddress, dysco_port_in->ipaddress, sizeof(ipaddress));
+<<<<<<< HEAD
 	uint32_t devip;
 	inet_pton(AF_INET, ipaddress, &devip);
 	index = dc->get_index2(netns_fd_, devip);
 	
+=======
+	fprintf(stderr, "4\n");
+>>>>>>> 90f828f7c4b0c0d92a945faa98628e2a6dea2d66
 	return true;
 }
 
@@ -386,12 +400,11 @@ bool DyscoAgentOut::output(bess::Packet* pkt) {
 	Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
 
 	//debug
-	/*fprintf(stderr, "[%s][DyscoAgentOut] receives %s:%u -> %s:%u\n",
+	fprintf(stderr, "[%s][DyscoAgentOut] receives %s:%u -> %s:%u\n",
 		ns.c_str(),
 		printip2(ip->src.value()), tcp->src_port.value(),
-		printip2(ip->dst.value()), tcp->dst_port.value());*/
+		printip2(ip->dst.value()), tcp->dst_port.value());
 
-	
 	DyscoHashOut* cb_out = dc->lookup_output(this->index, ip, tcp);
 	if(!cb_out) {
 		cb_out = dc->lookup_output_pending(this->index, ip, tcp);
@@ -408,12 +421,21 @@ bool DyscoAgentOut::output(bess::Packet* pkt) {
 			update_five_tuple(ip, tcp, cb_out);
 			return dc->out_handle_mb(this->index, pkt, ip, tcp, cb_out);
 		}
+	} else {
+		//debug
+		fprintf(stderr, "[%s][DyscoAgentOut] output_pending_tag isn't NULL and calling handle_mb_out method\n", ns.c_str());
 	}
 
 	if(isTCPSYN(tcp)) {
 		//debug
 		fprintf(stderr, "[%s][DyscoAgentOut] calling process_syn_out method\n", ns.c_str());
-		return dc->out_syn(this->index, pkt, ip, tcp, cb_out);
+		bool ret = dc->out_syn(this->index, pkt, ip, tcp, cb_out);
+		if(ret) 
+			fprintf(stderr, "[%s][DyscoAgentOut] process_syn_out method returns TRUE\n", ns.c_str());
+		else
+			fprintf(stderr, "[%s][DyscoAgentOut] process_syn_out method returns FALSE\n", ns.c_str());
+		
+		return ret;
 	}
 
 	if(!cb_out)
