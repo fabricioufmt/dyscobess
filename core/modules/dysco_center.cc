@@ -105,12 +105,9 @@ uint32_t DyscoCenter::get_index2(int netns_fd_, uint32_t ip) {
 
 DyscoHashes* DyscoCenter::get_hash(uint32_t i) {
 	unordered_map<uint32_t, DyscoHashes>::iterator it = hashes.find(i);
-	if(it != hashes.end()) {
-		fprintf(stderr, "[DyscoCenter] get_hash: %u found\n", (*it).first);
+	if(it != hashes.end())
 		return &(*it).second;
-	}
 
-	fprintf(stderr, "[DyscoCenter] not found\n");
 	return 0;
 }
 
@@ -475,17 +472,18 @@ bool DyscoCenter::out_tx_init(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOu
 
 DyscoHashOut* DyscoCenter::out_syn(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) {
 	DyscoHashes* dh = get_hash(i);
-	if(!dh) {
-		//debug
-		fprintf(stderr, "[DyscoCenter] out_syn: 0 (index: %u)\n", i);
+	if(!dh)
 		return 0;
-	}
+	
 	//debug
 	fprintf(stderr, "[DyscoCenter] out_syn: 1\n");
 	if(!cb_out) {
 		DyscoPolicies::Filter* filter = dh->policies.match_policy(pkt);
-		if(!filter)
+		if(!filter) {
+			//debug
+			fprintf(stderr, "[DyscoCenter] out_syn: 1,5\n");
 			return 0;
+		}
 		//debug
 		fprintf(stderr, "[DyscoCenter] 2\n");		
 		cb_out = create_cb_out(i, ip, tcp, filter);
