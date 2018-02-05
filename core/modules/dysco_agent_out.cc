@@ -55,7 +55,8 @@ CommandResponse DyscoAgentOut::Init(const bess::pb::DyscoAgentOutArg& arg) {
 	index = dc->get_index(arg.ns(), devip);
 	ns = arg.ns();*/
 
-	get_port_information();
+	if(!get_port_information())
+		return CommandFailure(ENODEV, "DyscoVPort module is NULL.");
 
 	return CommandSuccess();
 }
@@ -414,7 +415,13 @@ bool DyscoAgentOut::output(bess::Packet* pkt) {
 	if(isTCPSYN(tcp)) {
 		//debug
 		fprintf(stderr, "[%s][DyscoAgentOut] calling process_syn_out method\n", ns.c_str());
-		return dc->out_syn(this->index, pkt, ip, tcp, cb_out);
+		bool ret = dc->out_syn(this->index, pkt, ip, tcp, cb_out);
+		if(ret) 
+			fprintf(stderr, "[%s][DyscoAgentOut] process_syn_out method returns TRUE\n", ns.c_str());
+		else
+			fprintf(stderr, "[%s][DyscoAgentOut] process_syn_out method returns FALSE\n", ns.c_str());
+		
+		return ret;
 	}
 
 	if(!cb_out)
