@@ -76,7 +76,7 @@ bool DyscoAgentIn::get_port_information() {
 		return false;
 	
 	netns_fd_ = dysco_port_out->netns_fd_;
-	memcpy(ipaddress, dysco_port_out->ipaddress, sizeof(ipaddress));
+	devip = dysco_port_out->devip;
 
 	return true;
 }

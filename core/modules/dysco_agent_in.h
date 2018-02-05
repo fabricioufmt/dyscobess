@@ -40,7 +40,6 @@ class DyscoAgentIn final : public Module {
 	std::string ns;
 
 	int netns_fd_;
-	char ipaddress[16];
 
 	inline bool isIP(Ethernet* eth) {
 		return eth->ether_type.value() == Ethernet::Type::kIpv4;
