@@ -56,7 +56,8 @@ CommandResponse DyscoCenter::CommandAdd(const bess::pb::DyscoCenterAddArg& arg) 
 		dh->ns = arg.ns();
 		dh->index = index;
 		
-		hashes.insert(std::make_pair<uint32_t, DyscoHashes>(&index, *dh));
+		//hashes.insert(std::make_pair<uint32_t, DyscoHashes>(&index, *dh));
+		hashes[index] = *dh;
 		//return CommandFailure(ENODEV, "No hashes.");
 	}
 
