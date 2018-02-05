@@ -463,7 +463,7 @@ CommandResponse DyscoVPort::Init(const bess::pb::DyscoVPortArg &arg) {
 			goto fail;
 		}
 		//Dysco
-		ns = arg.netns();
+		ns.assign(arg.netns());
 	}
 
 	if (arg.rxq_cpus_size() > 0 &&
