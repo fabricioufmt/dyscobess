@@ -81,10 +81,10 @@ void DyscoAgentOut::ProcessBatch(bess::PacketBatch* batch) {
 bool DyscoAgentOut::get_port_information() {
 	gate_idx_t igate_idx = 0; //always 1 input gate (DyscoVPortIn)
 
-	if(!is_active_gate<bess::IGate>(igates(), igate_idx)) {
+	/*if(!is_active_gate<bess::IGate>(igates(), igate_idx)) {
 		fprintf(stderr, "1\n");
 		return false;
-	}
+		}*/
 	
 
 	bess::IGate* igate = igates()[igate_idx];
