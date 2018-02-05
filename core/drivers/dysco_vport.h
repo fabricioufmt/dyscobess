@@ -1,6 +1,8 @@
 #ifndef BESS_DRIVERS_DYSCO_VPORT_H_
 #define BESS_DRIVERS_DYSCO_VPORT_H_
 
+#include <arpa/inet.h>
+
 #include "../kmod/sn_common.h"
 #include "../port.h"
 
