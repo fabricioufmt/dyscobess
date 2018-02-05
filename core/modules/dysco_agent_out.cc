@@ -102,14 +102,10 @@ bool DyscoAgentOut::get_port_information() {
 	
 	netns_fd_ = dysco_port_in->netns_fd_;
 	memcpy(ipaddress, dysco_port_in->ipaddress, sizeof(ipaddress));
-<<<<<<< HEAD
 	uint32_t devip;
 	inet_pton(AF_INET, ipaddress, &devip);
 	index = dc->get_index2(netns_fd_, devip);
 	
-=======
-	fprintf(stderr, "4\n");
->>>>>>> 90f828f7c4b0c0d92a945faa98628e2a6dea2d66
 	return true;
 }
 
