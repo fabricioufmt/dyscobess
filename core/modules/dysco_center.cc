@@ -113,13 +113,14 @@ DyscoHashes* DyscoCenter::get_hash(uint32_t i) {
 	return 0;*/
 	unordered_map<uint32_t, DyscoHashes>::iterator it = hashes.begin();
 	while(it != hashes.end()) {
-		fprintf(stderr, "[DyscoCenter] get_hash: %u == %u\n", i, (*it).first);
+		fprintf(stderr, "[DyscoCenter] get_hash (i == first): %u == %u\n", i, (*it).first);
 		if(i == (*it).first) {
+			fprintf(stderr, "[DyscoCenter] found\n");
 			return &(*it).second;
 		}
 		it++;
 	}
-
+	fprintf(stderr, "[DyscoCenter] not found\n");
 	return 0;
 }
 

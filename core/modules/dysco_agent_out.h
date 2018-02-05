@@ -41,7 +41,6 @@ class DyscoAgentOut final : public Module {
 	std::string ns;
 
 	int netns_fd_;
-	char ipaddress[16];
 	
 	bool insert_metadata(bess::Packet*);
 	

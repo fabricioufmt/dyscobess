@@ -45,7 +45,7 @@ class DyscoVPort final : public Port {
 	int netns_fd_;
 	int container_pid_;
 	//Dysco
-	char ipaddress[16];
+	uint32_t devip;
 };
 
 #endif  // BESS_DRIVERS_DYSCO_VPORT_H_

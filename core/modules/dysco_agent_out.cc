@@ -101,8 +101,7 @@ bool DyscoAgentOut::get_port_information() {
 	}
 	
 	netns_fd_ = dysco_port_in->netns_fd_;
-	memcpy(ipaddress, dysco_port_in->ipaddress, sizeof(ipaddress));
-	inet_pton(AF_INET, ipaddress, &devip);
+	devip = dysco_port_in->devip;
 	index = dc->get_index2(netns_fd_, devip);
 	
 	return true;
