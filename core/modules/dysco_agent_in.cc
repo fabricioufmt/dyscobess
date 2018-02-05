@@ -76,7 +76,9 @@ bool DyscoAgentIn::get_port_information() {
 		return false;
 	
 	netns_fd_ = dysco_port_out->netns_fd_;
+	fprintf(stderr, "%s: netns_fd_ = %d\n", name().c_str(), netns_fd_);
 	devip = dysco_port_out->devip;
+	index = dc->get_index2(netns_fd_, devip);
 
 	return true;
 }
