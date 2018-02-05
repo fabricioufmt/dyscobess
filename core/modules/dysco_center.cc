@@ -113,7 +113,7 @@ DyscoHashes* DyscoCenter::get_hash(uint32_t i) {
 	return 0;*/
 	unordered_map<uint32_t, DyscoHashes>::iterator it = hashes.begin();
 	while(it != hashes.end()) {
-		fprintf(stderr, "[DyscoCenter] get_hash: %u\n", (*it).first);
+		fprintf(stderr, "[DyscoCenter] get_hash: %u == %u\n", i, (*it).first);
 		if(i == (*it).first) {
 			return &(*it).second;
 		}
@@ -486,11 +486,11 @@ DyscoHashOut* DyscoCenter::out_syn(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp*
 	DyscoHashes* dh = get_hash(i);
 	if(!dh) {
 		//debug
-		fprintf(stderr, "[DyscoCenter] 0 (index: %u)\n", i);
+		fprintf(stderr, "[DyscoCenter] out_syn: 0 (index: %u)\n", i);
 		return 0;
 	}
 	//debug
-	fprintf(stderr, "[DyscoCenter] 1\n");
+	fprintf(stderr, "[DyscoCenter] out_syn: 1\n");
 	if(!cb_out) {
 		DyscoPolicies::Filter* filter = dh->policies.match_policy(pkt);
 		if(!filter)
