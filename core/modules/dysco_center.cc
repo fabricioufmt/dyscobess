@@ -475,8 +475,6 @@ DyscoHashOut* DyscoCenter::out_syn(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp*
 	if(!dh)
 		return 0;
 	
-	//debug
-	fprintf(stderr, "[DyscoCenter] out_syn: 1\n");
 	if(!cb_out) {
 		DyscoPolicies::Filter* filter = dh->policies.match_policy(pkt);
 		if(!filter) {
