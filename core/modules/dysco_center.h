@@ -309,7 +309,8 @@ class DyscoCenter final : public Module {
 	/*
 	  Control methods
 	*/
-	uint32_t get_index(const std::string&, uint32_t);	
+	uint32_t get_index(const std::string&, uint32_t);
+	uint32_t get_index2(int, uint32_t);
 	DyscoHashIn* lookup_input(uint32_t, Ipv4*, Tcp*);
 	DyscoHashOut* lookup_output(uint32_t, Ipv4*, Tcp*);
 	DyscoHashOut* lookup_output_by_ss(uint32_t, DyscoTcpSession*);

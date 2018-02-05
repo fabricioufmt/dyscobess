@@ -41,7 +41,6 @@ DyscoCenter::DyscoCenter() : Module() {
 
 CommandResponse DyscoCenter::CommandAdd(const bess::pb::DyscoCenterAddArg& arg) {
 	uint32_t index = std::hash<std::string>()(arg.ns());
-	fprintf(stderr, "CommandAdd: arg.ns value: %s (hash: %u)\n", arg.ns().c_str(), index);
 	uint32_t sc_len = arg.sc_len();
 	uint32_t* sc = new uint32_t[sc_len];
 	
@@ -90,8 +89,8 @@ CommandResponse DyscoCenter::CommandList(const bess::pb::EmptyArg&) {
   Control methods (use internal)
  */
 
-uint32_t DyscoCenter::get_index(const std::string& name, uint32_t ip) {
-	uint32_t index = std::hash<std::string>()(name);
+uint32_t DyscoCenter::get_index2(int netns_fd_, uint32_t ip) {
+	uint32_t index = std::hash<int>()(netns_fd_);
 	hashes[index].devip = ip;
 	
 	return index;
