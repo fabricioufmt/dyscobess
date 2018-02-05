@@ -486,7 +486,7 @@ DyscoHashOut* DyscoCenter::out_syn(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp*
 	DyscoHashes* dh = get_hash(i);
 	if(!dh) {
 		//debug
-		fprintf(stderr, "[DyscoCenter] 0\n");
+		fprintf(stderr, "[DyscoCenter] 0 (index: %u)\n", i);
 		return 0;
 	}
 	//debug
