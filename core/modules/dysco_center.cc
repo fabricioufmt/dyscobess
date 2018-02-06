@@ -52,7 +52,7 @@ CommandResponse DyscoCenter::CommandAdd(const bess::pb::DyscoCenterAddArg& arg) 
 		inet_pton(AF_INET, s.c_str(), sc + i);
 		i++;
 	}
-	fprintf(stderr, "[DyscoCenter] adding a filter, index=%u\n", index);
+	fprintf(stderr, "[DyscoCenter] adding a filter, index=%u, ns=%s\n", index, argns);
 	DyscoHashes* dh = get_hash(index);
 	if(!dh) {
 		fprintf(stderr, "get_hash was NULL, creating a new..\n");
