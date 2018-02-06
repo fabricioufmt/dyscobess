@@ -88,31 +88,28 @@ bool DyscoAgentOut::get_port_information() {
 	
 	gate_idx_t igate_idx = 0; //always 1 input gate (DyscoVPortIn)
 
-	if(!is_active_gate<bess::IGate>(igates(), igate_idx)) {
-		fprintf(stderr, "1\n");
+	if(!is_active_gate<bess::IGate>(igates(), igate_idx))
 		return false;
-	}
-	
 
 	bess::IGate* igate = igates()[igate_idx];
-	if(!igate) {
-		fprintf(stderr, "2\n");
+	if(!igate)
 		return false;
-	}
 
 	Module* m_prev = igate->ogates_upstream()[0]->module();
-	DyscoVPort* dysco_port_in = reinterpret_cast<DyscoVPort*>(m_prev);
-	if(!dysco_port_in) {
-		fprintf(stderr, "3\n");
+	DyscoPortIn* dysco_port_in = reinterpret_cast<DyscoPortIn*>(m_prev);
+	if(!dysco_port_in)
 		return false;
-	}
+
+	DyscoVPort* dysco_vport = reinterpret_cast<DyscoVPort*>(dysco_port_in->port_);
+	if(!dysco_vport)
+		return false;
 
 	info_flag = true;
-	fprintf(stderr, "before ns: %s\n", ns);
-	memcpy(ns, dysco_port_in->ns, sizeof(ns));
-	fprintf(stderr, "after ns: %s\n", ns);
-	devip = dysco_port_in->devip;
-	netns_fd_ = dysco_port_in->netns_fd_;
+	fprintf(stderr, "[DyscoAgentOut]: before ns: %s\n", ns);
+	memcpy(ns, dysco_vport->ns, sizeof(ns));
+	fprintf(stderr, "[DyscoAgentOut]: after ns: %s\n", ns);
+	devip = dysco_vport->devip;
+	netns_fd_ = dysco_vport->netns_fd_;
 	index = dc->get_index(ns, devip);
 	
 	return true;
