@@ -62,7 +62,7 @@ CommandResponse DyscoCenter::CommandAdd(const bess::pb::DyscoCenterAddArg& arg) 
 	}
 
 	if(dh->policies.add_filter(arg.priority(), arg.filter(), sc, sc_len))
-		fprintf(stderr, "[DyscoCenter] add_filter is OK\n");
+		fprintf(stderr, "[DyscoCenter][index: %u] add_filter is OK\n", dh->index);
 	else
 		fprintf(stderr, "[DyscoCenter] add_filter is not OK\n");
 	
@@ -482,7 +482,7 @@ DyscoHashOut* DyscoCenter::out_syn(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp*
 		DyscoPolicies::Filter* filter = dh->policies.match_policy(pkt);
 		if(!filter) {
 			//debug
-			fprintf(stderr, "[DyscoCenter] out_syn: do not match to anyone\n");
+			fprintf(stderr, "[DyscoCenter][index:%u] out_syn: do not match to anyone\n", i);
 			return 0;
 		}
 		//debug
