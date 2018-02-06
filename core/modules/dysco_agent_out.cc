@@ -2,6 +2,7 @@
 #include "dysco_agent_out.h"
 #include "../module_graph.h"
 #include "../drivers/dysco_vport.h"
+#include "dysco_port_in.h"
 
 //debug
 char* printip2(uint32_t ip) {

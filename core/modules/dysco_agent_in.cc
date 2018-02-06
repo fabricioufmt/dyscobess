@@ -2,6 +2,7 @@
 #include "dysco_agent_in.h"
 #include "../module_graph.h"
 #include "../drivers/dysco_vport.h"
+#include "dysco_port_out.h"
 
 //debug
 char* printip1(uint32_t ip) {
@@ -78,7 +79,7 @@ bool DyscoAgentIn::get_port_information() {
 		return false;
 
 	Module* m_next = ogate->next();
-	DyscoPortOut* dysco_port_out = reintepret_cast<DyscoPortOut*>(m_next);
+	DyscoPortOut* dysco_port_out = reinterpret_cast<DyscoPortOut*>(m_next);
 	if(!dysco_port_out)
 		return false;
 	
