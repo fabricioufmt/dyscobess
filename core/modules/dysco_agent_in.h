@@ -37,7 +37,8 @@ class DyscoAgentIn final : public Module {
 	uint32_t devip;
 	uint32_t index;
 	DyscoCenter* dc;
-	char ns[256];
+	//char ns[256];
+	std::string ns;
 	int netns_fd_;
 	bool info_flag;
 
