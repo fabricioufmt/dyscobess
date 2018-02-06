@@ -8,7 +8,10 @@
 
 class DyscoVPort final : public Port {
  public:
- DyscoVPort() : fd_(), bar_(), map_(), netns_fd_(), container_pid_() {}
+ DyscoVPort() : fd_(), bar_(), map_(), netns_fd_(), container_pid_() {
+		//Dysco
+		memset(ns, 0, sizeof(ns));
+	}
 	void InitDriver() override;
 	
 	CommandResponse Init(const bess::pb::DyscoVPortArg &arg);
@@ -48,7 +51,7 @@ class DyscoVPort final : public Port {
 	int container_pid_;
 	//Dysco
 	uint32_t devip;
-	std::string ns;
+	char ns[256];
 };
 
 #endif  // BESS_DRIVERS_DYSCO_VPORT_H_

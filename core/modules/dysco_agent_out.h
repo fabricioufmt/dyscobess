@@ -38,7 +38,7 @@ class DyscoAgentOut final : public Module {
 	uint32_t devip;
 	uint32_t index;
 	DyscoCenter* dc;
-	std::string ns;
+	char ns[256];
 	int netns_fd_;
 	bool info_flag;
 	

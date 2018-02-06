@@ -24,6 +24,7 @@ DyscoAgentOut::DyscoAgentOut() : Module() {
 
 	netns_fd_ = 0;
 	info_flag = false;
+	memset(ns, 0, sizeof(ns));
 }
 
 bool DyscoAgentOut::insert_metadata(bess::Packet* pkt) {
@@ -107,7 +108,7 @@ bool DyscoAgentOut::get_port_information() {
 	}
 
 	info_flag = true;
-	ns.assign(dysco_port_in->ns);
+	memcpy(ns, dysco_port_in->ns, sizeof(ns));
 	devip = dysco_port_in->devip;
 	netns_fd_ = dysco_port_in->netns_fd_;
 	index = dc->get_index(ns, devip);

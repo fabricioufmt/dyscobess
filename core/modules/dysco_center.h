@@ -269,7 +269,7 @@ class DyscoControlMessage {
 
 class DyscoHashes {
  public:
-	std::string ns;
+	char ns[256];
 	uint32_t index;
 	uint32_t devip;
 
@@ -309,7 +309,7 @@ class DyscoCenter final : public Module {
 	/*
 	  Control methods
 	*/
-	uint32_t get_index(const std::string&, uint32_t);
+	uint32_t get_index(char*, uint32_t);
 	DyscoHashIn* lookup_input(uint32_t, Ipv4*, Tcp*);
 	DyscoHashOut* lookup_output(uint32_t, Ipv4*, Tcp*);
 	DyscoHashOut* lookup_output_by_ss(uint32_t, DyscoTcpSession*);
