@@ -51,14 +51,15 @@ CommandResponse DyscoCenter::CommandAdd(const bess::pb::DyscoCenterAddArg& arg) 
 		inet_pton(AF_INET, s.c_str(), sc + i);
 		i++;
 	}
-	fprintf(stderr, "[DyscoCenter] adding a filter, index=%u, ns=%s\n", index, ns.c_str());
+
 	DyscoHashes* dh = get_hash(index);
 	if(!dh) {
 		fprintf(stderr, "get_hash was NULL, creating a new..\n");
 		dh = new DyscoHashes();
+		dh->ns = arg.ns();
 		//memcpy(dh->ns, arg.ns().c_str(), sizeof(dh->ns));
 		dh->index = index;
-		
+		fprintf(stderr, "get_hash was NULL, done.\n");		
 		//hashes.insert(std::make_pair<uint32_t, DyscoHashes>(&index, *dh));
 		hashes[index] = *dh;
 		//return CommandFailure(ENODEV, "No hashes.");
