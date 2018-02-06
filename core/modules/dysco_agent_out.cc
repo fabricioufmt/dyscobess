@@ -108,7 +108,9 @@ bool DyscoAgentOut::get_port_information() {
 	}
 
 	info_flag = true;
+	fprintf(stderr, "before ns: %s\n", ns);
 	memcpy(ns, dysco_port_in->ns, sizeof(ns));
+	fprintf(stderr, "after ns: %s\n", ns);
 	devip = dysco_port_in->devip;
 	netns_fd_ = dysco_port_in->netns_fd_;
 	index = dc->get_index(ns, devip);
