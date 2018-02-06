@@ -40,10 +40,8 @@ DyscoCenter::DyscoCenter() : Module() {
 }
 
 CommandResponse DyscoCenter::CommandAdd(const bess::pb::DyscoCenterAddArg& arg) {
-	char argns[256];
-	memset(argns, 0, sizeof(argns));
-	memcpy(argns, arg.ns().c_str(), arg.ns().length());
-	uint32_t index = std::hash<char*>()(argns);
+	ns(arg.ns());
+	uint32_t index = std::hash<std::string>()(ns);
 	//uint32_t index = std::hash<char*>()(arg.ns().c_str());
 	uint32_t sc_len = arg.sc_len();
 	uint32_t* sc = new uint32_t[sc_len];
@@ -105,8 +103,8 @@ CommandResponse DyscoCenter::CommandList(const bess::pb::EmptyArg&) {
   Control methods (use internal)
  */
 
-uint32_t DyscoCenter::get_index(char* ns, uint32_t ip) {
-	uint32_t index = std::hash<char*>()(ns);
+uint32_t DyscoCenter::get_index(std::string ns, uint32_t ip) {
+	uint32_t index = std::hash<std::string>()(ns);
 	hashes[index].devip = ip;
 	
 	return index;

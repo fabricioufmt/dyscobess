@@ -25,7 +25,6 @@ DyscoAgentIn::DyscoAgentIn() : Module() {
 
 	netns_fd_ = 0;
 	info_flag = false;
-	memset(ns, 0, sizeof(ns));
 }
 
 CommandResponse DyscoAgentIn::Init(const bess::pb::DyscoAgentInArg& arg) {
@@ -88,7 +87,7 @@ bool DyscoAgentIn::get_port_information() {
 		return false;
 
 	info_flag = true;
-	memcpy(ns, dysco_vport->ns, sizeof(ns));
+	//memcpy(ns, dysco_vport->ns, sizeof(ns));
 	devip = dysco_vport->devip;
 	netns_fd_ = dysco_vport->netns_fd_;
 	index = dc->get_index(ns, devip);
