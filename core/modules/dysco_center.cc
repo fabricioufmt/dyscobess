@@ -53,7 +53,7 @@ CommandResponse DyscoCenter::CommandAdd(const bess::pb::DyscoCenterAddArg& arg) 
 	DyscoHashes* dh = get_hash(index);
 	if(!dh) {
 		dh = new DyscoHashes();
-		dh->ns = arg.ns();
+		memcpy(dh->ns, arg.ns().c_str(), sizeof(dh->ns));
 		dh->index = index;
 		
 		//hashes.insert(std::make_pair<uint32_t, DyscoHashes>(&index, *dh));

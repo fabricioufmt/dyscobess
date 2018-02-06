@@ -404,7 +404,7 @@ bool DyscoAgentOut::output(bess::Packet* pkt) {
 
 	//debug
 	fprintf(stderr, "[%s][DyscoAgentOut] receives %s:%u -> %s:%u\n",
-		ns.c_str(),
+		ns,
 		printip2(ip->src.value()), tcp->src_port.value(),
 		printip2(ip->dst.value()), tcp->dst_port.value());
 
@@ -413,30 +413,30 @@ bool DyscoAgentOut::output(bess::Packet* pkt) {
 		cb_out = dc->lookup_output_pending(this->index, ip, tcp);
 		if(cb_out) {
 			//debug
-			fprintf(stderr, "[%s][DyscoAgentOut] output_pending isn't NULL and calling handle_mb_out method\n", ns.c_str());
+			fprintf(stderr, "[%s][DyscoAgentOut] output_pending isn't NULL and calling handle_mb_out method\n", ns);
 			return dc->out_handle_mb(this->index, pkt, ip, tcp, cb_out);
 		}
 
 		cb_out = dc->lookup_pending_tag(this->index, tcp);
 		if(cb_out) {
 			//debug
-			fprintf(stderr, "[%s][DyscoAgentOut] output_pending_tag isn't NULL and calling handle_mb_out method\n", ns.c_str());
+			fprintf(stderr, "[%s][DyscoAgentOut] output_pending_tag isn't NULL and calling handle_mb_out method\n", ns);
 			update_five_tuple(ip, tcp, cb_out);
 			return dc->out_handle_mb(this->index, pkt, ip, tcp, cb_out);
 		}
 	} else {
 		//debug
-		fprintf(stderr, "[%s][DyscoAgentOut] output_pending_tag isn't NULL and calling handle_mb_out method\n", ns.c_str());
+		fprintf(stderr, "[%s][DyscoAgentOut] output_pending_tag isn't NULL and calling handle_mb_out method\n", ns);
 	}
 
 	if(isTCPSYN(tcp)) {
 		//debug
-		fprintf(stderr, "[%s][DyscoAgentOut] calling process_syn_out method\n", ns.c_str());
+		fprintf(stderr, "[%s][DyscoAgentOut] calling process_syn_out method\n", ns);
 		bool ret = dc->out_syn(this->index, pkt, ip, tcp, cb_out);
 		if(ret) 
-			fprintf(stderr, "[%s][DyscoAgentOut] process_syn_out method returns TRUE\n", ns.c_str());
+			fprintf(stderr, "[%s][DyscoAgentOut] process_syn_out method returns TRUE\n", ns);
 		else
-			fprintf(stderr, "[%s][DyscoAgentOut] process_syn_out method returns FALSE\n", ns.c_str());
+			fprintf(stderr, "[%s][DyscoAgentOut] process_syn_out method returns FALSE\n", ns);
 		
 		return ret;
 	}
