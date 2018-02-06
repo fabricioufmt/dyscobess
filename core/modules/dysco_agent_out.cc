@@ -25,7 +25,7 @@ DyscoAgentOut::DyscoAgentOut() : Module() {
 
 	netns_fd_ = 0;
 	info_flag = false;
-	memset(ns, 0, sizeof(ns));
+	//memset(ns, 0, sizeof(ns));
 }
 
 bool DyscoAgentOut::insert_metadata(bess::Packet* pkt) {
@@ -111,7 +111,7 @@ bool DyscoAgentOut::get_port_information() {
 	devip = dysco_vport->devip;
 	netns_fd_ = dysco_vport->netns_fd_;
 	index = dc->get_index(ns, devip);
-	fprintf(stderr, "[DyscoAgentOut]: index=%u, ns=%s\n", index, ns);
+	fprintf(stderr, "[DyscoAgentOut]: index=%u, ns=%s\n", index, ns.c_str());
 	return true;
 }
 
@@ -403,7 +403,7 @@ bool DyscoAgentOut::output(bess::Packet* pkt) {
 
 	//debug
 	fprintf(stderr, "[%s][DyscoAgentOut] receives %s:%u -> %s:%u\n",
-		ns,
+		ns.c_str(),
 		printip2(ip->src.value()), tcp->src_port.value(),
 		printip2(ip->dst.value()), tcp->dst_port.value());
 
@@ -412,30 +412,30 @@ bool DyscoAgentOut::output(bess::Packet* pkt) {
 		cb_out = dc->lookup_output_pending(this->index, ip, tcp);
 		if(cb_out) {
 			//debug
-			fprintf(stderr, "[%s][DyscoAgentOut] output_pending isn't NULL and calling handle_mb_out method\n", ns);
+			fprintf(stderr, "[%s][DyscoAgentOut] output_pending isn't NULL and calling handle_mb_out method\n", ns.c_str());
 			return dc->out_handle_mb(this->index, pkt, ip, tcp, cb_out);
 		}
 
 		cb_out = dc->lookup_pending_tag(this->index, tcp);
 		if(cb_out) {
 			//debug
-			fprintf(stderr, "[%s][DyscoAgentOut] output_pending_tag isn't NULL and calling handle_mb_out method\n", ns);
+			fprintf(stderr, "[%s][DyscoAgentOut] output_pending_tag isn't NULL and calling handle_mb_out method\n", ns.c_str());
 			update_five_tuple(ip, tcp, cb_out);
 			return dc->out_handle_mb(this->index, pkt, ip, tcp, cb_out);
 		}
 	} else {
 		//debug
-		fprintf(stderr, "[%s][DyscoAgentOut] output_pending_tag isn't NULL and calling handle_mb_out method\n", ns);
+		fprintf(stderr, "[%s][DyscoAgentOut] output_pending_tag isn't NULL and calling handle_mb_out method\n", ns.c_str());
 	}
 
 	if(isTCPSYN(tcp)) {
 		//debug
-		fprintf(stderr, "[%s][DyscoAgentOut] calling process_syn_out method\n", ns);
+		fprintf(stderr, "[%s][DyscoAgentOut] calling process_syn_out method\n", ns.c_str());
 		bool ret = dc->out_syn(this->index, pkt, ip, tcp, cb_out);
 		if(ret) 
-			fprintf(stderr, "[%s][DyscoAgentOut] process_syn_out method returns TRUE\n", ns);
+			fprintf(stderr, "[%s][DyscoAgentOut] process_syn_out method returns TRUE\n", ns.c_str());
 		else
-			fprintf(stderr, "[%s][DyscoAgentOut] process_syn_out method returns FALSE\n", ns);
+			fprintf(stderr, "[%s][DyscoAgentOut] process_syn_out method returns FALSE\n", ns.c_str());
 		
 		return ret;
 	}
