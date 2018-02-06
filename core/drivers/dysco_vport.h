@@ -10,7 +10,7 @@ class DyscoVPort final : public Port {
  public:
  DyscoVPort() : fd_(), bar_(), map_(), netns_fd_(), container_pid_() {
 		//Dysco
-		memset(ns, 0, sizeof(ns));
+		//memset(ns, 0, sizeof(ns));
 	}
 	void InitDriver() override;
 	
