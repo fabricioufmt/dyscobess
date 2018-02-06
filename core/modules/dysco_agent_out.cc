@@ -2,7 +2,7 @@
 #include "dysco_agent_out.h"
 #include "../module_graph.h"
 #include "../drivers/dysco_vport.h"
-#include "dysco_port_in.h"
+#include "dysco_port_inc.h"
 
 //debug
 char* printip2(uint32_t ip) {
@@ -97,11 +97,11 @@ bool DyscoAgentOut::get_port_information() {
 		return false;
 
 	Module* m_prev = igate->ogates_upstream()[0]->module();
-	DyscoPortIn* dysco_port_in = reinterpret_cast<DyscoPortIn*>(m_prev);
-	if(!dysco_port_in)
+	DyscoPortInc* dysco_port_inc = reinterpret_cast<DyscoPortInc*>(m_prev);
+	if(!dysco_port_inc)
 		return false;
 
-	DyscoVPort* dysco_vport = reinterpret_cast<DyscoVPort*>(dysco_port_in->port_);
+	DyscoVPort* dysco_vport = reinterpret_cast<DyscoVPort*>(dysco_port_inc->port_);
 	if(!dysco_vport)
 		return false;
 
