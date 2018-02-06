@@ -40,7 +40,7 @@ DyscoCenter::DyscoCenter() : Module() {
 }
 
 CommandResponse DyscoCenter::CommandAdd(const bess::pb::DyscoCenterAddArg& arg) {
-	uint32_t index = std::hash<std::string>()(arg.ns());
+	uint32_t index = std::hash<char*>()(arg.ns().c_str());
 	uint32_t sc_len = arg.sc_len();
 	uint32_t* sc = new uint32_t[sc_len];
 	
@@ -49,9 +49,10 @@ CommandResponse DyscoCenter::CommandAdd(const bess::pb::DyscoCenterAddArg& arg) 
 		inet_pton(AF_INET, s.c_str(), sc + i);
 		i++;
 	}
-	
+	fprintf(stderr, "[DyscoCenter] adding a filter, index=%u\n", index);
 	DyscoHashes* dh = get_hash(index);
 	if(!dh) {
+		fprintf(stderr, "get_hash was NULL, creating a new..\n");
 		dh = new DyscoHashes();
 		memcpy(dh->ns, arg.ns().c_str(), sizeof(dh->ns));
 		dh->index = index;
@@ -59,7 +60,8 @@ CommandResponse DyscoCenter::CommandAdd(const bess::pb::DyscoCenterAddArg& arg) 
 		//hashes.insert(std::make_pair<uint32_t, DyscoHashes>(&index, *dh));
 		hashes[index] = *dh;
 		//return CommandFailure(ENODEV, "No hashes.");
-	}
+	} else
+		fprintf(stderr, "get_hash wasn't NULL\n");
 
 	if(dh->policies.add_filter(arg.priority(), arg.filter(), sc, sc_len))
 		fprintf(stderr, "[DyscoCenter] add_filter is OK\n");

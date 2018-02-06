@@ -106,13 +106,11 @@ bool DyscoAgentOut::get_port_information() {
 		return false;
 
 	info_flag = true;
-	fprintf(stderr, "[DyscoAgentOut]: before ns: %s\n", ns);
 	memcpy(ns, dysco_vport->ns, sizeof(ns));
-	fprintf(stderr, "[DyscoAgentOut]: after ns: %s\n", ns);
 	devip = dysco_vport->devip;
 	netns_fd_ = dysco_vport->netns_fd_;
 	index = dc->get_index(ns, devip);
-	
+	fprintf(stderr, "[DyscoAgentOut]: index=%u\n", index);
 	return true;
 }
 
