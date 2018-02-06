@@ -54,17 +54,12 @@ CommandResponse DyscoCenter::CommandAdd(const bess::pb::DyscoCenterAddArg& arg) 
 
 	DyscoHashes* dh = get_hash(index);
 	if(!dh) {
-		fprintf(stderr, "get_hash was NULL, creating a new..\n");
 		dh = new DyscoHashes();
 		dh->ns = arg.ns();
-		//memcpy(dh->ns, arg.ns().c_str(), sizeof(dh->ns));
 		dh->index = index;
-		fprintf(stderr, "get_hash was NULL, done.\n");		
-		//hashes.insert(std::make_pair<uint32_t, DyscoHashes>(&index, *dh));
+
 		hashes[index] = *dh;
-		//return CommandFailure(ENODEV, "No hashes.");
-	} else
-		fprintf(stderr, "get_hash wasn't NULL\n");
+	}
 
 	if(dh->policies.add_filter(arg.priority(), arg.filter(), sc, sc_len))
 		fprintf(stderr, "[DyscoCenter] add_filter is OK\n");
@@ -487,7 +482,7 @@ DyscoHashOut* DyscoCenter::out_syn(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp*
 		DyscoPolicies::Filter* filter = dh->policies.match_policy(pkt);
 		if(!filter) {
 			//debug
-			fprintf(stderr, "[DyscoCenter] out_syn: 1,5\n");
+			fprintf(stderr, "[DyscoCenter] out_syn: do not match to anyone\n");
 			return 0;
 		}
 		//debug
