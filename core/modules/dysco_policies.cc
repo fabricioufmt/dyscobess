@@ -1091,7 +1091,6 @@ bool DyscoPolicies::add_filter(uint32_t priority, std::string exp, uint32_t* sc,
 	filters_.push_back(filter);
 	std::sort(filters_.begin(), filters_.end(),
 		  [](const Filter &a, const Filter &b) {
-			  // descending order of priority number
 			  return b.priority < a.priority;
 		  });
 	fprintf(stderr, "add_filter is OK, size: %lu\n", filters_.size());
