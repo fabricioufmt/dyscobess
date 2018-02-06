@@ -66,7 +66,7 @@ CommandResponse DyscoCenter::CommandAdd(const bess::pb::DyscoCenterAddArg& arg) 
 	else
 		fprintf(stderr, "[DyscoCenter] add_filter is not OK\n");
 
-	fprintf(stderr, "[DyscoCenter][index: %u]: filters size: %lu\n", dh->index, dh->policies.filter_.size());
+	fprintf(stderr, "[DyscoCenter][index: %u]: filters size: %lu\n", dh->index, dh->policies.filters_.size());
 	
 	bess::pb::DyscoCenterListArg l;
 	l.set_msg("... Done.");	
