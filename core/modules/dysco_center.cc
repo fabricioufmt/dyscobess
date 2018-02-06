@@ -41,6 +41,7 @@ DyscoCenter::DyscoCenter() : Module() {
 
 CommandResponse DyscoCenter::CommandAdd(const bess::pb::DyscoCenterAddArg& arg) {
 	char argns[256];
+	memset(argns, 0, sizeof(argns));
 	memcpy(argns, arg.ns().c_str(), arg.ns().length());
 	uint32_t index = std::hash<char*>()(argns);
 	//uint32_t index = std::hash<char*>()(arg.ns().c_str());
