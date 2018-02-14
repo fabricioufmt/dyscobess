@@ -424,7 +424,7 @@ bool DyscoAgentOut::output(bess::Packet* pkt) {
 		}
 	} else {
 		//debug
-		fprintf(stderr, "[%s][DyscoAgentOut] output_pending_tag isn't NULL and calling handle_mb_out method\n", ns.c_str());
+		fprintf(stderr, "[%s][DyscoAgentOut] lookup_output isn't NULL\n", ns.c_str());
 	}
 
 	if(isTCPSYN(tcp)) {
