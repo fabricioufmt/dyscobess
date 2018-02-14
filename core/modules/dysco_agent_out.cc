@@ -440,7 +440,11 @@ bool DyscoAgentOut::output(bess::Packet* pkt) {
 			fprintf(stderr, "[%s][DyscoAgentOut] process_syn_out method returns TRUE\n", ns.c_str());
 		else
 			fprintf(stderr, "[%s][DyscoAgentOut] process_syn_out method returns FALSE\n", ns.c_str());
-		
+		//debug
+		fprintf(stderr, "[%s][DyscoAgentOut](OUT): %s:%u -> %s:%u\n\n",
+			ns.c_str(),
+			printip2(ip->src.value()), tcp->src_port.value(),
+			printip2(ip->dst.value()), tcp->dst_port.value());
 		return ret;
 	}
 
