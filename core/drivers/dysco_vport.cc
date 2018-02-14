@@ -316,6 +316,7 @@ int DyscoVPort::SetIPAddrSingle(const std::string &ip_addr) {
 	if (!fp)
 		return -errno;
 	//Dysco
+	devip = devip.substr(0, devip.find('/'));
 	inet_pton(AF_INET, ip_addr.c_str(), &devip);
 	fprintf(stderr, "[DyscoVPort]: ip=%u(%s)\n", devip, ip_addr.c_str());
 	
