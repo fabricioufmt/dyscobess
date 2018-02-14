@@ -1,7 +1,6 @@
 #include <netinet/tcp.h>
 #include "dysco_agent_out.h"
 #include "../module_graph.h"
-#include "../drivers/dysco_vport.h"
 #include "dysco_port_inc.h"
 
 //debug
@@ -111,6 +110,8 @@ bool DyscoAgentOut::get_port_information() {
 	netns_fd_ = dysco_vport->netns_fd_;
 	index = dc->get_index(ns, devip);
 
+	port = dysco_vport;
+	
 	return true;
 }
 

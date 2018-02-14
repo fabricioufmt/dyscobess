@@ -8,6 +8,7 @@
 #include "../module.h"
 #include "../pb/module_msg.pb.h"
 #include "dysco_center.h"
+#include "../drivers/dysco_vport.h"
 
 #include "../utils/ip.h"
 #include "../utils/tcp.h"
@@ -42,6 +43,7 @@ class DyscoAgentOut final : public Module {
 	std::string ns;
 	int netns_fd_;
 	bool info_flag;
+	DyscoVPort* port;
 	
 	bool insert_metadata(bess::Packet*);
 	

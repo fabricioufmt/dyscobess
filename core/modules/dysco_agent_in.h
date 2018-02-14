@@ -8,6 +8,7 @@
 #include "../module.h"
 #include "../pb/module_msg.pb.h"
 #include "dysco_center.h"
+#include "../drivers/dysco_vport.h"
 
 #include "../utils/ip.h"
 #include "../utils/tcp.h"
@@ -41,7 +42,8 @@ class DyscoAgentIn final : public Module {
 	std::string ns;
 	int netns_fd_;
 	bool info_flag;
-
+	DyscoVPort* port;
+	
 	inline bool isIP(Ethernet* eth) {
 		return eth->ether_type.value() == Ethernet::Type::kIpv4;
 	}
