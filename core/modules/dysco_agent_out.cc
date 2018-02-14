@@ -134,9 +134,7 @@ bool DyscoAgentOut::get_port_information() {
 //tcp_sack method -- in DyscoCenter
 
 //L.295
-bool DyscoAgentOut::out_hdr_rewrite(Ipv4* ip, Tcp* tcp, DyscoTcpSession* sub) {
-	return dc->out_hdr_rewrite(ip, tcp, sub);
-}
+//out_hdr_rewrite method -- in DyscoCenter
 
 //L.324
 bool DyscoAgentOut::out_hdr_rewrite_csum(Ipv4* ip, Tcp* tcp, DyscoTcpSession* sub) {
@@ -320,8 +318,15 @@ bool DyscoAgentOut::out_translate(bess::Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOu
 
 	if(cb_out->ws_ok)
 		out_rewrite_rcv_wnd(tcp, cb_out);
-	
-	out_hdr_rewrite(ip, tcp, &cb_out->sub);
+
+	//debug
+	fprintf(stderr, "[DyscoAgentOut] out_hdr_rewrite from (SUP)%s:%u -> %s:%u\n",
+		printip2(cb->sup.sip), cb->sup.sport,
+		printip2(cb->sup.dip), cb->sup.dport);
+	fprintf(stderr, "[DyscoAgentOut] out_hdr_rewrite to (SUB)%s:%u -> %s:%u\n",
+		printip2(cb->sub.sip), cb->sub.sport,
+		printip2(cb->sub.dip), cb->sub.dport);
+	dc->out_hdr_rewrite(ip, tcp, &cb_out->sub);
 	
 	return true;
 }
