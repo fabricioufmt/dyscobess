@@ -61,6 +61,8 @@ CommandResponse DyscoCenter::CommandAdd(const bess::pb::DyscoCenterAddArg& arg) 
 		hashes[index] = *dh;
 	}
 
+	fprintf(stderr, "[DyscoCenter][index: %u][DyscoPolicies: %u]\n", dh->index, &dh->policies);
+	
 	if(dh->policies.add_filter(arg.priority(), arg.filter(), sc, sc_len))
 		fprintf(stderr, "[DyscoCenter][index: %u or %u] add_filter is OK\n", dh->index, index);
 	else
