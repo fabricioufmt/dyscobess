@@ -101,7 +101,7 @@ CommandResponse DyscoCenter::CommandList(const bess::pb::EmptyArg&) {
 /************************************************************************/
 /************************************************************************/
 /*
-  Control methods (use internal)
+  Control methods (internal use)
  */
 
 uint32_t DyscoCenter::get_index(std::string ns, uint32_t ip) {
@@ -112,7 +112,6 @@ uint32_t DyscoCenter::get_index(std::string ns, uint32_t ip) {
 }
 
 DyscoHashes* DyscoCenter::get_hash(uint32_t i) {
-	fprintf(stderr, "[DyscoCenter] DyscoHashes size: %lu\n", hashes.size());
 	unordered_map<uint32_t, DyscoHashes>::iterator it = hashes.find(i);
 	if(it != hashes.end())
 		return &(*it).second;
