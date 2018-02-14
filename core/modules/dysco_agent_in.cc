@@ -92,7 +92,7 @@ bool DyscoAgentIn::get_port_information() {
 	devip = dysco_vport->devip;
 	netns_fd_ = dysco_vport->netns_fd_;
 	index = dc->get_index(ns, devip);
-	fprintf(stderr, "[DyscoAgentIn]: index=%u\n", index);
+
 	return true;
 }
 
@@ -400,10 +400,10 @@ bool DyscoAgentIn::input(bess::Packet* pkt) {
 	Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
 
 	//debug
-	/*fprintf(stderr, "[%s][DyscoAgentIn] receives %s:%u -> %s:%u\n",
+	fprintf(stderr, "[%s][DyscoAgentIn] receives %s:%u -> %s:%u\n",
 		ns.c_str(),
 		printip1(ip->src.value()), tcp->src_port.value(),
-		printip1(ip->dst.value()), tcp->dst_port.value());*/
+		printip1(ip->dst.value()), tcp->dst_port.value());
 	
 	DyscoHashIn* cb_in = dc->lookup_input(this->index, ip, tcp);
 	if(!cb_in) {
@@ -424,7 +424,7 @@ bool DyscoAgentIn::input(bess::Packet* pkt) {
 		} else {
 			//It is retransmission packet, just remove sc (if there is) and insert Dysco Tag
 			if(hasPayload(ip, tcp)) {
-				fprintf(stderr, "[%s][DyscoAgentInc] it's retransmission of TCP SYN w payload\n", ns.c_str());
+				fprintf(stderr, "[%s][DyscoAgentIn] it's retransmission of TCP SYN w payload\n", ns.c_str());
 				remove_sc(pkt, ip, tcp);
 				dc->insert_tag(this->index, pkt, ip, tcp);
 				in_hdr_rewrite(ip, tcp, &cb_in->sup);
@@ -445,10 +445,10 @@ bool DyscoAgentIn::input(bess::Packet* pkt) {
 	in_hdr_rewrite(ip, tcp, &cb_in->sup);
 
 	//debug
-	/*fprintf(stderr, "[%s]%s(OUT): %s:%u -> %s:%u\n",
-		ns.c_str(), name().c_str(),
+	fprintf(stderr, "[%s][DyscoAgentIn](OUT): %s:%u -> %s:%u\n",
+		ns.c_str(),
 		printip1(ip->src.value()), tcp->src_port.value(),
-		printip1(ip->dst.value()), tcp->dst_port.value());*/
+		printip1(ip->dst.value()), tcp->dst_port.value());
 
 	return true;
 }

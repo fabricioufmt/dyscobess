@@ -416,14 +416,14 @@ bool DyscoAgentOut::output(bess::Packet* pkt) {
 		cb_out = dc->lookup_output_pending(this->index, ip, tcp);
 		if(cb_out) {
 			//debug
-			fprintf(stderr, "[%s][DyscoAgentOut] output_pending isn't NULL and calling handle_mb_out method\n", ns.c_str());
+			fprintf(stderr, "[%s][DyscoAgentOut] output_pending isn't NULL and calling out_handle_mb method\n", ns.c_str());
 			return dc->out_handle_mb(this->index, pkt, ip, tcp, cb_out);
 		}
 
 		cb_out = dc->lookup_pending_tag(this->index, tcp);
 		if(cb_out) {
 			//debug
-			fprintf(stderr, "[%s][DyscoAgentOut] output_pending_tag isn't NULL and calling handle_mb_out method\n", ns.c_str());
+			fprintf(stderr, "[%s][DyscoAgentOut] output_pending_tag isn't NULL and calling out_handle_mb method\n", ns.c_str());
 			update_five_tuple(ip, tcp, cb_out);
 			return dc->out_handle_mb(this->index, pkt, ip, tcp, cb_out);
 		}
@@ -456,10 +456,10 @@ bool DyscoAgentOut::output(bess::Packet* pkt) {
 	out_translate(pkt, ip, tcp, cb_out);
 
 	//debug
-	/*fprintf(stderr, "[%s]%s(OUT): %s:%u -> %s:%u\n\n",
-		ns.c_str(), name().c_str(),
+	fprintf(stderr, "[%s][DyscoAgentOut](OUT): %s:%u -> %s:%u\n\n",
+		ns.c_str(),
 		printip2(ip->src.value()), tcp->src_port.value(),
-		printip2(ip->dst.value()), tcp->dst_port.value());*/
+		printip2(ip->dst.value()), tcp->dst_port.value());
 		
 	return true;
 }
@@ -639,6 +639,7 @@ bool DyscoAgentOut::control_output_syn(Ipv4* ip, DyscoControlMessage* cmsg) {
 
 		new_dcb->sack_ok = rcb->sack_ok;
 
+		//Ronaldo:
 		//dysco_arp
 
 		new_dcb->other_path = old_dcb;
