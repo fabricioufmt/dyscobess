@@ -1093,12 +1093,12 @@ bool DyscoPolicies::add_filter(uint32_t priority, std::string exp, uint32_t* sc,
 		  [](const Filter &a, const Filter &b) {
 			  return b.priority < a.priority;
 		  });
-	fprintf(stderr, "[DyscoPolicies][%u]: add_filter is OK, size: %lu\n", &this, filters_.size());
+	fprintf(stderr, "[DyscoPolicies][%u]: add_filter is OK, size: %lu\n", *this, filters_.size());
 	return true;
 }
 
 DyscoPolicies::Filter* DyscoPolicies::match_policy(bess::Packet* pkt) {
-	fprintf(stderr, "[DyscoPolicies][%u]: size: %lu\n", &this, filters_.size());
+	fprintf(stderr, "[DyscoPolicies][%u]: size: %lu\n", *this, filters_.size());
 	for(Filter& filter : filters_) {
 		fprintf(stderr, "[DyscoPolicies]: %s\n", filter.exp.c_str());
 		if(Match(filter, pkt->head_data<uint8_t*>(), pkt->total_len(), pkt->head_len()))
