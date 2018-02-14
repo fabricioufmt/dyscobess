@@ -57,7 +57,6 @@ CommandResponse DyscoCenter::CommandAdd(const bess::pb::DyscoCenterAddArg& arg) 
 		dh = new DyscoHashes();
 		dh->ns = arg.ns();
 		dh->index = index;
-		dh->policies.index = index;
 
 		hashes[index] = *dh;
 	}

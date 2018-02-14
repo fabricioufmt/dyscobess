@@ -29,7 +29,7 @@ class DyscoPolicies {
 		uint32_t* sc;
 		uint32_t sc_len;
 	};
-	uint32_t index;
+	
 	bool Match(const Filter &, u_char *, u_int, u_int);
 	std::vector<Filter> filters_;
 
