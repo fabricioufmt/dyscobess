@@ -495,6 +495,9 @@ DyscoHashOut* DyscoCenter::out_syn(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp*
 		cb_out = create_cb_out(i, ip, tcp, filter);
 		if(!cb_out)
 			return 0;
+		fprintf(stderr, "[DyscoCenter]: %s:%u -> %s:%u\n",
+			printip0(ntohl(cb_out->sub.sip)), ntohs(cb_out->sub.sport),
+			printip0(ntohl(cb_out->sub.dip)), ntohs(cb_out->sub.dport));
 		//debug
 		fprintf(stderr, "[DyscoCenter] out_syn: 3\n");
 		insert_cb_out(i, cb_out, 0);
