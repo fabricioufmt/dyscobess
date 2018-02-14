@@ -484,7 +484,7 @@ DyscoHashOut* DyscoCenter::out_syn(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp*
 		DyscoPolicies::Filter* filter = dh->policies.match_policy(pkt);
 		if(!filter) {
 			//debug
-			fprintf(stderr, "[DyscoCenter][index:%u] out_syn: do not match to anyone\n", i);
+			fprintf(stderr, "[DyscoCenter][index:%u or %u] out_syn: do not match to anyone\n", dh->index, i);
 			return 0;
 		}
 		//debug
