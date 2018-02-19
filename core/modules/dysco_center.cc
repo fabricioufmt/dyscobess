@@ -314,8 +314,9 @@ bool DyscoCenter::insert_pending(DyscoHashes* dh, uint8_t* payload, uint32_t pay
 	cb_out->sc = sc;
 	
 	dh->hash_pen.insert(std::pair<DyscoTcpSession, DyscoHashOut>(*sup, *cb_out));
-	//dh->hash_pen_tag.insert(std::pair<uint32_t, DyscoHashOut>(
-	//TODO: DyscoTag
+	dh->hash_pen_tag.insert(std::pair<uint32_t, DyscoHashOut>(cb_out->dysco_tag, *cb_out));
+	fprintf(stderr, "[DyscoCenter]: inserting with %u as key for dysco_tag\n", cb_out->dysco_tag);
+	//TODO: DyscoTag (verify)
 
 	return true;
 }
@@ -486,11 +487,8 @@ DyscoHashOut* DyscoCenter::out_syn(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp*
 	
 	if(!cb_out) {
 		DyscoPolicies::Filter* filter = dh->policies.match_policy(pkt);
-		if(!filter) {
-			//debug
-			fprintf(stderr, "[DyscoCenter][index: %u] out_syn: do not match to anyone\n", i);
+		if(!filter)
 			return 0;
-		}
 		
 		cb_out = create_cb_out(i, ip, tcp, filter, devip);
 		if(!cb_out)
@@ -823,7 +821,6 @@ bool DyscoCenter::out_handle_mb(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp* tc
 
 	dh->hash_pen.erase(cb_out->sup);
 	dh->hash_pen_tag.erase(cb_out->dysco_tag);
-	//TODO: dh->hash_pen_tag.erase(cb_out->sup);
 
 	if(cb_out->sc_len) {
 		cb_out->sub.sip = devip;

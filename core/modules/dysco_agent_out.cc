@@ -320,13 +320,6 @@ bool DyscoAgentOut::out_translate(bess::Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOu
 	if(cb_out->ws_ok)
 		out_rewrite_rcv_wnd(tcp, cb_out);
 
-	//debug
-	fprintf(stderr, "[DyscoAgentOut] out_hdr_rewrite from (SUP)%s:%u -> %s:%u\n",
-		printip2(ntohl(cb_out->sup.sip)), ntohs(cb_out->sup.sport),
-		printip2(ntohl(cb_out->sup.dip)), ntohs(cb_out->sup.dport));
-	fprintf(stderr, "[DyscoAgentOut] out_hdr_rewrite to (SUB)%s:%u -> %s:%u\n",
-		printip2(ntohl(cb_out->sub.sip)), ntohs(cb_out->sub.sport),
-		printip2(ntohl(cb_out->sub.dip)), ntohs(cb_out->sub.dport));
 	dc->out_hdr_rewrite(ip, tcp, &cb_out->sub);
 	
 	return true;
