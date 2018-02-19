@@ -62,17 +62,13 @@ CommandResponse DyscoCenter::CommandAdd(const bess::pb::DyscoCenterAddArg& arg) 
 		//hashes[index] = *dh;
 		hashes.insert(std::make_pair(index, *dh));
 	}
-
-	fprintf(stderr, "[DyscoCenter][index: %u]: filters size: %lu\n", dh->index, dh->policies.filters_.size());
-	
-	if(dh->policies.add_filter(arg.priority(), arg.filter(), sc, sc_len))
-		fprintf(stderr, "[DyscoCenter][index: %u] add_filter is OK\n", dh->index);
-	else
-		fprintf(stderr, "[DyscoCenter][index: %u] add_filter is not OK\n", dh->index);
-
-	fprintf(stderr, "[DyscoCenter][index: %u]: filters size: %lu\n", dh->index, dh->policies.filters_.size());
-	
 	bess::pb::DyscoCenterListArg l;
+	if(!dh->policies.add_filter(arg.priority(), arg.filter(), sc, sc_len)) {
+		l.set_msg("... failed.");
+
+		return CommandSuccess(l);
+	}
+	
 	l.set_msg("... Done.");	
 	return CommandSuccess(l);
 }
