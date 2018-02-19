@@ -62,6 +62,7 @@ CommandResponse DyscoCenter::CommandAdd(const bess::pb::DyscoCenterAddArg& arg) 
 		//hashes[index] = *dh;
 		hashes.insert(std::make_pair(index, *dh));
 	}
+	
 	bess::pb::DyscoCenterListArg l;
 	if(!dh->policies.add_filter(arg.priority(), arg.filter(), sc, sc_len)) {
 		l.set_msg("... failed.");
