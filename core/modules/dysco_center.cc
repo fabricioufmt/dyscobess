@@ -354,13 +354,16 @@ DyscoHashOut* DyscoCenter::insert_cb_in_reverse(DyscoTcpSession* ss_payload, Ipv
 
 DyscoHashIn* DyscoCenter::insert_cb_input(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_t* payload, uint32_t payload_sz) {
 	DyscoHashes* dh = get_hash(i);
-	if(!dh)
+	if(!dh) {
+		fprintf(stderr, "erro0\n");
 		return 0;
-
+	}
 	DyscoHashOut* cb_out = NULL;
 	DyscoHashIn* cb_in = new DyscoHashIn();
-	if(!cb_in)
+	if(!cb_in) {
+		fprintf(stderr, "erro1\n");
 		return 0;
+	}
 
 	cb_in->sub.sip = htonl(ip->src.value());
 	cb_in->sub.dip = htonl(ip->dst.value());
@@ -379,6 +382,7 @@ DyscoHashIn* DyscoCenter::insert_cb_input(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_
 	cb_out = insert_cb_in_reverse(ss, ip, tcp);
 	if(!cb_out) {
 		delete cb_in;
+		fprintf(stderr, "erro2\n");
 		return 0;
 	}
 	
@@ -386,6 +390,7 @@ DyscoHashIn* DyscoCenter::insert_cb_input(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_
 		if(!insert_pending(dh, payload, payload_sz)) {
 			delete cb_in;
 			delete cb_out;
+			fprintf(stderr, "erro3\n");
 			return 0;
 		}
 	}
