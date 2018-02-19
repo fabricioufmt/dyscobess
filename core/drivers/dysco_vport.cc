@@ -437,6 +437,9 @@ CommandResponse DyscoVPort::Init(const bess::pb::DyscoVPortArg &arg) {
 	netns_fd_ = -1;
 	container_pid_ = 0;
 
+	//Dysco
+	fprintf(stderr, "Calling Init method from DyscoVPort\n");
+	
 	if (arg.ifname().length() >= IFNAMSIZ) {
 		err = CommandFailure(EINVAL,
 				     "Linux interface name should be "
