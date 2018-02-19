@@ -421,6 +421,9 @@ CommandResponse DyscoVPort::SetIPAddr(const bess::pb::DyscoVPortArg &arg) {
 void DyscoVPort::DeInit() {
 	int ret;
 
+	//Dysco
+	fprintf(stderr, "DyscoVPort DeInit method called\n");
+	
 	ret = ioctl(fd_, SN_IOC_RELEASE_HOSTNIC);
 	if (ret < 0)
 		PLOG(ERROR) << "ioctl(SN_IOC_RELEASE_HOSTNIC)";
