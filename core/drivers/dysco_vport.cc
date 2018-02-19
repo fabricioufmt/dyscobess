@@ -438,7 +438,7 @@ CommandResponse DyscoVPort::Init(const bess::pb::DyscoVPortArg &arg) {
 	container_pid_ = 0;
 
 	//Dysco
-	fprintf(stderr, "Calling Init method from DyscoVPort\n");
+	fprintf(stderr, "Calling Init method from DyscoVPort (%p)\n", this);
 	
 	if (arg.ifname().length() >= IFNAMSIZ) {
 		err = CommandFailure(EINVAL,
