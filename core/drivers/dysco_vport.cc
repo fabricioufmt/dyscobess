@@ -315,16 +315,7 @@ int DyscoVPort::SetIPAddrSingle(const std::string &ip_addr) {
 	fp = popen(buf, "r");
 	if (!fp)
 		return -errno;
-	//Dysco
-	/*
-	std::string ip = ip_addr.substr(0, ip_addr.find('/'));
-	memcpy(strip, ip.c_str(), sizeof(strip));
-	uint32_t deviceip;
-	inet_pton(AF_INET, ip.c_str(), &deviceip);
-	//fprintf(stderr, "[DyscoVPort][%p]: ns=%s ip=%s(%u)\n", this, ns, ip.c_str(), deviceip);
-	fprintf(stderr, "[DyscoVPort][%p]: ns=%s ip=%s(%u)\n", this, ns, strip, deviceip);
-	memcpy(&devip, &deviceip, sizeof(uint32_t));
-	*/
+	
 	ret = pclose(fp);
 	exit_code = WEXITSTATUS(ret);
 	if (exit_code)
@@ -445,9 +436,6 @@ CommandResponse DyscoVPort::Init(const bess::pb::DyscoVPortArg &arg) {
 	netns_fd_ = -1;
 	container_pid_ = 0;
 
-	//Dysco
-	fprintf(stderr, "Calling Init method from DyscoVPort (%p)\n", this);
-	
 	if (arg.ifname().length() >= IFNAMSIZ) {
 		err = CommandFailure(EINVAL,
 				     "Linux interface name should be "
@@ -478,7 +466,6 @@ CommandResponse DyscoVPort::Init(const bess::pb::DyscoVPortArg &arg) {
 		//Dysco
 		memcpy(ns, arg.netns().c_str(), arg.netns().length());
 		std::string ip0 = arg.ip_addrs(0).substr(0, arg.ip_addrs(0).find('/'));
-		memcpy(strip, ip0.c_str(), ip0.length());
 		inet_pton(AF_INET, ip0.c_str(), &devip);
 	}
 
@@ -658,16 +645,6 @@ int DyscoVPort::SendPackets(queue_t qid, bess::Packet **pkts, int cnt) {
 	}
 
 	return cnt;
-}
-
-//Dysco
-uint32_t DyscoVPort::getip() {
-	fprintf(stderr, "[DyscoVPort]: getip method ns=%s strip=%s\n devip=%u\n", ns, strip, devip);
-	if(!strip)
-		return 0;
-	inet_pton(AF_INET, strip, &devip);
-	fprintf(stderr, "[DyscoVPort]: getip method return=%u\n", devip);
-	return devip;
 }
 
 ADD_DRIVER(DyscoVPort, "dysco_vport", "Dysco virtual port for Linux host")

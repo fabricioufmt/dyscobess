@@ -77,20 +77,18 @@ bool DyscoAgentIn::get_port_information() {
 		return false;
 
 	Module* m_next = ogate->next();
-	//DyscoPortOut* dysco_port_out = reinterpret_cast<DyscoPortOut*>(m_next);
-	DyscoPortOut* dysco_port_out = (DyscoPortOut*)(m_next);
+	DyscoPortOut* dysco_port_out = reinterpret_cast<DyscoPortOut*>(m_next);
 	if(!dysco_port_out)
 		return false;
 	
-	//DyscoVPort* dysco_vport = reinterpret_cast<DyscoVPort*>(dysco_port_out->port_);
-	DyscoVPort* dysco_vport = (DyscoVPort*)(dysco_port_out->port_);
+	DyscoVPort* dysco_vport = reinterpret_cast<DyscoVPort*>(dysco_port_out->port_);
 	if(!dysco_vport)
 		return false;
 
 	info_flag = true;
 	//memcpy(ns, dysco_vport->ns, sizeof(ns));
 	ns = dysco_vport->ns;
-	devip = dysco_vport->getip();
+	devip = dysco_vport->devip;
 	netns_fd_ = dysco_vport->netns_fd_;
 	index = dc->get_index(ns, devip);
 

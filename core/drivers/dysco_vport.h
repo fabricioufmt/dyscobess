@@ -54,9 +54,6 @@ class DyscoVPort final : public Port {
 	//Dysco
 	uint32_t devip;
 	char ns[256];
-	char strip[20];
-
-	uint32_t getip();
 };
 
 #endif  // BESS_DRIVERS_DYSCO_VPORT_H_
