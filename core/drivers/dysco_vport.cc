@@ -316,6 +316,7 @@ int DyscoVPort::SetIPAddrSingle(const std::string &ip_addr) {
 	if (!fp)
 		return -errno;
 	//Dysco
+	/*
 	std::string ip = ip_addr.substr(0, ip_addr.find('/'));
 	memcpy(strip, ip.c_str(), sizeof(strip));
 	uint32_t deviceip;
@@ -323,7 +324,7 @@ int DyscoVPort::SetIPAddrSingle(const std::string &ip_addr) {
 	//fprintf(stderr, "[DyscoVPort][%p]: ns=%s ip=%s(%u)\n", this, ns, ip.c_str(), deviceip);
 	fprintf(stderr, "[DyscoVPort][%p]: ns=%s ip=%s(%u)\n", this, ns, strip, deviceip);
 	memcpy(&devip, &deviceip, sizeof(uint32_t));
-	
+	*/
 	ret = pclose(fp);
 	exit_code = WEXITSTATUS(ret);
 	if (exit_code)
@@ -476,7 +477,9 @@ CommandResponse DyscoVPort::Init(const bess::pb::DyscoVPortArg &arg) {
 		}
 		//Dysco
 		memcpy(ns, arg.netns().c_str(), arg.netns().length());
-		memcpy(strip, arg.ip_addrs(0).c_str(), arg.ip_addrs(0).length());
+		std::string ip0 = arg.ip_addrs(0).substr(0, arg.ip_addrs(0).find('/'));
+		memcpy(strip, ip0.c_str(), ip0.length());
+		inet_pton(AF_INET, ip0.c_str(), &devip);
 	}
 
 	if (arg.rxq_cpus_size() > 0 &&
