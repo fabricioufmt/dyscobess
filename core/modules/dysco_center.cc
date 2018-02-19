@@ -103,8 +103,9 @@ CommandResponse DyscoCenter::CommandList(const bess::pb::EmptyArg&) {
   Control methods (internal use)
  */
 
-uint32_t DyscoCenter::get_index(std::string ns, uint32_t) {
+uint32_t DyscoCenter::get_index(std::string ns, uint32_t ip) {
 	uint32_t index = std::hash<std::string>()(ns);
+	hashes[index].devip = ip;
 	return index;
 }
 
