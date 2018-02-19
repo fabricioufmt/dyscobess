@@ -41,7 +41,8 @@ DyscoCenter::DyscoCenter() : Module() {
 
 CommandResponse DyscoCenter::CommandAdd(const bess::pb::DyscoCenterAddArg& arg) {
 	std::string ns = arg.ns();
-	uint32_t index = std::hash<std::string>()(ns);
+	//uint32_t index = std::hash<std::string>()(ns);
+	uint32_t index = get_index(ns, 0);
 	//uint32_t index = std::hash<char*>()(arg.ns().c_str());
 	uint32_t sc_len = arg.sc_len();
 	uint32_t* sc = new uint32_t[sc_len];
