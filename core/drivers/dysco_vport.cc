@@ -658,7 +658,7 @@ int DyscoVPort::SendPackets(queue_t qid, bess::Packet **pkts, int cnt) {
 
 //Dysco
 uint32_t DyscoVPort::getip() {
-	fprintf(stderr, "[DyscoVPort]: getip method strip=%s\n devip=%u\n", strip, devip);
+	fprintf(stderr, "[DyscoVPort]: getip method ns=%s strip=%s\n devip=%u\n", ns, strip, devip);
 	if(!strip)
 		return 0;
 	inet_pton(AF_INET, strip, &devip);
