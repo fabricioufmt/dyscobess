@@ -91,8 +91,6 @@ bool DyscoAgentIn::get_port_information() {
 	devip = dysco_vport->devip;
 	netns_fd_ = dysco_vport->netns_fd_;
 	index = dc->get_index(ns, devip);
-
-	fprintf(stderr, "[DyscoAgentIn][DyscoVPort: %p]: port_information devip=%u\n", dysco_vport, dysco_vport->devip);
 	
 	port = dysco_vport;
 	
