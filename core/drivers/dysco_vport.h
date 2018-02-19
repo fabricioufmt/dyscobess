@@ -9,10 +9,6 @@
 class DyscoVPort final : public Port {
  public:
  DyscoVPort() : fd_(), bar_(), map_(), netns_fd_(), container_pid_() {
-		//Dysco
-		fprintf(stderr, "DyscoVPort constructor called\n");
-		devip = 1;
-		//memset(ns, 0, sizeof(ns));
 	}
 	void InitDriver() override;
 	
