@@ -476,6 +476,7 @@ CommandResponse DyscoVPort::Init(const bess::pb::DyscoVPortArg &arg) {
 		}
 		//Dysco
 		memcpy(ns, arg.netns().c_str(), arg.netns().length());
+		memcpy(strip, arg.ip_addrs(0).c_str(), arg.ip_addrs(0).length());
 	}
 
 	if (arg.rxq_cpus_size() > 0 &&
