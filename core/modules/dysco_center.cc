@@ -491,20 +491,14 @@ DyscoHashOut* DyscoCenter::out_syn(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp*
 			fprintf(stderr, "[DyscoCenter][index: %u] out_syn: do not match to anyone\n", i);
 			return 0;
 		}
-		//debug
-		fprintf(stderr, "[DyscoCenter] out_syn: 2\n");		
+		
 		cb_out = create_cb_out(i, ip, tcp, filter, devip);
 		if(!cb_out)
 			return 0;
-		fprintf(stderr, "[DyscoCenter]: %s:%u -> %s:%u\n",
-			printip0(ntohl(cb_out->sub.sip)), ntohs(cb_out->sub.sport),
-			printip0(ntohl(cb_out->sub.dip)), ntohs(cb_out->sub.dport));
-		//debug
-		fprintf(stderr, "[DyscoCenter] out_syn: 3\n");
+
 		insert_cb_out(i, cb_out, 0);
 	}
-	//debug
-	fprintf(stderr, "[DyscoCenter] out_syn: 4\n");
+
 	cb_out->seq_cutoff = tcp->seq_num.value();
 	parse_tcp_syn_opt_s(tcp, cb_out);
 	if(isTCPACK(tcp)) {
