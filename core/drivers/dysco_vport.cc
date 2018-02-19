@@ -317,9 +317,11 @@ int DyscoVPort::SetIPAddrSingle(const std::string &ip_addr) {
 		return -errno;
 	//Dysco
 	std::string ip = ip_addr.substr(0, ip_addr.find('/'));
+	memcpy(strip, ip.c_str(), sizeof(strip));
 	uint32_t deviceip;
 	inet_pton(AF_INET, ip.c_str(), &deviceip);
-	fprintf(stderr, "[DyscoVPort][%p]: ns=%s ip=%s(%u)\n", this, ns, ip.c_str(), deviceip);
+	//fprintf(stderr, "[DyscoVPort][%p]: ns=%s ip=%s(%u)\n", this, ns, ip.c_str(), deviceip);
+	fprintf(stderr, "[DyscoVPort][%p]: ns=%s ip=%s(%u)\n", this, ns, strip, deviceip);
 	memcpy(&devip, &deviceip, sizeof(uint32_t));
 	
 	ret = pclose(fp);
