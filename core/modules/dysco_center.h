@@ -336,8 +336,8 @@ class DyscoCenter final : public Module {
 	/*
 	  Dysco methods (OUTPUT)
 	*/
-	DyscoHashOut* out_syn(uint32_t, bess::Packet*, Ipv4*, Tcp*, DyscoHashOut*);
-	bool out_handle_mb(uint32_t, bess::Packet*, Ipv4*, Tcp*, DyscoHashOut*);
+	DyscoHashOut* out_syn(uint32_t, bess::Packet*, Ipv4*, Tcp*, DyscoHashOut*, uint32_t);
+	bool out_handle_mb(uint32_t, bess::Packet*, Ipv4*, Tcp*, DyscoHashOut*, uint32_t);
 	bool out_hdr_rewrite(Ipv4*, Tcp*, DyscoTcpSession*);
 	bool insert_cb_out(uint32_t, DyscoHashOut*, uint8_t);
  private:
@@ -369,7 +369,7 @@ class DyscoCenter final : public Module {
 	/*
 	  Dysco methods (OUTPUT)
 	*/
-	DyscoHashOut* create_cb_out(uint32_t, Ipv4*, Tcp*, DyscoPolicies::Filter*);
+	DyscoHashOut* create_cb_out(uint32_t, Ipv4*, Tcp*, DyscoPolicies::Filter*, uint32_t);
 	bool out_tx_init(bess::Packet*, Ipv4*, Tcp*, DyscoHashOut*);
 	bool remove_tag(bess::Packet*, Ipv4*, Tcp*);
 	bool add_sc(bess::Packet*, Ipv4*, DyscoHashOut*);

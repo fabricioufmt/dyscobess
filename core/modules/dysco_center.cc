@@ -78,7 +78,6 @@ CommandResponse DyscoCenter::CommandAdd(const bess::pb::DyscoCenterAddArg& arg) 
 
 CommandResponse DyscoCenter::CommandDel(const bess::pb::DyscoCenterDelArg& arg) {
 	//TODO
-	fprintf(stderr, "Del: priority: %d\n", arg.priority());
 	return CommandSuccess();
 }
 
@@ -104,11 +103,8 @@ CommandResponse DyscoCenter::CommandList(const bess::pb::EmptyArg&) {
   Control methods (internal use)
  */
 
-uint32_t DyscoCenter::get_index(std::string ns, uint32_t ip) {
+uint32_t DyscoCenter::get_index(std::string ns, uint32_t) {
 	uint32_t index = std::hash<std::string>()(ns);
-	hashes[index].devip = ip;
-	fprintf(stderr, "[DyscoCenter]: ns=%s index=%u, devip=%s(%u)\n",
-		ns.c_str(), index, printip0(ip), ip);
 	return index;
 }
 
@@ -443,7 +439,7 @@ bool DyscoCenter::set_ack_number_out(uint32_t i, Tcp* tcp, DyscoHashIn* cb_in) {
   Dysco methods (OUTPUT)
 */
 
-DyscoHashOut* DyscoCenter::create_cb_out(uint32_t i, Ipv4* ip, Tcp* tcp, DyscoPolicies::Filter* filter) {
+DyscoHashOut* DyscoCenter::create_cb_out(uint32_t i, Ipv4* ip, Tcp* tcp, DyscoPolicies::Filter* filter, uint32_t devip) {
 	DyscoHashes* dh = get_hash(i);
 	if(!dh)
 		return 0;
@@ -461,7 +457,7 @@ DyscoHashOut* DyscoCenter::create_cb_out(uint32_t i, Ipv4* ip, Tcp* tcp, DyscoPo
 	cb_out->sup.dport = htons(tcp->dst_port.value());
 
 	if(cb_out->sc_len) {
-		cb_out->sub.sip = dh->devip;
+		cb_out->sub.sip = devip;
 		cb_out->sub.dip = cb_out->sc[0];
 		cb_out->sub.sport = allocate_local_port(i);
 		cb_out->sub.dport = allocate_neighbor_port(i);
@@ -479,7 +475,7 @@ bool DyscoCenter::out_tx_init(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOu
 	return fix_tcp_ip_csum(ip, tcp);
 }
 
-DyscoHashOut* DyscoCenter::out_syn(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) {
+DyscoHashOut* DyscoCenter::out_syn(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out, uint32_t devip) {
 	DyscoHashes* dh = get_hash(i);
 	if(!dh)
 		return 0;
@@ -493,7 +489,7 @@ DyscoHashOut* DyscoCenter::out_syn(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp*
 		}
 		//debug
 		fprintf(stderr, "[DyscoCenter] out_syn: 2\n");		
-		cb_out = create_cb_out(i, ip, tcp, filter);
+		cb_out = create_cb_out(i, ip, tcp, filter, devip);
 		if(!cb_out)
 			return 0;
 		fprintf(stderr, "[DyscoCenter]: %s:%u -> %s:%u\n",
@@ -822,7 +818,7 @@ bool DyscoCenter::fix_tcp_ip_csum(Ipv4* ip, Tcp* tcp) {
 /*
   Dysco methods
  */
-bool DyscoCenter::out_handle_mb(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) {
+bool DyscoCenter::out_handle_mb(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out, uint32_t devip) {
 	DyscoHashes* dh = get_hash(i);
 	if(!dh)
 		return false;
@@ -832,7 +828,7 @@ bool DyscoCenter::out_handle_mb(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp* tc
 	//TODO: dh->hash_pen_tag.erase(cb_out->sup);
 
 	if(cb_out->sc_len) {
-		cb_out->sub.sip = dh->devip;
+		cb_out->sub.sip = devip;
 		cb_out->sub.dip = cb_out->sc[0];
 		//Ronaldo: not using ARP
 	}
