@@ -76,7 +76,7 @@ CommandResponse DyscoCenter::CommandAdd(const bess::pb::DyscoCenterAddArg& arg) 
 	return CommandSuccess(l);
 }
 
-CommandResponse DyscoCenter::CommandDel(const bess::pb::DyscoCenterDelArg& arg) {
+CommandResponse DyscoCenter::CommandDel(const bess::pb::DyscoCenterDelArg&) {
 	//TODO
 	return CommandSuccess();
 }
