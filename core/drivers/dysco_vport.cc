@@ -653,4 +653,13 @@ int DyscoVPort::SendPackets(queue_t qid, bess::Packet **pkts, int cnt) {
 	return cnt;
 }
 
+//Dysco
+uint32_t DyscoVPort::getip() {
+	if(!strip)
+		return 0;
+	inet_pton(AF_INET, strip, &devip);
+
+	return devip;
+}
+
 ADD_DRIVER(DyscoVPort, "dysco_vport", "Dysco virtual port for Linux host")
