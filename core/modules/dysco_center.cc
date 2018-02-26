@@ -42,9 +42,7 @@ DyscoCenter::DyscoCenter() : Module() {
 
 CommandResponse DyscoCenter::CommandAdd(const bess::pb::DyscoCenterAddArg& arg) {
 	std::string ns = arg.ns();
-	//uint32_t index = std::hash<std::string>()(ns);
 	uint32_t index = get_index(ns, 0);
-	//uint32_t index = std::hash<char*>()(arg.ns().c_str());
 	uint32_t sc_len = arg.sc_len();
 	uint32_t* sc = new uint32_t[sc_len];
 	
@@ -103,9 +101,39 @@ CommandResponse DyscoCenter::CommandList(const bess::pb::DyscoCenterListArg& arg
 	return CommandSuccess(l);
 }
 
-CommandResponse DyscoCenter::CommandReconfig(const bess::pb::DyscoCenterReconfigArg&) {
-	//TODO
-	return CommandSuccess();
+CommandResponse DyscoCenter::CommandReconfig(const bess::pb::DyscoCenterReconfigArg& arg) {
+	std::string ns = arg.ns();
+	bess::pb::DyscoCenterListArg l;
+
+	DyscoHashes* dh = get_hash(get_index(ns, 0));
+	if(!dh) {
+		l.set_msg("Hash not found.");
+		return CommandSuccess(l);
+	}
+
+	//uint32_t sip, dip;
+	//uint32_t sport, dport;
+
+	std::string src_ip = arg.sssource().substr(0, arg.sssource().find(':'));
+	std::string src_p = arg.sssource().substr(arg.sssource().find(':'), arg.sssource().length());
+
+	std::string dst_ip = arg.ssdest().substr(0, arg.ssdest().find(':'));
+	std::string dst_p = arg.ssdest().substr(arg.ssdest().find(':'), arg.ssdest().length());
+
+	l.set_msg(src_ip);
+	l.set_msg(src_p);
+	l.set_msg(dst_ip);
+	l.set_msg(dst_p);
+	
+	/*
+	uint32_t i = 0;
+	uint32_t* sc = new uint32_t[arg.sc_len()];
+	for(std::string s : arg.chain()) {
+		inet_pton(AF_INET, s.c_str(), sc + i);
+		i++;
+	}
+	*/
+	return CommandSuccess(l);
 }
 
 /************************************************************************/
