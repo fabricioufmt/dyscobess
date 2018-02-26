@@ -20,6 +20,7 @@ using bess::utils::Ethernet;
 const Commands DyscoCenter::cmds = {
 	{"add", "DyscoCenterAddArg", MODULE_CMD_FUNC(&DyscoCenter::CommandAdd), Command::THREAD_UNSAFE},
 	{"del", "DyscoCenterDelArg", MODULE_CMD_FUNC(&DyscoCenter::CommandDel), Command::THREAD_UNSAFE},
+	{"reconfig", "DyscoCenterReconfigArg", MODULE_CMD_FUNC(&DyscoCenter::CommandReconfig), Command::THREAD_UNSAFE},
 	{"list", "EmptyArg", MODULE_CMD_FUNC(&DyscoCenter::CommandList), Command::THREAD_UNSAFE}
 };
 
@@ -65,7 +66,7 @@ CommandResponse DyscoCenter::CommandAdd(const bess::pb::DyscoCenterAddArg& arg) 
 	
 	bess::pb::DyscoCenterListArg l;
 	if(!dh->policies.add_filter(arg.priority(), arg.filter(), sc, sc_len)) {
-		l.set_msg("... failed.");
+		l.set_msg("... Failed.");
 
 		return CommandSuccess(l);
 	}
@@ -80,19 +81,24 @@ CommandResponse DyscoCenter::CommandDel(const bess::pb::DyscoCenterDelArg&) {
 }
 
 CommandResponse DyscoCenter::CommandList(const bess::pb::EmptyArg&) {
-	//std::string s;
+	std::string s;
 	bess::pb::DyscoCenterListArg l;
 
-	/*for(DyscoBPF::Filter f : bpf->filters_) {
+	for(DyscoBPF::Filter f : bpf->filters_) {
 		s += std::to_string(f.priority);
 		s += ": ";
 		s += f.exp;
 		s += "; ";
-		}*/
+		}
 
-	//l.set_msg(s);
-	l.set_msg("... Done.");
+	l.set_msg(s);
+	//l.set_msg("... Done.");
 	return CommandSuccess(l);
+}
+
+CommandResponse DyscoCenter::CommandReconfig(const bess::pb::DyscoCenterReconfigArg&) {
+	//TODO
+	return CommandSuccess();
 }
 
 /************************************************************************/

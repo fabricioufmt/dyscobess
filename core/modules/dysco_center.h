@@ -295,6 +295,7 @@ class DyscoCenter final : public Module {
 	CommandResponse CommandList(const bess::pb::EmptyArg&);
 	CommandResponse CommandAdd(const bess::pb::DyscoCenterAddArg&);
 	CommandResponse CommandDel(const bess::pb::DyscoCenterDelArg&);
+	CommandResponse CommandReconfig(const bess::pb::DyscoCenterReconfigArg&);
 
 	/*
 	  TCP methods
