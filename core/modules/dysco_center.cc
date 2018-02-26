@@ -7,6 +7,7 @@
 
 #include "../utils/format.h"
 #include "dysco_policies.h"
+#include "dysco_bpf.h"
 #include "../utils/endian.h"
 #include "../module.h"
 #include "../utils/ip.h"
