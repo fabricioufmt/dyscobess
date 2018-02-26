@@ -91,7 +91,7 @@ CommandResponse DyscoCenter::CommandList(const bess::pb::DyscoCenterListArg& arg
 		return CommandSuccess(l);
 	}
 	
-	for(DyscoPolicies::Filter f : dh->policies->filters_) {
+	for(DyscoPolicies::Filter f : dh->policies.filters_) {
 		s += std::to_string(f.priority);
 		s += ": ";
 		s += f.exp;
