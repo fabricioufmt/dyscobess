@@ -81,11 +81,18 @@ CommandResponse DyscoCenter::CommandDel(const bess::pb::DyscoCenterDelArg&) {
 	return CommandSuccess();
 }
 
-CommandResponse DyscoCenter::CommandList(const bess::pb::EmptyArg&) {
+CommandResponse DyscoCenter::CommandList(const bess::pb::DyscoCenterListArg& arg) {
 	std::string s;
+	std::string ns = arg.ns();
 	bess::pb::DyscoCenterListArg l;
 
-	for(DyscoBPF::Filter f : bpf->filters_) {
+	DyscoHashes* dh = get_hash(get_index(ns, 0));
+	if(!dh) {
+		l.set_msg("Hash not found.");
+		return CommandSuccess(l);
+	}
+	
+	for(DyscoPolicies::Filter f : dh->policies->filters_) {
 		s += std::to_string(f.priority);
 		s += ": ";
 		s += f.exp;

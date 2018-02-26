@@ -1139,16 +1139,17 @@ message DyscoCenterAddArg {
 }
 
 message DyscoCenterDelArg {
-	uint32 priority = 1;
-	string filter = 2;
+	string ns = 1;
+	uint32 priority = 2;
+	string filter = 3;
 }
 
 message DyscoCenterListArg {
-	string msg = 1;
+	string ns = 1;
 }
 
 message DyscoCenterReconfigArg {
-	string msg = 1;
+	string ns = 1;
 }
 
 /**
