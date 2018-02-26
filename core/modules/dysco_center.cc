@@ -115,10 +115,10 @@ CommandResponse DyscoCenter::CommandReconfig(const bess::pb::DyscoCenterReconfig
 	//uint32_t sport, dport;
 
 	std::string src_ip = arg.sssource().substr(0, arg.sssource().find(':'));
-	std::string src_p = arg.sssource().substr(arg.sssource().find(':'), arg.sssource().length());
+	std::string src_p = arg.sssource().substr(arg.sssource().find(':') + 1, arg.sssource().length());
 
 	std::string dst_ip = arg.ssdest().substr(0, arg.ssdest().find(':'));
-	std::string dst_p = arg.ssdest().substr(arg.ssdest().find(':'), arg.ssdest().length());
+	std::string dst_p = arg.ssdest().substr(arg.ssdest().find(':') + 1, arg.ssdest().length());
 
 	src_ip += ":";
 	src_ip += src_p;
