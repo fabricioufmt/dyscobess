@@ -1146,6 +1146,7 @@ message DyscoCenterDelArg {
 
 message DyscoCenterListArg {
 	string ns = 1;
+	string msg = 2;
 }
 
 message DyscoCenterReconfigArg {

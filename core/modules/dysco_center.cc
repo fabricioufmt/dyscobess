@@ -96,7 +96,7 @@ CommandResponse DyscoCenter::CommandList(const bess::pb::DyscoCenterListArg& arg
 		s += ": ";
 		s += f.exp;
 		s += "; ";
-		}
+	}
 
 	l.set_msg(s);
 	//l.set_msg("... Done.");
