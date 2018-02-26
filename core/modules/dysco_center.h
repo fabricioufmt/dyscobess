@@ -292,9 +292,9 @@ class DyscoCenter final : public Module {
 	
 	DyscoCenter();
 
-	CommandResponse CommandList(const bess::pb::EmptyArg&);
 	CommandResponse CommandAdd(const bess::pb::DyscoCenterAddArg&);
 	CommandResponse CommandDel(const bess::pb::DyscoCenterDelArg&);
+	CommandResponse CommandList(const bess::pb::DyscoCenterListArg&);
 	CommandResponse CommandReconfig(const bess::pb::DyscoCenterReconfigArg&);
 
 	/*
