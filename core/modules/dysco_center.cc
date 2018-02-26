@@ -120,10 +120,17 @@ CommandResponse DyscoCenter::CommandReconfig(const bess::pb::DyscoCenterReconfig
 	std::string dst_ip = arg.ssdest().substr(0, arg.ssdest().find(':'));
 	std::string dst_p = arg.ssdest().substr(arg.ssdest().find(':'), arg.ssdest().length());
 
+	src_ip += ":";
+	src_ip += src_p;
+	src_ip += "->";
+	src_ip += dst_ip;
+	src_ip += ":";
+	src_ip += dst_p;
+	
 	l.set_msg(src_ip);
-	l.set_msg(src_p);
-	l.set_msg(dst_ip);
-	l.set_msg(dst_p);
+	//l.set_msg(src_p);
+	//l.set_msg(dst_ip);
+	//l.set_msg(dst_p);
 	
 	/*
 	uint32_t i = 0;
