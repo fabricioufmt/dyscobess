@@ -1147,6 +1147,10 @@ message DyscoCenterListArg {
 	string msg = 1;
 }
 
+message DyscoCenterReconfigArg {
+	string msg = 1;
+}
+
 /**
 	TODO: should be empty arg.
 */
