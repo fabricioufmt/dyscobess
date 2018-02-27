@@ -111,39 +111,19 @@ CommandResponse DyscoCenter::CommandReconfig(const bess::pb::DyscoCenterReconfig
 		return CommandSuccess(l);
 	}
 
-	//uint32_t sip, dip;
-	//uint32_t sport, dport;
-
-	std::string src_ip = arg.sssource().substr(0, arg.sssource().find(':'));
-	//std::string src_p = arg.sssource().substr(arg.sssource().find(':') + 1, arg.sssource().length());
+	std::string sip = arg.sssource().substr(0, arg.sssource().find(':'));
 	int sport = std::stoi(arg.sssource().substr(arg.sssource().find(':') + 1, arg.sssource().length()), nullptr, 10);
 
-	std::string dst_ip = arg.ssdest().substr(0, arg.ssdest().find(':'));
-	//std::string dst_p = arg.ssdest().substr(arg.ssdest().find(':') + 1, arg.ssdest().length());
+	std::string dip = arg.ssdest().substr(0, arg.ssdest().find(':'));
 	int dport = std::stoi(arg.ssdest().substr(arg.ssdest().find(':') + 1, arg.ssdest().length()), nullptr, 10);
 
-	src_ip += ":";
-	//src_ip += src_p;
-	src_ip += std::to_string(sport);
-	src_ip += "->";
-	src_ip += dst_ip;
-	src_ip += ":";
-	//src_ip += dst_p;
-	src_ip += std::to_string(dport);
-	
-	l.set_msg(src_ip);
-	//l.set_msg(src_p);
-	//l.set_msg(dst_ip);
-	//l.set_msg(dst_p);
-	
-	/*
 	uint32_t i = 0;
 	uint32_t* sc = new uint32_t[arg.sc_len()];
 	for(std::string s : arg.chain()) {
 		inet_pton(AF_INET, s.c_str(), sc + i);
 		i++;
 	}
-	*/
+
 	return CommandSuccess(l);
 }
 
