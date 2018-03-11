@@ -58,7 +58,6 @@ CommandResponse DyscoCenter::CommandAdd(const bess::pb::DyscoCenterAddArg& arg) 
 		dh->ns = arg.ns();
 		dh->index = index;
 
-		//hashes[index] = *dh;
 		hashes.insert(std::make_pair(index, *dh));
 	}
 	
@@ -124,6 +123,10 @@ CommandResponse DyscoCenter::CommandReconfig(const bess::pb::DyscoCenterReconfig
 		i++;
 	}
 
+	//TODO: just for compile
+	sport = 0;
+	dport = 0;
+	
 	return CommandSuccess(l);
 }
 

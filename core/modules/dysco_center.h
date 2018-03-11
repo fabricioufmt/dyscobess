@@ -76,6 +76,11 @@ enum {
 #define NOSTATE_TRANSFER	0
 #define STATE_TRANSFER		1
 
+class DyscoHeader {
+ public:
+	uint8_t operation;
+};
+
 class DyscoTcpSession {
  public:
 	uint32_t sip;

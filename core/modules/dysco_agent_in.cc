@@ -405,6 +405,10 @@ bool DyscoAgentIn::input(bess::Packet* pkt) {
 		ns.c_str(),
 		printip1(ip->src.value()), tcp->src_port.value(),
 		printip1(ip->dst.value()), tcp->dst_port.value());
+
+	//NEW:
+	//TODO: capture DyscoHeader operation field
+	//if(isReconfigPacket(tcp))
 	
 	DyscoHashIn* cb_in = dc->lookup_input(this->index, ip, tcp);
 	if(!cb_in) {
@@ -725,9 +729,9 @@ bool DyscoAgentIn::control_input(Ipv4* ip) {
 	DyscoCbReconfig* rcb;
 
 	/*
-	  cmsg will be filled by packet payload
+	  TODO: cmsg will be filled by packet payload
 	 */
-	cmsg = 0;//test
+	cmsg = 0;// TODO: test
 	
 	switch(cmsg->mtype) {
 	case DYSCO_SYN:
