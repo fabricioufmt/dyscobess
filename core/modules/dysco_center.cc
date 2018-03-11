@@ -124,8 +124,7 @@ CommandResponse DyscoCenter::CommandReconfig(const bess::pb::DyscoCenterReconfig
 	}
 
 	//TODO: just for compile
-	sport = 0;
-	dport = 0;
+	fprintf(stderr, "%d %d\n", sport, dport);
 	
 	return CommandSuccess(l);
 }
