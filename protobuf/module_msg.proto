@@ -1150,7 +1150,7 @@ message DyscoCenterReconfigArg {
 	string ssdest = 3;
 	uint32 sc_len = 4;
 	repeated string chain = 5;
-	string filter = 6;
+	///string filter = 6;
 }
 
 message DyscoCenterListArg {
@@ -1162,15 +1162,22 @@ message DyscoCenterListArg {
 	TODO: should be empty arg.
 */
 message DyscoAgentInArg {
-	string ns = 1;
-	string ip = 2;
-	string dc = 3;
+	string dc = 1;
+}
+
+message DyscoAgentInReconfigArg {
+	string sssource = 1;
+	string ssdest = 2;
+	uint32 sc_len = 3;
+	repeated string chain = 4;
+}
+
+message DyscoAgentInMsg {
+	string msg = 1;
 }
 
 message DyscoAgentOutArg {
-	string ns = 1;
-	string ip = 2;
-	string dc = 3;
+	string dc = 1;
 }
 
 message DyscoPortIncCommandSetBurstArg {

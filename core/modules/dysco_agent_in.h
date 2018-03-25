@@ -16,6 +16,9 @@
 #include "../utils/endian.h"
 #include "../utils/checksum.h"
 
+#define RECONFIG_SPORT 8988
+#define RECONFIG_DPORT 8989
+
 using bess::utils::Tcp;
 using bess::utils::Ipv4;
 using bess::utils::Ethernet;
@@ -67,6 +70,14 @@ class DyscoAgentIn final : public Module {
 		return ip->length.value() - ip_hlen - tcp_hlen;
 	}
 
+	//TODO
+	inline bool isReconfigPacket(Ipv4*, Tcp* tcp) {
+		if(tcp->src_port.value() == RECONFIG_SPORT &&
+		   tcp->dst_port.value() == RECONFIG_DPORT)
+			return true;
+		return false;
+	}
+	
 	/*
 	  Dysco methods
 	 */
