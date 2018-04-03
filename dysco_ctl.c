@@ -204,8 +204,6 @@ int create_message_reconfig(struct tcp_session* supss, uint32_t sc_len, uint32_t
 	iph->daddr = sc[sc_len - 1];
 	iph->check = csum((unsigned short*) sendbuf, sizeof(struct iphdr) + sizeof(struct tcphdr));
 	tx_len += sizeof(struct iphdr); //IP does not have Option field.
-
-	printf("Interface index: %d and ip address %u\n", ifindex, iph->saddr);	
 	
 	// Construct the TCP segment 
 	tcph->source = htons(RECONFIG_SPORT);
@@ -332,12 +330,13 @@ uint32_t get_srcip(uint32_t* destip, int32_t* ifindex) {
 	}
 
 	do {
+		printf("receiving data from NETLINK\n");
 		n = recv(sockfd, ptr, sizeof(buff) - msg_len, 0);
 		if(n < 0) {
 			perror("Error in recv");
 			return UEXIT_FAILURE;
 		}
-		
+		printf("received: %d bytes\n", n);		
 		nlh = (struct nlmsghdr*) ptr;
 		
 		if((NLMSG_OK(nlmsg, n) == 0) || (nlmsg->nlmsg_type == NLMSG_ERROR)) {
