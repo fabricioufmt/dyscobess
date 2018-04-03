@@ -330,13 +330,12 @@ uint32_t get_srcip(uint32_t* destip, int32_t* ifindex) {
 	}
 
 	do {
-		printf("receiving data from NETLINK\n");
 		n = recv(sockfd, ptr, sizeof(buff) - msg_len, 0);
 		if(n < 0) {
 			perror("Error in recv");
 			return UEXIT_FAILURE;
 		}
-		printf("received: %d bytes\n", n);		
+		
 		nlh = (struct nlmsghdr*) ptr;
 		
 		if((NLMSG_OK(nlmsg, n) == 0) || (nlmsg->nlmsg_type == NLMSG_ERROR)) {
@@ -362,7 +361,6 @@ uint32_t get_srcip(uint32_t* destip, int32_t* ifindex) {
 	}
 	
 	for(; NLMSG_OK(nlh, n); nlh = NLMSG_NEXT(nlh, n)) {
-		printf("First loop\n");
 		entry = (struct rtmsg*) NLMSG_DATA(nlh);
 		
 		if(entry->rtm_table != RT_TABLE_MAIN)
@@ -372,13 +370,10 @@ uint32_t get_srcip(uint32_t* destip, int32_t* ifindex) {
 		rt_len = RTM_PAYLOAD(nlh);
 		
 		for(; RTA_OK(rt, rt_len); rt = RTA_NEXT(rt, rt_len)) {
-			printf("second loop\n");
 			switch(rt->rta_type) {
 			case RTA_OIF:
 				if_indextoname(*(int*)RTA_DATA(rt), iface);
-				printf("Interface: %s\n", iface);
 				for(ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next) {
-					printf("third loop \n");
 					if(ifa->ifa_addr == NULL)
 						continue;
 
