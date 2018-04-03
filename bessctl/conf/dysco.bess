@@ -57,7 +57,7 @@ ipl.add(prefix='10.0.1.4', prefix_len=32, gate=5)
 
 dc::DyscoCenter()
 
-DyscoPortInc(port=h1) -> DyscoAgentOut(dc='dc') -> ipl
+DyscoPortInc(port=h1) -> DyscoAgentOut(dc=d') -> ipl
 DyscoPortInc(port=h2_0) -> DyscoAgentOut(dc=dc) -> ipl
 DyscoPortInc(port=h2_1) -> DyscoAgentOut(dc=dc) -> ipl
 DyscoPortInc(port=h3_0) -> DyscoAgentOut(dc=dc) -> ipl
