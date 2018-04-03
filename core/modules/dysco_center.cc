@@ -20,7 +20,7 @@ using bess::utils::Ethernet;
 const Commands DyscoCenter::cmds = {
 	{"add", "DyscoCenterAddArg", MODULE_CMD_FUNC(&DyscoCenter::CommandAdd), Command::THREAD_UNSAFE},
 	{"del", "DyscoCenterDelArg", MODULE_CMD_FUNC(&DyscoCenter::CommandDel), Command::THREAD_UNSAFE},
-	{"reconfig", "DyscoCenterReconfigArg", MODULE_CMD_FUNC(&DyscoCenter::CommandReconfig), Command::THREAD_UNSAFE},
+	//	{"reconfig", "DyscoCenterReconfigArg", MODULE_CMD_FUNC(&DyscoCenter::CommandReconfig), Command::THREAD_UNSAFE},
 	{"list", "DyscoCenterListArg", MODULE_CMD_FUNC(&DyscoCenter::CommandList), Command::THREAD_UNSAFE}
 };
 
@@ -99,7 +99,7 @@ CommandResponse DyscoCenter::CommandList(const bess::pb::DyscoCenterListArg& arg
 	//l.set_msg("... Done.");
 	return CommandSuccess(l);
 }
-
+/*
 CommandResponse DyscoCenter::CommandReconfig(const bess::pb::DyscoCenterReconfigArg& arg) {
 	std::string ns = arg.ns();
 	bess::pb::DyscoCenterListArg l;
@@ -128,7 +128,7 @@ CommandResponse DyscoCenter::CommandReconfig(const bess::pb::DyscoCenterReconfig
 	
 	return CommandSuccess(l);
 }
-
+*/
 /************************************************************************/
 /************************************************************************/
 /*
@@ -349,7 +349,6 @@ bool DyscoCenter::insert_pending(DyscoHashes* dh, uint8_t* payload, uint32_t pay
 	
 	dh->hash_pen.insert(std::pair<DyscoTcpSession, DyscoHashOut>(*sup, *cb_out));
 	dh->hash_pen_tag.insert(std::pair<uint32_t, DyscoHashOut>(cb_out->dysco_tag, *cb_out));
-	fprintf(stderr, "[DyscoCenter]: inserting with %u as key for dysco_tag\n", cb_out->dysco_tag);
 	//TODO: DyscoTag (verify)
 
 	return true;
@@ -388,16 +387,13 @@ DyscoHashOut* DyscoCenter::insert_cb_in_reverse(DyscoTcpSession* ss_payload, Ipv
 
 DyscoHashIn* DyscoCenter::insert_cb_input(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_t* payload, uint32_t payload_sz) {
 	DyscoHashes* dh = get_hash(i);
-	if(!dh) {
-		fprintf(stderr, "erro0\n");
+	if(!dh)
 		return 0;
-	}
+	
 	DyscoHashOut* cb_out = NULL;
 	DyscoHashIn* cb_in = new DyscoHashIn();
-	if(!cb_in) {
-		fprintf(stderr, "erro1\n");
+	if(!cb_in)
 		return 0;
-	}
 
 	cb_in->sub.sip = htonl(ip->src.value());
 	cb_in->sub.dip = htonl(ip->dst.value());
@@ -416,7 +412,7 @@ DyscoHashIn* DyscoCenter::insert_cb_input(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_
 	cb_out = insert_cb_in_reverse(ss, ip, tcp);
 	if(!cb_out) {
 		delete cb_in;
-		fprintf(stderr, "erro2\n");
+
 		return 0;
 	}
 	
@@ -424,7 +420,7 @@ DyscoHashIn* DyscoCenter::insert_cb_input(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_
 		if(!insert_pending(dh, payload, payload_sz)) {
 			delete cb_in;
 			delete cb_out;
-			fprintf(stderr, "erro3\n");
+
 			return 0;
 		}
 	}

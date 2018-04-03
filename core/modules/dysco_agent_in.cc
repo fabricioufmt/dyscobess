@@ -3,6 +3,8 @@
 #include "../module_graph.h"
 #include "dysco_port_out.h"
 
+#define DEBUG 1
+
 //debug
 char* printip1(uint32_t ip) {
 	uint8_t bytes[4];
@@ -293,12 +295,12 @@ bool DyscoAgentIn::rx_initiation_new(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 		in_hdr_rewrite(ip, tcp, &cb_in->sup);
 	}
 	
-	//debug
+#ifdef DEBUG
 	fprintf(stderr, "[%s][DyscoAgentIn](end of rx_initiation_new): %s:%u -> %s:%u\n\n",
 		ns.c_str(),
 		printip1(ip->src.value()), tcp->src_port.value(),
 		printip1(ip->dst.value()), tcp->dst_port.value());
-
+#endif
 	return true;
 }
 
@@ -400,12 +402,12 @@ bool DyscoAgentIn::input(bess::Packet* pkt) {
 
 	Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
 
-	//debug
+#ifdef DEBUG
 	fprintf(stderr, "[%s][DyscoAgentIn] receives %s:%u -> %s:%u\n",
 		ns.c_str(),
 		printip1(ip->src.value()), tcp->src_port.value(),
 		printip1(ip->dst.value()), tcp->dst_port.value());
-
+#endif
 	//TODO
 	if(isReconfigPacket(ip, tcp))
 		return control_input(ip);
@@ -413,8 +415,9 @@ bool DyscoAgentIn::input(bess::Packet* pkt) {
 	DyscoHashIn* cb_in = dc->lookup_input(this->index, ip, tcp);
 	if(!cb_in) {
 		if(isTCPSYN(tcp) && hasPayload(ip, tcp)) {
-			//debug
+#ifdef DEBUG
 			fprintf(stderr, "[%s][DyscoAgentIn] new connection with payload\n", ns.c_str());
+#endif
 			return rx_initiation_new(pkt, ip, tcp);
 		}
 		
@@ -429,7 +432,9 @@ bool DyscoAgentIn::input(bess::Packet* pkt) {
 		} else {
 			//It is retransmission packet, just remove sc (if there is) and insert Dysco Tag
 			if(hasPayload(ip, tcp)) {
+#ifdef DEBUG
 				fprintf(stderr, "[%s][DyscoAgentIn] it's retransmission of TCP SYN w payload\n", ns.c_str());
+#endif
 				remove_sc(pkt, ip, tcp);
 				dc->insert_tag(this->index, pkt, ip, tcp);
 				in_hdr_rewrite(ip, tcp, &cb_in->sup);
@@ -449,12 +454,12 @@ bool DyscoAgentIn::input(bess::Packet* pkt) {
 	
 	in_hdr_rewrite(ip, tcp, &cb_in->sup);
 
-	//debug
+#ifdef DEBUG
 	fprintf(stderr, "[%s][DyscoAgentIn](OUT): %s:%u -> %s:%u\n",
 		ns.c_str(),
 		printip1(ip->src.value()), tcp->src_port.value(),
 		printip1(ip->dst.value()), tcp->dst_port.value());
-
+#endif
 	return true;
 }
 
