@@ -374,7 +374,7 @@ uint32_t get_srcip(uint32_t* destip, int32_t* ifindex) {
 			switch(rt->rta_type) {
 			case RTA_OIF:
 				if_indextoname(*(int*)RTA_DATA(rt), iface);
-				
+				printf("Interface: %s\n", iface);
 				for(ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next) {
 					if(ifa->ifa_addr == NULL)
 						continue;
