@@ -397,7 +397,7 @@ uint32_t get_srcip(uint32_t* destip, int32_t* ifindex) {
 		if(hostip) {
 			freeifaddrs(ifaddr);
 			close(sockfd);
-			
+			printf("Sending through %s interface with %s address.\n", iface, hostip);
 			return inet_addr(hostip);			
 		}	
 	}
