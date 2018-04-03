@@ -434,7 +434,7 @@ bool DyscoAgentOut::output(bess::Packet* pkt) {
 	if(isTCPSYN(tcp)) {
 #ifdef DEBUG
 		fprintf(stderr, "[%s][DyscoAgentOut] calling process_syn_out method\n", ns.c_str());
-		
+#endif		
 		bool ret = dc->out_syn(this->index, pkt, ip, tcp, cb_out, devip);
 		
 #ifdef DEBUG
