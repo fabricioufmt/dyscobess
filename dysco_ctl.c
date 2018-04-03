@@ -324,7 +324,7 @@ uint32_t get_srcip(uint32_t* destip, int32_t* ifindex) {
 	tv.tv_sec = 1;
 	setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, (struct timeval*) &tv, sizeof(struct timeval));
 
-	
+	printf("her\n");
 	if(send(sockfd, nlmsg, nlmsg->nlmsg_len, 0) < 0) {
 		perror("send failed");
 		return UEXIT_FAILURE;
