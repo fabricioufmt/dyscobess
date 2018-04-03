@@ -47,7 +47,7 @@ int main(int argc, char** argv) {
 	memset(&serv_addr, 0, sizeof(serv_addr));
 	
 	serv_addr.sin_family = AF_INET;
-	serv_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+	serv_addr.sin_addr.s_addr = inet_addr(INADDR_ANY);
 	serv_addr.sin_port = htons(PORT);
 
 	if(connect(sockfd, (struct sockaddr*) &serv_addr, sizeof(serv_addr)) == -1)
@@ -59,7 +59,7 @@ int main(int argc, char** argv) {
 	ss->sip = inet_addr("1.2.3.4");
 	ss->dip = inet_addr("5.6.7.8");
 	ss->sport = htons(9876);
-	ss->dport = htons(50123);
+	ss->dport = htons(50321);
 	ss->sc1 = inet_addr("9.10.11.12");
 	ss->sc2 = inet_addr("13.14.15.16");
 	ss->sc3 = inet_addr("17.18.19.20");
