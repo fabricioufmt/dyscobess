@@ -95,7 +95,7 @@ int main(int argc, char** argv) {
 	unsigned char buff[BUFSIZE];
 	struct sockaddr_in serv_addr;
 	struct sockaddr_in conn_addr;
-	printf("her\n");
+
 	//Dysco
 	int sc_len;
 	uint32_t* sc;
@@ -171,7 +171,7 @@ int create_message_reconfig(struct tcp_session* supss, uint32_t sc_len, uint32_t
 	struct pseudo_header psh;
 	struct sockaddr_ll sock_addr;
 	unsigned char sendbuf[BUFSIZ];
-	
+	printf("her\n");	
 	if((sockfd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) == -1) {
 	    perror("socket");
 	}
