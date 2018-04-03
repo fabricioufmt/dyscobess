@@ -3,7 +3,7 @@
 #include "../module_graph.h"
 #include "dysco_port_out.h"
 
-#define DEBUG 1
+//#define DEBUG 1
 
 //debug
 char* printip1(uint32_t ip) {
