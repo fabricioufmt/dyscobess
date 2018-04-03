@@ -9,7 +9,6 @@
 
 #define LISTENQ 100
 #define BUFFSIZE 4
-#define LISTENPORT 9090
 
 int main(int argc, char** argv) {
 	int n;
@@ -22,6 +21,12 @@ int main(int argc, char** argv) {
 	struct sockaddr_in serv_addr;
 	struct sockaddr_in conn_addr;
 
+	if(argc != 2) {
+		fprintf(stderr, "Usage: %s <port>.\n", argv[0]);
+
+		return EXIT_FAILURE;
+	}
+	
 	if((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
 		perror("socket failed");
 		return EXIT_FAILURE;
@@ -31,7 +36,7 @@ int main(int argc, char** argv) {
 	
 	serv_addr.sin_family = AF_INET;
 	serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
-	serv_addr.sin_port = htons(LISTENPORT);
+	serv_addr.sin_port = htons(atoi(argv[1]));
 
 	if(bind(sockfd, (struct sockaddr*) &serv_addr, sizeof(serv_addr)) == -1) {
 		perror("bind failed");
