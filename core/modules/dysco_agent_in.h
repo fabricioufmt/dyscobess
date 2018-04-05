@@ -63,7 +63,7 @@ class DyscoAgentIn final : public Module {
 		return tcp->flags == Tcp::Flag::kAck;
 	}
 
-	inline bool hasPayload(Ipv4* ip, Tcp* tcp) {
+	inline uint32_t hasPayload(Ipv4* ip, Tcp* tcp) {
 		size_t ip_hlen = ip->header_length << 2;
 		size_t tcp_hlen = tcp->offset << 2;
 
@@ -71,10 +71,25 @@ class DyscoAgentIn final : public Module {
 	}
 
 	//TODO
-	inline bool isReconfigPacket(Ipv4*, Tcp* tcp) {
+	inline bool isReconfigPacket(Ipv4* ip, Tcp* tcp) {
+		/*
 		if(tcp->src_port.value() == RECONFIG_SPORT &&
 		   tcp->dst_port.value() == RECONFIG_DPORT)
 			return true;
+		return false;
+		*/
+		if(isTCPSYN(tcp)) {
+			uint32_t payload_len = hasPayload(ip, tcp);
+			if(payload_len) {
+				uint32_t tcp_hlen = tcp->offset << 2;
+				if(((uint8_t*)tcp + tcp_hlen)[payload_len] == '0') {
+					return false;
+				} else {
+					return true;
+				}
+			}
+		}
+
 		return false;
 	}
 	
