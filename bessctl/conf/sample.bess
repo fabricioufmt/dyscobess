@@ -58,7 +58,20 @@ os.system('ip netns exec mb4 arp -s 10.0.4.1 00:00:00:00:00:41 > /dev/null')
 os.system('ip netns exec mb4 arp -s 10.0.3.2 00:00:00:00:00:32 > /dev/null')
 os.system('ip netns exec mb4 arp -s 10.0.3.3 00:00:00:00:00:33 > /dev/null')
 
-dc::DyscoCenter()
+fib::L2Forward()
+fib.add(entries=[
+	'addr':'00:00:00:00:00:11', 'gate':0,
+	'addr':'00:00:00:00:00:12', 'gate':1,
+	'addr':'00:00:00:00:00:21', 'gate':2,
+	'addr':'00:00:00:00:00:22', 'gate':3,
+	'addr':'00:00:00:00:00:23', 'gate':4,
+	'addr':'00:00:00:00:00:31', 'gate':5,
+	'addr':'00:00:00:00:00:32', 'gate':6,
+	'addr':'00:00:00:00:00:33', 'gate':7,
+	'addr':'00:00:00:00:00:41', 'gate':8,
+	'addr':'00:00:00:00:00:42', 'gate':9
+	])	
+					    
 
 ipl::IPLookup()
 ipl.add(prefix='10.0.1.1', prefix_len=32, gate=0)
@@ -72,24 +85,35 @@ ipl.add(prefix='10.0.3.3', prefix_len=32, gate=7)
 ipl.add(prefix='10.0.4.1', prefix_len=32, gate=8)
 ipl.add(prefix='10.0.4.2', prefix_len=32, gate=9)
 
-DyscoPortInc(port=c1) -> ipl
-DyscoPortInc(port=mb1_0) -> ipl
-DyscoPortInc(port=mb1_1) -> ipl
-DyscoPortInc(port=mb2_0) -> ipl
-DyscoPortInc(port=mb2_1) -> ipl
-DyscoPortInc(port=mb3_0) -> ipl
-DyscoPortInc(port=mb3_1) -> ipl
-DyscoPortInc(port=mb4_0) -> ipl
-DyscoPortInc(port=mb4_1) -> ipl
-DyscoPortInc(port=s1) -> ipl
+DyscoPortInc(port=c1) -> fib #ipl
+DyscoPortInc(port=mb1_0) -> fib #ipl
+DyscoPortInc(port=mb1_1) -> fib #ipl
+DyscoPortInc(port=mb2_0) -> fib #ipl
+DyscoPortInc(port=mb2_1) -> fib #ipl
+DyscoPortInc(port=mb3_0) -> fib #ipl
+DyscoPortInc(port=mb3_1) -> fib #ipl
+DyscoPortInc(port=mb4_0) -> fib #ipl
+DyscoPortInc(port=mb4_1) -> fib #ipl
+DyscoPortInc(port=s1) -> fib #ipl
 
-ipl:0 -> Update(fields=[{'offset':0, 'size':6, 'value':17}]) -> DyscoPortOut(port=c1)
-ipl:1 -> Update(fields=[{'offset':0, 'size':6, 'value':18}]) -> DyscoPortOut(port=mb1_0)
-ipl:2 -> Update(fields=[{'offset':0, 'size':6, 'value':33}]) -> DyscoPortOut(port=mb1_1)
-ipl:3 -> Update(fields=[{'offset':0, 'size':6, 'value':34}]) -> DyscoPortOut(port=mb2_0)
-ipl:4 -> Update(fields=[{'offset':0, 'size':6, 'value':35}]) -> DyscoPortOut(port=mb2_1)
-ipl:5 -> Update(fields=[{'offset':0, 'size':6, 'value':49}]) -> DyscoPortOut(port=mb3_0)
-ipl:6 -> Update(fields=[{'offset':0, 'size':6, 'value':50}]) -> DyscoPortOut(port=mb3_1)
-ipl:7 -> Update(fields=[{'offset':0, 'size':6, 'value':51}]) -> DyscoPortOut(port=mb4_0)
-ipl:8 -> Update(fields=[{'offset':0, 'size':6, 'value':65}]) -> DyscoPortOut(port=s1)
-ipl:9 -> Update(fields=[{'offset':0, 'size':6, 'value':66}]) -> DyscoPortOut(port=mb4_1)
+#ipl:0 -> Update(fields=[{'offset':0, 'size':6, 'value':17}]) -> DyscoPortOut(port=c1)
+#ipl:1 -> Update(fields=[{'offset':0, 'size':6, 'value':18}]) -> DyscoPortOut(port=mb1_0)
+#ipl:2 -> Update(fields=[{'offset':0, 'size':6, 'value':33}]) -> DyscoPortOut(port=mb1_1)
+#ipl:3 -> Update(fields=[{'offset':0, 'size':6, 'value':34}]) -> DyscoPortOut(port=mb2_0)
+#ipl:4 -> Update(fields=[{'offset':0, 'size':6, 'value':35}]) -> DyscoPortOut(port=mb2_1)
+#ipl:5 -> Update(fields=[{'offset':0, 'size':6, 'value':49}]) -> DyscoPortOut(port=mb3_0)
+#ipl:6 -> Update(fields=[{'offset':0, 'size':6, 'value':50}]) -> DyscoPortOut(port=mb3_1)
+#ipl:7 -> Update(fields=[{'offset':0, 'size':6, 'value':51}]) -> DyscoPortOut(port=mb4_0)
+#ipl:8 -> Update(fields=[{'offset':0, 'size':6, 'value':65}]) -> DyscoPortOut(port=s1)
+#ipl:9 -> Update(fields=[{'offset':0, 'size':6, 'value':66}]) -> DyscoPortOut(port=mb4_1)
+
+fib:0 -> DyscoPortOut(port=c1)
+fib:1 -> DyscoPortOut(port=mb1_0)
+fib:2 -> DyscoPortOut(port=mb1_1)
+fib:3 -> DyscoPortOut(port=mb2_0)
+fib:4 -> DyscoPortOut(port=mb2_1)
+fib:5 -> DyscoPortOut(port=mb3_0)
+fib:6 -> DyscoPortOut(port=mb3_1)
+fib:7 -> DyscoPortOut(port=mb4_0)
+fib:9 -> DyscoPortOut(port=mb4_1)
+fib:8 -> DyscoPortOut(port=s1)
