@@ -1,6 +1,7 @@
 #ifndef BESS_MODULES_DYSCOCENTER_H_
 #define BESS_MODULES_DYSCOCENTER_H_
 
+#include <map>
 #include <vector>
 #include <unordered_map>
 #include <rte_hash_crc.h>
@@ -289,6 +290,11 @@ class DyscoHashes {
 	unordered_map<DyscoTcpSession, DyscoCbReconfig, DyscoTcpSessionHash> hash_reconfig;
 };
 
+struct arp_entry {
+	Ethernet::Address mac_addr;
+	be32_t ip_addr;
+};
+
 class DyscoCenter final : public Module {
  public:
 	static const Commands cmds;
@@ -350,9 +356,10 @@ class DyscoCenter final : public Module {
 	/*
 
 	 */
-	void update_mac(char*, uint32_t);
+	void update_mac(Ethernet::Address, be32_t);
 	
  private:
+	std::map<be32_t, struct arp_entry> entries;
 	unordered_map<uint32_t, DyscoHashes> hashes;
 	
 	inline bool isTCPACK(Tcp* tcp) {

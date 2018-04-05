@@ -732,7 +732,7 @@ void DyscoAgentOut::process_arp(bess::Packet* pkt) {
 
 	if(arp->opcode.value() == bess::utils::Arp::kRequest ||
 	   arp->opcode.value() == bess::utils::Arp::kReply) {
-		dc->update_mac(arp->sender_hw_addr.bytes, arp->sender_ip_addr.value());
+		dc->update_mac(arp->sender_hw_addr, arp->sender_ip_addr);
 	}
 }
 
