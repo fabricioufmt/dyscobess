@@ -91,5 +91,5 @@ ipl:4 -> Update(fields=[{'offset':0, 'size':6, 'value':35}]) -> DyscoPortOut(por
 ipl:5 -> Update(fields=[{'offset':0, 'size':6, 'value':49}]) -> DyscoPortOut(port=mb3_0)
 ipl:6 -> Update(fields=[{'offset':0, 'size':6, 'value':50}]) -> DyscoPortOut(port=mb3_1)
 ipl:7 -> Update(fields=[{'offset':0, 'size':6, 'value':51}]) -> DyscoPortOut(port=mb4_0)
-ipl:8 -> Update(fields=[{'offset':0, 'size':6, 'value':66}]) -> DyscoPortOut(port=mb4_1)
-ipl:9 -> Update(fields=[{'offset':0, 'size':6, 'value':65}]) -> DyscoPortOut(port=s1)
+ipl:8 -> Update(fields=[{'offset':0, 'size':6, 'value':65}]) -> DyscoPortOut(port=s1)
+ipl:9 -> Update(fields=[{'offset':0, 'size':6, 'value':66}]) -> DyscoPortOut(port=mb4_1)
