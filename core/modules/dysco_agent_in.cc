@@ -4,6 +4,7 @@
 #include "dysco_port_out.h"
 
 //#define DEBUG 1
+#define DEBUG_RECONFIG 1
 
 //debug
 char* printip1(uint32_t ip) {
@@ -409,8 +410,16 @@ bool DyscoAgentIn::input(bess::Packet* pkt) {
 		printip1(ip->dst.value()), tcp->dst_port.value());
 #endif
 	//TODO
-	if(isReconfigPacket(ip, tcp))
+	if(isReconfigPacket(ip, tcp)) {
+#ifdef DEBUG_RECONFIG
+		fprintf(stderr, "It's a reconfig packet\n");
+#endif
 		return control_input(ip);
+	} else {
+#ifdef DEBUG_RECONFIG
+		fprintf(stderr, "It isn't a reconfig packet\n");
+#endif		
+	}
 	
 	DyscoHashIn* cb_in = dc->lookup_input(this->index, ip, tcp);
 	if(!cb_in) {
