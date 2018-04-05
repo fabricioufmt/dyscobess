@@ -82,10 +82,10 @@ class DyscoAgentIn final : public Module {
 			uint32_t payload_len = hasPayload(ip, tcp);
 			if(payload_len) {
 				uint32_t tcp_hlen = tcp->offset << 2;
-				if(((uint8_t*)tcp + tcp_hlen)[payload_len] == '0') {
-					return false;
-				} else {
+				if(((uint8_t*)tcp + tcp_hlen)[payload_len - 1] == 0xFF) {
 					return true;
+				} else {
+					return false;
 				}
 			}
 		}
