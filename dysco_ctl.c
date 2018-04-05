@@ -258,6 +258,10 @@ int create_message_reconfig(struct tcp_session* supss, uint32_t sc_len, uint32_t
 //TODO: TCP state diagram (ie. retransmission, timer, etc.)
 void tcp_program(uint32_t sockfd, unsigned char* sendbuf, uint32_t len, struct sockaddr_ll* sock_addr) {
 	printf("sending %d bytes... ", len);
+
+	//TEST:
+	sendbuf[len] = 0xFF;
+	len++;
 	
 	if(sendto(sockfd, sendbuf, len, 0, (struct sockaddr*) sock_addr, sizeof(struct sockaddr_ll)) < 0)
 		perror("send failed");
