@@ -723,6 +723,19 @@ bool DyscoAgentOut::control_output(Ipv4* ip) {
 	return true;
 }
 
+/*
+
+ */
+void DyscoAgentOut::process_arp(bess::Packet* pkt) {
+	Ethernet* eth = pkt->head_data<Ethernet*>();
+	bess::utils::Arp* arp = reinterpret_cast<bess::utils::Arp*>(eth + 1);
+
+	if(arp->opcode.value() == bess::utils::kRequest ||
+	   arp->opcode.value() == bess::utils::kReply) {
+		dc->update_mac(arp->sender_hw_addr.bytes, sender_ip_addr.value());
+	}
+}
+
 ADD_MODULE(DyscoAgentOut, "dysco_agent_out", "processes packets outcoming from host")
 
 

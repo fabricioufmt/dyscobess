@@ -1055,4 +1055,10 @@ bool DyscoCenter::replace_cb_leftA(DyscoCbReconfig* rcb, DyscoControlMessage* cm
 	return true;
 }
 
+//ip argument is in host endian (because be32_t value method)
+void DyscoCenter::update_mac(char* mac, uint32_t ip) {
+	
+}
+
+
 ADD_MODULE(DyscoCenter, "dysco_center", "Dysco center")

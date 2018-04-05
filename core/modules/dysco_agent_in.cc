@@ -20,6 +20,10 @@ char* printip1(uint32_t ip) {
         return buf;
 }
 
+void DyscoAgentIn::process_arp(bess::Packet* pkt) {
+	
+}
+
 DyscoAgentIn::DyscoAgentIn() : Module() {
 	dc = 0;
 	devip = 0;
@@ -393,6 +397,10 @@ bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in) {
 //L.753
 bool DyscoAgentIn::input(bess::Packet* pkt) {
 	Ethernet* eth = pkt->head_data<Ethernet*>();
+
+	if(isARP(eth))
+		process_arp(pkt);
+	
 	if(!isIP(eth))
 		return false;
 
@@ -839,6 +847,21 @@ bool DyscoAgentIn::control_input(Ipv4* ip) {
 	return true;
 }
 
+
+
+/*
+
+ */
+
+void DyscoAgentIn::process_arp(bess::Packet* pkt) {
+	Ethernet* eth = pkt->head_data<Ethernet*>();
+	bess::utils::Arp* arp = reinterpret_cast<bess::utils::Arp*>(eth + 1);
+
+	if(arp->opcode.value() == bess::utils::kRequest ||
+	   arp->opcode.value() == bess::utils::kReply) {
+		dc->update_mac(arp->sender_hw_addr.bytes, sender_ip_addr.value());
+	}
+}
 
 
 ADD_MODULE(DyscoAgentIn, "dysco_agent_in", "processes packets incoming to host")

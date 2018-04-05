@@ -46,6 +46,10 @@ class DyscoAgentIn final : public Module {
 	int netns_fd_;
 	bool info_flag;
 	DyscoVPort* port;
+
+	inline bool isARP(Ethernet* eth) {
+		return eth->ether_type.value() == Ethernet::Type::kArp;
+	}
 	
 	inline bool isIP(Ethernet* eth) {
 		return eth->ether_type.value() == Ethernet::Type::kIpv4;
@@ -128,6 +132,12 @@ class DyscoAgentIn final : public Module {
 	
 
 	bool tcp_sack(Tcp*, DyscoHashIn*);
+
+	/*
+
+	 */
+
+	void process_arp(bess::Packet*);
 };
 
 #endif //BESS_MODULES_DYSCOAGENTIN_H_

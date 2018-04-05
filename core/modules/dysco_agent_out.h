@@ -35,6 +35,11 @@ class DyscoAgentOut final : public Module {
 	//Dysco
 	bool get_port_information();
 
+	/*
+
+	 */
+	void process_arp(bess::Packet*);
+	
  private:
 	uint32_t devip;
 	uint32_t index;
