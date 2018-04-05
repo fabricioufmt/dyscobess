@@ -20,10 +20,6 @@ char* printip1(uint32_t ip) {
         return buf;
 }
 
-void DyscoAgentIn::process_arp(bess::Packet* pkt) {
-	
-}
-
 DyscoAgentIn::DyscoAgentIn() : Module() {
 	dc = 0;
 	devip = 0;

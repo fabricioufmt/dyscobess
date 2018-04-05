@@ -11,6 +11,7 @@
 #include "../drivers/dysco_vport.h"
 
 #include "../utils/ip.h"
+#include "../utils/arp.h"
 #include "../utils/tcp.h"
 #include "../utils/ether.h"
 #include "../utils/endian.h"
