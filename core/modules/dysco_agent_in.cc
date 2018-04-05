@@ -853,9 +853,9 @@ void DyscoAgentIn::process_arp(bess::Packet* pkt) {
 	Ethernet* eth = pkt->head_data<Ethernet*>();
 	bess::utils::Arp* arp = reinterpret_cast<bess::utils::Arp*>(eth + 1);
 
-	if(arp->opcode.value() == bess::utils::kRequest ||
-	   arp->opcode.value() == bess::utils::kReply) {
-		dc->update_mac(arp->sender_hw_addr.bytes, sender_ip_addr.value());
+	if(arp->opcode.value() == bess::utils::Arp::kRequest ||
+	   arp->opcode.value() == bess::utils::Arp::kReply) {
+		dc->update_mac(arp->sender_hw_addr.bytes, arp->sender_ip_addr.value());
 	}
 }
 
