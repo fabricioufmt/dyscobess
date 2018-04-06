@@ -60,50 +60,6 @@ os.system('ip netns exec mb4 route add default gw 10.0.3.2 > /dev/null')
 
 dc::DyscoCenter()
 
-#din0::DyscoAgentIn(dc=dc) -> DyscoPortOut(port=c1)
-#din1::DyscoAgentIn(dc=dc) -> DyscoPortOut(port=mb1_0)
-#din2::DyscoAgentIn(dc=dc) -> DyscoPortOut(port=mb1_1)
-#din3::DyscoAgentIn(dc=dc) -> DyscoPortOut(port=mb2_0)
-#din4::DyscoAgentIn(dc=dc) -> DyscoPortOut(port=mb3_0)
-#din5::DyscoAgentIn(dc=dc) -> DyscoPortOut(port=mb4_0)
-#din6::DyscoAgentIn(dc=dc) -> DyscoPortOut(port=mb2_1)
-#din7::DyscoAgentIn(dc=dc) -> DyscoPortOut(port=mb3_1)
-#din8::DyscoAgentIn(dc=dc) -> DyscoPortOut(port=mb4_1)
-#din9::DyscoAgentIn(dc=dc) -> DyscoPortOut(port=s1)
-
-#dout0::DyscoPortInc(port=c1) -> DyscoAgentOut(dc=dc)
-#dout1::DyscoPortInc(port=mb1_0) -> DyscoAgentOut(dc=dc)
-#dout2::DyscoPortInc(port=mb1_1) -> DyscoAgentOut(dc=dc)
-#dout3::DyscoPortInc(port=mb2_0) -> DyscoAgentOut(dc=dc)
-#dout4::DyscoPortInc(port=mb2_1) -> DyscoAgentOut(dc=dc)
-#dout5::DyscoPortInc(port=mb3_0) -> DyscoAgentOut(dc=dc)
-#dout6::DyscoPortInc(port=mb3_1) -> DyscoAgentOut(dc=dc)
-#dout7::DyscoPortInc(port=mb4_0) -> DyscoAgentOut(dc=dc)
-#dout8::DyscoPortInc(port=mb4_1) -> DyscoAgentOut(dc=dc)
-#dout9::DyscoPortInc(port=s1) -> DyscoAgentOut(dc=dc)
-
-din0::DyscoPortOut(port=c1)
-din1::DyscoPortOut(port=mb1_0)
-din2::DyscoPortOut(port=mb1_1)
-din3::DyscoPortOut(port=mb2_0)
-din4::DyscoPortOut(port=mb3_0)
-din5::DyscoPortOut(port=mb4_0)
-din6::DyscoPortOut(port=mb2_1)
-din7::DyscoPortOut(port=mb3_1)
-din9::DyscoPortOut(port=mb4_1)
-din8::DyscoPortOut(port=s1)
-
-dout0::DyscoPortInc(port=c1)
-dout1::DyscoPortInc(port=mb1_0)
-dout2::DyscoPortInc(port=mb1_1)
-dout3::DyscoPortInc(port=mb2_0)
-dout4::DyscoPortInc(port=mb2_1)
-dout5::DyscoPortInc(port=mb3_0)
-dout6::DyscoPortInc(port=mb3_1)
-dout7::DyscoPortInc(port=mb4_0)
-dout8::DyscoPortInc(port=mb4_1)
-dout9::DyscoPortInc(port=s1)
-
 fib::L2Forward()
 fib.add(entries=[
 	{'addr':'00:00:00:00:00:11', 'gate':0},
@@ -118,40 +74,87 @@ fib.add(entries=[
 	{'addr':'00:00:00:00:00:42', 'gate':9},
 	{'addr':'ff:ff:ff:ff:ff:ff', 'gate':10},
 	])	
+					    
 
-dout0 -> fib
-dout1 -> fib
-dout2 -> fib
-dout3 -> fib
-dout4 -> fib
-dout5 -> fib
-dout6 -> fib
-dout7 -> fib
-dout8 -> fib
-dout9 -> fib
+#ipl::IPLookup()
+#ipl.add(prefix='10.0.1.1', prefix_len=32, gate=0)
+#ipl.add(prefix='10.0.1.2', prefix_len=32, gate=1)
+#ipl.add(prefix='10.0.2.1', prefix_len=32, gate=2)
+#ipl.add(prefix='10.0.2.2', prefix_len=32, gate=3)
+#ipl.add(prefix='10.0.2.3', prefix_len=32, gate=4)
+#ipl.add(prefix='10.0.3.1', prefix_len=32, gate=5)
+#ipl.add(prefix='10.0.3.2', prefix_len=32, gate=6)
+#ipl.add(prefix='10.0.3.3', prefix_len=32, gate=7)
+#ipl.add(prefix='10.0.4.1', prefix_len=32, gate=8)
+#ipl.add(prefix='10.0.4.2', prefix_len=32, gate=9)
 
-fib:0 -> din0
-fib:1 -> din1
-fib:2 -> din2
-fib:3 -> din3
-fib:4 -> din4
-fib:5 -> din5
-fib:6 -> din6
-fib:7 -> din7
-fib:8 -> din8
-fib:9 -> din9
+DyscoPortInc(port=c1) -> DyscoAgentOut(dc=dc) -> fib #ipl
+DyscoPortInc(port=mb1_0) -> DyscoAgentOut(dc=dc) -> fib #ipl
+DyscoPortInc(port=mb1_1) -> DyscoAgentOut(dc=dc) -> fib #ipl
+DyscoPortInc(port=mb2_0) -> DyscoAgentOut(dc=dc) -> fib #ipl
+DyscoPortInc(port=mb2_1) -> DyscoAgentOut(dc=dc) -> fib #ipl
+DyscoPortInc(port=mb3_0) -> DyscoAgentOut(dc=dc) -> fib #ipl
+DyscoPortInc(port=mb3_1) -> DyscoAgentOut(dc=dc) -> fib #ipl
+DyscoPortInc(port=mb4_0) -> DyscoAgentOut(dc=dc) -> fib #ipl
+DyscoPortInc(port=mb4_1) -> DyscoAgentOut(dc=dc) -> fib #ipl
+DyscoPortInc(port=s1) -> DyscoAgentOut(dc=dc) -> fib #ipl
+
+#ipl:0 -> Update(fields=[{'offset':0, 'size':6, 'value':17}]) -> DyscoPortOut(port=c1)
+#ipl:1 -> Update(fields=[{'offset':0, 'size':6, 'value':18}]) -> DyscoPortOut(port=mb1_0)
+#ipl:2 -> Update(fields=[{'offset':0, 'size':6, 'value':33}]) -> DyscoPortOut(port=mb1_1)
+#ipl:3 -> Update(fields=[{'offset':0, 'size':6, 'value':34}]) -> DyscoPortOut(port=mb2_0)
+#ipl:4 -> Update(fields=[{'offset':0, 'size':6, 'value':35}]) -> DyscoPortOut(port=mb2_1)
+#ipl:5 -> Update(fields=[{'offset':0, 'size':6, 'value':49}]) -> DyscoPortOut(port=mb3_0)
+#ipl:6 -> Update(fields=[{'offset':0, 'size':6, 'value':50}]) -> DyscoPortOut(port=mb3_1)
+#ipl:7 -> Update(fields=[{'offset':0, 'size':6, 'value':51}]) -> DyscoPortOut(port=mb4_0)
+#ipl:8 -> Update(fields=[{'offset':0, 'size':6, 'value':65}]) -> DyscoPortOut(port=s1)
+#ipl:9 -> Update(fields=[{'offset':0, 'size':6, 'value':66}]) -> DyscoPortOut(port=mb4_1)
+
+da0::DyscoPortOut(port=c1)
+da1::DyscoPortOut(port=mb1_0)
+da2::DyscoPortOut(port=mb1_1)
+da3::DyscoPortOut(port=mb2_0)
+da4::DyscoPortOut(port=mb3_0)
+da5::DyscoPortOut(port=mb4_0)
+da6::DyscoPortOut(port=mb2_1)
+da7::DyscoPortOut(port=mb3_1)
+da9::DyscoPortOut(port=mb4_1)
+da8::DyscoPortOut(port=s1)
+
+#da0::DyscoAgentIn(dc=dc) -> DyscoPortOut(port=c1)
+#da1::DyscoAgentIn(dc=dc) -> DyscoPortOut(port=mb1_0)
+#da2::DyscoAgentIn(dc=dc) -> DyscoPortOut(port=mb1_1)
+#da3::DyscoAgentIn(dc=dc) -> DyscoPortOut(port=mb2_0)
+#da4::DyscoAgentIn(dc=dc) -> DyscoPortOut(port=mb3_0)
+#da5::DyscoAgentIn(dc=dc) -> DyscoPortOut(port=mb4_0)
+#da6::DyscoAgentIn(dc=dc) -> DyscoPortOut(port=mb2_1)
+#da7::DyscoAgentIn(dc=dc) -> DyscoPortOut(port=mb3_1)
+#da9::DyscoAgentIn(dc=dc) -> DyscoPortOut(port=mb4_1)
+#da8::DyscoAgentIn(dc=dc) -> DyscoPortOut(port=s1)
+
+fib:0 -> da0
+fib:1 -> da1
+fib:2 -> da2
+fib:3 -> da3
+fib:4 -> da4
+fib:5 -> da5
+fib:6 -> da6
+fib:7 -> da7
+fib:9 -> da9
+fib:8 -> da8
+
 fib:10 -> repl::Replicate(gates=[0,1,2,3,4,5,6,7,8,9])
 
-repl:0 -> din0
-repl:1 -> din1
-repl:2 -> din2
-repl:3 -> din3
-repl:4 -> din4
-repl:5 -> din5
-repl:6 -> din6
-repl:7 -> din7
-repl:8 -> din8
-repl:9 -> din9
+repl:0 -> da0
+repl:1 -> da1
+repl:2 -> da2
+repl:3 -> da3
+repl:4 -> da4
+repl:5 -> da5
+repl:6 -> da6
+repl:7 -> da7
+repl:9 -> da9
+repl:8 -> da8
 
 os.system('ip netns exec c1 tcpdump -i c1-0 tcp or arp -n -XX -w /home/fabricio/c1.pcap & > /dev/null')
 os.system('ip netns exec s1 tcpdump -i s1-0 tcp or arp -n -XX -w /home/fabricio/s1.pcap & > /dev/null')
