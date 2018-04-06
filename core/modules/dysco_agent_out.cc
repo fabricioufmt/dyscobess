@@ -78,10 +78,6 @@ void DyscoAgentOut::ProcessBatch(bess::PacketBatch* batch) {
 			pkt = batch->pkts()[i];
 			if(output(pkt))
 				process_ethernet(pkt);
-#ifdef DEBUG
-			else
-				fprintf(stderr, "[%s][DyscoAgentOut] output returns FALSE, it does not need process_ethernet method\n", ns.c_str());
-#endif
 			//insert_metadata(pkt);
 		}
 	}
