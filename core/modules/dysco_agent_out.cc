@@ -438,22 +438,24 @@ bool DyscoAgentOut::output(bess::Packet* pkt) {
 
 	if(isTCPSYN(tcp)) {
 #ifdef DEBUG
-		fprintf(stderr, "[%s][DyscoAgentOut] calling process_syn_out method\n", ns.c_str());
+		fprintf(stderr, "[%s][DyscoAgentOut] calling out_syn method\n", ns.c_str());
 #endif		
-		bool ret = dc->out_syn(this->index, pkt, ip, tcp, cb_out, devip);
+		DyscoHashOut* ret = dc->out_syn(this->index, pkt, ip, tcp, cb_out, devip);
 		
 #ifdef DEBUG
 		if(ret) 
-			fprintf(stderr, "[%s][DyscoAgentOut] process_syn_out method returns TRUE\n", ns.c_str());
+			fprintf(stderr, "[%s][DyscoAgentOut] out_syn method returns TRUE\n", ns.c_str());
 		else
-			fprintf(stderr, "[%s][DyscoAgentOut] process_syn_out method returns FALSE\n", ns.c_str());
+			fprintf(stderr, "[%s][DyscoAgentOut] out_syn method returns FALSE\n", ns.c_str());
 
 		fprintf(stderr, "[%s][DyscoAgentOut](OUT): %s:%u -> %s:%u\n\n",
 			ns.c_str(),
 			printip2(ip->src.value()), tcp->src_port.value(),
 			printip2(ip->dst.value()), tcp->dst_port.value());
 #endif
-		return ret;
+		if(ret)
+			return true;
+		return false;
 	}
 
 	if(!cb_out)
@@ -746,8 +748,12 @@ void DyscoAgentOut::process_ethernet(bess::Packet* pkt) {
 	Ipv4* ip = reinterpret_cast<Ipv4*>(eth + 1);
 	
 	char* dst_ether = dc->get_mac(ip->dst);
-	if(!dst_ether)
+	if(!dst_ether) {
+#ifdef DEBUG
+		fprintf(stderr, "[DyscoAgentOut]: get_mac returns NULL\n");
+#endif
 		return;
+	}
 
 	for(int i = 0; i < 6; i++) {
 		eth->dst_addr.bytes[i] = dst_ether[i];
