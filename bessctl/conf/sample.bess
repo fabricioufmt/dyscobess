@@ -121,7 +121,7 @@ fib:7 -> da7::DyscoAgentIn(dc=dc) -> DyscoPortOut(port=mb3_1)
 fib:9 -> da9::DyscoAgentIn(dc=dc) -> DyscoPortOut(port=mb4_1)
 fib:8 -> da8::DyscoAgentIn(dc=dc) -> DyscoPortOut(port=s1)
 
-fib:10 -> repl::Replicate(gates=10)
+fib:10 -> repl::Replicate(gates='10')
 
 repl:0 -> da0
 repl:1 -> da1
