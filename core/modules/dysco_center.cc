@@ -1062,7 +1062,7 @@ void DyscoCenter::update_mac(Ethernet::Address mac_addr, be32_t ip_addr) {
 	entry.ip_addr = ip_addr;
 	entries[ip_addr] = entry;
 	//DEBUG
-	fprintf(stderr, "Adding a ARP entry.\n");
+	//fprintf(stderr, "Adding a ARP entry.\n");
 }
 
 
