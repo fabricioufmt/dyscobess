@@ -1064,7 +1064,7 @@ void DyscoCenter::update_mac(Ethernet::Address mac_addr, be32_t ip_addr) {
 	auto search = entries.find(ip_addr);
 	if(search == entries.end()) {
 		entries[ip_addr] = entry;
-		fprintf(stderr, "Adding an ARP entry (%s->%s). TOTAL: %d.\n",
+		fprintf(stderr, "Adding an ARP entry (%s->%s). TOTAL: %lu.\n",
 			printip0(ip_addr.value()), mac_addr.ToString().c_str(),
 			entries.size());
 	}
