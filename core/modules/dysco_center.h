@@ -357,6 +357,7 @@ class DyscoCenter final : public Module {
 
 	 */
 	void update_mac(Ethernet::Address, be32_t);
+	char* dst_ether(be32_t);
 	
  private:
 	std::map<be32_t, struct arp_entry> entries;

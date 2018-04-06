@@ -963,7 +963,7 @@ bool DyscoCenter::out_hdr_rewrite(Ipv4* ip, Tcp* tcp, DyscoTcpSession* sub) {
 	ip->dst = be32_t(ntohl(sub->dip));
 	tcp->src_port = be16_t(ntohs(sub->sport));
 	tcp->dst_port = be16_t(ntohs(sub->dport));
-
+	
 	//TODO: verify if it's really necessary
 	//fix_tcp_ip_csum(ip, tcp);
 	
@@ -1070,5 +1070,11 @@ void DyscoCenter::update_mac(Ethernet::Address mac_addr, be32_t ip_addr) {
 	}
 }
 
+char* DyscoCenter::get_mac(be32_t ip_addr) {
+	auto search = entries.find(ip_addr);
+	if(search == entries.end())
+		return 0;
+	return entries[ip_addr].mac_addr.bytes;
+}
 
 ADD_MODULE(DyscoCenter, "dysco_center", "Dysco center")

@@ -76,7 +76,12 @@ void DyscoAgentOut::ProcessBatch(bess::PacketBatch* batch) {
 		bess::Packet* pkt = 0;
 		for(int i = 0; i < cnt; i++) {
 			pkt = batch->pkts()[i];
-			output(pkt);
+			if(output(pkt))
+				process_ethernet(pkt);
+#ifdef DEBUG
+			else
+				fprintf(stderr, "[%s][DyscoAgentOut] output returns FALSE, it does not need process_ethernet method\n", ns.c_str());
+#endif
 			//insert_metadata(pkt);
 		}
 	}
@@ -734,6 +739,23 @@ void DyscoAgentOut::process_arp(bess::Packet* pkt) {
 	   arp->opcode.value() == bess::utils::Arp::kReply) {
 		dc->update_mac(arp->sender_hw_addr, arp->sender_ip_addr);
 	}
+}
+
+void DyscoAgentOut::process_ethernet(bess::Packet* pkt) {
+	Ethernet* eth = pkt->head_data<Ethernet*>();
+	Ipv4* ip = reinterpret_cast<Ipv4*>(eth + 1);
+	
+	char* dst_ether = dc->get_mac(ip->dst);
+	if(!dst_ether)
+		return;
+
+	for(int i = 0; i < 6; i++) {
+		eth->dst_addr.bytes[i] = dst_ether[i];
+	}
+
+#ifdef DEBUG
+	fprintf(stderr, "[DyscoAgentOut]: DST MAC changed to %s\n", dst_ether);
+#endif
 }
 
 ADD_MODULE(DyscoAgentOut, "dysco_agent_out", "processes packets outcoming from host")
