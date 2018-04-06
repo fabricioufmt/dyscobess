@@ -44,20 +44,6 @@ os.system('ip netns exec mb3 route add default gw 10.0.3.1 > /dev/null')
 os.system('ip netns exec mb1 route add default gw 10.0.2.2 > /dev/null')
 os.system('ip netns exec mb4 route add default gw 10.0.3.2 > /dev/null')
 
-#os.system('ip netns exec c1 arp -s 10.0.1.2 00:00:00:00:00:12 > /dev/null')
-#os.system('ip netns exec s1 arp -s 10.0.4.2 00:00:00:00:00:42 > /dev/null')
-
-#os.system('ip netns exec mb1 arp -s 10.0.1.1 00:00:00:00:00:11 > /dev/null')
-#os.system('ip netns exec mb1 arp -s 10.0.2.2 00:00:00:00:00:22 > /dev/null')
-#os.system('ip netns exec mb1 arp -s 10.0.2.3 00:00:00:00:00:23 > /dev/null')
-#os.system('ip netns exec mb2 arp -s 10.0.2.1 00:00:00:00:00:21 > /dev/null')
-#os.system('ip netns exec mb2 arp -s 10.0.3.1 00:00:00:00:00:31 > /dev/null')
-#os.system('ip netns exec mb3 arp -s 10.0.2.1 00:00:00:00:00:21 > /dev/null')
-#os.system('ip netns exec mb3 arp -s 10.0.3.1 00:00:00:00:00:31 > /dev/null')
-#os.system('ip netns exec mb4 arp -s 10.0.4.1 00:00:00:00:00:41 > /dev/null')
-#os.system('ip netns exec mb4 arp -s 10.0.3.2 00:00:00:00:00:32 > /dev/null')
-#os.system('ip netns exec mb4 arp -s 10.0.3.3 00:00:00:00:00:33 > /dev/null')
-
 dc::DyscoCenter()
 
 #din0::DyscoAgentIn(dc=dc) -> DyscoPortOut(port=c1)
@@ -152,14 +138,3 @@ repl:6 -> din6
 repl:7 -> din7
 repl:8 -> din8
 repl:9 -> din9
-
-os.system('ip netns exec c1 tcpdump -i c1-0 tcp or arp -n -XX -w /home/fabricio/c1.pcap & > /dev/null')
-os.system('ip netns exec s1 tcpdump -i s1-0 tcp or arp -n -XX -w /home/fabricio/s1.pcap & > /dev/null')
-os.system('ip netns exec mb1 tcpdump -i mb1-0 tcp or arp -n -XX -w /home/fabricio/mb1_0.pcap & > /dev/null')
-os.system('ip netns exec mb1 tcpdump -i mb1-1 tcp or arp -n -XX -w /home/fabricio/mb1_1.pcap & > /dev/null')
-os.system('ip netns exec mb2 tcpdump -i mb2-0 tcp or arp -n -XX -w /home/fabricio/mb2_0.pcap & > /dev/null')
-os.system('ip netns exec mb2 tcpdump -i mb2-1 tcp or arp -n -XX -w /home/fabricio/mb2_1.pcap & > /dev/null')
-os.system('ip netns exec mb3 tcpdump -i mb3-0 tcp or arp -n -XX -w /home/fabricio/mb3_0.pcap & > /dev/null')
-os.system('ip netns exec mb3 tcpdump -i mb3-1 tcp or arp -n -XX -w /home/fabricio/mb3_1.pcap & > /dev/null')
-os.system('ip netns exec mb4 tcpdump -i mb4-0 tcp or arp -n -XX -w /home/fabricio/mb4_0.pcap & > /dev/null')
-os.system('ip netns exec mb4 tcpdump -i mb4-1 tcp or arp -n -XX -w /home/fabricio/mb4_1.pcap & > /dev/null')
