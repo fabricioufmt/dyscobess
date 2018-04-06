@@ -135,3 +135,5 @@ repl:6 -> din6
 repl:7 -> din7
 repl:8 -> din8
 repl:9 -> din9
+
+dc.add(priority=1, sc_len=3, chain=['10.0.2.2', '10.0.3.1', '10.0.4.1'], filter='dst port 5001', ns='/var/run/netns/mb1')
