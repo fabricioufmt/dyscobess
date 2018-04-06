@@ -1055,13 +1055,14 @@ bool DyscoCenter::replace_cb_leftA(DyscoCbReconfig* rcb, DyscoControlMessage* cm
 	return true;
 }
 
-//ip argument is in host endian (because be32_t value method)
 void DyscoCenter::update_mac(Ethernet::Address mac_addr, be32_t ip_addr) {
 	arp_entry entry;
 
 	entry.mac_addr = mac_addr;
 	entry.ip_addr = ip_addr;
 	entries[ip_addr] = entry;
+	//DEBUG
+	fprintf(stderr, "Adding a ARP entry.\n");
 }
 
 

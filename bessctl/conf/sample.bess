@@ -71,7 +71,8 @@ fib.add(entries=[
 	{'addr':'00:00:00:00:00:32', 'gate':6},
 	{'addr':'00:00:00:00:00:33', 'gate':7},
 	{'addr':'00:00:00:00:00:41', 'gate':8},
-	{'addr':'00:00:00:00:00:42', 'gate':9}
+	{'addr':'00:00:00:00:00:42', 'gate':9},
+	{'addr':'ff:ff:ff:ff:ff:ff', 'gate':10},
 	])	
 					    
 
@@ -109,16 +110,29 @@ DyscoPortInc(port=s1) -> DyscoAgentOut(dc=dc) -> fib #ipl
 #ipl:8 -> Update(fields=[{'offset':0, 'size':6, 'value':65}]) -> DyscoPortOut(port=s1)
 #ipl:9 -> Update(fields=[{'offset':0, 'size':6, 'value':66}]) -> DyscoPortOut(port=mb4_1)
 
-fib:0 -> DyscoAgentIn(dc=dc) -> DyscoPortOut(port=c1)
-fib:1 -> DyscoAgentIn(dc=dc) -> DyscoPortOut(port=mb1_0)
-fib:2 -> DyscoAgentIn(dc=dc) -> DyscoPortOut(port=mb1_1)
-fib:3 -> DyscoAgentIn(dc=dc) -> DyscoPortOut(port=mb2_0)
-fib:4 -> DyscoAgentIn(dc=dc) -> DyscoPortOut(port=mb3_0)
-fib:5 -> DyscoAgentIn(dc=dc) -> DyscoPortOut(port=mb4_0)
-fib:6 -> DyscoAgentIn(dc=dc) -> DyscoPortOut(port=mb2_1)
-fib:7 -> DyscoAgentIn(dc=dc) -> DyscoPortOut(port=mb3_1)
-fib:9 -> DyscoAgentIn(dc=dc) -> DyscoPortOut(port=mb4_1)
-fib:8 -> DyscoAgentIn(dc=dc) -> DyscoPortOut(port=s1)
+fib:0 -> da0::DyscoAgentIn(dc=dc) -> DyscoPortOut(port=c1)
+fib:1 -> da1::DyscoAgentIn(dc=dc) -> DyscoPortOut(port=mb1_0)
+fib:2 -> da2::DyscoAgentIn(dc=dc) -> DyscoPortOut(port=mb1_1)
+fib:3 -> da3::DyscoAgentIn(dc=dc) -> DyscoPortOut(port=mb2_0)
+fib:4 -> da4::DyscoAgentIn(dc=dc) -> DyscoPortOut(port=mb3_0)
+fib:5 -> da5::DyscoAgentIn(dc=dc) -> DyscoPortOut(port=mb4_0)
+fib:6 -> da6::DyscoAgentIn(dc=dc) -> DyscoPortOut(port=mb2_1)
+fib:7 -> da7::DyscoAgentIn(dc=dc) -> DyscoPortOut(port=mb3_1)
+fib:9 -> da9::DyscoAgentIn(dc=dc) -> DyscoPortOut(port=mb4_1)
+fib:8 -> da8::DyscoAgentIn(dc=dc) -> DyscoPortOut(port=s1)
+
+fib:10 -> repl::Replicate(gates=10)
+
+repl:0 -> da0
+repl:1 -> da1
+repl:2 -> da2
+repl:3 -> da3
+repl:4 -> da4
+repl:5 -> da5
+repl:6 -> da6
+repl:7 -> da7
+repl:9 -> da9
+repl:8 -> da8
 
 os.system('ip netns exec c1 tcpdump -i c1-0 tcp or arp -n -XX -w /home/fabricio/c1.pcap & > /dev/null')
 os.system('ip netns exec s1 tcpdump -i s1-0 tcp or arp -n -XX -w /home/fabricio/s1.pcap & > /dev/null')
