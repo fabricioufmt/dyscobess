@@ -40,12 +40,15 @@ int main(int argc, char** argv) {
 		return EXIT_FAILURE;
 	}
 
+	printf("Connected.\n");
+	
 	srand(SEED);
 	heartvalue = rand();
 	memset(buff, 0, BUFFSIZE);
 	memcpy(buff, &heartvalue, sizeof(int));
 	
 	while(1) {
+		printf("Sending...\n");
 		write(sockfd, buff, sizeof(int));
 		read(sockfd, buff, sizeof(int));
 		(*(int*)buff)++;

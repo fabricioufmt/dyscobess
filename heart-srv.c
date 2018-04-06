@@ -57,6 +57,8 @@ int main(int argc, char** argv) {
 			return EXIT_FAILURE;
 		}
 
+		printf("Client is connected.\n");
+		
 		pid = fork();
 		if(pid > 0) {
 			close(connfd);
