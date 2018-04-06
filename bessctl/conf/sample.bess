@@ -110,16 +110,38 @@ DyscoPortInc(port=s1) -> DyscoAgentOut(dc=dc) -> fib #ipl
 #ipl:8 -> Update(fields=[{'offset':0, 'size':6, 'value':65}]) -> DyscoPortOut(port=s1)
 #ipl:9 -> Update(fields=[{'offset':0, 'size':6, 'value':66}]) -> DyscoPortOut(port=mb4_1)
 
-fib:0 -> da0::DyscoAgentIn(dc=dc) -> DyscoPortOut(port=c1)
-fib:1 -> da1::DyscoAgentIn(dc=dc) -> DyscoPortOut(port=mb1_0)
-fib:2 -> da2::DyscoAgentIn(dc=dc) -> DyscoPortOut(port=mb1_1)
-fib:3 -> da3::DyscoAgentIn(dc=dc) -> DyscoPortOut(port=mb2_0)
-fib:4 -> da4::DyscoAgentIn(dc=dc) -> DyscoPortOut(port=mb3_0)
-fib:5 -> da5::DyscoAgentIn(dc=dc) -> DyscoPortOut(port=mb4_0)
-fib:6 -> da6::DyscoAgentIn(dc=dc) -> DyscoPortOut(port=mb2_1)
-fib:7 -> da7::DyscoAgentIn(dc=dc) -> DyscoPortOut(port=mb3_1)
-fib:9 -> da9::DyscoAgentIn(dc=dc) -> DyscoPortOut(port=mb4_1)
-fib:8 -> da8::DyscoAgentIn(dc=dc) -> DyscoPortOut(port=s1)
+da0::DyscoPortOut(port=c1)
+da1::DyscoPortOut(port=mb1_0)
+da2::DyscoPortOut(port=mb1_1)
+da3::DyscoPortOut(port=mb2_0)
+da4::DyscoPortOut(port=mb3_0)
+da5::DyscoPortOut(port=mb4_0)
+da6::DyscoPortOut(port=mb2_1)
+da7::DyscoPortOut(port=mb3_1)
+da9::DyscoPortOut(port=mb4_1)
+da8::DyscoPortOut(port=s1)
+
+#da0::DyscoAgentIn(dc=dc) -> DyscoPortOut(port=c1)
+#da1::DyscoAgentIn(dc=dc) -> DyscoPortOut(port=mb1_0)
+#da2::DyscoAgentIn(dc=dc) -> DyscoPortOut(port=mb1_1)
+#da3::DyscoAgentIn(dc=dc) -> DyscoPortOut(port=mb2_0)
+#da4::DyscoAgentIn(dc=dc) -> DyscoPortOut(port=mb3_0)
+#da5::DyscoAgentIn(dc=dc) -> DyscoPortOut(port=mb4_0)
+#da6::DyscoAgentIn(dc=dc) -> DyscoPortOut(port=mb2_1)
+#da7::DyscoAgentIn(dc=dc) -> DyscoPortOut(port=mb3_1)
+#da9::DyscoAgentIn(dc=dc) -> DyscoPortOut(port=mb4_1)
+#da8::DyscoAgentIn(dc=dc) -> DyscoPortOut(port=s1)
+
+fib:0 -> da0
+fib:1 -> da1
+fib:2 -> da2
+fib:3 -> da3
+fib:4 -> da4
+fib:5 -> da5
+fib:6 -> da6
+fib:7 -> da7
+fib:9 -> da9
+fib:8 -> da8
 
 fib:10 -> repl::Replicate(gates=[0,1,2,3,4,5,6,7,8,9])
 
