@@ -689,6 +689,9 @@ bool DyscoAgentIn::control_config_rightA(DyscoCbReconfig* rcb, DyscoControlMessa
 }
 
 bool DyscoAgentIn::control_reconfig_in(Ipv4* ip, DyscoCbReconfig* rcb, DyscoControlMessage* cmsg) {
+#ifdef DEBUG_RECONFIG
+	fprintf(stderr, "control_reconfig_in method\n");
+#ifdef
 	DyscoHashIn* cb_in = new DyscoHashIn();
 
 	cb_in->sub = rcb->sub_in;
@@ -698,20 +701,31 @@ bool DyscoAgentIn::control_reconfig_in(Ipv4* ip, DyscoCbReconfig* rcb, DyscoCont
 
 	DyscoHashOut* cb_out = build_cb_in_reverse(ip, rcb);
 	if(!cb_out) {
+#ifdef DEBUG_RECONFIG
+		fprintf(stderr, "build_cb_in_reverse method returns NULL\n");
+#endif
 		delete cb_in;
 		dc->remove_reconfig(this->index, rcb);
 
 		return false;
 	}
-
+#ifdef DEBUG_RECONFIG
+		fprintf(stderr, "build_cb_in_reverse method returns not NULL\n");
+#endif
 	cb_out->dcb_in = cb_in;
 	cb_in->dcb_out = cb_out;
 
 	//verify htonl
 	if(ip->dst.value() == cmsg->rightA) {
+#ifdef DEBUG_RECONFIG
+		fprintf(stderr, "ip->dst.value() == cmsg->rightA\n");
+#endif	
 		if(!control_config_rightA(rcb, cmsg, cb_in, cb_out))
 			return 0;
 	} else {
+#ifdef DEBUG_RECONFIG
+		fprintf(stderr, "ip->dst.value() != cmsg->rightA\n");
+#endif	
 		cb_in->sup = rcb->super;
 		cb_in->out_iseq = rcb->leftIseq;
 		cb_in->out_iack = rcb->leftIack;
