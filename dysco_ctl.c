@@ -216,7 +216,9 @@ int create_message_reconfig(struct tcp_session* supss, uint32_t sc_len, uint32_t
 	cmsg = (struct control_message*) (sendbuf + sizeof(struct iphdr) + sizeof(struct tcphdr));
 
 	tx_len = 0;
-	payload_len = sizeof(struct control_message) + sc_len * sizeof(uint32_t);
+	//payload_len = sizeof(struct control_message) + sc_len * sizeof(uint32_t);
+	//Last byte for Reconfiguration tag
+	payload_len = sizeof(struct control_message) + sc_len * sizeof(uint32_t) + 1;
 	
 	// Construct the IP datagram
 	iph->ihl = 5;
@@ -260,6 +262,10 @@ int create_message_reconfig(struct tcp_session* supss, uint32_t sc_len, uint32_t
 	// Construct Service Chain
 	memcpy(sendbuf + tx_len, sc, sc_len * sizeof(uint32_t));
 	tx_len += sc_len * sizeof(uint32_t);
+
+	// Insert Reconfig Tag
+	sendbuf[tx_len] = 0xFF;
+	tx_len += 1;
 	
 	// Construct the Pseudo Header
 	psh.source_address = iph->saddr;
@@ -275,6 +281,7 @@ int create_message_reconfig(struct tcp_session* supss, uint32_t sc_len, uint32_t
 	memcpy(pgram + sizeof(struct pseudo_header), tcph, sizeof(struct tcphdr));
 	memcpy(pgram + sizeof(struct pseudo_header) + sizeof(struct tcphdr), cmsg, sizeof(struct control_message));
 	memcpy(pgram + sizeof(struct pseudo_header) + sizeof(struct tcphdr) + sizeof(struct control_message), sc, sc_len * sizeof(uint32_t));
+	pgram[psize - 1] = 0xFF;
 
 	tcph->check = csum((unsigned short*) pgram, psize);
 	sock_addr.sll_ifindex = ifindex;
@@ -287,10 +294,6 @@ int create_message_reconfig(struct tcp_session* supss, uint32_t sc_len, uint32_t
 //TODO: TCP state diagram (ie. retransmission, timer, etc.)
 void tcp_program(uint32_t sockfd, unsigned char* sendbuf, uint32_t len, struct sockaddr_ll* sock_addr) {
 	printf("sending %d bytes... ", len);
-
-	//TEST:
-	sendbuf[len] = 0xFF;
-	len++;
 	
 	if(sendto(sockfd, sendbuf, len, 0, (struct sockaddr*) sock_addr, sizeof(struct sockaddr_ll)) < 0)
 		perror("send failed");
