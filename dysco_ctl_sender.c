@@ -40,6 +40,11 @@ int main(int argc, char** argv) {
 	int sc_len;
 	uint32_t* sc;
 	struct tcp_session* ss;
+
+	if(argc != 5) {
+		fprintf(stderr, "Usage: %s <IPs><Ps><IPd><Pd>\n", argv[0]);
+		exit(EXIT_FAILURE);
+	}
 	
 	if((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
 		perror("socket failed");
@@ -56,13 +61,13 @@ int main(int argc, char** argv) {
 	memset(buff, 0, BUFSIZE);
 
 	ss = (struct tcp_session*)(buff);
-	ss->sip = inet_addr("1.2.3.4");
-	ss->dip = inet_addr("5.6.7.8");
-	ss->sport = htons(9876);
-	ss->dport = htons(50321);
-	ss->sc1 = inet_addr("9.10.11.12");
-	ss->sc2 = inet_addr("13.14.15.16");
-	ss->sc3 = inet_addr("17.18.19.20");
+	ss->sip = inet_addr(argv[1]);
+	ss->dip = inet_addr(argv[3]);
+	ss->sport = htons(atoi(argv[2]));
+	ss->dport = htons(atoi(argv[4]));
+	ss->sc1 = inet_addr("10.0.2.3");
+	ss->sc2 = inet_addr("10.0.3.1");
+	ss->sc3 = inet_addr("10.0.4.1");
 	
 	n = write(sockfd, buff, sizeof(struct tcp_session));
 
