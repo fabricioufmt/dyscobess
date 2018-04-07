@@ -24,17 +24,16 @@ struct tcp_session {
 	uint32_t dip;
 	uint16_t sport;
 	uint16_t dport;
-	uint32_t sc1;
-	uint32_t sc2;
-	uint32_t sc3;
 };
 
 int main(int argc, char** argv) {
+	int i;
 	int n;
 	int sockfd;
 	int connfd;
+	int tx_len;
 	socklen_t addr_len;
-	unsigned char buff[BUFSIZE];
+	unsigned char* buff;
 	struct sockaddr_in serv_addr;
 
 	//Dysco
@@ -42,10 +41,12 @@ int main(int argc, char** argv) {
 	uint32_t* sc;
 	struct tcp_session* ss;
 
-	if(argc != 5) {
-		fprintf(stderr, "Usage: %s <IPs><Ps><IPd><Pd>\n", argv[0]);
+	if(argc < 5) {
+		fprintf(stderr, "Usage: %s <IPs><Ps><IPd><Pd> <sc1> <sc2> <...>\n", argv[0]);
 		exit(EXIT_FAILURE);
 	}
+
+	sc_len = argc - 5;
 	
 	if((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
 		perror("socket failed");
@@ -59,18 +60,21 @@ int main(int argc, char** argv) {
 	if(connect(sockfd, (struct sockaddr*) &serv_addr, sizeof(serv_addr)) == -1)
 		perror("connect failed");
 
-	memset(buff, 0, BUFSIZE);
+	tx_len = sizeof(struct tcp_session) + sc_len * sizeof(uint32_t);
+	buff = malloc(tx_len);
+	memset(buff, 0, tx_len);
 
 	ss = (struct tcp_session*)(buff);
 	ss->sip = inet_addr(argv[1]);
 	ss->dip = inet_addr(argv[3]);
 	ss->sport = htons(atoi(argv[2]));
 	ss->dport = htons(atoi(argv[4]));
-	ss->sc1 = inet_addr("10.0.2.3");
-	ss->sc2 = inet_addr("10.0.3.1");
-	ss->sc3 = inet_addr("10.0.4.1");
+
+	sc = (uint32_t*)(buff + sizeof(struct tcp_session));
+	for(i = 0; i < sc_len; i++)
+		sc[i] = inet_addr(argv[5 + i]);
 	
-	n = write(sockfd, buff, sizeof(struct tcp_session));
+	n = write(sockfd, buff, tx_len);
 
 	close(sockfd);
 
