@@ -754,12 +754,30 @@ bool DyscoAgentIn::control_input(Ipv4* ip, Tcp*, uint8_t* payload) {
 #endif
 		rcb = dc->lookup_reconfig_by_ss(this->index, &cmsg->super);
 
-		if(rcb)
+		if(rcb) {
+#ifdef DEBUG_RECONFIG
+			fprintf(stderr, "lookup_reconfig_by_ss method returns TRUE.\n");
+#endif
 			return true;
+		}
+#ifdef DEBUG_RECONFIG
+		else {
+			fprintf(stderr, "lookup_reconfig_by_ss method returns FALSE.\n");
+		}
+#endif
 
-		rcb = insert_rcb_control_input(ip, cmsg);;
-		if(!rcb)
+		rcb = insert_rcb_control_input(ip, cmsg);
+		if(!rcb) {
+#ifdef DEBUG_RECONFIG
+			fprintf(stderr, "insert_rcb_control_input method returns FALSE.\n");
+#endif			
 			return false;
+		}
+#ifdef DEBUG_RECONFIG
+		else {
+			fprintf(stderr, "insert_rcb_control_input method returns TRUE.\n");
+		}
+#endif		
 
 		return control_reconfig_in(ip, rcb, cmsg);
 
