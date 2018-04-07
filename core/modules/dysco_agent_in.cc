@@ -740,7 +740,7 @@ bool DyscoAgentIn::control_reconfig_in(Ipv4* ip, DyscoCbReconfig* rcb, DyscoCont
 	return true;
 }
 
-bool DyscoAgentIn::control_input(Ipv4* ip, Tcp* tcp, uint8_t* payload) {
+bool DyscoAgentIn::control_input(Ipv4* ip, Tcp*, uint8_t* payload) {
 
 	DyscoControlMessage* cmsg;
 	DyscoCbReconfig* rcb;
