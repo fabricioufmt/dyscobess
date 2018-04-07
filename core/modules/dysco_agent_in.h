@@ -75,7 +75,6 @@ class DyscoAgentIn final : public Module {
 		return ip->length.value() - ip_hlen - tcp_hlen;
 	}
 
-	//TODO
 	inline bool isReconfigPacket(Ipv4* ip, Tcp* tcp) {
 		/*
 		if(tcp->src_port.value() == RECONFIG_SPORT &&
@@ -126,7 +125,7 @@ class DyscoAgentIn final : public Module {
 	bool compute_deltas_out(DyscoHashOut*, DyscoHashOut*, DyscoCbReconfig*);
 	bool control_config_rightA(DyscoCbReconfig*, DyscoControlMessage*, DyscoHashIn*, DyscoHashOut*);
 	bool control_reconfig_in(Ipv4*, DyscoCbReconfig*, DyscoControlMessage*);
-	bool control_input(Ipv4*);
+	bool control_input(Ipv4*, Tcp*, uint8_t*);
 
 
 

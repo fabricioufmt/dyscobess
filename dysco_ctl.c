@@ -33,6 +33,34 @@
 #define BUFFER_SIZE 4096
 #define UEXIT_FAILURE 0
 
+enum {
+	// Locking protocol
+	DYSCO_REQUEST_LOCK = 1,
+	DYSCO_ACK_LOCK,
+	DYSCO_NACK_LOCK,
+	
+	// Reconfiguration
+	DYSCO_SYN,
+	DYSCO_SYN_ACK,
+	DYSCO_ACK,
+	DYSCO_FIN,
+	DYSCO_FIN_ACK,
+	
+	// Management
+	DYSCO_POLICY,
+	DYSCO_REM_POLICY,
+	DYSCO_CLEAR,
+	DYSCO_CLEAR_ALL,
+	DYSCO_BUFFER_PACKET,
+	DYSCO_TCP_SPLICE,
+	DYSCO_COPY_STATE,
+	DYSCO_PUT_STATE,
+	DYSCO_STATE_TRANSFERRED,
+	DYSCO_ACK_ACK,
+	DYSCO_GET_MAPPING,
+	DYSCO_GET_REC_TIME
+};
+
 struct tcp_session {
 	uint32_t sip;
 	uint32_t dip;
@@ -223,6 +251,7 @@ int create_message_reconfig(struct tcp_session* supss, uint32_t sc_len, uint32_t
 	tx_len += sizeof(struct tcphdr); //TCP does not have Option field
 
 	// Construct Control Message
+	cmsg->mtype = DYSCO_SYN;
 	cmsg->super = *supss;
 	cmsg->leftA = iph->saddr;
 	cmsg->rightA = iph->daddr;

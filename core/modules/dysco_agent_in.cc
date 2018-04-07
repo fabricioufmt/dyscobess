@@ -406,19 +406,19 @@ bool DyscoAgentIn::input(bess::Packet* pkt) {
 		return false;
 
 	Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
-
+	size_t tcp_hlen = tcp->offset << 2;
+	
 #ifdef DEBUG
 	fprintf(stderr, "[%s][DyscoAgentIn] receives %s:%u -> %s:%u\n",
 		ns.c_str(),
 		printip1(ip->src.value()), tcp->src_port.value(),
 		printip1(ip->dst.value()), tcp->dst_port.value());
 #endif
-	//TODO
 	if(isReconfigPacket(ip, tcp)) {
 #ifdef DEBUG_RECONFIG
 		fprintf(stderr, "It's a reconfig packet\n");
 #endif
-		return control_input(ip);
+		return control_input(ip, tcp, reinterpret_cast<uint8_t*>(tcp) + tcp_hlen);
 	} else {
 #ifdef DEBUG_RECONFIG
 		fprintf(stderr, "It isn't a reconfig packet\n");
@@ -740,19 +740,18 @@ bool DyscoAgentIn::control_reconfig_in(Ipv4* ip, DyscoCbReconfig* rcb, DyscoCont
 	return true;
 }
 
-// or UDP* udp?
-bool DyscoAgentIn::control_input(Ipv4* ip) {
+bool DyscoAgentIn::control_input(Ipv4* ip, Tcp* tcp, uint8_t* payload) {
 
 	DyscoControlMessage* cmsg;
 	DyscoCbReconfig* rcb;
 
-	/*
-	  TODO: cmsg will be filled by packet payload
-	 */
-	cmsg = 0;// TODO: test
+	cmsg = reinterpret_cast<DyscoControlMessage*>(payload);
 	
 	switch(cmsg->mtype) {
 	case DYSCO_SYN:
+#ifdef DEBUG_RECONFIG
+		fprintf(stderr, "DYSCO_SYN message.\n");
+#endif
 		rcb = dc->lookup_reconfig_by_ss(this->index, &cmsg->super);
 
 		if(rcb)
@@ -765,6 +764,9 @@ bool DyscoAgentIn::control_input(Ipv4* ip) {
 		return control_reconfig_in(ip, rcb, cmsg);
 
 	case DYSCO_SYN_ACK:
+#ifdef DEBUG_RECONFIG
+		fprintf(stderr, "DYSCO_SYN_ACK message.\n");
+#endif
 		//verify htonl
 		if(ip->dst.value() == cmsg->leftA) {
 			DyscoHashOut* cb_out = dc->lookup_output_by_ss(this->index, &cmsg->leftSS);
@@ -783,6 +785,9 @@ bool DyscoAgentIn::control_input(Ipv4* ip) {
 		break;
 
 	case DYSCO_ACK:
+#ifdef DEBUG_RECONFIG
+		fprintf(stderr, "DYSCO_ACK message.\n");
+#endif
 		rcb = dc->lookup_reconfig_by_ss(this->index, &cmsg->super);
 
 		if(!rcb)
@@ -819,9 +824,15 @@ bool DyscoAgentIn::control_input(Ipv4* ip) {
 			}
 		}
 	case DYSCO_FIN:
+#ifdef DEBUG_RECONFIG
+		fprintf(stderr, "[DyscoAgentIn]: DYSCO_FIN message.\n");
+#endif	
 		break;
 
 	case DYSCO_STATE_TRANSFERRED:
+#ifdef DEBUG_RECONFIG
+		fprintf(stderr, "[DyscoAgentIn]: DYSCO_STATE_TRANSFERRED message.\n");
+#endif
 		rcb = dc->lookup_reconfig_by_ss(this->index, &cmsg->super);
 
 		if(!rcb)
