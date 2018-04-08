@@ -158,6 +158,8 @@ int main(int argc, char** argv) {
 			return EXIT_FAILURE;
 		}
 
+		fprintf(stdout, "Client is connected.\n");
+		
 		memset(buff, 0, BUFSIZE);
 		if((n = read(connfd, buff, BUFSIZE)) == -1) {
 			fprintf(stderr, "read error: %s.\n", strerror(errno));

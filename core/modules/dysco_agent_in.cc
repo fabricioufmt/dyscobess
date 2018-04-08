@@ -718,13 +718,15 @@ bool DyscoAgentIn::control_reconfig_in(Ipv4* ip, DyscoCbReconfig* rcb, DyscoCont
 	//verify htonl
 	if(ip->dst.value() == cmsg->rightA) {
 #ifdef DEBUG_RECONFIG
-		fprintf(stderr, "ip->dst.value() == cmsg->rightA\n");
+		fprintf(stderr, "ip->dst.value()[%s] == cmsg->rightA[%s]\n",
+			printip1(ip->dst.value()), printip1(cmsg->rightA));
 #endif	
 		if(!control_config_rightA(rcb, cmsg, cb_in, cb_out))
 			return 0;
 	} else {
 #ifdef DEBUG_RECONFIG
-		fprintf(stderr, "ip->dst.value() != cmsg->rightA\n");
+		fprintf(stderr, "ip->dst.value()[%s] != cmsg->rightA[%s]\n",
+			printip1(ip->dst.value()), printip1(cmsg->rightA));
 #endif	
 		cb_in->sup = rcb->super;
 		cb_in->out_iseq = rcb->leftIseq;
@@ -746,9 +748,14 @@ bool DyscoAgentIn::control_reconfig_in(Ipv4* ip, DyscoCbReconfig* rcb, DyscoCont
 			cb_in->ws_ok = 0;
 
 		cb_out->sack_ok = cb_in->sack_ok = rcb->sack_ok;
+#ifdef DEBUG_RECONFIG
+		fprintf(stderr, "Calling dc->insert_hash_output method\n");
+#endif
 		dc->insert_hash_output(this->index, cb_out);
 	}
-
+#ifdef DEBUG_RECONFIG
+	fprintf(stderr, "Calling dc->insert_hash_input method\n");
+#endif
 	dc->insert_hash_input(this->index, cb_in);
 
 	return true;

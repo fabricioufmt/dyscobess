@@ -756,7 +756,10 @@ void DyscoAgentOut::process_ethernet(bess::Packet* pkt) {
 	}
 
 #ifdef DEBUG
-	fprintf(stderr, "[DyscoAgentOut]: DST MAC changed to %s\n", dst_ether);
+	fprintf(stderr, "[DyscoAgentOut]: DST MAC changed to ");
+	for(int i = 0; i < 5; i++)
+		fprintf(stderr, "%X:", dst_ether[i]);
+	fprintf(stderr, "%X.\n", dst_ether[5]);
 #endif
 }
 
