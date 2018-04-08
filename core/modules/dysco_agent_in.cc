@@ -726,7 +726,7 @@ bool DyscoAgentIn::control_reconfig_in(Ipv4* ip, DyscoCbReconfig* rcb, DyscoCont
 	} else {
 #ifdef DEBUG_RECONFIG
 		fprintf(stderr, "ip->dst.value()[%s] != cmsg->rightA[%s]\n",
-			printip1(ip->dst.value()), printip1(htonl(cmsg->rightA)));
+			printip1(ip->dst.value()), printip1(ntohl(cmsg->rightA)));
 #endif	
 		cb_in->sup = rcb->super;
 		cb_in->out_iseq = rcb->leftIseq;
