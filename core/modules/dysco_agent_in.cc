@@ -716,7 +716,9 @@ bool DyscoAgentIn::control_reconfig_in(Ipv4* ip, DyscoCbReconfig* rcb, DyscoCont
 	cb_in->dcb_out = cb_out;
 
 	//verify htonl
-	fprintf(stderr, "cmsg->rightA: %x\n", cmsg->rightA);
+	fprintf(stderr, "cmsg->rightA: %x:%x:%x:%x\n",
+		cmsg->rightA >> 24, (cmsg->rightA >> 16) & 0xFF,
+		(cmsg->rightA >> 8) & 0xFF, cmsg->rightA & 0xFF);
 	if(ip->dst.value() == ntohl(cmsg->rightA)) {
 #ifdef DEBUG_RECONFIG
 		fprintf(stderr, "ip->dst.value()[%s] == cmsg->rightA[%s or %s]\n",
