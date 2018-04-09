@@ -719,6 +719,7 @@ bool DyscoAgentIn::control_reconfig_in(Ipv4* ip, DyscoCbReconfig* rcb, DyscoCont
 	cb_in->dcb_out = cb_out;
 
 	//verify htonl
+	fprintf(stderr, "sizeof: %lu\n", sizeof(DyscoControlMessage));
 	fprintf(stderr, "cmsg->leftA: %x:%x:%x:%x\n",
 		cmsg->leftA >> 24, (cmsg->leftA >> 16) & 0xFF,
 		(cmsg->leftA >> 8) & 0xFF, cmsg->leftA & 0xFF);
