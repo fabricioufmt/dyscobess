@@ -691,6 +691,9 @@ bool DyscoAgentIn::control_config_rightA(DyscoCbReconfig* rcb, DyscoControlMessa
 bool DyscoAgentIn::control_reconfig_in(Ipv4* ip, DyscoCbReconfig* rcb, DyscoControlMessage* cmsg) {
 #ifdef DEBUG_RECONFIG
 	fprintf(stderr, "control_reconfig_in method\n");
+	for(int i = 0; i < 103; i++)
+		fprintf(stderr, "%.2X ", ((uint8_t*)cmsg)[i]);
+	fprintf(stderr, "\n\n");
 #endif
 	DyscoHashIn* cb_in = new DyscoHashIn();
 
