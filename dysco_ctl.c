@@ -77,7 +77,7 @@ struct pseudo_header {
 };
 
 struct control_message {
-	uint16_t		mtype;
+	uint32_t		mtype;
 	struct tcp_session	super;
 	struct tcp_session	leftSS;
 	struct tcp_session	rightSS;

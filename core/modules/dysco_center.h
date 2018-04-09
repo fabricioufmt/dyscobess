@@ -242,7 +242,7 @@ class DyscoCbReconfig {
 
 class DyscoControlMessage {
  public:
-	uint16_t mtype;
+	uint32_t mtype;
 	DyscoTcpSession super;
 	DyscoTcpSession leftSS;
 	DyscoTcpSession rightSS;
