@@ -1,0 +1,48 @@
+import os
+import scapy.all as scapy
+
+os.system('ip netns del c1 > /dev/null')
+os.system('ip netns del mb1 > /dev/null')
+os.system('ip netns del mb2 > /dev/null')
+os.system('ip netns del mb3 > /dev/null')
+os.system('ip netns del mb4 > /dev/null')
+os.system('ip netns del s1 > /dev/null')
+os.system('ip netns add c1 > /dev/null')
+os.system('ip netns add mb1 > /dev/null')
+os.system('ip netns add mb2 > /dev/null')
+os.system('ip netns add mb3 > /dev/null')
+os.system('ip netns add mb4 > /dev/null')
+os.system('ip netns add s1 > /dev/null')
+os.system('echo 1 > /proc/sys/net/ipv4/ip_forward')
+
+c1::DyscoVPort(ifname='c1-0', netns='/var/run/netns/c1', mac_addr='00:00:00:00:00:11', ip_addrs=['10.0.1.1/24'])
+mb1_0::DyscoVPort(ifname='mb1-0', netns='/var/run/netns/mb1', mac_addr='00:00:00:00:00:12', ip_addrs=['10.0.1.2/24'])
+mb1_1::DyscoVPort(ifname='mb1-1', netns='/var/run/netns/mb1', mac_addr='00:00:00:00:00:21', ip_addrs=['10.0.2.1/24'])
+mb2_0::DyscoVPort(ifname='mb2-0', netns='/var/run/netns/mb2', mac_addr='00:00:00:00:00:22', ip_addrs=['10.0.2.2/24'])
+mb2_1::DyscoVPort(ifname='mb2-1', netns='/var/run/netns/mb2', mac_addr='00:00:00:00:00:32', ip_addrs=['10.0.3.2/24'])
+mb3_0::DyscoVPort(ifname='mb3-0', netns='/var/run/netns/mb3', mac_addr='00:00:00:00:00:23', ip_addrs=['10.0.2.3/24'])
+mb3_1::DyscoVPort(ifname='mb3-1', netns='/var/run/netns/mb3', mac_addr='00:00:00:00:00:33', ip_addrs=['10.0.3.3/24'])
+mb4_0::DyscoVPort(ifname='mb4-0', netns='/var/run/netns/mb4', mac_addr='00:00:00:00:00:31', ip_addrs=['10.0.3.1/24'])
+mb4_1::DyscoVPort(ifname='mb4-1', netns='/var/run/netns/mb4', mac_addr='00:00:00:00:00:42', ip_addrs=['10.0.4.2/24'])
+s1::DyscoVPort(ifname='s1-0', netns='/var/run/netns/s1', mac_addr='00:00:00:00:00:41', ip_addrs=['10.0.4.1/24'])
+
+os.system('ip netns exec c1 ifconfig lo up > /dev/null')
+os.system('ip netns exec mb1 ifconfig lo up > /dev/null')
+os.system('ip netns exec mb2 ifconfig lo up > /dev/null')
+os.system('ip netns exec mb3 ifconfig lo up > /dev/null')
+os.system('ip netns exec mb4 ifconfig lo up > /dev/null')
+os.system('ip netns exec s1 ifconfig lo up > /dev/null')
+
+os.system('ip netns exec c1 route add default gw 10.0.1.2 > /dev/null')
+os.system('ip netns exec s1 route add default gw 10.0.4.2 > /dev/null')
+os.system('ip netns exec mb1 route add default gw 10.0.2.2 > /dev/null')
+os.system('ip netns exec mb2 route add -net 10.0.1.0/24 gw 10.0.2.1 > /dev/null')
+os.system('ip netns exec mb2 route add default gw 10.0.3.1 > /dev/null')
+os.system('ip netns exec mb3 route add -net 10.0.1.0/24 gw 10.0.2.1 > /dev/null')
+os.system('ip netns exec mb3 route add default gw 10.0.3.1 > /dev/null')
+os.system('ip netns exec mb4 route add default gw 10.0.3.2 > /dev/null')
+
+bpf0::BPF(filters=[
+	{'priority': -20, 'filter':'12/0806 20/0002', 'gate':0},
+	{'priority': -19, 'filter':'12/0806 20/0001', 'gate':1},
+	{'priority': -18, 'filter':'12/0800', 'gate':2}])
