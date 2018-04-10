@@ -42,7 +42,8 @@ os.system('ip netns exec mb3 route add -net 10.0.1.0/24 gw 10.0.2.1 > /dev/null'
 os.system('ip netns exec mb3 route add default gw 10.0.3.1 > /dev/null')
 os.system('ip netns exec mb4 route add default gw 10.0.3.2 > /dev/null')
 
-bpf0::BPF(filters=[
-	{'priority': -20, 'filter':'12/0806 20/0002', 'gate':0},
-	{'priority': -19, 'filter':'12/0806 20/0001', 'gate':1},
-	{'priority': -18, 'filter':'12/0800', 'gate':2}])
+bpf0::BPF()
+bpf0.add(filters=[
+	{'priority': -20, 'filter':'12/0806 20/0002', 'gate': 0},
+	{'priority': -19, 'filter':'12/0806 20/0001', 'gate': 1},
+	{'priority': -18, 'filter':'12/0800', 'gate': 2}])
