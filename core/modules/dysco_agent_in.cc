@@ -691,9 +691,6 @@ bool DyscoAgentIn::control_config_rightA(DyscoCbReconfig* rcb, DyscoControlMessa
 bool DyscoAgentIn::control_reconfig_in(Ipv4* ip, DyscoCbReconfig* rcb, DyscoControlMessage* cmsg) {
 #ifdef DEBUG_RECONFIG
 	fprintf(stderr, "control_reconfig_in method\n");
-	for(int i = 0; i < 105; i++)
-		fprintf(stderr, "%.2X ", ((uint8_t*)cmsg)[i]);
-	fprintf(stderr, "\n\n");
 #endif
 	DyscoHashIn* cb_in = new DyscoHashIn();
 
@@ -713,32 +710,25 @@ bool DyscoAgentIn::control_reconfig_in(Ipv4* ip, DyscoCbReconfig* rcb, DyscoCont
 		return false;
 	}
 #ifdef DEBUG_RECONFIG
-		fprintf(stderr, "build_cb_in_reverse method returns not NULL\n");
+	fprintf(stderr, "build_cb_in_reverse method returns not NULL\n");
 #endif
 	cb_out->dcb_in = cb_in;
 	cb_in->dcb_out = cb_out;
 
 	//verify htonl
-	fprintf(stderr, "sizeof: %lu\n", sizeof(DyscoControlMessage));
-	fprintf(stderr, "cmsg->leftA: %x:%x:%x:%x\n",
-		cmsg->leftA >> 24, (cmsg->leftA >> 16) & 0xFF,
-		(cmsg->leftA >> 8) & 0xFF, cmsg->leftA & 0xFF);
-	fprintf(stderr, "cmsg->rightA: %x:%x:%x:%x\n",
-		cmsg->rightA >> 24, (cmsg->rightA >> 16) & 0xFF,
-		(cmsg->rightA >> 8) & 0xFF, cmsg->rightA & 0xFF);
 	if(ip->dst.value() == ntohl(cmsg->rightA)) {
 #ifdef DEBUG_RECONFIG
-		fprintf(stderr, "ip->dst.value()[%s] == cmsg->rightA[%s or %s]\n",
+		fprintf(stderr, "ip->dst.value()[%s] == ntohl(cmsg->rightA)[%s]\n",
 			printip1(ip->dst.value()),
-			printip1(ntohl(cmsg->rightA)), printip1(cmsg->rightA));
+			printip1(ntohl(cmsg->rightA)));
 #endif	
 		if(!control_config_rightA(rcb, cmsg, cb_in, cb_out))
 			return 0;
 	} else {
 #ifdef DEBUG_RECONFIG
-		fprintf(stderr, "ip->dst.value()[%s] != cmsg->rightA[%s or %s]\n",
+		fprintf(stderr, "ip->dst.value()[%s] != ntohl(cmsg->rightA)[%s]\n",
 			printip1(ip->dst.value()),
-			printip1(ntohl(cmsg->rightA)), printip1(cmsg->rightA));
+			printip1(ntohl(cmsg->rightA)));
 #endif	
 		cb_in->sup = rcb->super;
 		cb_in->out_iseq = rcb->leftIseq;

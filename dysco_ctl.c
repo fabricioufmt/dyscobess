@@ -233,7 +233,8 @@ int create_message_reconfig(struct tcp_session* supss, uint32_t sc_len, uint32_t
 	iph->protocol = IPPROTO_TCP;
 	iph->check = 0;
 	iph->saddr = get_srcip(&sc[sc_len - 1], &ifindex);
-	iph->daddr = sc[sc_len - 1];
+	//iph->daddr = sc[sc_len - 1];
+	iph->daddr = sc[0];
 	iph->check = csum((unsigned short*) sendbuf, sizeof(struct iphdr) + sizeof(struct tcphdr));
 	tx_len += sizeof(struct iphdr); //IP does not have Option field.
 	
