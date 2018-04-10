@@ -259,7 +259,7 @@ int create_message_reconfig(struct tcp_session* supss, uint32_t sc_len, uint32_t
 	cmsg->mtype = DYSCO_SYN;
 	cmsg->super = *supss;
 	cmsg->leftA = iph->saddr;
-	cmsg->rightA = iph->daddr;
+	cmsg->rightA = sc[sc_len - 1];
 	tx_len += sizeof(struct control_message);
 
 	// Construct Service Chain
