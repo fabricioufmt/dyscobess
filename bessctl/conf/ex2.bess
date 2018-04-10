@@ -44,6 +44,6 @@ os.system('ip netns exec mb4 route add default gw 10.0.3.2 > /dev/null')
 
 bpf0::BPF()
 bpf0.add(filters=[
-	{'priority': -20, 'filter':'12/0806 20/0002', 'gate': 0},
-	{'priority': -19, 'filter':'12/0806 20/0001', 'gate': 1},
-	{'priority': -18, 'filter':'12/0800', 'gate': 2}])
+	{'priority': -20, 'filter':'arp and arp.opcode == 1', 'gate': 0},
+	{'priority': -19, 'filter':'arp and arp.opcode == 2', 'gate': 1},
+	{'priority': -18, 'filter':'ip', 'gate': 2}])
