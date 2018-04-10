@@ -43,6 +43,6 @@ os.system('ip netns exec mb3 route add default gw 10.0.3.1 > /dev/null')
 os.system('ip netns exec mb4 route add default gw 10.0.3.2 > /dev/null')
 
 bpf0::BPF()
-bpf0.add(filters=[{'priority': -20, 'filter':'arp and arp.opcode == 1', 'gate': 0}])
-bpf0.add(filters=[{'priority': -19, 'filter':'arp and arp.opcode == 2', 'gate': 1}])
+bpf0.add(filters=[{'priority': -20, 'filter':'arp and arp[6] == 1', 'gate': 0}])
+bpf0.add(filters=[{'priority': -19, 'filter':'arp and arp[6] == 2', 'gate': 1}])
 bpf0.add(filters=[{'priority': -18, 'filter':'ip', 'gate': 2}])
