@@ -44,14 +44,14 @@ void EtherSwitch::ProcessBatch(bess::PacketBatch* batch) {
 	ngates_ = ogates().size();
 	bess::PacketBatch out_gates[ngates_];
 	
-	for(int i = 0; i < ngates_; i++)
+	for(uint32_t i = 0; i < ngates_; i++)
 		out_gates[i].clear();
 
 	bess::Packet* pkt;
 	for(int i = 0; i < batch->cnt(); i++) {
 		pkt = batch->pkts()[i];
 		if(isBroadcast(pkt, igate, &ogate)) {
-			for(int j = 0; j < ngates_; j++) {
+			for(uint32_t j = 0; j < ngates_; j++) {
 				if(j == igate)
 					continue;
 				out_gates[j].add(bess::Packet::copy(pkt));
@@ -60,6 +60,6 @@ void EtherSwitch::ProcessBatch(bess::PacketBatch* batch) {
 			out_gates[ogate].add(bess::Packet::copy(pkt));
 	}
 
-	for(int i = 0; i < ngates_; i++)
+	for(uint32_t i = 0; i < ngates_; i++)
 		RunChooseModule(gates_[i], &(out_gates[i]));
 }
