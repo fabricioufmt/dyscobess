@@ -11,7 +11,7 @@ using bess::utils::Ethernet;
 
 class EtherSwitch final : public Module {
  private:
-	std::map<Ethernet::Address, gate_idx_t> _entries;
+	std::unordered_map<Ethernet::Address, gate_idx_t> _entries;
 	
  public:
  EtherSwitch() : Module(), _entries() {
