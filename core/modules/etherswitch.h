@@ -1,10 +1,11 @@
 #ifndef BESS_MODULES_ETHERSWITCH_H_
 #define BESS_MODULES_ETHERSWITCH_H_
 
-#include <map>
+#include <unordered_map>
 
 #include "../module.h"
 #include "../utils/ether.h"
+#include "../utils/endian.h"
 #include "../pb/module_msg.pb.h"
 
 using bess::utils::Ethernet;

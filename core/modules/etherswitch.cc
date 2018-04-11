@@ -1,7 +1,5 @@
 #include "etherswitch.h"
 
-#include "../utils/endian.h"
-
 const Commands EtherSwitch::cmds = {
 	{"add", "EtherSwitchCommandAddArg", MODULE_CMD_FUNC(&EtherSwitch::CommandAdd),
 	 Command::THREAD_UNSAFE},
