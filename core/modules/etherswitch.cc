@@ -11,6 +11,10 @@ CommandResponse EtherSwitch::Init(const bess::pb::EtherSwitchArg&) {
 	return CommandSuccess();
 }
 
+void EtherSwitch::DeInit() {
+	_entries.clear();
+}
+
 CommandResponse EtherSwitch::CommandAdd(const bess::pb::EtherSwitchCommandAddArg&) {
 	//TODO
 	return CommandSuccess();
