@@ -1,50 +1,34 @@
 import os
 import scapy.all as scapy
 
-os.system('ip netns del c1 > /dev/null')
-os.system('ip netns del mb1 > /dev/null')
-os.system('ip netns del mb2 > /dev/null')
-os.system('ip netns del mb3 > /dev/null')
-os.system('ip netns del mb4 > /dev/null')
-os.system('ip netns del s1 > /dev/null')
-os.system('ip netns add c1 > /dev/null')
-os.system('ip netns add mb1 > /dev/null')
-os.system('ip netns add mb2 > /dev/null')
-os.system('ip netns add mb3 > /dev/null')
-os.system('ip netns add mb4 > /dev/null')
-os.system('ip netns add s1 > /dev/null')
+os.system('ip netns del h1 > /dev/null')
+os.system('ip netns del h2 > /dev/null')
+os.system('ip netns del h3 > /dev/null')
+os.system('ip netns del h4 > /dev/null')
+os.system('ip netns add h1 > /dev/null')
+os.system('ip netns add h2 > /dev/null')
+os.system('ip netns add h3 > /dev/null')
+os.system('ip netns add h4 > /dev/null')
 os.system('echo 1 > /proc/sys/net/ipv4/ip_forward')
 
-c1::DyscoVPort(ifname='c1-0', netns='/var/run/netns/c1', mac_addr='00:00:00:00:00:11', ip_addrs=['10.0.1.1/8'])
-mb1_0::DyscoVPort(ifname='mb1-0', netns='/var/run/netns/mb1', mac_addr='00:00:00:00:00:12', ip_addrs=['10.0.1.2/8'])
-mb1_1::DyscoVPort(ifname='mb1-1', netns='/var/run/netns/mb1', mac_addr='00:00:00:00:00:21', ip_addrs=['10.0.2.1/8'])
-mb2_0::DyscoVPort(ifname='mb2-0', netns='/var/run/netns/mb2', mac_addr='00:00:00:00:00:22', ip_addrs=['10.0.2.2/8'])
-mb2_1::DyscoVPort(ifname='mb2-1', netns='/var/run/netns/mb2', mac_addr='00:00:00:00:00:32', ip_addrs=['10.0.3.2/8'])
-mb3_0::DyscoVPort(ifname='mb3-0', netns='/var/run/netns/mb3', mac_addr='00:00:00:00:00:23', ip_addrs=['10.0.2.3/8'])
-mb3_1::DyscoVPort(ifname='mb3-1', netns='/var/run/netns/mb3', mac_addr='00:00:00:00:00:33', ip_addrs=['10.0.3.3/8'])
-mb4_0::DyscoVPort(ifname='mb4-0', netns='/var/run/netns/mb4', mac_addr='00:00:00:00:00:31', ip_addrs=['10.0.3.1/8'])
-mb4_1::DyscoVPort(ifname='mb4-1', netns='/var/run/netns/mb4', mac_addr='00:00:00:00:00:42', ip_addrs=['10.0.4.2/8'])
-s1::DyscoVPort(ifname='s1-0', netns='/var/run/netns/s1', mac_addr='00:00:00:00:00:41', ip_addrs=['10.0.4.1/8'])
+h1::DyscoVPort(ifname='h1-0', netns='/var/run/netns/h1', mac_addr='00:00:00:00:00:11', ip_addrs=['10.0.1.1/24'])
+h2::DyscoVPort(ifname='h2-0', netns='/var/run/netns/h2', mac_addr='00:00:00:00:00:12', ip_addrs=['10.0.1.2/24'])
+h3::DyscoVPort(ifname='h3-0', netns='/var/run/netns/h3', mac_addr='00:00:00:00:00:13', ip_addrs=['10.0.1.3/24'])
+h4::DyscoVPort(ifname='h4-0', netns='/var/run/netns/h4', mac_addr='00:00:00:00:00:14', ip_addrs=['10.0.1.4/24'])
 
-os.system('ip netns exec c1 ifconfig lo up > /dev/null')
-os.system('ip netns exec mb1 ifconfig lo up > /dev/null')
-os.system('ip netns exec mb2 ifconfig lo up > /dev/null')
-os.system('ip netns exec mb3 ifconfig lo up > /dev/null')
-os.system('ip netns exec mb4 ifconfig lo up > /dev/null')
-os.system('ip netns exec s1 ifconfig lo up > /dev/null')
+os.system('ip netns exec h1 ifconfig lo up > /dev/null')
+os.system('ip netns exec h2 ifconfig lo up > /dev/null')
+os.system('ip netns exec h3 ifconfig lo up > /dev/null')
+os.system('ip netns exec h4 ifconfig lo up > /dev/null')
 
 l2::EtherSwitch()
 
-PortInc(port=c1) -> 0:l2
-PortInc(port=mb1_1) -> 1:l2
-PortInc(port=mb2_1) -> 2:l2
-PortInc(port=mb3_1) -> 3:l2
-PortInc(port=mb4_1) -> 4:l2
-PortInc(port=s1) -> 5:l2
+PortInc(port=h1) -> 0:l2
+PortInc(port=h2) -> 1:l2
+PortInc(port=h3) -> 2:l2
+PortInc(port=h4) -> 3:l2
 
-l2:0 -> PortOut(port=c1)
-l2:1 -> PortOut(port=mb1_1)
-l2:2 -> PortOut(port=mb2_1)
-l2:3 -> PortOut(port=mb3_1)
-l2:4 -> PortOut(port=mb4_1)
-l2:5 -> PortOut(port=s1)
+l2:0 -> PortOut(port=h1)
+l2:1 -> PortOut(port=h2)
+l2:2 -> PortOut(port=h3)
+l2:3 -> PortOut(port=h4)
