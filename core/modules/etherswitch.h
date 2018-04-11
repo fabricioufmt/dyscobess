@@ -33,7 +33,8 @@ class EtherSwitch final : public Module {
 	~EtherSwitch() {
 		DeInit();
 	}
-	
+
+	static const gate_idx_t kNumIGates = MAX_GATES;
 	static const gate_idx_t kNumOGates = MAX_GATES;
 	static const Commands cmds;
 
