@@ -14,7 +14,7 @@ struct HashEtherAddr {
 	std::size_t operator() (const Ethernet::Address& a) const {
 		std::size_t res = std::hash<char>()(a.bytes[0]);
 		
-		for(int i = 1; i < Ethernet::Address::kSize; i++) {
+		for(uint32_t i = 1; i < Ethernet::Address::kSize; i++) {
 			res ^= std::hash<char>()(a.bytes[i]);
 		}
 
