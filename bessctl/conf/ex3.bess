@@ -36,10 +36,10 @@ os.system('ip netns exec s1 ifconfig lo up > /dev/null')
 l2::EtherSwitch()
 
 PortInc(port=c1) -> 0:l2
-PortInc(port=m1_1) -> 1:l2
-PortInc(port=m2_1) -> 2:l2
-PortInc(port=m3_1) -> 3:l2
-PortInc(port=m4_1) -> 4:l2
+PortInc(port=mb1_1) -> 1:l2
+PortInc(port=mb2_1) -> 2:l2
+PortInc(port=mb3_1) -> 3:l2
+PortInc(port=mb4_1) -> 4:l2
 PortInc(port=s1) -> 5:l2
 
 l2:0 -> PortOut(port=c1)
