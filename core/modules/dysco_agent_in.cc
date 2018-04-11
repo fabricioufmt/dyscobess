@@ -394,9 +394,10 @@ bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in) {
 bool DyscoAgentIn::input(bess::Packet* pkt) {
 	Ethernet* eth = pkt->head_data<Ethernet*>();
 
+	/*
 	if(isARP(eth))
 		process_arp(pkt);
-	
+	*/
 	if(!isIP(eth))
 		return false;
 

@@ -1,6 +1,9 @@
 import os
 import scapy.all as scapy
 
+def aton(ip):
+    return socket.inet_aton(ip)
+
 os.system('ip netns del c1 > /dev/null')
 os.system('ip netns del mb1 > /dev/null')
 os.system('ip netns del mb2 > /dev/null')
@@ -46,3 +49,28 @@ bpf0::BPF()
 bpf0.add(filters=[{'priority': -20, 'filter':'arp and arp[6] == 1', 'gate': 0}])
 bpf0.add(filters=[{'priority': -19, 'filter':'arp and arp[6] == 2', 'gate': 1}])
 bpf0.add(filters=[{'priority': -18, 'filter':'ip', 'gate': 2}])
+
+arp0::ArpResponder()
+arp0.add(ip='10.0.1.1', mac_addr='00:00:00:00:00:11')
+arp0.add(ip='10.0.1.2', mac_addr='00:00:00:00:00:12')
+
+ipl0::IPLookup()
+ipl0.add(prefix='10.0.1.0', prefix_len=24, gate=0)
+ipl0.add(prefix='10.0.2.0', prefix_len=24, gate=1)
+ipl0.add(prefix='10.0.3.0', prefix_len=24, gate=2)
+ipl0.add(prefix='10.0.4.0', prefix_len=24, gate=3)
+
+em0::ExactMatch(fields=[{'offset':30, 'num_bytes':4}])
+em0.add(fields=[{'value_bin':aton('10.0.1.1')}], gate=0)
+em0.add(fields=[{'value_bin':aton('10.0.1.2')}], gate=1)
+
+DyscoPortInc(port=c1) -> bpf0
+DyscoPortInc(port=mb1_1) -> bpf0
+
+bpf0:0 -> arp0 -> pin_c1::DyscoPortOut(port=c1)
+bpf0:1 -> ipl0
+
+ipl0:0 -> em0
+
+em0:0 -> pin_c1
+em0:1 -> pin_mb1_1

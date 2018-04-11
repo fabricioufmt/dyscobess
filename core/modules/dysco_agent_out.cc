@@ -76,8 +76,11 @@ void DyscoAgentOut::ProcessBatch(bess::PacketBatch* batch) {
 		bess::Packet* pkt = 0;
 		for(int i = 0; i < cnt; i++) {
 			pkt = batch->pkts()[i];
+			output(pkt);
+			/*
 			if(output(pkt))
 				process_ethernet(pkt);
+			*/
 			//insert_metadata(pkt);
 		}
 	}

@@ -1,0 +1,31 @@
+#ifndef BESS_MODULES_ETHERSWITCH_H_
+#define BESS_MODULES_ETHERSWITCH_H_
+
+#include <map>
+
+#include "../module.h"
+#include "../pb/module_msg.pb.g"
+
+using bess::utils::Ethernet;
+
+class EtherSwitch final : public Module {
+ private:
+	std::map<Ethernet::Address, gate_idx_t> _entries;
+	
+ public:
+ EtherSwitch() : Module(), _entries() {
+	}
+	
+	static const gate_idx_t kNumOGates = MAX_GATES;
+	static const Commands cmds;
+
+	CommandResponse Init(const bess::pb::EtherSwitchArg&);
+	void DeInit() override;
+	void ProcessBatch(bess::PacketBatch*) override;
+	bool isBroadcast(bess::Packet*, gate_idx_t, gate_idx_t*);
+
+	CommandResponse CommandAdd(const bess::pb::EtherSwitchCommandAddArg&);
+	CommandResponse CommandDel(const bess::pb::EtherSwitchCommandDelArg&);
+};
+
+#endif

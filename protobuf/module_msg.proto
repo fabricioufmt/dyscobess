@@ -1192,3 +1192,12 @@ message DyscoPortIncArg {
 message DyscoPortOutArg {
   string port = 1; /// The portname to connect to.
 }
+
+message EtherSwitchArg {
+}
+
+message EtherSwitchCommandAddArg {
+}
+
+message EtherSwitchCommandDelArg {
+}
