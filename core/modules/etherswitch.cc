@@ -38,8 +38,10 @@ bool EtherSwitch::isBroadcast(bess::Packet* pkt, gate_idx_t igate, gate_idx_t* o
 }
 
 void EtherSwitch::ProcessBatch(bess::PacketBatch* batch) {
+	size_t ngates_;
 	gate_idx_t ogate;
 	gate_idx_t igate = get_igate();
+	ngates_ = ogates().size();
 	bess::PacketBatch out_gates[ngates_];
 	
 	for(int i = 0; i < ngates_; i++)
