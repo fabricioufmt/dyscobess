@@ -4,7 +4,7 @@
 #include <map>
 
 #include "../module.h"
-#include "../pb/module_msg.pb.g"
+#include "../pb/module_msg.pb"
 
 using bess::utils::Ethernet;
 
