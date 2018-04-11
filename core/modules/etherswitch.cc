@@ -61,5 +61,5 @@ void EtherSwitch::ProcessBatch(bess::PacketBatch* batch) {
 	}
 
 	for(uint32_t i = 0; i < ngates_; i++)
-		RunChooseModule(gates_[i], &(out_gates[i]));
+		RunChooseModule(ogates_[i], &(out_gates[i]));
 }
