@@ -27,7 +27,8 @@ class EtherSwitch final : public Module {
 	std::unordered_map<Ethernet::Address, gate_idx_t, HashEtherAddr> _entries;
 	
  public:
- EtherSwitch() : Module(), _entries() {
+ EtherSwitch() : Module() {
+		_entries.clear();
 	}
 	
 	static const gate_idx_t kNumOGates = MAX_GATES;
