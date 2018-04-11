@@ -63,3 +63,5 @@ void EtherSwitch::ProcessBatch(bess::PacketBatch* batch) {
 	for(uint32_t i = 0; i < ngates_; i++)
 		RunChooseModule(i, &(out_gates[i]));
 }
+
+ADD_MODULE(EtherSwitch, "etherswitch", "ethernet switch learning switch")
