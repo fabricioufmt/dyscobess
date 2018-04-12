@@ -1,12 +1,11 @@
-#ifndef BESS_MODULES_ETHERSWITCH_H_
-#define BESS_MODULES_ETHERSWITCH_H_
+#ifndef BESS_MODULES_L2FWD_H_
+#define BESS_MODULES_L2FWD_H_
 
 #include <map>
 #include <unordered_map>
 
 #include "../module.h"
 #include "../utils/ether.h"
-#include "../utils/endian.h"
 
 using bess::utils::Ethernet;
 
@@ -22,29 +21,29 @@ struct HashEtherAddr {
 	}
 };
 
-class EtherSwitch final : public Module {
+class L2FWD final : public Module {
  private:
 	std::unordered_map<Ethernet::Address, gate_idx_t, HashEtherAddr> _entries;
-	
+
  public:
- EtherSwitch() : Module(), _entries() {
+ L2FWD(): Module(), _entries() {
 	}
 
-	~EtherSwitch() {
+	~L2FWD() {
 		DeInit();
 	}
 	
 	static const Commands cmds;
-	static const gate_idx_t kNumIGates = MAX_GATES;
+	static const gate_idx_t kNumIGates = 1;
 	static const gate_idx_t kNumOGates = MAX_GATES;
 
-	CommandResponse Init(const bess::pb::EtherSwitchArg&);
+	CommandResponse Init(const bess::pb::L2FWDArg&);
 	void DeInit() override;
-	void ProcessBatch(bess::PacketBatch*) override;
-	bool isBroadcast(bess::Packet*, gate_idx_t, gate_idx_t*);
-
-	CommandResponse CommandAdd(const bess::pb::EtherSwitchCommandAddArg&);
-	CommandResponse CommandDel(const bess::pb::EtherSwitchCommandDelArg&);
+	bool isKnown(Ethernet::Address);
+	bool isBroadcast(Ethernet::Address);
+	void ProcessBatch(bess::PacketBatch*);
+	
+	CommandResponse CommandAdd(const bess::pb::L2FWDCommandAddArg&);
 };
 
 #endif
