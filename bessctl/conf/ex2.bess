@@ -70,7 +70,7 @@ fix_mac0.add(mac_addr='00:00:00:00:00:12', ip_addr='10.0.1.2', gate=1)
 fix_mac1::FixMac(gates=3)
 fix_mac1.add(mac_addr='00:00:00:00:00:21', ip_addr='10.0.2.1', gate=0)
 fix_mac1.add(mac_addr='00:00:00:00:00:22', ip_addr='10.0.2.2', gate=1)
-fix_mac1.add(mac_addr='00:00:00:00:00:22', ip_addr='10.0.2.3', gate=2)
+fix_mac1.add(mac_addr='00:00:00:00:00:23', ip_addr='10.0.2.3', gate=2)
 
 fix_mac2::FixMac(gates=3)
 fix_mac2.add(mac_addr='00:00:00:00:00:31', ip_addr='10.0.3.1', gate=0)
