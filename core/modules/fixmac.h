@@ -27,7 +27,7 @@ class FixMac final : public Module {
 		_entries.clear();
 	}
 	
-	CommandResponse Init(const bess::pb::FixMac&);
+	CommandResponse Init(const bess::pb::FixMacArg&);
 	void ProcessBatch(bess::PacketBatch*) override;
 	bool forward(bess::Packet*, gate_idx_t*);
 	bool forward_mac(Ethernet::Address, gate_idx_t*);
