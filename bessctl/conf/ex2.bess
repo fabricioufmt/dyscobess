@@ -81,6 +81,11 @@ fix_mac3::FixMac(gates=2)
 fix_mac3.add(mac_addr='00:00:00:00:00:41', ip_addr='10.0.4.1', gate=0)
 fix_mac3.add(mac_addr='00:00:00:00:00:42', ip_addr='10.0.4.2', gate=1)
 
+l2_0::EtherSwitch()
+l2_1::EtherSwitch()
+l2_2::EtherSwitch()
+l2_3::EtherSwitch()
+
 l3::IPLookup()
 l3.add(prefix='10.0.1.0', prefix_len=24, gate=0)
 l3.add(prefix='10.0.2.0', prefix_len=24, gate=1)
