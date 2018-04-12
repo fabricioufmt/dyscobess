@@ -2,6 +2,8 @@
 
 CommandResponse FixMac::Init(const bess::pb::FixMacArg& arg) {
 	ngates = arg.gates();
+
+	return CommandResponse();
 }
 
 CommandResponse FixMac::CommandAdd(const bess::pb::FixMacCommandAddArg& arg) {
@@ -64,7 +66,7 @@ void FixMac::ProcessBatch(bess::PacketBatch* batch) {
 			out_gates[ogate].add(pkt);
 	}
 
-	for(uint32_t i = 0; i < ngates_; i++)
+	for(uint32_t i = 0; i < ngates; i++)
 		RunChooseModule(i, &(out_gates[i]));
 }
 
