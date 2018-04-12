@@ -1201,3 +1201,13 @@ message EtherSwitchCommandAddArg {
 
 message EtherSwitchCommandDelArg {
 }
+
+message FixMacArg {
+	uint32_t gates = 1;
+}
+
+message FixMacCommandAddArg {
+	string mac_addr = 1;
+	string ip_addr  = 2;
+	uint32_t gate   = 3;
+}
