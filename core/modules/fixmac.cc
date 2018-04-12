@@ -1,5 +1,9 @@
 #include "fixmac.h"
 
+const Commands FixMac::cmds = {
+    {"add", "FixMacCommandAddArg", MODULE_CMD_FUNC(&FixMac::CommandAdd),
+     Command::THREAD_UNSAFE}};
+
 CommandResponse FixMac::Init(const bess::pb::FixMacArg& arg) {
 	ngates = arg.gates();
 
