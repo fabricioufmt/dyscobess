@@ -4,10 +4,12 @@
 #include <map>
 
 #include "../module.h"
+#include "../utils/ip.h"
 #include "../utils/ether.h"
 #include "../utils/endian.h"
 #include "../pb/module_msg.pb.h"
 
+using bess::utils::Ipv4;
 using bess::utils::be32_t;
 using bess::utils::Ethernet;
 
@@ -27,6 +29,10 @@ class FixMac final : public Module {
 
 	~FixMac() {
 		_entries.clear();
+	}
+
+	inline bool isIP(Ethernet* eth) {
+		return eth->ether_type.value() == Ethernet::Type::kIpv4;
 	}
 	
 	CommandResponse Init(const bess::pb::FixMacArg&);

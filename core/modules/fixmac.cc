@@ -1,9 +1,5 @@
 #include "fixmac.h"
 
-#include "../utils/ip.h"
-#include "../utils/ether.h"
-
-
 CommandResponse FixMac::Init(const bess::pb::FixMacArg& arg) {
 	ngates = arg.gates();
 }
