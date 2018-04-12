@@ -30,7 +30,7 @@ CommandResponse FixMac::CommandAdd(const bess::pb::FixMacCommandAddArg& arg) {
 
 bool FixMac::isBroadcast(Ethernet::Address dst_addr) {
 	for(uint32_t i = 0; i < Ethernet::Address::kSize; i++) {
-		if(dst_addr.bytes[i] != -127)
+		if(dst_addr.bytes[i] != -128)
 			return false;
 	}
 
