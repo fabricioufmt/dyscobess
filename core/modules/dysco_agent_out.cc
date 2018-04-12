@@ -332,7 +332,7 @@ bool DyscoAgentOut::out_translate(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHa
 	if(dc->out_hdr_rewrite(ip, tcp, &cb_out->sub)) {
 		uint32_t val = 1;
 		const void* val_ptr = &val;
-		void* mt_ptr = _ptr_attr_with_offset<value_t>>(0, pkt);
+		void* mt_ptr = _ptr_attr_with_offset<value_t>(0, pkt);
 		bess::utils::CopySmall(mt_ptr, val_ptr, sizeof(uint32_t));
 	}
 	
