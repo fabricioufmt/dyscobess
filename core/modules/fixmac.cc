@@ -72,8 +72,10 @@ bool FixMac::forward(bess::Packet* pkt, gate_idx_t* ogate) {
 	Ipv4* ip = reinterpret_cast<Ipv4*>(eth + 1);
 	
 	auto search = _entries.find(ip->dst);
-	if(search == _entries.end())
+	if(search == _entries.end()) {
+		fprintf(stderr, "ip->dst not found\n");
 		return false;
+	}
 	eth->dst_addr = search->second.addr;
 	
 	/*
@@ -87,10 +89,15 @@ bool FixMac::forward(bess::Packet* pkt, gate_idx_t* ogate) {
 	for(auto it = _entries.begin(); it != _entries.end(); it++) {
 		if(it->second.addr == eth->src_addr) {
 			*ogate = it->second.gate;
+
+			fprintf(stderr, "src_addr found at %u\n", *ogate);
+			
 			return true;
 		}
 	}
 
+	fprintf(stderr, "forward returns false\n");
+	
 	return false;
 }
 
