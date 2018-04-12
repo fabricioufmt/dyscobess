@@ -28,13 +28,39 @@ CommandResponse FixMac::CommandAdd(const bess::pb::FixMacCommandAddArg& arg) {
 	return CommandResponse();
 }
 
-bool FixMac::forward_mac(Ethernet::Address dst_addr, gate_idx_t* ogate) {
+bool FixMac::isBroadcast(Ethernet::Address dst_addr) {
+	for(uint32_t i = 0; i < Ethernet::Address::kSize; i++) {
+		if(bytes[i] != 0xFF)
+			return false;
+	}
+
+	return true;
+}
+
+bool FixMac::forward_mac(Ethernet* eth, gate_idx_t* ogate) {
+	bool flag = false;
+	gate_idx_t igate;
+	Ethernet::Address src_addr = eth->src_addr;
+	Ethernet::Address dst_addr = eth->dst_addr;
+	
 	for(auto it = _entries.begin(); it != _entries.end(); it++) {
 		if(it->second.addr == dst_addr) {
 			*ogate = it->second.gate;
 			
 			return true;
 		}
+		//Just for Broadcast case
+		if(it->second.addr == src_addr) {
+			igate = it->second.gate;
+			flag = true;
+		}
+	}
+
+	//TEST
+	if(isBroadcast(dst_addr) && flag) {
+		*ogate = igate;
+
+		return true;
 	}
 
 	return false;
@@ -43,7 +69,7 @@ bool FixMac::forward_mac(Ethernet::Address dst_addr, gate_idx_t* ogate) {
 bool FixMac::forward(bess::Packet* pkt, gate_idx_t* ogate) {
 	Ethernet* eth = pkt->head_data<Ethernet*>();
 	if(!isIP(eth))
-		return forward_mac(eth->dst_addr, ogate);
+		return forward_mac(eth, ogate);
 
 	Ipv4* ip = reinterpret_cast<Ipv4*>(eth + 1);
 	auto search = _entries.find(ip->dst);
