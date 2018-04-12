@@ -94,12 +94,15 @@ l3.add(prefix='10.0.4.0', prefix_len=24, gate=3)
 
 DyscoPortInc(port=c1) -> DyscoAgentOut(dc=dc) -> bpf0
 DyscoPortInc(port=mb1_0) -> DyscoAgentOut(dc=dc) -> bpf0
+
 DyscoPortInc(port=mb1_1) -> DyscoAgentOut(dc=dc) -> bpf1
 DyscoPortInc(port=mb2_0) -> DyscoAgentOut(dc=dc) -> bpf1
-DyscoPortInc(port=mb2_1) -> DyscoAgentOut(dc=dc) -> bpf1
-DyscoPortInc(port=mb3_0) -> DyscoAgentOut(dc=dc) -> bpf2
-DyscoPortInc(port=mb3_1) -> DyscoAgentOut(dc=dc) -> bpf2
+DyscoPortInc(port=mb3_0) -> DyscoAgentOut(dc=dc) -> bpf1
+
 DyscoPortInc(port=mb4_0) -> DyscoAgentOut(dc=dc) -> bpf2
+DyscoPortInc(port=mb2_1) -> DyscoAgentOut(dc=dc) -> bpf2
+DyscoPortInc(port=mb3_1) -> DyscoAgentOut(dc=dc) -> bpf2
+
 DyscoPortInc(port=mb4_1) -> DyscoAgentOut(dc=dc) -> bpf3
 DyscoPortInc(port=s1) -> DyscoAgentOut(dc=dc) -> bpf3
 
