@@ -39,6 +39,12 @@ bool EtherSwitch::isBroadcast(bess::Packet* pkt, gate_idx_t igate, gate_idx_t* o
 	return true;
 }
 
+/*bool EtherSwitch::isModified(bess::Packet* pkt) {	
+	uint32_t val = get_attr_with_offset<uint32_t>(0, pkt);
+
+	return val == 1;
+	}*/
+
 void EtherSwitch::ProcessBatch(bess::PacketBatch* batch) {
 	size_t ngates_;
 	gate_idx_t ogate;
