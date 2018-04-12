@@ -73,9 +73,13 @@ bool FixMac::forward(bess::Packet* pkt, gate_idx_t* ogate) {
 	auto search = _entries.find(ip->dst);
 	if(search == _entries.end())
 		return false;
-
-	*ogate = search->second.gate;
 	eth->dst_addr = search->second.addr;
+
+	search = _entries.find(ip->src);
+	if(search == _entries.end())
+		return false;
+	
+	*ogate = search->second.gate;
 	return true;
 }
 
