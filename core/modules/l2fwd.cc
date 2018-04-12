@@ -1,7 +1,7 @@
 #include "l2fwd.h"
 
 const Commands L2FWD::cmds = {
-	{"add", "L2FWDCommandAddArg", MODULE_CMD_FUND(&L2FWD::CommandAdd),
+	{"add", "L2FWDCommandAddArg", MODULE_CMD_FUNC(&L2FWD::CommandAdd),
 	 Command::THREAD_UNSAFE}
 };
 
