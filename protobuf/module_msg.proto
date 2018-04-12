@@ -1209,5 +1209,5 @@ message FixMacArg {
 message FixMacCommandAddArg {
 	string mac_addr = 1;
 	string ip_addr  = 2;
-	uint32_t gate   = 3;
+	uint32   gate   = 3;
 }
