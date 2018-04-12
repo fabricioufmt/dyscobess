@@ -1217,5 +1217,5 @@ message L2FWDArg {
 
 message L2FWDCommandAddArg {
 	string mac_addr = 1;
-	uint32_t gate = 2;
+	uint32 gate = 2;
 }
