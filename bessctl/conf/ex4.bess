@@ -60,21 +60,21 @@ bpf4::BPF()
 bpf4.add(filters=[{'priority': -20, 'filter':'arp', 'gate': 0}])
 bpf4.add(filters=[{'priority': -18, 'filter': 'ip', 'gate': 1}])
 
-l2_1::L2Forward()
+l2_1::L2FWD()
 l2_1.add(entries=[
 	{'addr':'00:00:00:00:00:11', 'gate':0},
 	{'addr':'00:00:00:00:00:12', 'gate':1}])
-l2_2::L2Forward()
+l2_2::L2FWD()
 l2_2.add(entries=[
 	{'addr':'00:00:00:00:00:21', 'gate':0},
 	{'addr':'00:00:00:00:00:22', 'gate':1},
 	{'addr':'00:00:00:00:00:23', 'gate':2}])
-l2_3::L2Forward()
+l2_3::L2FWD()
 l2_3.add(entries=[
 	{'addr':'00:00:00:00:00:31', 'gate':0},
 	{'addr':'00:00:00:00:00:32', 'gate':1},
 	{'addr':'00:00:00:00:00:33', 'gate':2}])
-l2_4::L2Forward()	     
+l2_4::L2FWD()	     
 l2_4.add(entries=[
 	{'addr':'00:00:00:00:00:41', 'gate':0},
 	{'addr':'00:00:00:00:00:42', 'gate':1}])
