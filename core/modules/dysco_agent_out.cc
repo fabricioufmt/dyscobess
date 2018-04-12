@@ -285,7 +285,7 @@ DyscoHashOut* DyscoAgentOut::pick_path_ack(Tcp* tcp, DyscoHashOut* cb_out) {
 }
 
 //L.585
-bool DyscoAgentOut::out_translate(bess::Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) {
+bool DyscoAgentOut::out_translate(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) {
 	size_t ip_hlen = ip->header_length << 2;
 	size_t tcp_hlen = tcp->offset << 2;
 	uint32_t seg_sz = ip->length.value() - ip_hlen - tcp_hlen;
@@ -326,7 +326,13 @@ bool DyscoAgentOut::out_translate(bess::Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOu
 	if(cb_out->ws_ok)
 		out_rewrite_rcv_wnd(tcp, cb_out);
 
-	dc->out_hdr_rewrite(ip, tcp, &cb_out->sub);
+	//dc->out_hdr_rewrite(ip, tcp, &cb_out->sub);
+	if(dc->out_hdr_rewrite(ip, tcp, &cb_out->sub)) {
+		uint32_t val = 1;
+		const void* val_ptr = &val;
+		void* mt_ptr = _ptr_attr_with_offset<value_t>>(0, pkt);
+		bess::utils::CopySmall(mt_ptr, val_ptr, sizeof(uint32_t));
+	}
 	
 	return true;
 }
