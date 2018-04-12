@@ -151,3 +151,7 @@ l2_4:0 -> din8
 l3:8 -> din8
 l2_4:1 -> din9
 l3:9 -> din9
+
+dc.add(priority=1, sc_len=3, chain=['10.0.2.2', '10.0.3.1', '10.0.4.1'], filter='dst port 5001', ns='/var/run/netns/mb1')
+dc.add(priority=2, sc_len=3, chain=['10.0.2.3', '10.0.3.1', '10.0.4.1'], filter='dst port 5002', ns='/var/run/netns/mb1')
+dc.add(priority=3, sc_len=3, chain=['10.0.3.1', '10.0.4.1'], filter='dst port 5003', ns='/var/run/netns/mb1')
