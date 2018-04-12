@@ -35,7 +35,7 @@ bool L2FWD::isKnown(Ethernet::Address mac_addr) {
 }
 
 void L2FWD::ProcessBatch(bess::PacketBatch* batch) {
-	gate_idx_t igate = get_igate();
+	gate_idx_t igate;
 	size_t ngates = ogates().size();
 	bess::PacketBatch out_gates[ngates];
 
@@ -49,11 +49,14 @@ void L2FWD::ProcessBatch(bess::PacketBatch* batch) {
 		eth = pkt->head_data<Ethernet*>();
 		
 		if(isBroadcast(eth->dst_addr)) {
-			for(uint32_t j = 0; j < ngates; j++) {
-				if(j == igate)
-					continue;
-
-				out_gates[j].add(bess::Packet::copy(pkt));
+			if(isKnown(eth->src_addr)) {
+				igate = _entries[eth->src_addr];
+				for(uint32_t j = 0; j < ngates; j++) {
+					if(j == igate)
+						continue;
+					
+					out_gates[j].add(bess::Packet::copy(pkt));
+				}
 			}
 		} else {
 			if(isKnown(eth->dst_addr))
