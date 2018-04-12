@@ -121,8 +121,10 @@ fix_mac0:0 -> 0:l2_0
 fix_mac0:1 -> 1:l2_0
 fix_mac1:0 -> 0:l2_1
 fix_mac1:1 -> 1:l2_1
+fix_mac1:2 -> 1:l2_2
 fix_mac2:0 -> 0:l2_2
 fix_mac2:1 -> 1:l2_2
+fix_mac2:2 -> 1:l2_3
 fix_mac3:0 -> 0:l2_3
 fix_mac3:1 -> 1:l2_3
 
