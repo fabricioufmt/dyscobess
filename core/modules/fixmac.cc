@@ -29,13 +29,10 @@ CommandResponse FixMac::CommandAdd(const bess::pb::FixMacCommandAddArg& arg) {
 }
 
 bool FixMac::isBroadcast(Ethernet::Address dst_addr) {
-	for(uint32_t i = 0; i < Ethernet::Address::kSize; i++) {
-		fprintf(stderr, "byte: %x\n", dst_addr.bytes[i]);
-		if(dst_addr.bytes[i] != -128)
-			return false;
-	}
+	Ethernet::Address broadcast;
+	broadcast.FromString("ff:ff:ff:ff:ff:ff");
 
-	return true;
+	return dst_addr == broadcast;
 }
 
 bool FixMac::forward_mac(Ethernet* eth, gate_idx_t* ogate) {
@@ -43,28 +40,27 @@ bool FixMac::forward_mac(Ethernet* eth, gate_idx_t* ogate) {
 	gate_idx_t igate = 0;
 	Ethernet::Address src_addr = eth->src_addr;
 	Ethernet::Address dst_addr = eth->dst_addr;
-	fprintf(stderr, "forward_mac\n");
+	
 	for(auto it = _entries.begin(); it != _entries.end(); it++) {
 		if(it->second.addr == dst_addr) {
 			*ogate = it->second.gate;
-			fprintf(stderr, "is true\n");
+			
 			return true;
 		}
 		//Just for Broadcast case
 		if(it->second.addr == src_addr) {
 			igate = it->second.gate;
 			flag = true;
-			fprintf(stderr, "flag is true\n");
 		}
 	}
 
 	//TEST
 	if(isBroadcast(dst_addr) && flag) {
 		*ogate = igate;
-		fprintf(stderr, "is true\n");
+		fprintf(stderr, "is broadcast\n");
 		return true;
 	}
-	fprintf(stderr, "is false\n");
+
 	return false;
 }
 
