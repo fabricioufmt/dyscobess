@@ -1211,3 +1211,11 @@ message FixMacCommandAddArg {
 	string ip_addr  = 2;
 	uint32   gate   = 3;
 }
+
+message L2FWDArg {
+}
+
+message L2FWDCommandAddArg {
+	string mac_addr = 1;
+	uint32_t gate = 2;
+}

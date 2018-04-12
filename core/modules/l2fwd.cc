@@ -44,7 +44,7 @@ void L2FWD::ProcessBatch(bess::PacketBatch* batch) {
 
 	Ethernet* eth;
 	bess::Packet* pkt;
-	for(int i = 0; i < batch->cnt; i++) {
+	for(int i = 0; i < batch->cnt(); i++) {
 		pkt = batch->pkts()[i];
 		eth = pkt->head_data<Ethernet*>();
 		
