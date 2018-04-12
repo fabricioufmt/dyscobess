@@ -70,17 +70,28 @@ bool FixMac::forward(bess::Packet* pkt, gate_idx_t* ogate) {
 		return forward_mac(eth, ogate);
 
 	Ipv4* ip = reinterpret_cast<Ipv4*>(eth + 1);
+	
 	auto search = _entries.find(ip->dst);
 	if(search == _entries.end())
 		return false;
 	eth->dst_addr = search->second.addr;
-
+	
+	/*
 	search = _entries.find(ip->src);
 	if(search == _entries.end())
 		return false;
 	
 	*ogate = search->second.gate;
 	return true;
+	*/
+	for(auto it = _entries.begin(); it != _entries.end(); it++) {
+		if(it->second.addr == eth->src_addr) {
+			*ogate = it->second.gate;
+			return true;
+		}
+	}
+
+	return false;
 }
 
 void FixMac::ProcessBatch(bess::PacketBatch* batch) {
