@@ -57,8 +57,8 @@ bool FixMac::forward_mac(Ethernet* eth, gate_idx_t* ogate) {
 	//TEST
 	if(isBroadcast(dst_addr) && flag) {
 		*ogate = igate;
-		fprintf(stderr, "is broadcast\n");
-		return true;
+		fprintf(stderr, "is broadcast sending on %u gate\n", igate);
+		return true; 
 	}
 
 	return false;
