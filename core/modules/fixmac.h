@@ -5,8 +5,10 @@
 
 #include "../module.h"
 #include "../utils/ether.h"
+#include "../utils/endian.h"
 #include "../pb/module_msg.pb.h"
 
+using bess::utils::be32_t;
 using bess::utils::Ethernet;
 
 struct mac_entry {
