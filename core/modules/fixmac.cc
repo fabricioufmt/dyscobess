@@ -39,7 +39,7 @@ bool FixMac::forward_mac(Ethernet::Address dst_addr, gate_idx_t* ogate) {
 }
 
 bool FixMac::forward(bess::Packet* pkt, gate_idx_t* ogate) {
-	Ethernet* eth = pkt->head_date<Ethernet*>();
+	Ethernet* eth = pkt->head_data<Ethernet*>();
 	if(!isIP(eth))
 		return forward_mac(eth->dst_addr, ogate);
 
