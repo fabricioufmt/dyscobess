@@ -123,13 +123,13 @@ dout7 -> bpf3
 dout8 -> bpf4
 dout9 -> bpf4
 
-bpf1:0 -> l1_1
+bpf1:0 -> l2_1
 bpf1:1 -> l3
-bpf2:0 -> l2_1
+bpf2:0 -> l2_2
 bpf2:1 -> l3
-bpf3:0 -> l3_1
+bpf3:0 -> l2_3
 bpf3:1 -> l3
-bpf4:0 -> l4_1
+bpf4:0 -> l2_4
 bpf4:1 -> l3
 
 l2_1:0 -> din0
