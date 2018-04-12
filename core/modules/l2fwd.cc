@@ -49,16 +49,19 @@ void L2FWD::ProcessBatch(bess::PacketBatch* batch) {
 		eth = pkt->head_data<Ethernet*>();
 		
 		if(isBroadcast(eth->dst_addr)) {
+			fprintf(stderr, "it's broadcast packet\n");
 			if(isKnown(eth->src_addr)) {
 				igate = _entries[eth->src_addr];
 				for(uint32_t j = 0; j < ngates; j++) {
+					fprintf(stderr, "gate: %u\n", j);
 					if(j == igate)
 						continue;
-					
+					fprintf(stderr, "add gate: %u\n", j);
 					out_gates[j].add(bess::Packet::copy(pkt));
 				}
 			}
 		} else {
+			fprintf(stderr, "it ins't broadcast packet\n");
 			if(isKnown(eth->dst_addr))
 				out_gates[_entries[eth->dst_addr]].add(bess::Packet::copy(pkt));
 		}
