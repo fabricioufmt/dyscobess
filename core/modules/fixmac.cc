@@ -36,10 +36,10 @@ bool FixMac::isBroadcast(Ethernet::Address dst_addr) {
 }
 
 bool FixMac::forward_mac(Ethernet* eth, gate_idx_t* ogate) {
-	bool flag = false;
-	gate_idx_t igate = 0;
+	//bool flag = false;
+	//gate_idx_t igate = 0;
 	Ethernet::Address src_addr = eth->src_addr;
-	Ethernet::Address dst_addr = eth->dst_addr;
+	//Ethernet::Address dst_addr = eth->dst_addr;
 
 	for(auto it = _entries.begin(); it != _entries.end(); it++) {
 		if(it->second.addr == src_addr) {
