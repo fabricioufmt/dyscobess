@@ -53,6 +53,7 @@ bool FixMac::forward_mac(Ethernet* eth, gate_idx_t* ogate) {
 		if(it->second.addr == src_addr) {
 			igate = it->second.gate;
 			flag = true;
+			fprintf(stderr, "flag is true\n");
 		}
 	}
 
