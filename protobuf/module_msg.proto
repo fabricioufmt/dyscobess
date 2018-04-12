@@ -1203,7 +1203,7 @@ message EtherSwitchCommandDelArg {
 }
 
 message FixMacArg {
-	uint32_t gates = 1;
+	uint32 gates = 1;
 }
 
 message FixMacCommandAddArg {
