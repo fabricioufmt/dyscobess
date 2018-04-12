@@ -42,11 +42,11 @@ bool FixMac::forward_mac(Ethernet* eth, gate_idx_t* ogate) {
 	gate_idx_t igate = 0;
 	Ethernet::Address src_addr = eth->src_addr;
 	Ethernet::Address dst_addr = eth->dst_addr;
-	
+	fprintf(stderr, "forward_mac\n");
 	for(auto it = _entries.begin(); it != _entries.end(); it++) {
 		if(it->second.addr == dst_addr) {
 			*ogate = it->second.gate;
-			
+			fprintf(stderr, "is true\n");
 			return true;
 		}
 		//Just for Broadcast case
@@ -59,10 +59,10 @@ bool FixMac::forward_mac(Ethernet* eth, gate_idx_t* ogate) {
 	//TEST
 	if(isBroadcast(dst_addr) && flag) {
 		*ogate = igate;
-
+		fprintf(stderr, "is true\n");
 		return true;
 	}
-
+	fprintf(stderr, "is false\n");
 	return false;
 }
 
