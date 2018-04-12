@@ -20,6 +20,7 @@ struct mac_entry {
 
 class FixMac final : public Module {
  public:
+	static const gate_idx_t kNumIGates = 2;
 	static const gate_idx_t kNumOGates = MAX_GATES;
 	static const Commands cmds;
 
