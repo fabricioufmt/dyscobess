@@ -693,7 +693,7 @@ bool DyscoAgentIn::control_config_rightA(DyscoCbReconfig* rcb, DyscoControlMessa
 
 bool DyscoAgentIn::control_reconfig_in(Ipv4* ip, DyscoCbReconfig* rcb, DyscoControlMessage* cmsg) {
 #ifdef DEBUG_RECONFIG
-	fprintf(stderr, "control_reconfig_in method\n");
+	fprintf(stderr, "[%s][DyscoAgentIn-Control] control_reconfig_in method\n", ns.c_str());
 #endif
 	DyscoHashIn* cb_in = new DyscoHashIn();
 
@@ -705,7 +705,7 @@ bool DyscoAgentIn::control_reconfig_in(Ipv4* ip, DyscoCbReconfig* rcb, DyscoCont
 	DyscoHashOut* cb_out = build_cb_in_reverse(ip, rcb);
 	if(!cb_out) {
 #ifdef DEBUG_RECONFIG
-		fprintf(stderr, "build_cb_in_reverse method returns NULL\n");
+		fprintf(stderr, "[%s][DyscoAgentIn-Control] build_cb_in_reverse method returns NULL\n", ns.c_str());
 #endif
 		delete cb_in;
 		dc->remove_reconfig(this->index, rcb);
@@ -713,24 +713,24 @@ bool DyscoAgentIn::control_reconfig_in(Ipv4* ip, DyscoCbReconfig* rcb, DyscoCont
 		return false;
 	}
 #ifdef DEBUG_RECONFIG
-	fprintf(stderr, "build_cb_in_reverse method returns not NULL\n");
+	fprintf(stderr, "[%s][DyscoAgentIn-Control] build_cb_in_reverse method returns not NULL\n", ns.c_str());
 #endif
 	cb_out->dcb_in = cb_in;
 	cb_in->dcb_out = cb_out;
 
 	if(ip->dst.value() == ntohl(cmsg->rightA)) {
 #ifdef DEBUG_RECONFIG
-		fprintf(stderr, "ip->dst.value()[%s] == cmsg->rightA[%s]\n",
-			printip1(ip->dst.value()),
-			printip1(ntohl(cmsg->rightA)));
+		fprintf(stderr, "[%s][DyscoAgentIn-Control] ip->dst.value()[%s] == cmsg->rightA[%s]\n",
+			ns.c_str(),
+			printip1(ip->dst.value()), printip1(ntohl(cmsg->rightA)));
 #endif	
 		if(!control_config_rightA(rcb, cmsg, cb_in, cb_out))
 			return false;
 	} else {
 #ifdef DEBUG_RECONFIG
-		fprintf(stderr, "ip->dst.value()[%s] != cmsg->rightA[%s]\n",
-			printip1(ip->dst.value()),
-			printip1(ntohl(cmsg->rightA)));
+		fprintf(stderr, "[%s][DyscoAgentIn-Control] ip->dst.value()[%s] != cmsg->rightA[%s]\n",
+			ns.c_str(),
+			printip1(ip->dst.value()), printip1(ntohl(cmsg->rightA)));
 #endif	
 		cb_in->sup = rcb->super;
 		cb_in->out_iseq = rcb->leftIseq;
@@ -753,12 +753,12 @@ bool DyscoAgentIn::control_reconfig_in(Ipv4* ip, DyscoCbReconfig* rcb, DyscoCont
 
 		cb_out->sack_ok = cb_in->sack_ok = rcb->sack_ok;
 #ifdef DEBUG_RECONFIG
-		fprintf(stderr, "Calling dc->insert_hash_output method\n");
+		fprintf(stderr, "[%s][DyscoAgentIn-Control] insert_hash_output method\n", ns.c_str());
 #endif
 		dc->insert_hash_output(this->index, cb_out);
 	}
 #ifdef DEBUG_RECONFIG
-	fprintf(stderr, "Calling dc->insert_hash_input method\n");
+	fprintf(stderr, "[%s][DyscoAgentIn-Control] insert_hash_input method\n", ns.c_str());
 #endif
 	dc->insert_hash_input(this->index, cb_in);
 
@@ -771,36 +771,36 @@ bool DyscoAgentIn::control_input(Ipv4* ip, Tcp*, uint8_t* payload) {
 	DyscoCbReconfig* rcb;
 
 	cmsg = reinterpret_cast<DyscoControlMessage*>(payload);
-	
+
 	switch(cmsg->mtype) {
 	case DYSCO_SYN:
 #ifdef DEBUG_RECONFIG
-		fprintf(stderr, "DYSCO_SYN message.\n");
+		fprintf(stderr, "[%s][DyscoAgentIn-Control] DYSCO_SYN message.\n", ns.c_str());
 #endif
 		rcb = dc->lookup_reconfig_by_ss(this->index, &cmsg->super);
 
 		if(rcb) {
 #ifdef DEBUG_RECONFIG
-			fprintf(stderr, "lookup_reconfig_by_ss method returns TRUE.\n");
+			fprintf(stderr, "[%s][DyscoAgentIn-Control] lookup_reconfig_by_ss method returns TRUE.\n", ns.c_str());
 #endif
 			return true;
 		}
 #ifdef DEBUG_RECONFIG
 		else {
-			fprintf(stderr, "lookup_reconfig_by_ss method returns FALSE.\n");
+			fprintf(stderr, "[%s][DyscoAgentIn-Control] lookup_reconfig_by_ss method returns FALSE.\n", ns.c_str());
 		}
 #endif
 
 		rcb = insert_rcb_control_input(ip, cmsg);
 		if(!rcb) {
 #ifdef DEBUG_RECONFIG
-			fprintf(stderr, "insert_rcb_control_input method returns FALSE.\n");
+			fprintf(stderr, "[%s][DyscoAgentIn-Control] insert_rcb_control_input method returns FALSE.\n", ns.c_str());
 #endif			
 			return false;
 		}
 #ifdef DEBUG_RECONFIG
 		else {
-			fprintf(stderr, "insert_rcb_control_input method returns TRUE.\n");
+			fprintf(stderr, "[%s][DyscoAgentIn-Control]insert_rcb_control_input method returns TRUE.\n", ns.c_str());
 		}
 #endif		
 
