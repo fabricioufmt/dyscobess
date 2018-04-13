@@ -379,9 +379,10 @@ bool DyscoAgentOut::out_translate(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHa
 			eth->dst_addr = mac2;
 		else if(ip->dst.value() == iip3.value())
 			eth->dst_addr = mac3;
-		else if(ip->dst.value() == iip4.value())
+		else if(ip->dst.value() == iip4.value()) {
 			eth->dst_addr = mac4;
-		else if(ip->dst.value() == iip5.value())
+			fprintf(stderr, "mac4 and iip4\n");
+		} else if(ip->dst.value() == iip5.value())
 			eth->dst_addr = mac5;
 		else if(ip->dst.value() == iip6.value())
 			eth->dst_addr = mac6;
