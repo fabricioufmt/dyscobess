@@ -7,8 +7,6 @@
 
 #define DEBUG 1
 
-using bess::utils::be32_t;
-
 //debug
 char* printip2(uint32_t ip) {
 	uint8_t bytes[4];
@@ -372,39 +370,28 @@ bool DyscoAgentOut::out_translate(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHa
 		mac9.FromString("00:00:00:00:00:42");
 
 		Ethernet* eth = pkt->head_data<Ethernet*>();
-		
-		switch(ip->dst.value()) {
-		case iip0.value():
+
+		if(ip->dst.value() == iip0.value())
 			eth->dst_addr = mac0;
-			break;
-		case iip1.value():
+		else if(ip->dst.value() == iip1.value())
 			eth->dst_addr = mac1;
-			break;
-		case iip2.value():
+		else if(ip->dst.value() == iip2.value())
 			eth->dst_addr = mac2;
-			break;
-		case iip3.value():
+		else if(ip->dst.value() == iip3.value())
 			eth->dst_addr = mac3;
-			break;
-		case iip4.value():
+		else if(ip->dst.value() == iip4.value())
 			eth->dst_addr = mac4;
-			break;
-		case iip5.value():
+		else if(ip->dst.value() == iip5.value())
 			eth->dst_addr = mac5;
-			break;
-		case iip6.value():
+		else if(ip->dst.value() == iip6.value())
 			eth->dst_addr = mac6;
-			break;
-		case iip7.value():
+		else if(ip->dst.value() == iip7.value())
 			eth->dst_addr = mac7;
-			break;
-		case iip8.value():
+		else if(ip->dst.value() == iip8.value())
 			eth->dst_addr = mac8;
-			break;
-		case iip9.value():
+		else if(ip->dst.value() == iip9.value())
 			eth->dst_addr = mac9;
-			break;
-		default:
+		else
 			fprintf(stderr, "not change\n");
 		}
 	}
