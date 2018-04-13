@@ -371,35 +371,35 @@ bool DyscoAgentOut::out_translate(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHa
 
 		Ethernet* eth = pkt->head_data<Ethernet*>();
 		
-		switch(ip->dst) {
-		case iip0:
+		switch(ip->dst.value()) {
+		case iip0.value():
 			eth->dst_addr = mac0;
 			break;
-		case iip1:
+		case iip1.value():
 			eth->dst_addr = mac1;
 			break;
-		case iip2:
+		case iip2.value():
 			eth->dst_addr = mac2;
 			break;
-		case iip3:
+		case iip3.value():
 			eth->dst_addr = mac3;
 			break;
-		case iip4:
+		case iip4.value():
 			eth->dst_addr = mac4;
 			break;
-		case iip5:
+		case iip5.value():
 			eth->dst_addr = mac5;
 			break;
-		case iip6:
+		case iip6.value():
 			eth->dst_addr = mac6;
 			break;
-		case iip7:
+		case iip7.value():
 			eth->dst_addr = mac7;
 			break;
-		case iip8:
+		case iip8.value():
 			eth->dst_addr = mac8;
 			break;
-		case iip9:
+		case iip9.value():
 			eth->dst_addr = mac9;
 			break;
 		default:
