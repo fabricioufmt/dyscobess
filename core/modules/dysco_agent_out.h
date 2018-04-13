@@ -17,6 +17,8 @@
 #include "../utils/endian.h"
 #include "../utils/checksum.h"
 
+#define DYSCO_MAC "00:00:00:00:00:00"
+
 using bess::utils::Tcp;
 using bess::utils::Ipv4;
 using bess::utils::Ethernet;

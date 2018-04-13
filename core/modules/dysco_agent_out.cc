@@ -82,10 +82,12 @@ void DyscoAgentOut::ProcessBatch(bess::PacketBatch* batch) {
 	if(dc) {
 		int cnt = batch->cnt();
 		
-		bess::Packet* pkt = 0;
+		bess::Packet* pkt;
 		for(int i = 0; i < cnt; i++) {
 			pkt = batch->pkts()[i];
-			output(pkt);
+			if(output(pkt))
+				dysco_packet(pkt->head_data<Ethernet*>());
+			
 			/*
 			if(output(pkt))
 				process_ethernet(pkt);
@@ -763,6 +765,10 @@ void DyscoAgentOut::process_ethernet(bess::Packet* pkt) {
 		fprintf(stderr, "%X:", dst_ether[i]);
 	fprintf(stderr, "%X.\n", dst_ether[5]);
 #endif
+}
+
+void DyscoAgentOut::dysco_packet(Ethernet* eth) {
+	eth->dst_addr.FromString(DYSCO_MAC);
 }
 
 ADD_MODULE(DyscoAgentOut, "dysco_agent_out", "processes packets outcoming from host")
