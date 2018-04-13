@@ -20,6 +20,13 @@ char* printip1(uint32_t ip) {
         return buf;
 }
 
+void print_out1(std::string ns, Ipv4* ip, Tcp* tcp) {
+	fprintf(stderr, "[%s][DyscoAgentIn] forwards %s:%u -> %s:%u\n\n",
+		ns.c_str(),
+		printip1(ip->src.value()), tcp->src_port.value(),
+		printip1(ip->dst.value()), tcp->dst_port.value());
+}
+
 DyscoAgentIn::DyscoAgentIn() : Module() {
 	dc = 0;
 	devip = 0;
@@ -70,7 +77,7 @@ bool DyscoAgentIn::get_port_information() {
 	if(info_flag)
 		return true;
 	
-	gate_idx_t ogate_idx = 0; //always 1 output gate (DyscoVPortOut)
+	gate_idx_t ogate_idx = 0; //always 1 output gate (DyscoPortOut)
 
 	if(!is_active_gate<bess::OGate>(ogates(), ogate_idx))
 		return false;
@@ -296,12 +303,6 @@ bool DyscoAgentIn::rx_initiation_new(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 		in_hdr_rewrite(ip, tcp, &cb_in->sup);
 	}
 	
-#ifdef DEBUG
-	fprintf(stderr, "[%s][DyscoAgentIn](end of rx_initiation_new): %s:%u -> %s:%u\n\n",
-		ns.c_str(),
-		printip1(ip->src.value()), tcp->src_port.value(),
-		printip1(ip->dst.value()), tcp->dst_port.value());
-#endif
 	return true;
 }
 
@@ -417,22 +418,24 @@ bool DyscoAgentIn::input(bess::Packet* pkt) {
 #endif
 	if(isReconfigPacket(ip, tcp)) {
 #ifdef DEBUG_RECONFIG
-		fprintf(stderr, "It's a reconfig packet\n");
+		fprintf(stderr, "[%s][DyscoAgentIn] receives a reconfig packet, calls control_input method.\n", ns.c_str());
 #endif
 		return control_input(ip, tcp, reinterpret_cast<uint8_t*>(tcp) + tcp_hlen);
-	} else {
-#ifdef DEBUG_RECONFIG
-		fprintf(stderr, "It isn't a reconfig packet\n");
-#endif		
 	}
 	
 	DyscoHashIn* cb_in = dc->lookup_input(this->index, ip, tcp);
 	if(!cb_in) {
 		if(isTCPSYN(tcp) && hasPayload(ip, tcp)) {
 #ifdef DEBUG
-			fprintf(stderr, "[%s][DyscoAgentIn] new connection with payload\n", ns.c_str());
+			fprintf(stderr, "[%s][DyscoAgentIn] receives a TCP SYN+PAYLOAD segment\n", ns.c_str());
 #endif
-			return rx_initiation_new(pkt, ip, tcp);
+			bool retvalue = rx_initiation_new(pkt, ip, tcp);
+
+#ifdef DEBUG
+			print_out1(ns, ip, tcp);
+#endif
+
+			return retvalue;
 		}
 		
 		return false;
@@ -442,19 +445,19 @@ bool DyscoAgentIn::input(bess::Packet* pkt) {
 		if(isTCPACK(tcp)) {
 			set_ack_number_out(this->index, tcp, cb_in);
 			in_hdr_rewrite_csum(ip, tcp, cb_in);
-			
 		} else {
 			//It is retransmission packet, just remove sc (if there is) and insert Dysco Tag
 			if(hasPayload(ip, tcp)) {
 #ifdef DEBUG
-				fprintf(stderr, "[%s][DyscoAgentIn] it's retransmission of TCP SYN w payload\n", ns.c_str());
+				fprintf(stderr, "[%s][DyscoAgentIn] receives a TCP SYN+PAYLOAD retransmission segment.\n", ns.c_str());
 #endif
 				remove_sc(pkt, ip, tcp);
 				dc->insert_tag(this->index, pkt, ip, tcp);
 				in_hdr_rewrite(ip, tcp, &cb_in->sup);
 			}
 		}
-
+		
+		print_out1(ns, ip, tcp);
 		return false;
 	}
 
@@ -469,10 +472,7 @@ bool DyscoAgentIn::input(bess::Packet* pkt) {
 	in_hdr_rewrite(ip, tcp, &cb_in->sup);
 
 #ifdef DEBUG
-	fprintf(stderr, "[%s][DyscoAgentIn](OUT): %s:%u -> %s:%u\n",
-		ns.c_str(),
-		printip1(ip->src.value()), tcp->src_port.value(),
-		printip1(ip->dst.value()), tcp->dst_port.value());
+	print_out1(ns, ip, tcp);
 #endif
 	return true;
 }
