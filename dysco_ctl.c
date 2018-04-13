@@ -291,12 +291,12 @@ int create_message_reconfig(struct tcp_session* supss, uint32_t sc_len, uint32_t
 
 	tcp_program(sockfd, sendbuf, tx_len, &sock_addr);
 
-	fprintf(stdout, "OK.\n");
+	printf("OK.\n");
 }
 
 //TODO: TCP state diagram (ie. retransmission, timer, etc.)
 void tcp_program(uint32_t sockfd, unsigned char* sendbuf, uint32_t len, struct sockaddr_ll* sock_addr) {
-	fprintf(stdout, "%d bytes... ", len);
+	printf("sending %d bytes... ", len);
 	
 	if(sendto(sockfd, sendbuf, len, 0, (struct sockaddr*) sock_addr, sizeof(struct sockaddr_ll)) < 0)
 		perror("send failed");
@@ -434,7 +434,7 @@ uint32_t get_srcip(uint32_t* destip, int32_t* ifindex) {
 		if(hostip) {
 			freeifaddrs(ifaddr);
 			close(sockfd);
-			printf("Sending through %s interface with %s as source address with ", iface, hostip);
+			printf("Sending through %s interface with %s address.\n", iface, hostip);
 			return inet_addr(hostip);			
 		}	
 	}
