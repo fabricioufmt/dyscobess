@@ -371,6 +371,8 @@ bool DyscoAgentOut::out_translate(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHa
 
 		Ethernet* eth = pkt->head_data<Ethernet*>();
 
+		fprintf(stderr, "IP dst: %s\n", bess::utils::ToIpv4Address(ip->dst).c_str());
+		
 		if(ip->dst.value() == iip0.value())
 			eth->dst_addr = mac0;
 		else if(ip->dst.value() == iip1.value())
