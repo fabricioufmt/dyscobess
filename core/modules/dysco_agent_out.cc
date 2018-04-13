@@ -312,10 +312,99 @@ bool DyscoAgentOut::out_translate(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHa
 
 	//dc->out_hdr_rewrite(ip, tcp, &cb_out->sub);
 	if(dc->out_hdr_rewrite(ip, tcp, &cb_out->sub)) {
+		/*
 		uint32_t val = 1;
 		const void* val_ptr = &val;
 		void* mt_ptr = _ptr_attr_with_offset<value_t>(0, pkt);
 		bess::utils::CopySmall(mt_ptr, val_ptr, sizeof(uint32_t));
+		*/
+		std::string ip0("10.0.1.1");
+		std::string ip1("10.0.1.2");
+		std::string ip2("10.0.2.1");
+		std::string ip3("10.0.2.2");
+		std::string ip4("10.0.2.3");
+		std::string ip5("10.0.3.1");
+		std::string ip6("10.0.3.2");
+		std::string ip7("10.0.3.3");
+		std::string ip8("10.0.4.1");
+		std::string ip9("10.0.4.2");
+		be32_t iip0;
+		be32_t iip1;
+		be32_t iip2;
+		be32_t iip3;
+		be32_t iip4;
+		be32_t iip5;
+		be32_t iip6;
+		be32_t iip7;
+		be32_t iip8;
+		be32_t iip9;
+		bess::utils::ParseIpv4Address(ip0, &iip0);
+		bess::utils::ParseIpv4Address(ip1, &iip1);
+		bess::utils::ParseIpv4Address(ip2, &iip2);
+		bess::utils::ParseIpv4Address(ip3, &iip3);
+		bess::utils::ParseIpv4Address(ip4, &iip4);
+		bess::utils::ParseIpv4Address(ip5, &iip5);
+		bess::utils::ParseIpv4Address(ip6, &iip6);
+		bess::utils::ParseIpv4Address(ip7, &iip7);
+		bess::utils::ParseIpv4Address(ip8, &iip8);
+		bess::utils::ParseIpv4Address(ip9, &iip9);
+		Ethernet::Address mac0;
+		Ethernet::Address mac1;
+		Ethernet::Address mac2;
+		Ethernet::Address mac3;
+		Ethernet::Address mac4;
+		Ethernet::Address mac5;
+		Ethernet::Address mac6;
+		Ethernet::Address mac7;
+		Ethernet::Address mac8;
+		Ethernet::Address mac9;
+		mac0.FromString("00:00:00:00:00:11");
+		mac1.FromString("00:00:00:00:00:12");
+		mac2.FromString("00:00:00:00:00:21");
+		mac3.FromString("00:00:00:00:00:22");
+		mac4.FromString("00:00:00:00:00:23");
+		mac5.FromString("00:00:00:00:00:31");
+		mac6.FromString("00:00:00:00:00:32");
+		mac7.FromString("00:00:00:00:00:33");
+		mac8.FromString("00:00:00:00:00:41");
+		mac9.FromString("00:00:00:00:00:42");
+
+		Ethernet* eth = pkt->head_data<Ethernet*>();
+		
+		switch(ip->dst) {
+		case iip0:
+			eth->dst_addr = mac0;
+			break;
+		case iip1:
+			eth->dst_addr = mac1;
+			break;
+		case iip2:
+			eth->dst_addr = mac2;
+			break;
+		case iip3:
+			eth->dst_addr = mac3;
+			break;
+		case iip4:
+			eth->dst_addr = mac4;
+			break;
+		case iip5:
+			eth->dst_addr = mac5;
+			break;
+		case iip6:
+			eth->dst_addr = mac6;
+			break;
+		case iip7:
+			eth->dst_addr = mac7;
+			break;
+		case iip8:
+			eth->dst_addr = mac8;
+			break;
+		case iip9:
+			eth->dst_addr = mac9;
+			break;
+		default:
+			fprintf(stderr, "not change\n");
+		}
 	}
 	
 	return true;
