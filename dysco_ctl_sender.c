@@ -81,7 +81,7 @@ int main(int argc, char** argv) {
 	n = write(sockfd, buff, tx_len);
 
 	if(n != -1)
-		fprintf(stdout, "%d bytes as payload... OK", n);
+		fprintf(stdout, "%d bytes as payload... OK\n", n);
 	else
 		fprintf(stdout, "ERROR...\n");
 	
