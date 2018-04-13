@@ -77,7 +77,6 @@ class DyscoAgentOut final : public Module {
 		return ip->length.value() - ip_hlen - tcp_hlen;
 	}
 
-	bool out_hdr_rewrite_csum(Ipv4*, Tcp*, DyscoTcpSession*);
 	bool out_rewrite_seq(Tcp*, DyscoHashOut*);
 	bool out_rewrite_ack(Tcp*, DyscoHashOut*);
 	bool out_rewrite_ts(Tcp*, DyscoHashOut*);

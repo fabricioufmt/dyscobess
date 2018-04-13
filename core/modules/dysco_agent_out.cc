@@ -145,24 +145,6 @@ bool DyscoAgentOut::get_port_information() {
 //L.295
 //out_hdr_rewrite method -- in DyscoCenter
 
-//L.324
-bool DyscoAgentOut::out_hdr_rewrite_csum(Ipv4* ip, Tcp* tcp, DyscoTcpSession* sub) {
-	if(!sub)
-		return false;
-
-	ip->src = be32_t(ntohl(sub->sip));
-	ip->dst = be32_t(ntohl(sub->dip));
-	tcp->src_port = be16_t(ntohs(sub->sport));
-	tcp->dst_port = be16_t(ntohs(sub->dport));
-
-	ip->checksum = 0;
-	tcp->checksum = 0;
-	ip->checksum = bess::utils::CalculateIpv4Checksum(*ip);
-	tcp->checksum = bess::utils::CalculateIpv4TcpChecksum(*ip, *tcp);
-
-	return true;
-}
-
 //L.365
 bool DyscoAgentOut::out_rewrite_seq(Tcp* tcp, DyscoHashOut* cb_out) {
 	if(cb_out->seq_delta) {
