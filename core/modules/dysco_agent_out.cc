@@ -7,6 +7,8 @@
 
 #define DEBUG 1
 
+using bess::utils::be32_t;
+
 //debug
 char* printip2(uint32_t ip) {
 	uint8_t bytes[4];
