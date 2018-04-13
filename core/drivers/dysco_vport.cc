@@ -461,9 +461,11 @@ CommandResponse DyscoVPort::Init(const bess::pb::DyscoVPortArg &arg) {
 			goto fail;
 		}
 		//Dysco
-		memcpy(ns, arg.netns().c_str(), arg.netns().length());
-		std::string ip0 = arg.ip_addrs(0).substr(0, arg.ip_addrs(0).find('/'));
-		inet_pton(AF_INET, ip0.c_str(), &devip);
+		//memcpy(ns, arg.netns().c_str(), arg.netns().length());
+		ns = arg.netns();
+		std::string ip0 = arg.ip_addrs(0);
+		std::string myip = ip0.substr(0, ip0.find('/'));
+		inet_pton(AF_INET, myip.c_str(), &devip);
 	}
 
 	if (arg.rxq_cpus_size() > 0 &&
