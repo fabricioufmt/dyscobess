@@ -1020,8 +1020,6 @@ bool DyscoCenter::out_hdr_rewrite(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoTc
 	mac9.FromString("00:00:00:00:00:42");
 
 	Ethernet* eth = pkt->head_data<Ethernet*>();
-
-	fprintf(stderr, "IP dst: %s\n", bess::utils::ToIpv4Address(ip->dst).c_str());
 		
 	if(ip->dst.value() == iip0.value())
 		eth->dst_addr = mac0;
@@ -1031,10 +1029,9 @@ bool DyscoCenter::out_hdr_rewrite(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoTc
 		eth->dst_addr = mac2;
 	else if(ip->dst.value() == iip3.value())
 		eth->dst_addr = mac3;
-	else if(ip->dst.value() == iip4.value()) {
+	else if(ip->dst.value() == iip4.value())
 		eth->dst_addr = mac4;
-		fprintf(stderr, "mac4 and iip4\n");
-	} else if(ip->dst.value() == iip5.value())
+	else if(ip->dst.value() == iip5.value())
 		eth->dst_addr = mac5;
 	else if(ip->dst.value() == iip6.value())
 		eth->dst_addr = mac6;
