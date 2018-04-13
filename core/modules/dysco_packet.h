@@ -9,8 +9,13 @@
 using bess::utils::Ethernet;
 
 class DyscoPacket final : public Module {
+ private:
+	Ethernet::Address mac_addr;
+	
  public:
- DyscoPacket() : Module() {}
+ DyscoPacket() : Module() {
+		mac_addr.FromString(dysco_mac);
+	}
 
 	static const gate_idx_t kNumIGates = 1;
 	static const gate_idx_t kNumOGates = 2;

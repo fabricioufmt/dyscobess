@@ -6,9 +6,6 @@ void DyscoPacket::ProcessBatch(bess::PacketBatch* batch) {
 	out_gates[0].clear();
 	out_gates[1].clear();
 
-	Ethernet::Address mac_addr;
-	mac_addr.FromString(dysco_mac);
-
 	Ethernet* eth;
 	bess::Packet* pkt;
 	for(int i = 0; i < batch->cnt(); i++) {
