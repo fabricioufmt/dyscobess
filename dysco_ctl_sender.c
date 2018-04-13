@@ -74,9 +74,7 @@ int main(int argc, char** argv) {
 	for(i = 0; i < sc_len; i++)
 		sc[i] = inet_addr(argv[5 + i]);
 
-	fprintf(stdout, "Sending %s:%s -> %s:%s TCP segment with %d service chain elements with ",
-		argv[1], argv[2],
-		argv[3], argv[4],
+	fprintf(stdout, "Sending TCP segment with %d service chain elements with ",
 		sc_len);
 	n = write(sockfd, buff, tx_len);
 
