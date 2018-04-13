@@ -393,7 +393,6 @@ bool DyscoAgentOut::out_translate(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHa
 			eth->dst_addr = mac9;
 		else
 			fprintf(stderr, "not change\n");
-		}
 	}
 	
 	return true;
