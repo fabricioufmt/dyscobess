@@ -524,6 +524,7 @@ bool DyscoAgentOut::output(bess::Packet* pkt) {
 #endif
 		if(ret)
 			return true;
+		
 		return false;
 	}
 

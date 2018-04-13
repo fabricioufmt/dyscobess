@@ -350,7 +350,7 @@ class DyscoCenter final : public Module {
 	*/
 	DyscoHashOut* out_syn(uint32_t, bess::Packet*, Ipv4*, Tcp*, DyscoHashOut*, uint32_t);
 	bool out_handle_mb(uint32_t, bess::Packet*, Ipv4*, Tcp*, DyscoHashOut*, uint32_t);
-	bool out_hdr_rewrite(Ipv4*, Tcp*, DyscoTcpSession*);
+	bool out_hdr_rewrite(bess::Packet*, Ipv4*, Tcp*, DyscoTcpSession*);
 	bool insert_cb_out(uint32_t, DyscoHashOut*, uint8_t);
 
 	/*

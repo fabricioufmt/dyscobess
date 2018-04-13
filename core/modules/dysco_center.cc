@@ -563,12 +563,12 @@ DyscoHashOut* DyscoCenter::out_syn(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp*
 		if(!cb_out->sack_ok)
 			cb_in_aux->sack_ok = 0;
 
-		out_hdr_rewrite(ip, tcp, &cb_out->sub);
+		out_hdr_rewrite(pkt, ip, tcp, &cb_out->sub);
 		fix_tcp_ip_csum(ip, tcp);
 
 		return cb_out;
 	} else {
-		out_hdr_rewrite(ip, tcp, &cb_out->sub);
+		out_hdr_rewrite(pkt, ip, tcp, &cb_out->sub);
 		out_tx_init(pkt, ip, tcp, cb_out);
 	}
 
@@ -865,7 +865,7 @@ bool DyscoCenter::out_handle_mb(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp* tc
 	parse_tcp_syn_opt_s(tcp, cb_out);
 
 	insert_cb_out(i, cb_out, 0);
-	out_hdr_rewrite(ip, tcp, &cb_out->sub);
+	out_hdr_rewrite(pkt, ip, tcp, &cb_out->sub);
 
 	//TODO: verify why cb_out->tag_ok always false
 	if(cb_out->tag_ok) {
@@ -955,7 +955,7 @@ DyscoHashIn* DyscoCenter::insert_cb_out_reverse(uint32_t i, DyscoHashOut* cb_out
 }
 
 
-bool DyscoCenter::out_hdr_rewrite(Ipv4* ip, Tcp* tcp, DyscoTcpSession* sub) {
+bool DyscoCenter::out_hdr_rewrite(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoTcpSession* sub) {
 	if(!sub)
 		return false;
 
@@ -966,6 +966,86 @@ bool DyscoCenter::out_hdr_rewrite(Ipv4* ip, Tcp* tcp, DyscoTcpSession* sub) {
 	
 	//TODO: verify if it's really necessary
 	//fix_tcp_ip_csum(ip, tcp);
+
+	//TEST
+	std::string ip0("10.0.1.1");
+	std::string ip1("10.0.1.2");
+	std::string ip2("10.0.2.1");
+	std::string ip3("10.0.2.2");
+	std::string ip4("10.0.2.3");
+	std::string ip5("10.0.3.1");
+	std::string ip6("10.0.3.2");
+	std::string ip7("10.0.3.3");
+	std::string ip8("10.0.4.1");
+	std::string ip9("10.0.4.2");
+	be32_t iip0;
+	be32_t iip1;
+	be32_t iip2;
+	be32_t iip3;
+	be32_t iip4;
+	be32_t iip5;
+	be32_t iip6;
+	be32_t iip7;
+	be32_t iip8;
+	be32_t iip9;
+	bess::utils::ParseIpv4Address(ip0, &iip0);
+	bess::utils::ParseIpv4Address(ip1, &iip1);
+	bess::utils::ParseIpv4Address(ip2, &iip2);
+	bess::utils::ParseIpv4Address(ip3, &iip3);
+	bess::utils::ParseIpv4Address(ip4, &iip4);
+	bess::utils::ParseIpv4Address(ip5, &iip5);
+	bess::utils::ParseIpv4Address(ip6, &iip6);
+	bess::utils::ParseIpv4Address(ip7, &iip7);
+	bess::utils::ParseIpv4Address(ip8, &iip8);
+	bess::utils::ParseIpv4Address(ip9, &iip9);
+	Ethernet::Address mac0;
+	Ethernet::Address mac1;
+	Ethernet::Address mac2;
+	Ethernet::Address mac3;
+	Ethernet::Address mac4;
+	Ethernet::Address mac5;
+	Ethernet::Address mac6;
+	Ethernet::Address mac7;
+	Ethernet::Address mac8;
+	Ethernet::Address mac9;
+	mac0.FromString("00:00:00:00:00:11");
+	mac1.FromString("00:00:00:00:00:12");
+	mac2.FromString("00:00:00:00:00:21");
+	mac3.FromString("00:00:00:00:00:22");
+	mac4.FromString("00:00:00:00:00:23");
+	mac5.FromString("00:00:00:00:00:31");
+	mac6.FromString("00:00:00:00:00:32");
+	mac7.FromString("00:00:00:00:00:33");
+	mac8.FromString("00:00:00:00:00:41");
+	mac9.FromString("00:00:00:00:00:42");
+
+	Ethernet* eth = pkt->head_data<Ethernet*>();
+
+	fprintf(stderr, "IP dst: %s\n", bess::utils::ToIpv4Address(ip->dst).c_str());
+		
+	if(ip->dst.value() == iip0.value())
+		eth->dst_addr = mac0;
+	else if(ip->dst.value() == iip1.value())
+		eth->dst_addr = mac1;
+	else if(ip->dst.value() == iip2.value())
+		eth->dst_addr = mac2;
+	else if(ip->dst.value() == iip3.value())
+		eth->dst_addr = mac3;
+	else if(ip->dst.value() == iip4.value()) {
+		eth->dst_addr = mac4;
+		fprintf(stderr, "mac4 and iip4\n");
+	} else if(ip->dst.value() == iip5.value())
+		eth->dst_addr = mac5;
+	else if(ip->dst.value() == iip6.value())
+		eth->dst_addr = mac6;
+	else if(ip->dst.value() == iip7.value())
+		eth->dst_addr = mac7;
+	else if(ip->dst.value() == iip8.value())
+		eth->dst_addr = mac8;
+	else if(ip->dst.value() == iip9.value())
+		eth->dst_addr = mac9;
+	else
+		fprintf(stderr, "not change\n");
 	
 	return true;
 }
