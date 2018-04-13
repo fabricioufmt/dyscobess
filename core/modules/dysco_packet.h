@@ -20,7 +20,7 @@ class DyscoPacket final : public Module {
 	static const gate_idx_t kNumIGates = 1;
 	static const gate_idx_t kNumOGates = 2;
 	
-	CommandResponse Init(const bess::pb::EmptyArg&);
+	//CommandResponse Init(const bess::pb::EmptyArg&);
 	void ProcessBatch(bess::PacketBatch*);
 };
 
