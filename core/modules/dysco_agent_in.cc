@@ -437,7 +437,9 @@ bool DyscoAgentIn::input(bess::Packet* pkt) {
 
 			return retvalue;
 		}
-		
+#ifdef DEBUG
+		print_out1(ns, ip, tcp);
+#endif		
 		return false;
 	}
 
