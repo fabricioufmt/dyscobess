@@ -22,3 +22,5 @@ void DyscoPacket::ProcessBatch(bess::PacketBatch* batch) {
 	RunChooseModule(0, &out_gates[0]);
 	RunChooseModule(1, &out_gates[1]);
 }
+
+ADD_MODULE(DyscoPacket, "dysco_packet", "verifies if the packet is Dysco or not")
