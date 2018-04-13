@@ -720,7 +720,7 @@ bool DyscoAgentIn::control_reconfig_in(Ipv4* ip, DyscoCbReconfig* rcb, DyscoCont
 
 	if(ip->dst.value() == ntohl(cmsg->rightA)) {
 #ifdef DEBUG_RECONFIG
-		fprintf(stderr, "ip->dst.value()[%s] == ntohl(cmsg->rightA)[%s]\n",
+		fprintf(stderr, "ip->dst.value()[%s] == cmsg->rightA[%s]\n",
 			printip1(ip->dst.value()),
 			printip1(ntohl(cmsg->rightA)));
 #endif	
@@ -728,7 +728,7 @@ bool DyscoAgentIn::control_reconfig_in(Ipv4* ip, DyscoCbReconfig* rcb, DyscoCont
 			return false;
 	} else {
 #ifdef DEBUG_RECONFIG
-		fprintf(stderr, "ip->dst.value()[%s] != ntohl(cmsg->rightA)[%s]\n",
+		fprintf(stderr, "ip->dst.value()[%s] != cmsg->rightA[%s]\n",
 			printip1(ip->dst.value()),
 			printip1(ntohl(cmsg->rightA)));
 #endif	
