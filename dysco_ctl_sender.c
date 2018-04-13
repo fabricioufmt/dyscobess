@@ -73,9 +73,18 @@ int main(int argc, char** argv) {
 	sc = (uint32_t*)(buff + sizeof(struct tcp_session));
 	for(i = 0; i < sc_len; i++)
 		sc[i] = inet_addr(argv[5 + i]);
-	
+
+	fprintf(stdout, "Sending %s:%s -> %s:%s TCP segment with %d service chain elements with ",
+		argv[1], argv[2],
+		argv[3], argv[4],
+		sc_len);
 	n = write(sockfd, buff, tx_len);
 
+	if(n != -1)
+		fprintf(stdout, "%d bytes as payload... OK", n);
+	else
+		fprintf(stdout, "ERROR...\n");
+	
 	close(sockfd);
 
 	return 0;
