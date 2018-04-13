@@ -311,7 +311,7 @@ bool DyscoAgentOut::out_translate(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHa
 		out_rewrite_rcv_wnd(tcp, cb_out);
 
 	//dc->out_hdr_rewrite(ip, tcp, &cb_out->sub);
-	if(dc->out_hdr_rewrite(ip, tcp, &cb_out->sub)) {
+	if(dc->out_hdr_rewrite(pkt, ip, tcp, &cb_out->sub)) {
 		/*
 		uint32_t val = 1;
 		const void* val_ptr = &val;
