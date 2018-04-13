@@ -1,0 +1,23 @@
+
+l3::IPLookup()
+l3.add(prefix='10.0.1.1', prefix_len=32, gate=0)
+l3.add(prefix='10.0.1.2', prefix_len=32, gate=1)
+l3.add(prefix='10.0.2.1', prefix_len=32, gate=2)
+l3.add(prefix='10.0.2.2', prefix_len=32, gate=3)
+l3.add(prefix='10.0.2.3', prefix_len=32, gate=4)
+l3.add(prefix='10.0.3.1', prefix_len=32, gate=5)
+l3.add(prefix='10.0.3.2', prefix_len=32, gate=6)
+l3.add(prefix='10.0.3.3', prefix_len=32, gate=7)
+l3.add(prefix='10.0.4.1', prefix_len=32, gate=8)
+l3.add(prefix='10.0.4.2', prefix_len=32, gate=9)
+
+l3:0 -> Update(fields=[{'offset':0, 'size':6, 'value':17}]) -> din0
+l3:1 -> Update(fields=[{'offset':0, 'size':6, 'value':18}]) -> din1
+l3:2 -> Update(fields=[{'offset':0, 'size':6, 'value':33}]) -> din2
+l3:3 -> Update(fields=[{'offset':0, 'size':6, 'value':34}]) -> din3
+l3:4 -> Update(fields=[{'offset':0, 'size':6, 'value':35}]) -> din4
+l3:5 -> Update(fields=[{'offset':0, 'size':6, 'value':49}]) -> din5
+l3:6 -> Update(fields=[{'offset':0, 'size':6, 'value':50}]) -> din6
+l3:7 -> Update(fields=[{'offset':0, 'size':6, 'value':51}]) -> din7
+l3:8 -> Update(fields=[{'offset':0, 'size':6, 'value':65}]) -> din8
+l3:9 -> Update(fields=[{'offset':0, 'size':6, 'value':66}]) -> din9
