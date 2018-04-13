@@ -31,6 +31,7 @@
 #include "sink.h"
 
 void Sink::ProcessBatch(bess::PacketBatch *batch) {
+	fprintf(stderr, "[Sink]\n");
   bess::Packet::Free(batch);
 }
 
