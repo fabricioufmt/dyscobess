@@ -13,7 +13,7 @@ void DyscoPacket::ProcessBatch(bess::PacketBatch* batch) {
 	bess::Packet* pkt;
 	for(int i = 0; i < batch->cnt(); i++) {
 		pkt = batch->pkts()[i];
-		eth = pkt->data_head<Ethernet*>();
+		eth = pkt->head_data<Ethernet*>();
 
 		if(eth->dst_addr == mac_addr)
 			out_gates[0].add(pkt);
