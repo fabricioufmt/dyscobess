@@ -290,8 +290,6 @@ int create_message_reconfig(struct tcp_session* supss, uint32_t sc_len, uint32_t
 	sock_addr.sll_ifindex = ifindex;
 
 	tcp_program(sockfd, sendbuf, tx_len, &sock_addr);
-
-	fprintf(stdout, "OK.\n");
 }
 
 //TODO: TCP state diagram (ie. retransmission, timer, etc.)
@@ -301,6 +299,7 @@ void tcp_program(uint32_t sockfd, unsigned char* sendbuf, uint32_t len, struct s
 	if(sendto(sockfd, sendbuf, len, 0, (struct sockaddr*) sock_addr, sizeof(struct sockaddr_ll)) < 0)
 		perror("send failed");
 	
+	fprintf(stdout, "OK.\n");
 }
 
 uint32_t get_srcip(uint32_t* destip, int32_t* ifindex) {
