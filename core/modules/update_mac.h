@@ -12,7 +12,7 @@ using bess::utils::Ethernet;
 class UpdateMac final : public Module {
  public:
 	static const gate_idx_t kNumIGates = 1;
-	static const gate_idx_t kNumIGates = 1;
+	static const gate_idx_t kNumOGates = 1;
 
  UpdateMac() : Module() {
 		mac_addr.FromString(DEFAULT_MAC);
