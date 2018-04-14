@@ -100,7 +100,7 @@ void DyscoAgentIn::ProcessBatch(bess::PacketBatch* batch) {
 				control_input(pkt, ip, tcp, reinterpret_cast<uint8_t*>(tcp) + tcp_hlen);
 				out_gates[1].add(pkt);
 #ifdef DEBUG_RECONFIG
-				fprintf(stderr, "[%s][DyscoAgentIn-Control] Forwarding to output 1\n", ns.c_str());
+				fprintf(stderr, "[%s][DyscoAgentIn-Control] Forwarding to output 1\n", ns.c_str())
 #endif
 #ifdef DEBUG				
 				print_out1(ns, ip, tcp);
