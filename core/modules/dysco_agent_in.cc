@@ -781,7 +781,7 @@ bool DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, ui
 		uint32_t sc_len = (payload_len - sizeof(DyscoControlMessage))/sizeof(uint32_t);
 		memcpy(sc, sc + sizeof(uint32_t), (sc_len - 1) * sizeof(uint32_t));
 		ip->src = ip->dst;
-		ip->dst = be32_t(sc[1]);
+		ip->dst = be32_t(ntohl(sc[1]));
 		pkt->trim(sizeof(uint32_t));
 		sc[sc_len - 1] = 0xFF;
 		
