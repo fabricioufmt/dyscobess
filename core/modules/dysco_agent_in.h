@@ -29,7 +29,7 @@ using bess::utils::be16_t;
 class DyscoAgentIn final : public Module {
  public:
 	static const gate_idx_t kNumIGates = 1;
-	static const gate_idx_t kNumOGates = 1;
+	static const gate_idx_t kNumOGates = 2;
 
 	DyscoAgentIn();
 	void ProcessBatch(bess::PacketBatch*) override;
