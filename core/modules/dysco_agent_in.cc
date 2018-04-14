@@ -686,6 +686,7 @@ bool DyscoAgentIn::control_config_rightA(DyscoCbReconfig* rcb, DyscoControlMessa
 
 #ifdef DEBUG_RECONFIG
 	fprintf(stderr, "[%s][DyscoAgentIn-Control] local_ss: %s:%u -> %s:%u\n",
+		ns.c_str(),
 		printip1(ntohl(local_ss.sip)), ntohs(local_ss.sport),
 		printip1(ntohl(local_ss.dip)), ntohs(local_ss.dport));
 #endif
