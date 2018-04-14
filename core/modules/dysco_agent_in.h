@@ -113,7 +113,7 @@ class DyscoAgentIn final : public Module {
 	//bool set_zero_window(Tcp*);
 	bool in_two_paths_ack(Tcp*, DyscoHashIn*);
 	bool in_two_paths_data_seg(Tcp*, DyscoHashIn*);
-	bool input(bess::Packet*);
+	bool input(bess::Packet*, Ipv4*, Tcp*);
 
 
 	/*
@@ -124,8 +124,8 @@ class DyscoAgentIn final : public Module {
 	bool compute_deltas_in(DyscoHashIn*, DyscoHashOut*, DyscoCbReconfig*);
 	bool compute_deltas_out(DyscoHashOut*, DyscoHashOut*, DyscoCbReconfig*);
 	bool control_config_rightA(DyscoCbReconfig*, DyscoControlMessage*, DyscoHashIn*, DyscoHashOut*);
-	bool control_reconfig_in(Ipv4*, DyscoCbReconfig*, DyscoControlMessage*);
-	bool control_input(Ipv4*, Tcp*, uint8_t*);
+	bool control_reconfig_in(bess::Packet*, Ipv4*, Tcp*, uint8_t*, DyscoCbReconfig*, DyscoControlMessage*);
+	bool control_input(bess::Packet*, Ipv4*, Tcp*, uint8_t*);
 
 
 

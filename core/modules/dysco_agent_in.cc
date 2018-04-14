@@ -59,18 +59,53 @@ CommandResponse DyscoAgentIn::Init(const bess::pb::DyscoAgentInArg& arg) {
 
 void DyscoAgentIn::ProcessBatch(bess::PacketBatch* batch) {
 	get_port_information();
+
+	Ethernet* eth;
+	bess::PacketBatch out_gates[2];
 		
 	if(dc) {
-		int cnt = batch->cnt();
-		
 		bess::Packet* pkt = 0;
-		for(int i = 0; i < cnt; i++) {
+		for(int i = 0; i < batch->cnt(); i++) {
 			pkt = batch->pkts()[i];
-			input(pkt);
+			eth = pkt->head_data<Ethernet*>();
+
+			if(!isIP(eth)) {
+				out_gates[0].add(pkt);
+				continue;
+			}
+
+			Ipv4* ip = reinterpret_cast<Ipv4*>(eth + 1);
+			size_t ip_hlen = ip->header_length << 2;
+			if(!isTCP(ip)) {
+				out_gates[0].add(pkt);
+				continue;
+			}
+
+			Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
+			size_t tcp_hlen = tcp->offset << 2;
+
+#ifdef DEBUG
+			fprintf(stderr, "[%s][DyscoAgentIn] receives %s:%u -> %s:%u\n",
+				ns.c_str(),
+				printip1(ip->src.value()), tcp->src_port.value(),
+				printip1(ip->dst.value()), tcp->dst_port.value());
+#endif
+			
+			if(isReconfigPacket(ip, tcp)) {
+				control_input(pkt, ip, tcp, reinterpret_cast<uint8_t*>(tcp) + tcp_hlen);
+				out_gates[1].add(pkt);
+				continue;
+			}
+			
+			input(pkt, ip, tcp);
+			out_gates[0].add(pkt);
 		}
-	}
-	
-	RunChooseModule(0, batch);
+
+		batch->clear();
+		RunChooseModule(0, &(out_gates[0]));
+		RunChooseModule(1, &(out_gates[1]));
+	} else
+		RunChooseModule(0, batch);
 }
 
 bool DyscoAgentIn::get_port_information() {
@@ -392,37 +427,7 @@ bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in) {
 }
 
 //L.753
-bool DyscoAgentIn::input(bess::Packet* pkt) {
-	Ethernet* eth = pkt->head_data<Ethernet*>();
-
-	/*
-	if(isARP(eth))
-		process_arp(pkt);
-	*/
-	if(!isIP(eth))
-		return false;
-
-	Ipv4* ip = reinterpret_cast<Ipv4*>(eth + 1);
-	size_t ip_hlen = ip->header_length << 2;
-	if(!isTCP(ip))
-		return false;
-
-	Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
-	size_t tcp_hlen = tcp->offset << 2;
-	
-#ifdef DEBUG
-	fprintf(stderr, "[%s][DyscoAgentIn] receives %s:%u -> %s:%u\n",
-		ns.c_str(),
-		printip1(ip->src.value()), tcp->src_port.value(),
-		printip1(ip->dst.value()), tcp->dst_port.value());
-#endif
-	if(isReconfigPacket(ip, tcp)) {
-#ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[%s][DyscoAgentIn] receives a reconfig packet, calls control_input method.\n", ns.c_str());
-#endif
-		return control_input(ip, tcp, reinterpret_cast<uint8_t*>(tcp) + tcp_hlen);
-	}
-	
+bool DyscoAgentIn::input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 	DyscoHashIn* cb_in = dc->lookup_input(this->index, ip, tcp);
 	if(!cb_in) {
 		if(isTCPSYN(tcp) && hasPayload(ip, tcp)) {
@@ -691,7 +696,7 @@ bool DyscoAgentIn::control_config_rightA(DyscoCbReconfig* rcb, DyscoControlMessa
 	return true;
 }
 
-bool DyscoAgentIn::control_reconfig_in(Ipv4* ip, DyscoCbReconfig* rcb, DyscoControlMessage* cmsg) {
+bool DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, uint8_t* payload, DyscoCbReconfig* rcb, DyscoControlMessage* cmsg) {
 #ifdef DEBUG_RECONFIG
 	fprintf(stderr, "[%s][DyscoAgentIn-Control] control_reconfig_in method\n", ns.c_str());
 #endif
@@ -756,6 +761,19 @@ bool DyscoAgentIn::control_reconfig_in(Ipv4* ip, DyscoCbReconfig* rcb, DyscoCont
 		fprintf(stderr, "[%s][DyscoAgentIn-Control] insert_hash_output method\n", ns.c_str());
 #endif
 		dc->insert_hash_output(this->index, cb_out);
+
+		//TEST //TODO //Ronaldo
+		//sc_len must be greater than 1
+		uint32_t payload_len = ip->length.value() - (ip->header_length << 2) - (tcp->offset << 2);
+		ip->length = be16_t(ip->length.value() - sizeof(uint32_t));
+		uint32_t* sc = reinterpret_cast<uint32_t*>(payload + sizeof(DyscoControlMessage));
+		uint32_t sc_len = (payload_len - sizeof(DyscoControlMessage))/sizeof(uint32_t);
+		memcpy(sc, sc + sizeof(uint32_t), (sc_len - 1) * sizeof(uint32_t));
+		ip->src = ip->dst;
+		ip->dst = be32_t(sc[1]);
+		pkt->trim(sizeof(uint32_t));
+		sc[sc_len - 1] = 0xFF;
+		
 	}
 #ifdef DEBUG_RECONFIG
 	fprintf(stderr, "[%s][DyscoAgentIn-Control] insert_hash_input method\n", ns.c_str());
@@ -765,8 +783,7 @@ bool DyscoAgentIn::control_reconfig_in(Ipv4* ip, DyscoCbReconfig* rcb, DyscoCont
 	return true;
 }
 
-bool DyscoAgentIn::control_input(Ipv4* ip, Tcp*, uint8_t* payload) {
-
+bool DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, uint8_t* payload) {
 	DyscoControlMessage* cmsg;
 	DyscoCbReconfig* rcb;
 
@@ -803,8 +820,7 @@ bool DyscoAgentIn::control_input(Ipv4* ip, Tcp*, uint8_t* payload) {
 			fprintf(stderr, "[%s][DyscoAgentIn-Control]insert_rcb_control_input method returns TRUE.\n", ns.c_str());
 		}
 #endif		
-
-		return control_reconfig_in(ip, rcb, cmsg);
+		return control_reconfig_in(pkt, ip, tcp, payload, rcb, cmsg);
 
 	case DYSCO_SYN_ACK:
 #ifdef DEBUG_RECONFIG
