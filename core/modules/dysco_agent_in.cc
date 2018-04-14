@@ -59,12 +59,14 @@ CommandResponse DyscoAgentIn::Init(const bess::pb::DyscoAgentInArg& arg) {
 
 void DyscoAgentIn::ProcessBatch(bess::PacketBatch* batch) {
 	get_port_information();
-
-	Ethernet* eth;
-	bess::PacketBatch out_gates[2];
-		
+	
 	if(dc) {
-		bess::Packet* pkt = 0;
+		bess::PacketBatch out_gates[2];
+		out_gates[0].clear();
+		out_gates[1].clear();
+
+		Ethernet* eth;
+		bess::Packet* pkt;
 		for(int i = 0; i < batch->cnt(); i++) {
 			pkt = batch->pkts()[i];
 			eth = pkt->head_data<Ethernet*>();
