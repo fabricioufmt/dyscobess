@@ -17,6 +17,7 @@ int main(int argc, char** argv) {
 	socklen_t addr_len;
 	char buff[BUFFSIZE];
 	struct sockaddr_in serv_addr;
+	struct sockaddr_in client_addr;
 
 	if(argc != 3) {
 		fprintf(stderr, "Usage: %s <ip_address> <port>.\n", argv[0]);
@@ -30,6 +31,8 @@ int main(int argc, char** argv) {
 	}
 
 	memset(&serv_addr, 0, sizeof(serv_addr));
+	memset(&client_addr, 0, sizeof(client_addr));
+	addr_len = sizeof(client_addr);
 	
 	serv_addr.sin_family = AF_INET;
 	serv_addr.sin_addr.s_addr = inet_addr(argv[1]);
@@ -41,6 +44,12 @@ int main(int argc, char** argv) {
 	}
 
 	printf("Connected.\n");
+
+	if(getsockname(sockfd, (struct sockaddr*) &client_addr, &addr_len) < 0) {
+		perror("getpeername failed");
+		close(sockfd);
+		return EXIT_FAILURE;
+	}
 	
 	srand(SEED);
 	heartvalue = rand();
@@ -48,7 +57,9 @@ int main(int argc, char** argv) {
 	memcpy(buff, &heartvalue, sizeof(int));
 	
 	while(1) {
-		printf("Sending...\n");
+		printf("Sending from %s:%u to %s:%s...\n",
+		       inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port),
+		       argv[1], argv[2]);
 		write(sockfd, buff, sizeof(int));
 		read(sockfd, buff, sizeof(int));
 		(*(int*)buff)++;
