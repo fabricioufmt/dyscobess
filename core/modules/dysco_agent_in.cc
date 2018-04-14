@@ -95,6 +95,9 @@ void DyscoAgentIn::ProcessBatch(bess::PacketBatch* batch) {
 			
 			if(isReconfigPacket(ip, tcp)) {
 				control_input(pkt, ip, tcp, reinterpret_cast<uint8_t*>(tcp) + tcp_hlen);
+#ifdef DEBUG				
+				print_out1(ns, ip, tcp);
+#endif
 				out_gates[1].add(pkt);
 				continue;
 			}
