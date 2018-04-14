@@ -97,11 +97,12 @@ void DyscoAgentIn::ProcessBatch(bess::PacketBatch* batch) {
 #ifdef DEBUG_RECONFIG
 				fprintf(stderr, "[%s][DyscoAgentIn-Control] It's a reconfiguration packet... calling control_input method\n", ns.c_str());
 #endif
-				control_input(pkt, ip, tcp, reinterpret_cast<uint8_t*>(tcp) + tcp_hlen);
-				out_gates[1].add(pkt);
+				if(control_input(pkt, ip, tcp, reinterpret_cast<uint8_t*>(tcp) + tcp_hlen)) {
+					out_gates[1].add(pkt);
 #ifdef DEBUG_RECONFIG
-				fprintf(stderr, "[%s][DyscoAgentIn-Control] Forwarding to output 1\n", ns.c_str());
+					fprintf(stderr, "[%s][DyscoAgentIn-Control] Forwarding to output 1\n", ns.c_str());
 #endif
+				}
 #ifdef DEBUG				
 				print_out1(ns, ip, tcp);
 #endif
@@ -677,11 +678,18 @@ bool DyscoAgentIn::compute_deltas_out(DyscoHashOut* cb_out, DyscoHashOut* old_ou
 bool DyscoAgentIn::control_config_rightA(DyscoCbReconfig* rcb, DyscoControlMessage* cmsg, DyscoHashIn* cb_in, DyscoHashOut* cb_out) {
 	DyscoTcpSession local_ss;
 
+	/*
 	local_ss.sip = cmsg->rightSS.dip;
 	local_ss.dip = cmsg->rightSS.sip;
 	local_ss.sport = cmsg->rightSS.dport;
 	local_ss.dport = cmsg->rightSS.sport;
-
+	*/
+	//TEST
+	local_ss.sip = cmsg->super.dip;
+	local_ss.dip = cmsg->super.sip;
+	local_ss.sport = cmsg->super.dport;
+	local_ss.dport = cmsg->super.sport;
+	
 	DyscoHashOut* old_out = dc->lookup_output_by_ss(this->index, &local_ss);
 
 #ifdef DEBUG_RECONFIG
@@ -701,7 +709,9 @@ bool DyscoAgentIn::control_config_rightA(DyscoCbReconfig* rcb, DyscoControlMessa
 		return false;
 	}
 
-	cb_in->sup = cmsg->rightSS;
+	//Test
+	//cb_in->sup = cmsg->rightSS;	
+	cb_in->sup = cmsg->super;
 	compute_deltas_in(cb_in, old_out, rcb);
 	compute_deltas_out(cb_out, old_out, rcb);
 	cb_in->two_paths = true;
@@ -752,6 +762,10 @@ bool DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, ui
 #endif	
 		if(!control_config_rightA(rcb, cmsg, cb_in, cb_out))
 			return false;
+
+		//Test
+		dc->insert_hash_input(this->index, cb_in);
+		return false;
 	} else {
 #ifdef DEBUG_RECONFIG
 		fprintf(stderr, "[%s][DyscoAgentIn-Control] ip->dst.value()[%s] != cmsg->rightA[%s]\n",
