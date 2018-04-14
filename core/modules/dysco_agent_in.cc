@@ -684,7 +684,16 @@ bool DyscoAgentIn::control_config_rightA(DyscoCbReconfig* rcb, DyscoControlMessa
 
 	DyscoHashOut* old_out = dc->lookup_output_by_ss(this->index, &local_ss);
 
+#ifdef DEBUG_RECONFIG
+	fprintf(stderr, "[%s][DyscoAgentIn-Control] local_ss: %s:%u -> %s:%u\n",
+		printip(ntohl(local_ss.sip)), ntohs(local_ss.sport),
+		printip(ntohl(local_ss.dip)), ntohs(local_ss.dport));
+#endif
+	
 	if(!old_out) {
+#ifdef DEBUG_RECONFIG
+		fprintf(stderr, "[%s][DyscoAgentIn-Control] lookup_output_by_ss returns NULL\n", ns.c_str());
+#endif
 		delete cb_in;
 		dc->remove_reconfig(this->index, rcb);
 
