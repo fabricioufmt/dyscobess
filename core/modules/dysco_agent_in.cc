@@ -102,6 +102,9 @@ void DyscoAgentIn::ProcessBatch(bess::PacketBatch* batch) {
 #ifdef DEBUG_RECONFIG
 					fprintf(stderr, "[%s][DyscoAgentIn-Control] Forwarding to output 1\n", ns.c_str());
 #endif
+				} else {
+					//TEST
+					//bess::Packet::Free(pkt);
 				}
 #ifdef DEBUG				
 				print_out1(ns, ip, tcp);
