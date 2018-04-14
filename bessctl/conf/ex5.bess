@@ -75,6 +75,18 @@ l2_4::L2FWD()
 l2_4.add(mac_addr='00:00:00:00:00:41', gate=0)
 l2_4.add(mac_addr='00:00:00:00:00:42', gate=1)
 
+l3_1::IPLookup()
+l3_1.add(prefix='10.0.1.1', prefix_len=32, gate=0)
+l3_1.add(prefix='10.0.1.2', prefix_len=32, gate=1)
+l3_1.add(prefix='10.0.2.1', prefix_len=32, gate=2)
+l3_1.add(prefix='10.0.2.2', prefix_len=32, gate=3)
+l3_1.add(prefix='10.0.2.3', prefix_len=32, gate=4)
+l3_1.add(prefix='10.0.3.1', prefix_len=32, gate=5)
+l3_1.add(prefix='10.0.3.2', prefix_len=32, gate=6)
+l3_1.add(prefix='10.0.3.3', prefix_len=32, gate=7)
+l3_1.add(prefix='10.0.4.1', prefix_len=32, gate=8)
+l3_1.add(prefix='10.0.4.2', prefix_len=32, gate=9)
+
 din0::DyscoAgentIn(dc=dc) -> DyscoPortOut(port=c1)
 din1::DyscoAgentIn(dc=dc) -> DyscoPortOut(port=m1_0)
 din2::DyscoAgentIn(dc=dc) -> DyscoPortOut(port=m1_1)
@@ -116,15 +128,26 @@ bpf3:1 -> dp3::DyscoPacket()
 bpf4:0 -> l2_4
 bpf4:1 -> dp4::DyscoPacket()
 
-dp1:0 -> Sink()
-dp2:0 -> Sink()
-dp3:0 -> Sink()
-dp4:0 -> Sink()
+dp1:0 -> l3_1
+dp2:0 -> l3_1
+dp3:0 -> l3_1
+dp4:0 -> l3_1
 
 dp1:1 -> l2_1
 dp2:1 -> l2_2
 dp3:1 -> l2_3
 dp4:1 -> l2_4
+
+l3_1:0 -> UpdateMac(mac_addr='00:00:00:00:00:11') -> l2_1
+l3_1:1 -> UpdateMac(mac_addr='00:00:00:00:00:12') -> l2_1
+l3_1:2 -> UpdateMac(mac_addr='00:00:00:00:00:21') -> l2_2
+l3_1:3 -> UpdateMac(mac_addr='00:00:00:00:00:22') -> l2_2
+l3_1:4 -> UpdateMac(mac_addr='00:00:00:00:00:23') -> l2_2
+l3_1:5 -> UpdateMac(mac_addr='00:00:00:00:00:31') -> l2_3
+l3_1:6 -> UpdateMac(mac_addr='00:00:00:00:00:32') -> l2_3
+l3_1:7 -> UpdateMac(mac_addr='00:00:00:00:00:33') -> l2_3
+l3_1:8 -> UpdateMac(mac_addr='00:00:00:00:00:41') -> l2_4
+l3_1:9 -> UpdateMac(mac_addr='00:00:00:00:00:42') -> l2_4
 
 l2_1:0 -> din0
 l2_1:1 -> din1

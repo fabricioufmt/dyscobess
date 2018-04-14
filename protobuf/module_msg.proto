@@ -1219,3 +1219,7 @@ message L2FWDCommandAddArg {
 	string mac_addr = 1;
 	uint32 gate = 2;
 }
+
+message UpdateMacArg {
+	string mac_addr = 1;
+}
