@@ -697,7 +697,7 @@ bool DyscoAgentOut::control_output(Ipv4* ip, Tcp* tcp) {
 	DyscoCbReconfig* rcb;
 	DyscoControlMessage* cmsg;
 
-	uint8_t* payload = reinterpret_cast<uint8_t*>(tcp) + tcp->offset << 2;
+	uint8_t* payload = reinterpret_cast<uint8_t*>(tcp) + (tcp->offset << 2);
 	cmsg = reinterpret_cast<DyscoControlMessage*>(payload);
 	
 	switch(cmsg->mtype) {
