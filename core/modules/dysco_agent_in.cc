@@ -766,9 +766,22 @@ bool DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, ui
 		if(!control_config_rightA(rcb, cmsg, cb_in, cb_out))
 			return false;
 
-		//Test
-		dc->insert_hash_input(this->index, cb_in);
-		return false;
+		//TEST //TODO //Ronaldo
+		be32_t ipswap = ip->dst;
+		ip->dst = ip->src;
+		ip->src = ipswap;
+		ip->ttl = 32;
+		ip->id = htons(rand() % 65536);
+		ip->length = be16_t(ip->header_length << 2 + tcp->offset << 2);
+		uint32_t payload_len = ip->length.value() - (ip->header_length << 2) - (tcp->offset << 2);
+
+		be16_t psawp = tcp->src_port;
+		tcp->src_port = tcp->dst_port;
+		tcp->dst_port = psawp;
+		tcp->ack_num = be32_t(tcp->seq_num.value() + 1);
+		tcp->seq_num = be32_t(rand() % 4294967296);
+		tcp->flags |= Tcp::kAck;
+		pkt->trim(payload_len);
 	} else {
 #ifdef DEBUG_RECONFIG
 		fprintf(stderr, "[%s][DyscoAgentIn-Control] ip->dst.value()[%s] != cmsg->rightA[%s]\n",

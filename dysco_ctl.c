@@ -239,9 +239,9 @@ int create_message_reconfig(struct tcp_session* supss, uint32_t sc_len, uint32_t
 	tx_len += sizeof(struct iphdr); //IP does not have Option field.
 	
 	// Construct the TCP segment 
-	tcph->source = htons(RECONFIG_SPORT);
-	tcph->dest = htons(RECONFIG_DPORT);
-	tcph->seq = rand() % 4294967296;
+	tcph->source = htons(40000 + rand() % 1000);
+	tcph->dest = htons(50000 + rand() % 1000);
+	tcph->seq = htonl(rand() % 4294967296);
 	tcph->ack_seq = 0;
 	tcph->doff = 5;
 	tcph->fin = 0;
@@ -260,6 +260,10 @@ int create_message_reconfig(struct tcp_session* supss, uint32_t sc_len, uint32_t
 	cmsg->super = *supss;
 	cmsg->leftA = iph->saddr;
 	cmsg->rightA = sc[sc_len - 1];
+	cmsg->sport = tcph->source;
+	cmsg->dport = tcph->dst;
+	cmsg->leftIseq = tcph->seq;
+	cmsg->leftIack = 0;
 	tx_len += sizeof(struct control_message);
 
 	// Construct Service Chain
