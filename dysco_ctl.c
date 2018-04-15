@@ -261,7 +261,7 @@ int create_message_reconfig(struct tcp_session* supss, uint32_t sc_len, uint32_t
 	cmsg->leftA = iph->saddr;
 	cmsg->rightA = sc[sc_len - 1];
 	cmsg->sport = tcph->source;
-	cmsg->dport = tcph->dst;
+	cmsg->dport = tcph->dest;
 	cmsg->leftIseq = tcph->seq;
 	cmsg->leftIack = 0;
 	tx_len += sizeof(struct control_message);
