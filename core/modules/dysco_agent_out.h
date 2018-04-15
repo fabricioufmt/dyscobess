@@ -114,7 +114,7 @@ class DyscoAgentOut final : public Module {
 	bool replace_cb_rightA(DyscoControlMessage*);
 	bool replace_cb_leftA(DyscoCbReconfig*, DyscoControlMessage*);
 	bool control_output_syn(Ipv4*, DyscoControlMessage*);
-	bool control_output(Ipv4*);
+	bool control_output(Ipv4*, Tcp*);
 };
 
 #endif //BESS_MODULES_DYSCOAGENTOUT_H_
