@@ -771,7 +771,7 @@ bool DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, ui
 		ip->dst = ip->src;
 		ip->src = ipswap;
 		ip->ttl = 32;
-		ip->id = htons(rand() % 65536);
+		ip->id = be16_t(rand() % 65536);
 		ip->length = be16_t(ip->header_length << 2 + tcp->offset << 2);
 		uint32_t payload_len = ip->length.value() - (ip->header_length << 2) - (tcp->offset << 2);
 
