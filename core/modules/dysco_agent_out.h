@@ -73,11 +73,27 @@ class DyscoAgentOut final : public Module {
 		return tcp->flags == Tcp::Flag::kAck;
 	}
 
-	inline bool hasPayload(Ipv4* ip, Tcp* tcp) {
+	inline uint32_t hasPayload(Ipv4* ip, Tcp* tcp) {
 		size_t ip_hlen = ip->header_length << 2;
 		size_t tcp_hlen = tcp->offset << 2;
 
 		return ip->length.value() - ip_hlen - tcp_hlen;
+	}
+
+	inline bool isReconfigPacket(Ipv4* ip, Tcp* tcp) {
+		if(isTCPSYN(tcp)) {
+			uint32_t payload_len = hasPayload(ip, tcp);
+			if(payload_len) {
+				uint32_t tcp_hlen = tcp->offset << 2;
+				if(((uint8_t*)tcp + tcp_hlen)[payload_len - 1] == 0xFF) {
+					return true;
+				} else {
+					return false;
+				}
+			}
+		}
+
+		return false;
 	}
 
 	bool out_rewrite_seq(Tcp*, DyscoHashOut*);
@@ -88,7 +104,7 @@ class DyscoAgentOut final : public Module {
 	DyscoHashOut* pick_path_ack(Tcp*, DyscoHashOut*);
 	bool out_translate(bess::Packet*, Ipv4*, Tcp*, DyscoHashOut*);
 	bool update_five_tuple(Ipv4*, Tcp*, DyscoHashOut*);
-	bool output(bess::Packet*);
+	bool output(bess::Packet*, Ipv4*, Tcp*);
 	/*
 	  CONTROL
 	 */

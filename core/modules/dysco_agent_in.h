@@ -76,12 +76,6 @@ class DyscoAgentIn final : public Module {
 	}
 
 	inline bool isReconfigPacket(Ipv4* ip, Tcp* tcp) {
-		/*
-		if(tcp->src_port.value() == RECONFIG_SPORT &&
-		   tcp->dst_port.value() == RECONFIG_DPORT)
-			return true;
-		return false;
-		*/
 		if(isTCPSYN(tcp)) {
 			uint32_t payload_len = hasPayload(ip, tcp);
 			if(payload_len) {

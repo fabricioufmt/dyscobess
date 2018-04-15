@@ -80,13 +80,30 @@ void DyscoAgentOut::ProcessBatch(bess::PacketBatch* batch) {
 	get_port_information();
 	
 	if(dc) {
-		int cnt = batch->cnt();
-		
+		Ethernet* eth;
 		bess::Packet* pkt;
-		for(int i = 0; i < cnt; i++) {
+		for(int i = 0; i < batch->cnt(); i++) {
 			pkt = batch->pkts()[i];
-			if(output(pkt))
-				dysco_packet(pkt->head_data<Ethernet*>());
+			eth = pkt->head_data<Ethernet*>();
+			if(!isIP(eth))
+				continue;
+
+			Ipv4* ip = reinterpret_cast<Ipv4*>(eth + 1);
+			size_t ip_hlen = ip->header_length << 2;
+			if(!isTCP(ip))
+				continue;
+				
+			Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
+			if(isReconfigPacket(ip, tcp)) {
+				control_output(ip, tcp);
+				dysco_packet(eth);
+				
+				continue;
+			}
+
+			
+			if(output(pkt, ip, tcp))
+				dysco_packet(eth);
 			
 			/*
 			if(output(pkt))
@@ -391,21 +408,7 @@ bool DyscoAgentOut::update_five_tuple(Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) 
 //fix_rcv_window_old
 
 //L.1395
-bool DyscoAgentOut::output(bess::Packet* pkt) {
-	Ethernet* eth = pkt->head_data<Ethernet*>();
-	if(!isIP(eth))
-		return false;
-
-	Ipv4* ip = reinterpret_cast<Ipv4*>(eth + 1);
-	size_t ip_hlen = ip->header_length << 2;
-	if(!isTCP(ip))
-		return false;
-
-	//TODO
-	//Control for reconfiguration using TCP, instead UDP
-
-	Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
-
+bool DyscoAgentOut::output(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 #ifdef DEBUG
 	fprintf(stderr, "[%s][DyscoAgentOut] receives %s:%u -> %s:%u\n",
 		ns.c_str(),
@@ -587,7 +590,7 @@ bool DyscoAgentOut::control_output_syn(Ipv4* ip, DyscoControlMessage* cmsg) {
 	DyscoCbReconfig* rcb = dc->lookup_reconfig_by_ss(this->index, &cmsg->super);
 
 	//verify htonl
-	if(ip->src.value() == cmsg->leftA) {
+	if(ip->src.value() == ntohl(cmsg->leftA)) {
 		DyscoHashOut* old_dcb;
 		DyscoHashOut* new_dcb;
 
@@ -690,14 +693,12 @@ bool DyscoAgentOut::ctl_save_rcv_window(DyscoControlMessage* cmsg) {
 }
 */
 // or UDP* udp?
-bool DyscoAgentOut::control_output(Ipv4* ip) {
-	DyscoControlMessage* cmsg;
+bool DyscoAgentOut::control_output(Ipv4* ip, Tcp* tcp) {
 	DyscoCbReconfig* rcb;
+	DyscoControlMessage* cmsg;
 
-	/*
-	  cmsg will be filled by packet payload
-	 */
-	cmsg = 0;//test
+	uint8_t* payload = reinterpret_cast<uint8_t*>(tcp) + tcp->offset << 2;
+	cmsg = reinterpret_cast<DyscoControlMessage*>(payload);
 	
 	switch(cmsg->mtype) {
 	case DYSCO_SYN:
