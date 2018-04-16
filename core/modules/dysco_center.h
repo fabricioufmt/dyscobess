@@ -366,6 +366,22 @@ class DyscoCenter final : public Module {
 	inline bool isTCPACK(Tcp* tcp) {
 		return tcp->flags == Tcp::Flag::kAck;
 	}
+
+	inline bool isReconfigPacket(Ipv4* ip, Tcp* tcp) {
+		if(isTCPSYN(tcp)) {
+			uint32_t payload_len = hasPayload(ip, tcp);
+			if(payload_len) {
+				uint32_t tcp_hlen = tcp->offset << 2;
+				if(((uint8_t*)tcp + tcp_hlen)[payload_len - 1] == 0xFF) {
+					return true;
+				} else {
+					return false;
+				}
+			}
+		}
+
+		return false;
+	}
 	
 	/*
 	  TCP methods
