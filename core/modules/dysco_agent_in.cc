@@ -752,7 +752,7 @@ bool DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, ui
 		delete cb_in;
 		dc->remove_reconfig(this->index, rcb);
 
-		return false;
+		return ERROR;
 	}
 	
 	cb_out->dcb_in = cb_in;
@@ -764,7 +764,7 @@ bool DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, ui
 			ns.c_str());
 #endif	
 		if(!control_config_rightA(rcb, cmsg, cb_in, cb_out))
-			return false;
+			return ERROR;
 
 		//TEST //TODO //Ronaldo
 		be32_t ipswap = ip->dst;
@@ -782,59 +782,58 @@ bool DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, ui
 		tcp->seq_num = be32_t(rand() % 4294967296);
 		tcp->flags |= Tcp::kAck;
 		pkt->trim(payload_len);
-	} else {
 #ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[%s][DyscoAgentIn-Control] It isn't the right anchor\n",
-			ns.c_str());
-		fprintf(stderr, "[%s][DyscoAgentIn-Control] Do nothing, follows regular algorithm.\n",
-			ns.c_str());
+		fprintf(stderr, "[%s][DyscoAgentIn-Control] insert_hash_input method\n", ns.c_str());
 #endif
-		return ISNT_RIGHT_ANCHOR;
-		/*
-		cb_in->sup = rcb->super;
-		cb_in->out_iseq = rcb->leftIseq;
-		cb_in->out_iack = rcb->leftIack;
-		cb_in->seq_delta = cb_in->ack_delta = 0;
-
-		if(rcb->leftIts) {
-			cb_in->ts_in = cb_in->ts_out = rcb->leftIts;
-			cb_in->ts_delta = 0;
-			cb_in->ts_ok = 1;
-		} else
-			cb_in->ts_ok = 0;
-
-		if(rcb->leftIws) {
-			cb_in->ws_in = cb_in->ws_out = rcb->leftIws;
-			cb_in->ws_delta = 0;
-			cb_in->ws_ok = 1;
-		} else
-			cb_in->ws_ok = 0;
-
-		cb_out->sack_ok = cb_in->sack_ok = rcb->sack_ok;
-#ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[%s][DyscoAgentIn-Control] insert_hash_output method\n", ns.c_str());
-#endif
-		dc->insert_hash_output(this->index, cb_out);
-
-		//TEST //TODO //Ronaldo
-		//sc_len must be greater than 1
-		uint32_t payload_len = ip->length.value() - (ip->header_length << 2) - (tcp->offset << 2);
-		ip->length = be16_t(ip->length.value() - sizeof(uint32_t));
-		uint32_t* sc = reinterpret_cast<uint32_t*>(payload + sizeof(DyscoControlMessage));
-		uint32_t sc_len = (payload_len - sizeof(DyscoControlMessage))/sizeof(uint32_t);
-		memcpy(payload + sizeof(DyscoControlMessage), payload + sizeof(DyscoControlMessage) + sizeof(uint32_t), (sc_len - 1) * sizeof(uint32_t));
-		ip->src = ip->dst;
-		ip->dst = be32_t(htonl(sc[1]));
-		pkt->trim(sizeof(uint32_t));
-		sc[sc_len - 1] = 0xFF;
-		*/	
+		dc->insert_hash_input(this->index, cb_in);
+		
+		return IS_RIGHT_ANCHOR;
 	}
 #ifdef DEBUG_RECONFIG
-	fprintf(stderr, "[%s][DyscoAgentIn-Control] insert_hash_input method\n", ns.c_str());
+	fprintf(stderr, "[%s][DyscoAgentIn-Control] It isn't the right anchor\n",
+		ns.c_str());
+	fprintf(stderr, "[%s][DyscoAgentIn-Control] Do nothing, follows regular algorithm.\n",
+		ns.c_str());
 #endif
-	dc->insert_hash_input(this->index, cb_in);
+	return ISNT_RIGHT_ANCHOR;
+	/*
+	  cb_in->sup = rcb->super;
+	  cb_in->out_iseq = rcb->leftIseq;
+	  cb_in->out_iack = rcb->leftIack;
+	  cb_in->seq_delta = cb_in->ack_delta = 0;
 
-	return true;
+	  if(rcb->leftIts) {
+	  cb_in->ts_in = cb_in->ts_out = rcb->leftIts;
+	  cb_in->ts_delta = 0;
+	  cb_in->ts_ok = 1;
+	  } else
+	  cb_in->ts_ok = 0;
+
+	  if(rcb->leftIws) {
+	  cb_in->ws_in = cb_in->ws_out = rcb->leftIws;
+	  cb_in->ws_delta = 0;
+	  cb_in->ws_ok = 1;
+	  } else
+	  cb_in->ws_ok = 0;
+
+	  cb_out->sack_ok = cb_in->sack_ok = rcb->sack_ok;
+	  #ifdef DEBUG_RECONFIG
+	  fprintf(stderr, "[%s][DyscoAgentIn-Control] insert_hash_output method\n", ns.c_str());
+	  #endif
+	  dc->insert_hash_output(this->index, cb_out);
+
+	  //TEST //TODO //Ronaldo
+	  //sc_len must be greater than 1
+	  uint32_t payload_len = ip->length.value() - (ip->header_length << 2) - (tcp->offset << 2);
+	  ip->length = be16_t(ip->length.value() - sizeof(uint32_t));
+	  uint32_t* sc = reinterpret_cast<uint32_t*>(payload + sizeof(DyscoControlMessage));
+	  uint32_t sc_len = (payload_len - sizeof(DyscoControlMessage))/sizeof(uint32_t);
+	  memcpy(payload + sizeof(DyscoControlMessage), payload + sizeof(DyscoControlMessage) + sizeof(uint32_t), (sc_len - 1) * sizeof(uint32_t));
+	  ip->src = ip->dst;
+	  ip->dst = be32_t(htonl(sc[1]));
+	  pkt->trim(sizeof(uint32_t));
+	  sc[sc_len - 1] = 0xFF;
+	*/	
 }
 
 CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, uint8_t* payload) {
