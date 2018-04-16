@@ -362,9 +362,20 @@ class DyscoCenter final : public Module {
  private:
 	std::map<be32_t, struct arp_entry> entries;
 	unordered_map<uint32_t, DyscoHashes> hashes;
+
+	inline bool isTCPSYN(Tcp* tcp) {
+		return tcp->flags == Tcp::Flag::kSyn;
+	}
 	
 	inline bool isTCPACK(Tcp* tcp) {
 		return tcp->flags == Tcp::Flag::kAck;
+	}
+
+	inline uint32_t hasPayload(Ipv4* ip, Tcp* tcp) {
+		size_t ip_hlen = ip->header_length << 2;
+		size_t tcp_hlen = tcp->offset << 2;
+
+		return ip->length.value() - ip_hlen - tcp_hlen;
 	}
 
 	inline bool isReconfigPacket(Ipv4* ip, Tcp* tcp) {
