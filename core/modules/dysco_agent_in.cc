@@ -112,6 +112,7 @@ void DyscoAgentIn::ProcessBatch(bess::PacketBatch* batch) {
 				case END:
 				case ERROR:
 				default:
+					break;
 				}
 				
 				continue;
@@ -120,7 +121,7 @@ void DyscoAgentIn::ProcessBatch(bess::PacketBatch* batch) {
 			input(pkt, ip, tcp);
 			out_gates[0].add(pkt);
 		}
-
+		
 		batch->clear();
 		RunChooseModule(0, &(out_gates[0]));
 		RunChooseModule(1, &(out_gates[1]));

@@ -403,7 +403,7 @@ DyscoHashIn* DyscoCenter::insert_cb_input(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_
 	DyscoTcpSession* ss;
 	//TODO //TEST //reconfig
 	if(isReconfigPacket(ip, tcp))
-		ss = (reinterpret_cast<DyscoControlMessage*>(payload))->super;
+		ss = &(reinterpret_cast<DyscoControlMessage*>(payload))->super;
 	else
 		ss = reinterpret_cast<DyscoTcpSession*>(payload);
 	memcpy(&cb_in->sup, ss, sizeof(DyscoTcpSession));
