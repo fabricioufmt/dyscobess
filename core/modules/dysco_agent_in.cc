@@ -95,20 +95,23 @@ void DyscoAgentIn::ProcessBatch(bess::PacketBatch* batch) {
 			
 			if(isReconfigPacket(ip, tcp)) {
 #ifdef DEBUG_RECONFIG
-				fprintf(stderr, "[%s][DyscoAgentIn-Control] It's a reconfiguration packet...\n", ns.c_str());
+				fprintf(stderr, "[%s][DyscoAgentIn-Control] It's a reconfiguration packet.\n", ns.c_str());
 #endif
-				if(control_input(pkt, ip, tcp, reinterpret_cast<uint8_t*>(tcp) + tcp_hlen)) {
-					out_gates[1].add(pkt);
-#ifdef DEBUG_RECONFIG
-					fprintf(stderr, "[%s][DyscoAgentIn-Control] Forwarding to output 1\n", ns.c_str());
-#endif
-				} else {
-					//TEST
-					//bess::Packet::Free(pkt);
-				}
+				switch(control_input(pkt, ip, tcp, reinterpret_cast<uint8_t*>(tcp) + tcp_hlen)) {
+				case ISNT_RIGHT_ANCHOR:
+					input(pkt, ip, tcp);
+					out_gates[0].add(pkt);
 #ifdef DEBUG				
-				print_out1(ns, ip, tcp);
+					print_out1(ns, ip, tcp);
 #endif
+					continue;
+					
+				case IS_RIGHT_ANCHOR:
+					//TODO
+				case ERROR:
+				default:
+				}
+				
 				continue;
 			}
 			
@@ -783,7 +786,11 @@ bool DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, ui
 #ifdef DEBUG_RECONFIG
 		fprintf(stderr, "[%s][DyscoAgentIn-Control] It isn't the right anchor\n",
 			ns.c_str());
-#endif	
+		fprintf(stderr, "[%s][DyscoAgentIn-Control] Do nothing, follows regular algorithm.\n",
+			ns.c_str());
+#endif
+		return ISNT_RIGHT_ANCHOR;
+		/*
 		cb_in->sup = rcb->super;
 		cb_in->out_iseq = rcb->leftIseq;
 		cb_in->out_iack = rcb->leftIack;
@@ -820,7 +827,7 @@ bool DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, ui
 		ip->dst = be32_t(htonl(sc[1]));
 		pkt->trim(sizeof(uint32_t));
 		sc[sc_len - 1] = 0xFF;
-		
+		*/	
 	}
 #ifdef DEBUG_RECONFIG
 	fprintf(stderr, "[%s][DyscoAgentIn-Control] insert_hash_input method\n", ns.c_str());
@@ -830,7 +837,7 @@ bool DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, ui
 	return true;
 }
 
-bool DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, uint8_t* payload) {
+CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, uint8_t* payload) {
 	DyscoControlMessage* cmsg;
 	DyscoCbReconfig* rcb;
 
@@ -844,7 +851,7 @@ bool DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, uint8_t*
 #ifdef DEBUG_RECONFIG
 			fprintf(stderr, "[%s][DyscoAgentIn-Control] It's a retransmission of reconfiguration packet.\n", ns.c_str());
 #endif
-			return true;
+			return false;
 		}
 
 		rcb = insert_rcb_control_input(ip, cmsg);

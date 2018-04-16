@@ -400,7 +400,12 @@ DyscoHashIn* DyscoCenter::insert_cb_input(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_
 	cb_in->sub.sport = htons(tcp->src_port.value());
 	cb_in->sub.dport = htons(tcp->dst_port.value());
 
-	DyscoTcpSession* ss = reinterpret_cast<DyscoTcpSession*>(payload);
+	DyscoTcpSession* ss;
+	//TODO //TEST //reconfig
+	if(isReconfigPacket(ip, tcp))
+		ss = (reinterpret_cast<DyscoControlMessage*>(payload))->super;
+	else
+		ss = reinterpret_cast<DyscoTcpSession*>(payload);
 	memcpy(&cb_in->sup, ss, sizeof(DyscoTcpSession));
 
 	cb_in->two_paths = 0;

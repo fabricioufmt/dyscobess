@@ -26,6 +26,12 @@ using bess::utils::Ethernet;
 using bess::utils::be32_t;
 using bess::utils::be16_t;
 
+enum CONTROL_RETURN {
+	IS_RIGHT_ANCHOR,
+	ISNT_RIGHT_ANCHOR,
+	ERROR
+};
+
 class DyscoAgentIn final : public Module {
  public:
 	static const gate_idx_t kNumIGates = 1;
@@ -119,7 +125,7 @@ class DyscoAgentIn final : public Module {
 	bool compute_deltas_out(DyscoHashOut*, DyscoHashOut*, DyscoCbReconfig*);
 	bool control_config_rightA(DyscoCbReconfig*, DyscoControlMessage*, DyscoHashIn*, DyscoHashOut*);
 	bool control_reconfig_in(bess::Packet*, Ipv4*, Tcp*, uint8_t*, DyscoCbReconfig*, DyscoControlMessage*);
-	bool control_input(bess::Packet*, Ipv4*, Tcp*, uint8_t*);
+	CONTROL_RETURN control_input(bess::Packet*, Ipv4*, Tcp*, uint8_t*);
 
 
 
