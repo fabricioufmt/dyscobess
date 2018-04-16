@@ -321,6 +321,38 @@ DyscoHashOut* DyscoCenter::lookup_pending_tag(uint32_t i, Tcp* tcp) {
 /*
   Dysco methods (INPUT)
  */
+bool DyscoCenter::insert_pending_reconfig(DyscoHashes* dh, uint8_t* payload, uint32_t payload_sz) {
+	if(!dh)
+		return false;
+
+	uint32_t sc_len = (payload_sz - sizeof(DyscoControlMessage))/sizeof(uint32_t);
+	if(sc_len < 2)
+		return false;
+	
+	DyscoHashOut* cb_out = new DyscoHashOut();
+	if(!cb_out)
+		return false;
+
+	DyscoTcpSession* sup = &cb_out->sup;
+	DyscoTcpSession* ss = &(reinterpret_cast<DyscoControlMessage*>(payload)->super);
+
+	sup->sip = ss->sip;
+	sup->dip = ss->dip;
+	sup->sport = ss->sport;
+	sup->dport = ss->dport;
+
+	cb_out->sc_len = sc_len - 1;
+	uint32_t* sc = new uint32_t[sc_len - 1];
+	memcpy(sc, payload + sizeof(DyscoControlMessage) + sizeof(uint32_t), (sc_len - 1) * sizeof(uint32_t));
+	cb_out->sc = sc;
+	
+	dh->hash_pen.insert(std::pair<DyscoTcpSession, DyscoHashOut>(*sup, *cb_out));
+	dh->hash_pen_tag.insert(std::pair<uint32_t, DyscoHashOut>(cb_out->dysco_tag, *cb_out));
+	//TODO: DyscoTag (verify)
+
+	return true;
+}
+
 
 bool DyscoCenter::insert_pending(DyscoHashes* dh, uint8_t* payload, uint32_t payload_sz) {
 	if(!dh)
@@ -385,6 +417,7 @@ DyscoHashOut* DyscoCenter::insert_cb_in_reverse(DyscoTcpSession* ss_payload, Ipv
 	return cb_out;
 }
 
+//ONLY INST_RIGHT_ANCHOR reaches here
 DyscoHashIn* DyscoCenter::insert_cb_input(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_t* payload, uint32_t payload_sz) {
 	DyscoHashes* dh = get_hash(i);
 	if(!dh)
@@ -416,17 +449,30 @@ DyscoHashIn* DyscoCenter::insert_cb_input(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_
 
 	cb_out = insert_cb_in_reverse(ss, ip, tcp);
 	if(!cb_out) {
+#ifdef DEBUG
+		fprintf(stderr, "[DyscoCenter] insert_cb_in_reverse returns null\n");
+#endif
 		delete cb_in;
 
 		return 0;
 	}
-	
-	if(payload_sz > sizeof(DyscoTcpSession) + sizeof(uint32_t)) {
-		if(!insert_pending(dh, payload, payload_sz)) {
-			delete cb_in;
-			delete cb_out;
+	if(!isReconfigPacket(ip, tcp)) {
+		if(payload_sz > sizeof(DyscoTcpSession) + sizeof(uint32_t)) {
+			if(!insert_pending(dh, payload, payload_sz)) {
+				delete cb_in;
+				delete cb_out;
+				
+				return 0;
+			}
+		}
+	} else {
+		if(payload_sz > sizeof(DyscoControlMessage) + sizeof(uint32_t)) {
+			if(!insert_pending_reconfig(dh, payload, payload_sz)) {
+				delete cb_in;
+				delete cb_out;
 
-			return 0;
+				return 0;
+			}
 		}
 	}
 	

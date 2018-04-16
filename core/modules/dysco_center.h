@@ -411,6 +411,7 @@ class DyscoCenter final : public Module {
 	  Dysco methods (INPUT)
 	*/
 	bool insert_pending(DyscoHashes*, uint8_t*, uint32_t);
+	bool insert_pending_reconfig(DyscoHashes*, uint8_t*, uint32_t);
 	DyscoHashOut* insert_cb_in_reverse(DyscoTcpSession*, Ipv4*, Tcp*);
 
 	/*
