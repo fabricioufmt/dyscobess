@@ -108,6 +108,8 @@ void DyscoAgentIn::ProcessBatch(bess::PacketBatch* batch) {
 					
 				case IS_RIGHT_ANCHOR:
 					//TODO
+				case IS_RETRANSMISSION:
+				case END:
 				case ERROR:
 				default:
 				}
@@ -850,7 +852,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 #ifdef DEBUG_RECONFIG
 			fprintf(stderr, "[%s][DyscoAgentIn-Control] It's a retransmission of reconfiguration packet.\n", ns.c_str());
 #endif
-			return false;
+			return IS_RETRANSMISSION;
 		}
 
 		rcb = insert_rcb_control_input(ip, cmsg);
@@ -858,21 +860,23 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 #ifdef DEBUG_RECONFIG
 			fprintf(stderr, "[%s][DyscoAgentIn-Control] Error to insert rcb control input.\n", ns.c_str());
 #endif			
-			return false;
+			return ERROR;
 		}
 		
 		return control_reconfig_in(pkt, ip, tcp, payload, rcb, cmsg);
 
+		/*
 	case DYSCO_SYN_ACK:
 #ifdef DEBUG_RECONFIG
 		fprintf(stderr, "DYSCO_SYN_ACK message.\n");
 #endif
 		//verify htonl
-		if(ip->dst.value() == cmsg->leftA) {
+		if(ip->dst.value() == ntohl(cmsg->leftA)) {
 			DyscoHashOut* cb_out = dc->lookup_output_by_ss(this->index, &cmsg->leftSS);
 
 			if(!cb_out)
-				return true;
+				return ERROR //TODO
+				//return true;
 
 			if(cb_out->state == DYSCO_ESTABLISHED) {
 				// It is a retransmission
@@ -950,8 +954,8 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 	}
 
 	//skb modifies???
-
-	return true;
+	*/
+	return END;
 }
 
 
