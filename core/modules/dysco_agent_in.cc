@@ -56,17 +56,13 @@ CommandResponse DyscoAgentIn::Init(const bess::pb::DyscoAgentInArg& arg) {
 }
 
 CommandResponse DyscoAgentIn::CommandInfo(const bess::pb::EmptyArg&) {
-	if(get_port_information()) {
-		fprintf(stderr, "[%s] retornou true\n", ns.c_str());
+	if(get_port_information())
 		return CommandSuccess();
-	}
-	fprintf(stderr, "retornou false\n");
+	
 	return CommandFailure(EINVAL, "ERROR: Port information.");
 }
 
 void DyscoAgentIn::ProcessBatch(bess::PacketBatch* batch) {
-	//get_port_information();
-	
 	if(!dc) {
 		RunChooseModule(0, batch);
 		return;

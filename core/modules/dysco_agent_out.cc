@@ -66,78 +66,73 @@ CommandResponse DyscoAgentOut::Init(const bess::pb::DyscoAgentOutArg& arg) {
 }
 
 CommandResponse DyscoAgentOut::CommandInfo(const bess::pb::EmptyArg&) {
-	if(get_port_information()) {
-		fprintf(stderr, "[%s] retornou true\n", ns.c_str());
+	if(get_port_information())
 		return CommandSuccess();
-	}
-	fprintf(stderr, "retornou false\n");
 	
 	return CommandFailure(EINVAL, "ERROR: Port information.");
 }
 
 void DyscoAgentOut::ProcessBatch(bess::PacketBatch* batch) {
-	//get_port_information();
+	if(!dc) {
+		RunChooseModule(0, batch);
+		return;
+	}
 	
-	if(dc) {
-		Ethernet* eth;
-		bess::Packet* pkt;
-		for(int i = 0; i < batch->cnt(); i++) {
-			pkt = batch->pkts()[i];
-			eth = pkt->head_data<Ethernet*>();
+	Ethernet* eth;
+	bess::Packet* pkt;
+	for(int i = 0; i < batch->cnt(); i++) {
+		pkt = batch->pkts()[i];
+		eth = pkt->head_data<Ethernet*>();
 			
-			if(!isIP(eth))
-				continue;
+		if(!isIP(eth))
+			continue;
 			
-			Ipv4* ip = reinterpret_cast<Ipv4*>(eth + 1);
-			size_t ip_hlen = ip->header_length << 2;
-			if(!isTCP(ip))
-				continue;
+		Ipv4* ip = reinterpret_cast<Ipv4*>(eth + 1);
+		size_t ip_hlen = ip->header_length << 2;
+		if(!isTCP(ip))
+			continue;
 			
-			Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
-			if(isReconfigPacket(ip, tcp)) {
+		Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
+		if(isReconfigPacket(ip, tcp)) {
 #ifdef DEBUG_RECONFIG
-				fprintf(stderr, "[%s][DyscoAgentOut-Control] receives %s:%u -> %s:%u\n",
-					ns.c_str(),
-					printip2(ip->src.value()), tcp->src_port.value(),
-					printip2(ip->dst.value()), tcp->dst_port.value());
-				fprintf(stderr, "[%s][DyscoAgentOut-Control] It's reconfiguration packet.\n", ns.c_str());
+			fprintf(stderr, "[%s][DyscoAgentOut-Control] receives %s:%u -> %s:%u\n",
+				ns.c_str(),
+				printip2(ip->src.value()), tcp->src_port.value(),
+				printip2(ip->dst.value()), tcp->dst_port.value());
+			fprintf(stderr, "[%s][DyscoAgentOut-Control] It's reconfiguration packet.\n", ns.c_str());
 #endif
-				control_output(ip, tcp);
-				dysco_packet(eth);
+			control_output(ip, tcp);
+			dysco_packet(eth);
 
 #ifdef DEBUG_RECONFIG
-				fprintf(stderr, "[%s][DyscoAgentOut-Control] forwards %s:%u -> %s:%u\n",
-					ns.c_str(),
-					printip2(ip->src.value()), tcp->src_port.value(),
-					printip2(ip->dst.value()), tcp->dst_port.value());
+			fprintf(stderr, "[%s][DyscoAgentOut-Control] forwards %s:%u -> %s:%u\n",
+				ns.c_str(),
+				printip2(ip->src.value()), tcp->src_port.value(),
+				printip2(ip->dst.value()), tcp->dst_port.value());
 #endif
 				
-				continue;
-			}
+			continue;
+		}
 
 #ifdef DEBUG_RECONFIG
-			fprintf(stderr, "[%s][DyscoAgentOut-Control] It isn't reconfiguration packet.\n", ns.c_str());
+		fprintf(stderr, "[%s][DyscoAgentOut-Control] It isn't reconfiguration packet.\n", ns.c_str());
 #endif		
 
 			
-			if(output(pkt, ip, tcp))
-				dysco_packet(eth);
+		if(output(pkt, ip, tcp))
+			dysco_packet(eth);
 			
-			/*
-			if(output(pkt))
-				process_ethernet(pkt);
-			*/
-			//insert_metadata(pkt);
-		}
+		/*
+		  if(output(pkt))
+		  process_ethernet(pkt);
+		*/
+		//insert_metadata(pkt);
 	}
 	
 	RunChooseModule(0, batch);
 }
 
 bool DyscoAgentOut::get_port_information() {
-	//if(info_flag)
-	//	return true;
-	
 	gate_idx_t igate_idx = 0; //always 1 input gate (DyscoPortInc)
 
 	if(!is_active_gate<bess::IGate>(igates(), igate_idx))
