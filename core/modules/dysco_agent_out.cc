@@ -67,7 +67,7 @@ CommandResponse DyscoAgentOut::Init(const bess::pb::DyscoAgentOutArg& arg) {
 
 CommandResponse DyscoAgentOut::CommandInfo(const bess::pb::EmptyArg&) {
 	if(get_port_information()) {
-		fprintf(stderr, "retornou true\n");
+		fprintf(stderr, "[%s] retornou true\n", ns.c_str());
 		return CommandSuccess();
 	}
 	fprintf(stderr, "retornou false\n");
@@ -135,8 +135,8 @@ void DyscoAgentOut::ProcessBatch(bess::PacketBatch* batch) {
 }
 
 bool DyscoAgentOut::get_port_information() {
-	if(info_flag)
-		return true;
+	//if(info_flag)
+	//	return true;
 	
 	gate_idx_t igate_idx = 0; //always 1 input gate (DyscoPortInc)
 
