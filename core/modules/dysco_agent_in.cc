@@ -65,6 +65,8 @@ CommandResponse DyscoAgentIn::CommandInfo(const bess::pb::EmptyArg&) {
 }
 
 void DyscoAgentIn::ProcessBatch(bess::PacketBatch* batch) {
+	get_port_information();
+	
 	if(!dc) {
 		RunChooseModule(0, batch);
 		return;
