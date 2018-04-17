@@ -4,11 +4,10 @@
 #include <stdio.h>
 #include <arpa/inet.h>
 
-#include "dysco_center.h"
-
 #include "../port.h"
 #include "../module.h"
 #include "../pb/module_msg.pb.h"
+#include "dysco_center.h"
 #include "../drivers/dysco_vport.h"
 
 #include "../utils/ip.h"
@@ -37,14 +36,12 @@ enum CONTROL_RETURN {
 
 class DyscoAgentIn final : public Module {
  public:
-	static const Commands cmds;
 	static const gate_idx_t kNumIGates = 1;
 	static const gate_idx_t kNumOGates = 2;
 
 	DyscoAgentIn();
 	void ProcessBatch(bess::PacketBatch*) override;
 	CommandResponse Init(const bess::pb::DyscoAgentInArg&);
-	CommandResponse CommandInfo(const bess::pb::EmptyArg&);
 
 	//Dysco
 	bool get_port_information();
