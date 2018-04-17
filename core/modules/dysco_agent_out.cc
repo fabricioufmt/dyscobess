@@ -29,6 +29,10 @@ void print_out2(std::string ns, Ipv4* ip, Tcp* tcp) {
 		printip2(ip->dst.value()), tcp->dst_port.value());
 }
 
+const Commands DyscoAgentOut::cmds = {
+	{"get_info", "EmptyArg", MODULE_CMD_FUNC(&DyscoAgentOut::CommandInfo), Command::THREAD_UNSAFE}
+};
+
 DyscoAgentOut::DyscoAgentOut() : Module() {
 	dc = 0;
 	devip = 0;
@@ -57,24 +61,18 @@ CommandResponse DyscoAgentOut::Init(const bess::pb::DyscoAgentOutArg& arg) {
 	dc = reinterpret_cast<DyscoCenter*>(it->second);
 	if(!dc)
 		return CommandFailure(ENODEV, "DyscoCenter module is NULL.");
-	/*
-	const char* port_name = arg.port().c_str();
-	//const auto& itt = PortBuilder::all_ports().find(port_name);
-	const auto& itt = PortBuilder::all_ports().find(arg.port());
-	if(itt == PortBuilder::all_ports().end()) {
-		return CommandFailure(ENODEV, "Port %s not found", port_name);
-	}
-
-	index = dc->get_index(reinterpret_cast<Port*>(itt->second)->name());
-	*/
-	/*inet_pton(AF_INET, arg.ip().c_str(), &devip);
-	index = dc->get_index(arg.ns(), devip);
-	ns = arg.ns();*/
-
-	//if(!get_port_information())
-	//	return CommandFailure(ENODEV, "DyscoVPort module is NULL.");
 
 	return CommandSuccess();
+}
+
+CommandResponse DyscoAgentOut::CommandInfo(const bess::pb::EmptyArg&) {
+	if(get_port_information()) {
+		fprintf(stderr, "[%s] retornou true\n", ns.c_str());
+		return CommandSuccess();
+	}
+	fprintf(stderr, "retornou false\n");
+	
+	return CommandFailure(EINVAL, "ERROR: Port information.");
 }
 
 void DyscoAgentOut::ProcessBatch(bess::PacketBatch* batch) {
@@ -137,8 +135,8 @@ void DyscoAgentOut::ProcessBatch(bess::PacketBatch* batch) {
 }
 
 bool DyscoAgentOut::get_port_information() {
-	if(info_flag)
-		return true;
+	//if(info_flag)
+	//	return true;
 	
 	gate_idx_t igate_idx = 0; //always 1 input gate (DyscoPortInc)
 
