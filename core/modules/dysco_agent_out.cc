@@ -102,6 +102,10 @@ void DyscoAgentOut::ProcessBatch(bess::PacketBatch* batch) {
 #endif
 				control_output(ip, tcp);
 				dysco_packet(eth);
+
+#ifdef DEBUG
+				print_out2(ns, ip, tcp);
+#endif
 				
 				continue;
 			}
@@ -610,7 +614,7 @@ bool DyscoAgentOut::control_output_syn(Ipv4* ip, DyscoControlMessage* cmsg) {
 
 		if(rcb) {
 #ifdef DEBUG_RECONFIG
-			fprintf(stderr, "[%s][DyscoAgentOut-Control] rcb isn't NULL.\n", ns.c_str());
+			fprintf(stderr, "[%s][DyscoAgentOut-Control] It's retransmission. rcb isn't NULL.\n", ns.c_str());
 #endif
 			cmsg->leftIseq = htonl(rcb->leftIseq);
 			cmsg->leftIack = htonl(rcb->leftIack);
