@@ -109,11 +109,11 @@ class DyscoAgentOut final : public Module {
 	  CONTROL
 	 */
 
-	DyscoCbReconfig* insert_cb_control(Ipv4*, DyscoControlMessage*);
+	DyscoCbReconfig* insert_cb_control(Ipv4*, Tcp*, DyscoControlMessage*);
 	bool control_insert_out(DyscoCbReconfig*);
 	bool replace_cb_rightA(DyscoControlMessage*);
 	bool replace_cb_leftA(DyscoCbReconfig*, DyscoControlMessage*);
-	bool control_output_syn(Ipv4*, DyscoControlMessage*);
+	bool control_output_syn(Ipv4*, Tcp*, DyscoControlMessage*);
 	bool control_output(Ipv4*, Tcp*);
 };
 

@@ -98,13 +98,20 @@ void DyscoAgentOut::ProcessBatch(bess::PacketBatch* batch) {
 			Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
 			if(isReconfigPacket(ip, tcp)) {
 #ifdef DEBUG_RECONFIG
+				fprintf(stderr, "[%s][DyscoAgentOut-Control] receives %s:%u -> %s:%u\n",
+					ns.c_str(),
+					printip2(ip->src.value()), tcp->src_port.value(),
+					printip2(ip->dst.value()), tcp->dst_port.value());
 				fprintf(stderr, "[%s][DyscoAgentOut-Control] It's reconfiguration packet.\n", ns.c_str());
 #endif
 				control_output(ip, tcp);
 				dysco_packet(eth);
 
-#ifdef DEBUG
-				print_out2(ns, ip, tcp);
+#ifdef DEBUG_RECONFIG
+				fprintf(stderr, "[%s][DyscoAgentOut-Control] forwards %s:%u -> %s:%u\n",
+					ns.c_str(),
+					printip2(ip->src.value()), tcp->src_port.value(),
+					printip2(ip->dst.value()), tcp->dst_port.value());
 #endif
 				
 				continue;
@@ -500,28 +507,34 @@ bool DyscoAgentOut::output(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
   Dysco codes below. Control output
 */
 
-DyscoCbReconfig* DyscoAgentOut::insert_cb_control(Ipv4* ip, DyscoControlMessage* cmsg) {
+DyscoCbReconfig* DyscoAgentOut::insert_cb_control(Ipv4* ip, Tcp* tcp, DyscoControlMessage* cmsg) {
 	DyscoCbReconfig* rcb = new DyscoCbReconfig();
 
 	//Ronaldo:
 	//rec_done
 
-	rcb->super = cmsg->leftSS;
-	rcb->sub_out.sip = ip->src.value();
-	rcb->sub_out.dip = ip->dst.value();
-	rcb->sub_out.sport = dc->allocate_local_port(this->index);
-	rcb->sub_out.dport = dc->allocate_neighbor_port(this->index);
+	//rcb->super = cmsg->leftSS;
+	//TEST //TODO //Ronaldo
+	rcb->super = cmsg->super;
+	rcb->sub_out.sip = htonl(ip->src.value());
+	rcb->sub_out.dip = htonl(ip->dst.value());
+	rcb->sub_out.sport = htons(tcp->src_port.value());
+	rcb->sub_out.dport = htons(tcp->dst_port.value());
+	//rcb->sub_out.sip = ip->src.value();
+	//rcb->sub_out.dip = ip->dst.value();
+	//rcb->sub_out.sport = dc->allocate_local_port(this->index);
+	//rcb->sub_out.dport = dc->allocate_neighbor_port(this->index);
+	
+	rcb->leftIseq = cmsg->leftIseq;
+	rcb->leftIack = cmsg->leftIack;
 
-	rcb->leftIseq = ntohl(cmsg->leftIseq);
-	rcb->leftIack = ntohl(cmsg->leftIack);
+	rcb->leftIts = cmsg->leftIts;
+	rcb->leftItsr = cmsg->leftItsr;
 
-	rcb->leftIts = ntohl(cmsg->leftIts);
-	rcb->leftItsr = ntohl(cmsg->leftItsr);
+	rcb->leftIws = cmsg->leftIws;
+	rcb->leftIwsr = cmsg->leftIwsr;
 
-	rcb->leftIws = ntohl(cmsg->leftIws);
-	rcb->leftIwsr = ntohl(cmsg->leftIwsr);
-
-	rcb->sack_ok = ntohs(cmsg->sackOk);
+	rcb->sack_ok = cmsg->sackOk;
 
 	cmsg->sport = rcb->sub_out.sport;
 	cmsg->dport = rcb->sub_out.dport;
@@ -599,7 +612,7 @@ bool DyscoAgentOut::replace_cb_leftA(DyscoCbReconfig* rcb, DyscoControlMessage* 
 	return true;
 }
 
-bool DyscoAgentOut::control_output_syn(Ipv4* ip, DyscoControlMessage* cmsg) {
+bool DyscoAgentOut::control_output_syn(Ipv4* ip, Tcp* tcp, DyscoControlMessage* cmsg) {
 	DyscoCbReconfig* rcb = dc->lookup_reconfig_by_ss(this->index, &cmsg->super);
 #ifdef DEBUG_RECONFIG
 	fprintf(stderr, "[%s][DyscoAgentOut-Control] control_output_syn method\n", ns.c_str());
@@ -649,23 +662,24 @@ bool DyscoAgentOut::control_output_syn(Ipv4* ip, DyscoControlMessage* cmsg) {
 				return false;
 			}
 
-			cmsg->leftIseq = htonl(old_dcb->in_iseq);
-			cmsg->leftIack = htonl(old_dcb->in_iack);
+			cmsg->leftIseq = old_dcb->in_iseq;
+			cmsg->leftIack = old_dcb->in_iack;
 
-			cmsg->leftIts = htonl(old_dcb->ts_in);
-			cmsg->leftItsr = htonl(old_dcb->tsr_in);
+			cmsg->leftIts = old_dcb->ts_in;
+			cmsg->leftItsr = old_dcb->tsr_in;
 
-			cmsg->leftIws = htons(old_dcb->ws_in);
+			cmsg->leftIws = old_dcb->ws_in;
 			//FIXME //TODO
 			//cmsg->leftIwsr = htons(old_dcb->dcb_in->ws_in);
 
+			//cmsg->sackOk = old_dcb->sack_ok;
+			//cmsg->sackOk = htons(cmsg->sackOk);
 			cmsg->sackOk = old_dcb->sack_ok;
-			cmsg->sackOk = htons(cmsg->sackOk);
 
-			rcb = insert_cb_control(ip, cmsg);
+			rcb = insert_cb_control(ip, tcp, cmsg);
 			if(!rcb) {
 #ifdef DEBUG_RECONFIG
-				fprintf(stderr, "[%s][DyscoAgentOut-Control] Error to isnert_cb_control.\n", ns.c_str());
+				fprintf(stderr, "[%s][DyscoAgentOut-Control] Error to insert_cb_control.\n", ns.c_str());
 #endif
 				return false;
 			}
@@ -716,7 +730,7 @@ bool DyscoAgentOut::control_output_syn(Ipv4* ip, DyscoControlMessage* cmsg) {
 	if(rcb && rcb->sub_out.sip != 0)
 		return true;
 
-	rcb = insert_cb_control(ip, cmsg);
+	rcb = insert_cb_control(ip, tcp, cmsg);
 	if(!rcb)
 		return false;
 
@@ -742,7 +756,7 @@ bool DyscoAgentOut::control_output(Ipv4* ip, Tcp* tcp) {
 #endif
 	switch(cmsg->mtype) {
 	case DYSCO_SYN:
-		return control_output_syn(ip, cmsg);
+		return control_output_syn(ip, tcp, cmsg);
 		
 	case DYSCO_SYN_ACK:
 		if(ip->src.value() == cmsg->rightA)
