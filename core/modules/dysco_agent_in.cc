@@ -136,8 +136,8 @@ void DyscoAgentIn::ProcessBatch(bess::PacketBatch* batch) {
 				continue;
 			}
 			
-			if(input(pkt, ip, tcp))
-				out_gates[0].add(pkt);
+			input(pkt, ip, tcp);
+			out_gates[0].add(pkt);
 		}
 		
 		batch->clear();
