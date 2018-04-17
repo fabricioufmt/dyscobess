@@ -604,19 +604,19 @@ bool DyscoAgentOut::replace_cb_leftA(DyscoCbReconfig* rcb, DyscoControlMessage* 
 bool DyscoAgentOut::control_output_syn(Ipv4* ip, DyscoControlMessage* cmsg) {
 	DyscoCbReconfig* rcb = dc->lookup_reconfig_by_ss(this->index, &cmsg->super);
 #ifdef DEBUG_RECONFIG
-	fprintf(stderr, "[%s][DyscoAgentOut-Control] control_output_syn method\n");
+	fprintf(stderr, "[%s][DyscoAgentOut-Control] control_output_syn method\n", ns.c_str());
 #endif
 	//verify htonl
 	if(ip->src.value() == ntohl(cmsg->leftA)) {
 #ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[%s][DyscoAgentOut-Control] It's the left anchor.\n");
+		fprintf(stderr, "[%s][DyscoAgentOut-Control] It's the left anchor.\n", ns.c_str());
 #endif
 		DyscoHashOut* old_dcb;
 		DyscoHashOut* new_dcb;
 
 		if(rcb) {
 #ifdef DEBUG_RECONFIG
-			fprintf(stderr, "[%s][DyscoAgentOut-Control] rcb isn't NULL.\n");
+			fprintf(stderr, "[%s][DyscoAgentOut-Control] rcb isn't NULL.\n", ns.c_str());
 #endif
 			cmsg->leftIseq = htonl(rcb->leftIseq);
 			cmsg->leftIack = htonl(rcb->leftIack);
@@ -638,7 +638,7 @@ bool DyscoAgentOut::control_output_syn(Ipv4* ip, DyscoControlMessage* cmsg) {
 			return true;
 		} else {
 #ifdef DEBUG_RECONFIG
-			fprintf(stderr, "[%s][DyscoAgentOut-Control] rcb is NULL.\n");
+			fprintf(stderr, "[%s][DyscoAgentOut-Control] rcb is NULL.\n", ns.c_str());
 #endif
 			old_dcb = dc->lookup_output_by_ss(this->index, &cmsg->leftSS);
 
@@ -701,7 +701,7 @@ bool DyscoAgentOut::control_output_syn(Ipv4* ip, DyscoControlMessage* cmsg) {
 		return true;
 	}
 #ifdef DEBUG_RECONFIG
-	fprintf(stderr, "[%s][DyscoAgentOut-Control] It isn't the left anchor.\n");
+	fprintf(stderr, "[%s][DyscoAgentOut-Control] It isn't the left anchor.\n", ns.c_str());
 #endif
 	if(rcb && rcb->sub_out.sip != 0)
 		return true;
@@ -728,7 +728,7 @@ bool DyscoAgentOut::control_output(Ipv4* ip, Tcp* tcp) {
 	uint8_t* payload = reinterpret_cast<uint8_t*>(tcp) + (tcp->offset << 2);
 	cmsg = reinterpret_cast<DyscoControlMessage*>(payload);
 #ifdef DEBUG_RECONFIG
-	fprintf(stderr, "[%s][DyscoAgentOut-Control] control_output method\n");
+	fprintf(stderr, "[%s][DyscoAgentOut-Control] control_output method\n", ns.c_str());
 #endif
 	switch(cmsg->mtype) {
 	case DYSCO_SYN:
