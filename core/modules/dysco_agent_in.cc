@@ -111,9 +111,24 @@ void DyscoAgentIn::ProcessBatch(bess::PacketBatch* batch) {
 					break;
 #endif
 				case IS_RETRANSMISSION:
+#ifdef DEBUG_RECONFIG
+					fprintf(stderr, "[%s][DyscoAgentIn-Control] IS_RETRANSMISSION case\n", ns.c_str());
+					break;
+#endif	
 				case END:
+#ifdef DEBUG_RECONFIG
+					fprintf(stderr, "[%s][DyscoAgentIn-Control] END case\n", ns.c_str());
+					break;
+#endif	
 				case ERROR:
+#ifdef DEBUG_RECONFIG
+					fprintf(stderr, "[%s][DyscoAgentIn-Control] ERROR case\n", ns.c_str());
+					break;
+#endif	
 				default:
+#ifdef DEBUG_RECONFIG
+					fprintf(stderr, "[%s][DyscoAgentIn-Control] default case\n", ns.c_str());
+#endif	
 					break;
 				}
 				
