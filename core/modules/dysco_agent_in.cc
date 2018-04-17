@@ -108,7 +108,8 @@ void DyscoAgentIn::ProcessBatch(bess::PacketBatch* batch) {
 					//TODO
 #ifdef DEBUG_RECONFIG
 					fprintf(stderr, "[%s][DyscoAgentIn-Control] It's right anchor, do nothing yet\n", ns.c_str());
-					break;
+					out_gates[1].add(pkt);
+					continue;
 #endif
 				case IS_RETRANSMISSION:
 #ifdef DEBUG_RECONFIG
