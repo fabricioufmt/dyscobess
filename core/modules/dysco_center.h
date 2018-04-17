@@ -122,6 +122,40 @@ class DyscoTcpTs {
 	uint32_t tsr;
 };
 
+
+class DyscoControlMessage {
+ public:
+	uint32_t mtype;
+	DyscoTcpSession super;
+	DyscoTcpSession leftSS;
+	DyscoTcpSession rightSS;
+	uint32_t leftA;
+	uint32_t rightA;
+
+	uint16_t sport;
+	uint16_t dport;
+
+	uint32_t leftIseq;
+	uint32_t leftIack;
+
+	uint32_t rightIseq;
+	uint32_t rightIack;
+
+	uint32_t seqCutoff;
+
+	uint32_t leftIts;
+	uint32_t leftItsr;
+
+	uint16_t leftIws;
+	uint16_t leftIwsr;
+
+	uint16_t sackOk;
+	uint16_t semantic;
+
+	uint32_t srcMB;
+	uint32_t dstMB;
+};
+
 class DyscoHashOut;
 
 class DyscoHashIn {
@@ -160,8 +194,6 @@ class DyscoHashIn {
 	
 	uint32_t skb_iif;
 };
-
-class DyscoControlMessage;
 
 class DyscoHashOut {
  public:
@@ -243,39 +275,6 @@ class DyscoCbReconfig {
 	//uint_8 nh_mac[6]
 
 	uint8_t sack_ok;
-};
-
-class DyscoControlMessage {
- public:
-	uint32_t mtype;
-	DyscoTcpSession super;
-	DyscoTcpSession leftSS;
-	DyscoTcpSession rightSS;
-	uint32_t leftA;
-	uint32_t rightA;
-
-	uint16_t sport;
-	uint16_t dport;
-
-	uint32_t leftIseq;
-	uint32_t leftIack;
-
-	uint32_t rightIseq;
-	uint32_t rightIack;
-
-	uint32_t seqCutoff;
-
-	uint32_t leftIts;
-	uint32_t leftItsr;
-
-	uint16_t leftIws;
-	uint16_t leftIwsr;
-
-	uint16_t sackOk;
-	uint16_t semantic;
-
-	uint32_t srcMB;
-	uint32_t dstMB;
 };
 
 class DyscoHashes {
