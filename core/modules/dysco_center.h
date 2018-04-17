@@ -213,6 +213,7 @@ class DyscoHashOut {
 	uint32_t ack_ctr;
 
 	uint32_t is_reconfiguration; //could be smaller
+	DyscoControlMessage cmsg;
 };
 
 class DyscoCbReconfig {
