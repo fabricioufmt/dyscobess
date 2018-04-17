@@ -161,6 +161,8 @@ class DyscoHashIn {
 	uint32_t skb_iif;
 };
 
+class DyscoControlMessage;
+
 class DyscoHashOut {
  public:
 	DyscoHashIn* dcb_in;
