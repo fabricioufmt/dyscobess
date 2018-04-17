@@ -652,7 +652,8 @@ bool DyscoAgentOut::control_output_syn(Ipv4* ip, DyscoControlMessage* cmsg) {
 			cmsg->leftItsr = htonl(old_dcb->tsr_in);
 
 			cmsg->leftIws = htons(old_dcb->ws_in);
-			cmsg->leftIwsr = htons(old_dcb->dcb_in->ws_in);
+			//FIXME //TODO
+			//cmsg->leftIwsr = htons(old_dcb->dcb_in->ws_in);
 
 			cmsg->sackOk = old_dcb->sack_ok;
 			cmsg->sackOk = htons(cmsg->sackOk);
