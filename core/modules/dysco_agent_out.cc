@@ -76,7 +76,7 @@ CommandResponse DyscoAgentOut::CommandInfo(const bess::pb::EmptyArg&) {
 }
 
 void DyscoAgentOut::ProcessBatch(bess::PacketBatch* batch) {
-	//get_port_information();
+	get_port_information();
 	
 	if(dc) {
 		Ethernet* eth;
