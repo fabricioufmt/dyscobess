@@ -698,7 +698,8 @@ bool DyscoAgentOut::control_output_syn(Ipv4* ip, DyscoControlMessage* cmsg) {
 		if(ntohs(cmsg->semantic) == STATE_TRANSFER)
 			old_dcb->state_t = 1;
 
-		old_dcb->dcb_in->two_paths = 1;
+		//FIXME //TODO //TEST
+		//old_dcb->dcb_in->two_paths = 1;
 		old_dcb->state = DYSCO_SYN_SENT;
 
 		old_dcb->other_path = new_dcb;
