@@ -466,7 +466,13 @@ DyscoHashIn* DyscoCenter::insert_cb_input(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_
 			}
 		}
 	} else {
+#ifdef DEBUG_RECONFIG
+		fprintf(stderr, "[DyscoCenter] inside cb_input\n");
+#endif
 		if(payload_sz > sizeof(DyscoControlMessage) + sizeof(uint32_t)) {
+#ifdef DEBUG_RECONFIG
+			fprintf(stderr, "[DyscoCenter] calling insert_pending_reconfig\n");
+#endif
 			if(!insert_pending_reconfig(dh, payload, payload_sz)) {
 				delete cb_in;
 				delete cb_out;
