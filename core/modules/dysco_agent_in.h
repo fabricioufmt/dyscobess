@@ -4,10 +4,11 @@
 #include <stdio.h>
 #include <arpa/inet.h>
 
+#include "dysco_center.h"
+
 #include "../port.h"
 #include "../module.h"
 #include "../pb/module_msg.pb.h"
-#include "dysco_center.h"
 #include "../drivers/dysco_vport.h"
 
 #include "../utils/ip.h"
@@ -43,6 +44,7 @@ class DyscoAgentIn final : public Module {
 	DyscoAgentIn();
 	void ProcessBatch(bess::PacketBatch*) override;
 	CommandResponse Init(const bess::pb::DyscoAgentInArg&);
+	CommandResponse CommandInfo(const bess::pb::EmptyArg&);
 
 	//Dysco
 	bool get_port_information();
