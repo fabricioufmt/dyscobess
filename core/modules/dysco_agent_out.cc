@@ -104,6 +104,10 @@ void DyscoAgentOut::ProcessBatch(bess::PacketBatch* batch) {
 				continue;
 			}
 
+#ifdef DEBUG_RECONFIG
+			fprintf(stderr, "[%s][DyscoAgentOut-Control] It isn't reconfiguration packet.\n", ns.c_str());
+#endif		
+
 			
 			if(output(pkt, ip, tcp))
 				dysco_packet(eth);
