@@ -95,6 +95,9 @@ void DyscoAgentOut::ProcessBatch(bess::PacketBatch* batch) {
 				
 			Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
 			if(isReconfigPacket(ip, tcp)) {
+#ifdef DEBUG_RECONFIG
+				fprintf(stderr, "[%s][DyscoAgentOut-Control] It's reconfiguration packet.\n", ns.c_str());
+#endif
 				control_output(ip, tcp);
 				dysco_packet(eth);
 				
