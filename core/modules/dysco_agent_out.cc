@@ -86,21 +86,15 @@ void DyscoAgentOut::ProcessBatch(bess::PacketBatch* batch) {
 		for(int i = 0; i < batch->cnt(); i++) {
 			pkt = batch->pkts()[i];
 			eth = pkt->head_data<Ethernet*>();
-#ifdef DEBUG_RECONFIG
-			fprintf(stderr, "[%s][DyscoAgentOut-Control] It's Ethernet.\n", ns.c_str());
-#endif		
+			
 			if(!isIP(eth))
 				continue;
-#ifdef DEBUG_RECONFIG
-			fprintf(stderr, "[%s][DyscoAgentOut-Control] It's IP.\n", ns.c_str());
-#endif		
+			
 			Ipv4* ip = reinterpret_cast<Ipv4*>(eth + 1);
 			size_t ip_hlen = ip->header_length << 2;
 			if(!isTCP(ip))
 				continue;
-#ifdef DEBUG_RECONFIG
-			fprintf(stderr, "[%s][DyscoAgentOut-Control] It's TCP.\n", ns.c_str());
-#endif						
+			
 			Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
 			if(isReconfigPacket(ip, tcp)) {
 #ifdef DEBUG_RECONFIG
@@ -640,10 +634,16 @@ bool DyscoAgentOut::control_output_syn(Ipv4* ip, DyscoControlMessage* cmsg) {
 #ifdef DEBUG_RECONFIG
 			fprintf(stderr, "[%s][DyscoAgentOut-Control] rcb is NULL.\n", ns.c_str());
 #endif
-			old_dcb = dc->lookup_output_by_ss(this->index, &cmsg->leftSS);
+			//TEST //TODO //Ronaldo
+			//old_dcb = dc->lookup_output_by_ss(this->index, &cmsg->leftSS);
+			old_dcb = dc->lookup_output_by_ss(this->index, &cmsg->super);
 
-			if(!old_dcb)
+			if(!old_dcb) {
+#ifdef DEBUG_RECONFIG
+				fprintf(stderr, "[%s][DyscoAgentOut-Control] lookup_output_by_ss returns NULL.\n", ns.c_str());
+#endif
 				return false;
+			}
 
 			cmsg->leftIseq = htonl(old_dcb->in_iseq);
 			cmsg->leftIack = htonl(old_dcb->in_iack);
@@ -658,8 +658,12 @@ bool DyscoAgentOut::control_output_syn(Ipv4* ip, DyscoControlMessage* cmsg) {
 			cmsg->sackOk = htons(cmsg->sackOk);
 
 			rcb = insert_cb_control(ip, cmsg);
-			if(!rcb)
+			if(!rcb) {
+#ifdef DEBUG_RECONFIG
+				fprintf(stderr, "[%s][DyscoAgentOut-Control] Error to isnert_cb_control.\n", ns.c_str());
+#endif
 				return false;
+			}
 		}
 
 		new_dcb = new DyscoHashOut();
