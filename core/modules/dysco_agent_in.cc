@@ -28,12 +28,11 @@ void print_out1(std::string ns, Ipv4* ip, Tcp* tcp) {
 }
 
 const Commands DyscoAgentIn::cmds = {
-	{"get_info", "EmptyArg", MODULE_CMD_FUNC(&DyscoAgentIn::CommandInfo),
-	 Command::THREAD_UNSAFE}
-}
-
+	{"get_info", "EmptyArg", MODULE_CMD_FUNC(&DyscoAgentIn::CommandInfo), Command::THREAD_UNSAFE}
+};
+	
 DyscoAgentIn::DyscoAgentIn() : Module() {
-	dc = 0;
+		dc = 0;
 	devip = 0;
 	index = 0;
 
