@@ -788,6 +788,11 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 			return ERROR;
 
 		//TEST //TODO //Ronaldo
+		Ethernet* eth = pkt->head_data<Ethernet*>();
+		Ethernet::Address macswap = eth->dst_addr;
+		eth->dst_addr = eth->src_addr;
+		eth->src_addr = macswap;
+		
 		be32_t ipswap = ip->dst;
 		ip->dst = ip->src;
 		ip->src = ipswap;
@@ -796,9 +801,9 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 		uint32_t payload_len = ip->length.value() - (ip->header_length << 2) - (tcp->offset << 2);
 		ip->length = be16_t((ip->header_length << 2) + (tcp->offset << 2));
 
-		be16_t psawp = tcp->src_port;
+		be16_t pswap = tcp->src_port;
 		tcp->src_port = tcp->dst_port;
-		tcp->dst_port = psawp;
+		tcp->dst_port = pswap;
 		tcp->ack_num = be32_t(tcp->seq_num.value() + 1);
 		tcp->seq_num = be32_t(rand() % 4294967296);
 		tcp->flags |= Tcp::kAck;
