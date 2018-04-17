@@ -101,9 +101,7 @@ void DyscoAgentIn::ProcessBatch(bess::PacketBatch* batch) {
 				case ISNT_RIGHT_ANCHOR:
 					input(pkt, ip, tcp);
 					out_gates[0].add(pkt);
-#ifdef DEBUG				
-					print_out1(ns, ip, tcp);
-#endif
+					
 					continue;
 					
 				case IS_RIGHT_ANCHOR:

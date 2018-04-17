@@ -211,6 +211,8 @@ class DyscoHashOut {
 	uint8_t padding;
 	
 	uint32_t ack_ctr;
+
+	uint32_t is_reconfiguration; //could be smaller
 };
 
 class DyscoCbReconfig {
