@@ -27,6 +27,7 @@ using bess::utils::be16_t;
 
 class DyscoAgentOut final : public Module {
  public:
+	static const Commands cmds;
 	static const gate_idx_t kNumIGates = 1;
 	static const gate_idx_t kNumOGates = 1;
 
@@ -34,7 +35,8 @@ class DyscoAgentOut final : public Module {
 
 	void ProcessBatch(bess::PacketBatch*) override;
 	CommandResponse Init(const bess::pb::DyscoAgentOutArg&);
-
+	CommandResponse CommandInfo(const bess::pb::EmptyArg&);
+	
 	//Dysco
 	bool get_port_information();
 
