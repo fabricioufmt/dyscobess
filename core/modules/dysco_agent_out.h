@@ -8,16 +8,12 @@
 #include "../module.h"
 #include "../pb/module_msg.pb.h"
 #include "dysco_center.h"
-#include "../drivers/dysco_vport.h"
 
 #include "../utils/ip.h"
-#include "../utils/arp.h"
 #include "../utils/tcp.h"
 #include "../utils/ether.h"
 #include "../utils/endian.h"
 #include "../utils/checksum.h"
-
-#define DYSCO_MAC "00:00:00:00:00:00"
 
 using bess::utils::Tcp;
 using bess::utils::Ipv4;
@@ -31,32 +27,17 @@ class DyscoAgentOut final : public Module {
 	static const gate_idx_t kNumOGates = 1;
 
 	DyscoAgentOut();
-
+	bool process_packet(bess::Packet*);
+	bool insert_metadata(bess::Packet*);
 	void ProcessBatch(bess::PacketBatch*) override;
 	CommandResponse Init(const bess::pb::DyscoAgentOutArg&);
 
-	//Dysco
-	bool get_port_information();
-
-	/*
-
-	 */
-	void dysco_packet(Ethernet*);
-	void process_arp(bess::Packet*);
-	void process_ethernet(bess::Packet*);
-	
  private:
 	uint32_t devip;
 	uint32_t index;
 	DyscoCenter* dc;
-	//char ns[256];
 	std::string ns;
-	int netns_fd_;
-	bool info_flag;
-	DyscoVPort* port;
-	
-	bool insert_metadata(bess::Packet*);
-	
+
 	inline bool isIP(Ethernet* eth) {
 		return eth->ether_type.value() == Ethernet::Type::kIpv4;
 	}
@@ -73,48 +54,24 @@ class DyscoAgentOut final : public Module {
 		return tcp->flags == Tcp::Flag::kAck;
 	}
 
-	inline uint32_t hasPayload(Ipv4* ip, Tcp* tcp) {
+	inline bool hasPayload(Ipv4* ip, Tcp* tcp) {
 		size_t ip_hlen = ip->header_length << 2;
 		size_t tcp_hlen = tcp->offset << 2;
 
 		return ip->length.value() - ip_hlen - tcp_hlen;
 	}
 
-	inline bool isReconfigPacket(Ipv4* ip, Tcp* tcp) {
-		if(isTCPSYN(tcp)) {
-			uint32_t payload_len = hasPayload(ip, tcp);
-			if(payload_len) {
-				uint32_t tcp_hlen = tcp->offset << 2;
-				if(((uint8_t*)tcp + tcp_hlen)[payload_len - 1] == 0xFF) {
-					return true;
-				} else {
-					return false;
-				}
-			}
-		}
+	bool update_five_tuple(Ipv4*, Tcp*, DyscoHashOut*);
+	bool translate_out(bess::Packet*, Ipv4*, Tcp*, DyscoHashOut*);
+	bool out_hdr_rewrite(Ipv4*, Tcp*, DyscoTcpSession*);
 
-		return false;
-	}
-
+	DyscoHashOut* pick_path_seq(DyscoHashOut*, uint32_t);
+	DyscoHashOut* pick_path_ack(Tcp*, DyscoHashOut*);
 	bool out_rewrite_seq(Tcp*, DyscoHashOut*);
 	bool out_rewrite_ack(Tcp*, DyscoHashOut*);
 	bool out_rewrite_ts(Tcp*, DyscoHashOut*);
 	bool out_rewrite_rcv_wnd(Tcp*, DyscoHashOut*);
-	DyscoHashOut* pick_path_seq(DyscoHashOut*, uint32_t);
-	DyscoHashOut* pick_path_ack(Tcp*, DyscoHashOut*);
-	bool out_translate(bess::Packet*, Ipv4*, Tcp*, DyscoHashOut*);
-	bool update_five_tuple(Ipv4*, Tcp*, DyscoHashOut*);
-	bool output(bess::Packet*, Ipv4*, Tcp*);
-	/*
-	  CONTROL
-	 */
-
-	DyscoCbReconfig* insert_cb_control(Ipv4*, Tcp*, DyscoControlMessage*);
-	bool control_insert_out(DyscoCbReconfig*);
-	bool replace_cb_rightA(DyscoControlMessage*);
-	bool replace_cb_leftA(DyscoCbReconfig*, DyscoControlMessage*);
-	bool control_output_syn(Ipv4*, Tcp*, DyscoControlMessage*);
-	bool control_output(Ipv4*, Tcp*);
+	uint8_t* get_ts_option(Tcp*);
 };
 
 #endif //BESS_MODULES_DYSCOAGENTOUT_H_
