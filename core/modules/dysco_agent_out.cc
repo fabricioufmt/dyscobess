@@ -70,7 +70,7 @@ CommandResponse DyscoAgentOut::CommandInfo(const bess::pb::EmptyArg&) {
 		fprintf(stderr, "retornou true\n");
 		return CommandSuccess();
 	}
-	fprintF(stderr, "retornou false\n");
+	fprintf(stderr, "retornou false\n");
 	
 	return CommandFailure(EINVAL, "ERROR: Port information.");
 }
