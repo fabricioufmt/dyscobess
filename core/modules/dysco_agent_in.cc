@@ -51,14 +51,14 @@ CommandResponse DyscoAgentIn::Init(const bess::pb::DyscoAgentInArg& arg) {
 	/*inet_pton(AF_INET, arg.ip().c_str(), &devip);
 	index = dc->get_index(arg.ns(), devip);
 	ns = arg.ns();*/
-	//if(!get_port_information())
-	//	return CommandFailure(ENODEV, "DyscoVPort module is NULL.");
+	if(!get_port_information())
+		return CommandFailure(ENODEV, "DyscoVPort module is NULL.");
 	
 	return CommandSuccess();
 }
 
 void DyscoAgentIn::ProcessBatch(bess::PacketBatch* batch) {
-	get_port_information();
+	//get_port_information();
 	
 	if(dc) {
 		bess::PacketBatch out_gates[2];
@@ -136,8 +136,8 @@ void DyscoAgentIn::ProcessBatch(bess::PacketBatch* batch) {
 				continue;
 			}
 			
-			input(pkt, ip, tcp);
-			out_gates[0].add(pkt);
+			if(input(pkt, ip, tcp))
+				out_gates[0].add(pkt);
 		}
 		
 		batch->clear();

@@ -71,14 +71,14 @@ CommandResponse DyscoAgentOut::Init(const bess::pb::DyscoAgentOutArg& arg) {
 	index = dc->get_index(arg.ns(), devip);
 	ns = arg.ns();*/
 
-	//if(!get_port_information())
-	//	return CommandFailure(ENODEV, "DyscoVPort module is NULL.");
+	if(!get_port_information())
+		return CommandFailure(ENODEV, "DyscoVPort module is NULL.");
 
 	return CommandSuccess();
 }
 
 void DyscoAgentOut::ProcessBatch(bess::PacketBatch* batch) {
-	get_port_information();
+	//get_port_information();
 	
 	if(dc) {
 		Ethernet* eth;
