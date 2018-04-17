@@ -56,9 +56,11 @@ CommandResponse DyscoAgentIn::Init(const bess::pb::DyscoAgentInArg& arg) {
 }
 
 CommandResponse DyscoAgentIn::CommandInfo(const bess::pb::EmptyArg&) {
-	if(get_port_information())
+	if(get_port_information()) {
+		fprintf(stderr, "retornou true\n");
 		return CommandSuccess();
-
+	}
+	fprintf(stderr, "retornou false\n");
 	return CommandFailure(EINVAL, "ERROR: Port information.");
 }
 
