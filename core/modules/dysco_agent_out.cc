@@ -85,14 +85,21 @@ void DyscoAgentOut::ProcessBatch(bess::PacketBatch* batch) {
 		for(int i = 0; i < batch->cnt(); i++) {
 			pkt = batch->pkts()[i];
 			eth = pkt->head_data<Ethernet*>();
+#ifdef DEBUG_RECONFIG
+			fprintf(stderr, "[%s][DyscoAgentOut-Control] It's Ethernet.\n", ns.c_str());
+#endif		
 			if(!isIP(eth))
 				continue;
-
+#ifdef DEBUG_RECONFIG
+			fprintf(stderr, "[%s][DyscoAgentOut-Control] It's IP.\n", ns.c_str());
+#endif		
 			Ipv4* ip = reinterpret_cast<Ipv4*>(eth + 1);
 			size_t ip_hlen = ip->header_length << 2;
 			if(!isTCP(ip))
 				continue;
-				
+#ifdef DEBUG_RECONFIG
+			fprintf(stderr, "[%s][DyscoAgentOut-Control] It's TCP.\n", ns.c_str());
+#endif						
 			Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
 			if(isReconfigPacket(ip, tcp)) {
 #ifdef DEBUG_RECONFIG
