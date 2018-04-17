@@ -27,6 +27,11 @@ void print_out1(std::string ns, Ipv4* ip, Tcp* tcp) {
 		printip1(ip->dst.value()), tcp->dst_port.value());
 }
 
+const Commands DyscoAgentIn::cmds = {
+	{"get_info", "EmptyArg", MODULE_CMD_FUNC(&DyscoAgentIn::CommandInfo),
+	 Command::THREAD_UNSAFE}
+}
+
 DyscoAgentIn::DyscoAgentIn() : Module() {
 	dc = 0;
 	devip = 0;
@@ -48,103 +53,104 @@ CommandResponse DyscoAgentIn::Init(const bess::pb::DyscoAgentInArg& arg) {
 	if(!dc)
 		return CommandFailure(ENODEV, "DyscoCenter module is NULL.");
 	
-	/*inet_pton(AF_INET, arg.ip().c_str(), &devip);
-	index = dc->get_index(arg.ns(), devip);
-	ns = arg.ns();*/
-	if(!get_port_information())
-		return CommandFailure(ENODEV, "DyscoVPort module is NULL.");
-	
 	return CommandSuccess();
 }
 
+CommandResponse DyscoAgentIn::CommandInfo(const bess::pb::EmptyArg&) {
+	if(get_port_information())
+		return CommandSuccess();
+
+	return CommandFailure(EINVAL, "ERROR: Port information.");
+}
+
 void DyscoAgentIn::ProcessBatch(bess::PacketBatch* batch) {
-	//get_port_information();
+	if(!dc) {
+		RunChooseModule(0, batch);
+		return;
+	}
 	
-	if(dc) {
-		bess::PacketBatch out_gates[2];
-		out_gates[0].clear();
-		out_gates[1].clear();
+	bess::PacketBatch out_gates[2];
+	out_gates[0].clear();
+	out_gates[1].clear();
 
-		Ethernet* eth;
-		bess::Packet* pkt;
-		for(int i = 0; i < batch->cnt(); i++) {
-			pkt = batch->pkts()[i];
-			eth = pkt->head_data<Ethernet*>();
+	Ethernet* eth;
+	bess::Packet* pkt;
+	for(int i = 0; i < batch->cnt(); i++) {
+		pkt = batch->pkts()[i];
+		eth = pkt->head_data<Ethernet*>();
 
-			if(!isIP(eth)) {
-				out_gates[0].add(pkt);
-				continue;
-			}
+		if(!isIP(eth)) {
+			out_gates[0].add(pkt);
+			continue;
+		}
 
-			Ipv4* ip = reinterpret_cast<Ipv4*>(eth + 1);
-			size_t ip_hlen = ip->header_length << 2;
-			if(!isTCP(ip)) {
-				out_gates[0].add(pkt);
-				continue;
-			}
+		Ipv4* ip = reinterpret_cast<Ipv4*>(eth + 1);
+		size_t ip_hlen = ip->header_length << 2;
+		if(!isTCP(ip)) {
+			out_gates[0].add(pkt);
+			continue;
+		}
 
-			Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
-			size_t tcp_hlen = tcp->offset << 2;
+		Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
+		size_t tcp_hlen = tcp->offset << 2;
 
 #ifdef DEBUG
-			fprintf(stderr, "[%s][DyscoAgentIn] receives %s:%u -> %s:%u\n",
-				ns.c_str(),
-				printip1(ip->src.value()), tcp->src_port.value(),
-				printip1(ip->dst.value()), tcp->dst_port.value());
+		fprintf(stderr, "[%s][DyscoAgentIn] receives %s:%u -> %s:%u\n",
+			ns.c_str(),
+			printip1(ip->src.value()), tcp->src_port.value(),
+			printip1(ip->dst.value()), tcp->dst_port.value());
 #endif
 			
-			if(isReconfigPacket(ip, tcp)) {
+		if(isReconfigPacket(ip, tcp)) {
 #ifdef DEBUG_RECONFIG
-				fprintf(stderr, "[%s][DyscoAgentIn-Control] It's a reconfiguration packet.\n", ns.c_str());
+			fprintf(stderr, "[%s][DyscoAgentIn-Control] It's a reconfiguration packet.\n", ns.c_str());
 #endif
-				switch(control_input(pkt, ip, tcp, reinterpret_cast<uint8_t*>(tcp) + tcp_hlen)) {
-				case ISNT_RIGHT_ANCHOR:
-					input(pkt, ip, tcp);
-					out_gates[0].add(pkt);
-					
-					continue;
-					
-				case IS_RIGHT_ANCHOR:
-					//TODO
-#ifdef DEBUG_RECONFIG
-					fprintf(stderr, "[%s][DyscoAgentIn-Control] It's right anchor, do nothing yet\n", ns.c_str());
-					out_gates[1].add(pkt);
-					continue;
-#endif
-				case IS_RETRANSMISSION:
-#ifdef DEBUG_RECONFIG
-					fprintf(stderr, "[%s][DyscoAgentIn-Control] IS_RETRANSMISSION case\n", ns.c_str());
-					break;
-#endif	
-				case END:
-#ifdef DEBUG_RECONFIG
-					fprintf(stderr, "[%s][DyscoAgentIn-Control] END case\n", ns.c_str());
-					break;
-#endif	
-				case ERROR:
-#ifdef DEBUG_RECONFIG
-					fprintf(stderr, "[%s][DyscoAgentIn-Control] ERROR case\n", ns.c_str());
-					break;
-#endif	
-				default:
-#ifdef DEBUG_RECONFIG
-					fprintf(stderr, "[%s][DyscoAgentIn-Control] default case\n", ns.c_str());
-#endif	
-					break;
-				}
-				
-				continue;
-			}
-			
-			if(input(pkt, ip, tcp))
+			switch(control_input(pkt, ip, tcp, reinterpret_cast<uint8_t*>(tcp) + tcp_hlen)) {
+			case ISNT_RIGHT_ANCHOR:
+				input(pkt, ip, tcp);
 				out_gates[0].add(pkt);
+					
+				continue;
+					
+			case IS_RIGHT_ANCHOR:
+				//TODO
+#ifdef DEBUG_RECONFIG
+				fprintf(stderr, "[%s][DyscoAgentIn-Control] It's right anchor, do nothing yet\n", ns.c_str());
+				out_gates[1].add(pkt);
+				continue;
+#endif
+			case IS_RETRANSMISSION:
+#ifdef DEBUG_RECONFIG
+				fprintf(stderr, "[%s][DyscoAgentIn-Control] IS_RETRANSMISSION case\n", ns.c_str());
+				break;
+#endif	
+			case END:
+#ifdef DEBUG_RECONFIG
+				fprintf(stderr, "[%s][DyscoAgentIn-Control] END case\n", ns.c_str());
+				break;
+#endif	
+			case ERROR:
+#ifdef DEBUG_RECONFIG
+				fprintf(stderr, "[%s][DyscoAgentIn-Control] ERROR case\n", ns.c_str());
+				break;
+#endif	
+			default:
+#ifdef DEBUG_RECONFIG
+				fprintf(stderr, "[%s][DyscoAgentIn-Control] default case\n", ns.c_str());
+#endif	
+				break;
+			}
+				
+			continue;
 		}
+			
+		if(input(pkt, ip, tcp))
+			out_gates[0].add(pkt);
+	}
 		
-		batch->clear();
-		RunChooseModule(0, &(out_gates[0]));
-		RunChooseModule(1, &(out_gates[1]));
-	} else
-		RunChooseModule(0, batch);
+	batch->clear();
+	RunChooseModule(0, &(out_gates[0]));
+	RunChooseModule(1, &(out_gates[1]));
 }
 
 bool DyscoAgentIn::get_port_information() {

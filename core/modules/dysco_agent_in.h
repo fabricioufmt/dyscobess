@@ -36,6 +36,7 @@ enum CONTROL_RETURN {
 
 class DyscoAgentIn final : public Module {
  public:
+	static const Commands cmds;
 	static const gate_idx_t kNumIGates = 1;
 	static const gate_idx_t kNumOGates = 2;
 

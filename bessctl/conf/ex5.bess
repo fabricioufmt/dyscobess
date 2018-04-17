@@ -87,9 +87,7 @@ l3_1.add(prefix='10.0.3.3', prefix_len=32, gate=7)
 l3_1.add(prefix='10.0.4.1', prefix_len=32, gate=8)
 l3_1.add(prefix='10.0.4.2', prefix_len=32, gate=9)
 
-dport_out0::DyscoPortOut(port=c1)
-
-din0::DyscoAgentIn(dc=dc) -> dport_out0
+din0::DyscoAgentIn(dc=dc) -> DyscoPortOut(port=c1)
 din1::DyscoAgentIn(dc=dc) -> DyscoPortOut(port=m1_0)
 din2::DyscoAgentIn(dc=dc) -> DyscoPortOut(port=m1_1)
 din3::DyscoAgentIn(dc=dc) -> DyscoPortOut(port=m2_0)
@@ -109,6 +107,27 @@ DyscoPortInc(port=m2_1) -> dout6::DyscoAgentOut(dc=dc)
 DyscoPortInc(port=m3_1) -> dout7::DyscoAgentOut(dc=dc)
 DyscoPortInc(port=s1) -> dout8::DyscoAgentOut(dc=dc)
 DyscoPortInc(port=m4_1) -> dout9::DyscoAgentOut(dc=dc)
+
+din0.get_info()
+din1.get_info()
+din2.get_info()
+din3.get_info()
+din4.get_info()
+din5.get_info()
+din6.get_info()
+din7.get_info()
+din8.get_info()
+din9.get_info()
+dout0.get_info()
+dout1.get_info()
+dout2.get_info()
+dout3.get_info()
+dout4.get_info()
+dout5.get_info()
+dout6.get_info()
+dout7.get_info()
+dout8.get_info()
+dout9.get_info()
 
 dout0 -> bpf1
 dout1 -> bpf1
