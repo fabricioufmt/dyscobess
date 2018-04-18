@@ -83,7 +83,7 @@ class DyscoAgentOut final : public Module {
 	}
 
 	inline bool isReconfigPacket(Ipv4* ip, Tcp* tcp) {
-		if(isTCPSYN(tcp)) {
+		if(isTCPSYN(tcp) && !isTCPACK(tcp)) {
 			uint32_t payload_len = hasPayload(ip, tcp);
 			if(payload_len) {
 				uint32_t tcp_hlen = tcp->offset << 2;
