@@ -150,8 +150,8 @@ void DyscoAgentIn::ProcessBatch(bess::PacketBatch* batch) {
 						fprintf(stderr, "[%s][DyscoAgentIn-Control] It has payload.\n", ns.c_str());
 #endif
 						rx_initiation_new(pkt, ip, tcp);
-						out_gates[0].add(pkt);
 					}
+					out_gates[0].add(pkt);
 				}
 			}
 #ifdef DEBUG
