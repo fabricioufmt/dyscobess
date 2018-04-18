@@ -141,9 +141,16 @@ void DyscoAgentIn::ProcessBatch(bess::PacketBatch* batch) {
 #endif	
 						break;
 					}
-				} else if(hasPayload(ip, tcp)) {
-					rx_initiation_new(pkt, ip, tcp);
-					out_gates[0].add(pkt);
+				} else {
+#ifdef DEBUG_RECONFIG
+					fprintf(stderr, "[%s][DyscoAgentIn-Control] It isn't a reconfiguration packet.\n", ns.c_str());
+#endif
+					if(hasPayload(ip, tcp)) {
+#ifdef DEBUG
+						fprintf(stderr, "[%s][DyscoAgentIn-Control] It has payload.\n", ns.c_str());
+#endif
+						rx_initiation_new(pkt, ip, tcp);
+						out_gates[0].add(pkt);
 				}
 			}
 #ifdef DEBUG
