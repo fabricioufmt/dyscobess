@@ -99,55 +99,114 @@ void DyscoAgentIn::ProcessBatch(bess::PacketBatch* batch) {
 			printip1(ip->src.value()), tcp->src_port.value(),
 			printip1(ip->dst.value()), tcp->dst_port.value());
 #endif
-			
-		if(isReconfigPacket(ip, tcp)) {
+
+		DyscoHashIn* cb_in = dc->lookup_input(this->index, ip, tcp);
+		if(!cb_in) {
+			if(isTCPSYN(tcp)) {
+				if(isReconfigPacket(ip, tcp)) {
 #ifdef DEBUG_RECONFIG
-			fprintf(stderr, "[%s][DyscoAgentIn-Control] It's a reconfiguration packet.\n", ns.c_str());
+					fprintf(stderr, "[%s][DyscoAgentIn-Control] It's a reconfiguration packet.\n", ns.c_str());
 #endif
-			switch(control_input(pkt, ip, tcp, reinterpret_cast<uint8_t*>(tcp) + tcp_hlen)) {
-			case ISNT_RIGHT_ANCHOR:
-				input(pkt, ip, tcp);
-				out_gates[0].add(pkt);
+					switch(control_input(pkt, ip, tcp)) {
+					case ISNT_RIGHT_ANCHOR:
+						input(pkt, ip, tcp);
+						out_gates[0].add(pkt);
 					
-				continue;
+						continue;
 					
-			case IS_RIGHT_ANCHOR:
-				//TODO
+					case IS_RIGHT_ANCHOR:
+						//TODO
 #ifdef DEBUG_RECONFIG
-				fprintf(stderr, "[%s][DyscoAgentIn-Control] It's right anchor, do nothing yet\n", ns.c_str());
-				out_gates[1].add(pkt);
-				continue;
+						fprintf(stderr, "[%s][DyscoAgentIn-Control] It's right anchor, do nothing yet\n", ns.c_str());
+						out_gates[1].add(pkt);
+						continue;
 #endif
-			case IS_RETRANSMISSION:
+					case IS_RETRANSMISSION:
 #ifdef DEBUG_RECONFIG
-				fprintf(stderr, "[%s][DyscoAgentIn-Control] IS_RETRANSMISSION case\n", ns.c_str());
-				break;
+						fprintf(stderr, "[%s][DyscoAgentIn-Control] IS_RETRANSMISSION case\n", ns.c_str());
+						break;
 #endif	
-			case END:
+					case END:
 #ifdef DEBUG_RECONFIG
-				fprintf(stderr, "[%s][DyscoAgentIn-Control] END case\n", ns.c_str());
-				break;
+						fprintf(stderr, "[%s][DyscoAgentIn-Control] END case\n", ns.c_str());
+						break;
 #endif	
-			case ERROR:
+					case ERROR:
 #ifdef DEBUG_RECONFIG
-				fprintf(stderr, "[%s][DyscoAgentIn-Control] ERROR case\n", ns.c_str());
-				break;
+						fprintf(stderr, "[%s][DyscoAgentIn-Control] ERROR case\n", ns.c_str());
+						break;
 #endif	
-			default:
+					default:
 #ifdef DEBUG_RECONFIG
-				fprintf(stderr, "[%s][DyscoAgentIn-Control] default case\n", ns.c_str());
+						fprintf(stderr, "[%s][DyscoAgentIn-Control] default case\n", ns.c_str());
 #endif	
-				break;
+						break;
+					}
+				} else if(hasPayload(ip, tcp)) {
+					rx_initiation_new(pkt, ip, tcp);
+					out_gates[0].add(pkt);
+				}
 			}
-				
+#ifdef DEBUG
+			print_out1(ns, ip ,tcp);
+#endif
 			continue;
 		}
-			
-		//if(input(pkt, ip, tcp))
-		input(pkt, ip, tcp);
-		out_gates[0].add(pkt);
+
+		if(isTCPSYN(tcp)) {
+			if(isReconfigPacket(ip, tcp)) {
+				
+			} else {
+				if(isTCPACK(tcp)) {
+					set_ack_number_out(this->index, tcp, cb_in);
+					in_hdr_rewrite_csum(ip, tcp, cb_in);
+				} else {
+					//It is retransmission packet, just remove sc (if there is) and insert Dysco Tag
+					if(hasPayload(ip, tcp)) {
+#ifdef DEBUG
+						fprintf(stderr, "[%s][DyscoAgentIn] receives a TCP SYN+PAYLOAD retransmission segment.\n", ns.c_str());
+#endif
+						remove_sc(pkt, ip, tcp);
+						dc->insert_tag(this->index, pkt, ip, tcp);
+						in_hdr_rewrite(ip, tcp, &cb_in->sup);
+					}
+				}
+
+				out_gates[0].add(pkt);
+			}
+#ifdef DEBUG
+			print_out1(ns, ip ,tcp);
+#endif
+			continue;
+		}
+
+		if(isTCPACK(tcp)) {
+			if(isReconfigPacket(ip, tcp)) {
+
+				//must return
+			}
+		}
+
+		if(cb_in->two_paths) {
+			if(hasPayload(ip, tcp)) {
+				if(!in_two_paths_data_seg(tcp, cb_in)) {
+					out_gates[0].add(pkt);
+#ifdef DEBUG
+					print_out1(ns, ip, tcp);
+#endif
+					continue;
+				}
+			} else
+				in_two_paths_ack(tcp, cb_in);
+		}
+	
+		in_hdr_rewrite(ip, tcp, &cb_in->sup);
+
+#ifdef DEBUG
+		print_out1(ns, ip, tcp);
+#endif
 	}
-		
+	
 	batch->clear();
 	RunChooseModule(0, &(out_gates[0]));
 	RunChooseModule(1, &(out_gates[1]));
@@ -868,7 +927,9 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 	*/	
 }
 
-CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, uint8_t* payload) {
+CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
+	size_t tcp_hlen = tcp->offset << 2;
+	uint8_t* payload = reinterpret_cast<uint8_t*>(tcp) + tcp_hlen;
 	DyscoControlMessage* cmsg;
 	DyscoCbReconfig* rcb;
 

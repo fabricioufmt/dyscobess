@@ -130,7 +130,7 @@ class DyscoAgentIn final : public Module {
 	bool compute_deltas_out(DyscoHashOut*, DyscoHashOut*, DyscoCbReconfig*);
 	bool control_config_rightA(DyscoCbReconfig*, DyscoControlMessage*, DyscoHashIn*, DyscoHashOut*);
 	CONTROL_RETURN control_reconfig_in(bess::Packet*, Ipv4*, Tcp*, uint8_t*, DyscoCbReconfig*, DyscoControlMessage*);
-	CONTROL_RETURN control_input(bess::Packet*, Ipv4*, Tcp*, uint8_t*);
+	CONTROL_RETURN control_input(bess::Packet*, Ipv4*, Tcp*);
 
 
 
