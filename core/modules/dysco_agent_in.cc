@@ -91,7 +91,6 @@ void DyscoAgentIn::ProcessBatch(bess::PacketBatch* batch) {
 		}
 
 		Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
-		size_t tcp_hlen = tcp->offset << 2;
 
 #ifdef DEBUG
 		fprintf(stderr, "[%s][DyscoAgentIn] receives %s:%u -> %s:%u\n",
