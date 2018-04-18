@@ -444,7 +444,6 @@ bool DyscoAgentOut::output(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 
 		cb_out = dc->lookup_pending_tag(this->index, tcp);
 		if(cb_out) {
-			
 #ifdef DEBUG
 			fprintf(stderr, "[%s][DyscoAgentOut] called lookup_pending_tag and its return isn't NULL and it's calling out_handle_mb method\n", ns.c_str());
 #endif
@@ -477,8 +476,12 @@ bool DyscoAgentOut::output(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 		return false;
 	}
 
-	if(!cb_out)
+	if(!cb_out) {
+#ifdef DEBUG
+		fprintf(stderr, "[%s][DyscoAgentOut] cb_out is NULL.\n", ns.c_str());
+#endif
 		return false;
+	}
 
 	//Ronaldo: is it really necessary?
 	//if(cb_out->my_tp && isTCPACK(tcp))
