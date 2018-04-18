@@ -167,6 +167,9 @@ void DyscoAgentIn::ProcessBatch(bess::PacketBatch* batch) {
 				if(isTCPACK(tcp)) {
 					set_ack_number_out(this->index, tcp, cb_in);
 					in_hdr_rewrite_csum(ip, tcp, cb_in);
+#ifdef DEBUG
+					fprintf(stderr, "[%s][DyscoAgentIn] is TCP+SYN.\n",, ns.c_str());
+#endif
 				} else {
 					//It is retransmission packet, just remove sc (if there is) and insert Dysco Tag
 					if(hasPayload(ip, tcp)) {

@@ -72,11 +72,11 @@ class DyscoAgentIn final : public Module {
 	}
 
 	inline bool isTCPSYN(Tcp* tcp) {
-		return tcp->flags == Tcp::Flag::kSyn;
+		return tcp->flags & Tcp::Flag::kSyn;
 	}
 
 	inline bool isTCPACK(Tcp* tcp) {
-		return tcp->flags == Tcp::Flag::kAck;
+		return tcp->flags & Tcp::Flag::kAck;
 	}
 
 	inline uint32_t hasPayload(Ipv4* ip, Tcp* tcp) {
