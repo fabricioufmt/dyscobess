@@ -28,11 +28,11 @@ using bess::utils::be32_t;
 using bess::utils::be16_t;
 
 enum CONTROL_RETURN {
-	IS_RIGHT_ANCHOR,
-	ISNT_RIGHT_ANCHOR,
+	TO_GATE_0,
+	TO_GATE_1,
 	IS_RETRANSMISSION,
-	END,
-	ERROR
+	ERROR,
+	END
 };
 
 class DyscoAgentIn final : public Module {
@@ -75,8 +75,8 @@ class DyscoAgentIn final : public Module {
 		return tcp->flags & Tcp::Flag::kSyn;
 	}
 
-	inline bool isTCPACK(Tcp* tcp) {
-		return tcp->flags & Tcp::Flag::kAck;
+	inline bool isTCPACK(Tcp* tcp, bool exclusive = false) {
+		return exclusive ? tcp->flags == Tcp::Flag::kAck : tcp->flags & Tcp::Flag::kAck;
 	}
 
 	inline uint32_t hasPayload(Ipv4* ip, Tcp* tcp) {
@@ -87,15 +87,15 @@ class DyscoAgentIn final : public Module {
 	}
 
 	inline bool isReconfigPacket(Ipv4* ip, Tcp* tcp) {
-		if(isTCPSYN(tcp) && !isTCPACK(tcp)) {
+		if(isTCPSYN(tcp) || isTCPACK(tcp, true)) {
 			uint32_t payload_len = hasPayload(ip, tcp);
 			if(payload_len) {
 				uint32_t tcp_hlen = tcp->offset << 2;
-				if(((uint8_t*)tcp + tcp_hlen)[payload_len - 1] == 0xFF) {
+				
+				if(((uint8_t*)tcp + tcp_hlen)[payload_len - 1] == 0xFF)
 					return true;
-				} else {
-					return false;
-				}
+				
+				return false;
 			}
 		}
 
