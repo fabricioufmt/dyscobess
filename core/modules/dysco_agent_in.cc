@@ -834,7 +834,9 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 	dc->insert_hash_output(this->index, cb_out);
 
 	//TODO: should remove payload and forwards to app
-
+	//RECONFIG
+	dc->insert_hash_input(this->index, cb_in);
+	
 	cb_in->is_reconfiguration = 1;
 	memcpy(&cb_in->cmsg, cmsg, sizeof(DyscoControlMessage));
 	remove_sc(pkt, ip, tcp);
