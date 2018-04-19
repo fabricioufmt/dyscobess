@@ -828,7 +828,9 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 
 	//TEST //TODO //Ronaldo
 	//sc_len must be greater than 1
-	uint32_t payload_len = ip->length.value() - (ip->header_length << 2) - (tcp->offset << 2);
+	size_t tcp_hlen = tcp->offset << 2;
+	uint8_t* payload = reinterpret_cast<uint8_t*>(tcp) + tcp_hlen;
+	uint32_t payload_len = ip->length.value() - (ip->header_length << 2) - tcp_hlen;
 	ip->length = be16_t(ip->length.value() - sizeof(uint32_t));
 	uint32_t* sc = reinterpret_cast<uint32_t*>(payload + sizeof(DyscoControlMessage));
 	uint32_t sc_len = (payload_len - sizeof(DyscoControlMessage))/sizeof(uint32_t);
