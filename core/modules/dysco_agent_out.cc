@@ -430,6 +430,7 @@ bool DyscoAgentOut::output(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 #endif
 	DyscoHashOut* cb_out = dc->lookup_output(this->index, ip, tcp);
 	if(!cb_out) {
+		fprintf(stderr, "[%s][DyscoAgentOut] called lookup_output and its return is NULL\n", ns.c_str());
 		cb_out = dc->lookup_output_pending(this->index, ip, tcp);
 		if(cb_out) {
 #ifdef DEBUG
