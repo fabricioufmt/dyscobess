@@ -113,6 +113,7 @@ void DyscoAgentIn::ProcessBatch(bess::PacketBatch* batch) {
 				break;
 			default:
 				//none
+				break;
 			}
 		}
 
@@ -800,7 +801,7 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 	fprintf(stderr, "[%s][DyscoAgentIn-Control] Do nothing, follows regular algorithm.\n",
 		ns.c_str());
 #endif
-	return DONE;//TEST
+	return END;//TEST
 	/*
 	  cb_in->sup = rcb->super;
 	  cb_in->out_iseq = rcb->leftIseq;
@@ -879,7 +880,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 			DyscoHashOut* cb_out = dc->lookup_output_by_ss(this->index, &cmsg->leftSS);
 
 			if(!cb_out)
-				return ERROR //TODO
+				return ERROR; //TODO
 				//return true;
 
 			if(cb_out->state == DYSCO_ESTABLISHED) {
