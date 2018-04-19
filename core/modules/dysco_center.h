@@ -193,6 +193,9 @@ class DyscoHashIn {
 	uint8_t padding;
 	
 	uint32_t skb_iif;
+
+	uint32_t is_reconfiguration; //could be smaller
+	DyscoControlMessage cmsg;
 };
 
 class DyscoHashOut {
