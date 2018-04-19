@@ -104,11 +104,11 @@ void DyscoAgentIn::ProcessBatch(bess::PacketBatch* batch) {
 			out_gates[0].add(pkt);
 		} else {
 			switch(control_input(pkt, ip, tcp)) {
-			case: TO_GATE_0:
+			case TO_GATE_0:
 				//when is TCPACK with 0xFF that isn't a reconfig packet
 				out_gates[0].add(pkt);
 				break;
-			case: TO_GATE_1:
+			case TO_GATE_1:
 				out_gates[1].add(pkt);
 				break;
 			default:
@@ -792,7 +792,7 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 #endif
 		dc->insert_hash_input(this->index, cb_in);
 		
-		return IS_RIGHT_ANCHOR;
+		return TO_GATE_1;
 	}
 #ifdef DEBUG_RECONFIG
 	fprintf(stderr, "[%s][DyscoAgentIn-Control] It isn't the right anchor\n",
@@ -800,7 +800,7 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 	fprintf(stderr, "[%s][DyscoAgentIn-Control] Do nothing, follows regular algorithm.\n",
 		ns.c_str());
 #endif
-	return ISNT_RIGHT_ANCHOR;
+	return DONE;//TEST
 	/*
 	  cb_in->sup = rcb->super;
 	  cb_in->out_iseq = rcb->leftIseq;
@@ -944,7 +944,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 		rcb = dc->lookup_reconfig_by_ss(this->index, &cmsg->super);
 
 		if(!rcb)
-			return true;
+			return DONE;
 
 		// verify htonl
 		if(ip->dst.value() == cmsg->leftA) {
