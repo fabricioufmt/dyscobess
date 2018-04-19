@@ -788,6 +788,15 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 		tcp->seq_num = be32_t(rand() % 4294967296);
 		tcp->flags |= Tcp::kAck;
 		//pkt->trim(payload_len);
+
+		uint32_t swp = cmsg->super.sip;
+		cmsg->super.sip = cmsg->super.dip;
+		cmsg->super.dip = swp;
+
+		uint16_t swp1 = cmsg->super.sport;
+		cmsg->super.sport = cmsg->super.dport;
+		cmsg->super.dport = swp1;
+		
 #ifdef DEBUG_RECONFIG
 		fprintf(stderr, "[%s][DyscoAgentIn-Control] insert_hash_input method\n", ns.c_str());
 #endif
