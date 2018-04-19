@@ -955,7 +955,6 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 		}
 
 		break;
-		*/
 	}
 	
 	//skb modifies???
