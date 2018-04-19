@@ -924,7 +924,8 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 			}
 
 			if(old_out->state == DYSCO_ESTABLISHED)
-				return true;
+				return END;
+				//return true;
 
 			if(!old_out->state_t) {
 				old_out->ack_cutoff = old_out_ack_cutoff;
@@ -945,7 +946,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 		rcb = dc->lookup_reconfig_by_ss(this->index, &cmsg->super);
 
 		if(!rcb)
-			return DONE;
+			return END;
 
 		// verify htonl
 		if(ip->dst.value() == cmsg->leftA) {
