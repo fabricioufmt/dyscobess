@@ -744,7 +744,7 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 		size_t tcp_hlen = tcp->offset << 2;
 		uint8_t* payload = reinterpret_cast<uint8_t*>(tcp) + tcp_hlen;
 
-		uint32_t payload_sz = ip->total_length.value() - (ip->ihl << 2) - tcp_hlen;
+		uint32_t payload_sz = ip->length.value() - (ip->header_length << 2) - tcp_hlen;
 
 		cb_in = dc->insert_cb_input(this->index, ip, tcp, payload, payload_sz);
 		if(!cb_in)
