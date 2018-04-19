@@ -796,6 +796,7 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 		uint16_t swp1 = cmsg->super.sport;
 		cmsg->super.sport = cmsg->super.dport;
 		cmsg->super.dport = swp1;
+		cmsg->mtype = DYSCO_SYN_ACK;
 		
 #ifdef DEBUG_RECONFIG
 		fprintf(stderr, "[%s][DyscoAgentIn-Control] insert_hash_input method\n", ns.c_str());
@@ -862,6 +863,9 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 
 	switch(cmsg->mtype) {
 	case DYSCO_SYN:
+#ifdef DEBUG_RECONFIG
+		fprintf(stderr, "DYSCO_SYN message.\n");
+#endif
 		rcb = dc->lookup_reconfig_by_ss(this->index, &cmsg->super);
 
 		if(rcb) {
