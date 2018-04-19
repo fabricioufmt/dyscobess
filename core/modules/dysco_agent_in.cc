@@ -737,28 +737,41 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 #ifdef DEBUG_RECONFIG
 	fprintf(stderr, "[%s][DyscoAgentIn-Control] control_reconfig_in method\n", ns.c_str());
 #endif
-	DyscoHashIn* cb_in = new DyscoHashIn();
-
-	cb_in->sub = rcb->sub_in;
-	cb_in->in_iseq = rcb->leftIseq;
-	cb_in->in_iack = rcb->leftIack;
-	cb_in->two_paths = false;
-
-	DyscoHashOut* cb_out = build_cb_in_reverse(ip, rcb);
-	if(!cb_out) {
-#ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[%s][DyscoAgentIn-Control] Error to create a cb_in reverse.\n", ns.c_str());
-#endif
-		delete cb_in;
-		dc->remove_reconfig(this->index, rcb);
-
-		return ERROR;
-	}
 	
-	cb_out->dcb_in = cb_in;
-	cb_in->dcb_out = cb_out;
+	DyscoHashIn* cb_in;
+	DyscoHashOut* cb_out;
+	if(!isRightAnchor(ip, cmsg)) {
+		size_t tcp_hlen = tcp->offset << 2;
+		uint8_t* payload = reinterpret_cast<uint8_t*>(tcp) + tcp_hlen;
 
-	if(isRightAnchor(ip, cmsg)) {
+		uint32_t payload_sz = ip->total_length.value() - (ip->ihl << 2) - tcp_hlen;
+
+		cb_in = dc->insert_cb_input(this->index, ip, tcp, payload, payload_sz);
+		if(!cb_in)
+			return ERROR;
+		
+		cb_in->in_iseq = rcb->leftIseq;
+		cb_in->in_iack = rcb->leftIack;
+		cb_in->two_paths = false;
+	} else {
+		cb_in = new DyscoHashIn();
+		cb_in->sub = rcb->sub_in;
+
+		cb_out = build_cb_in_reverse(ip, rcb);
+		if(!cb_out) {
+#ifdef DEBUG_RECONFIG
+			fprintf(stderr, "[%s][DyscoAgentIn-Control] Error to create a cb_in reverse.\n", ns.c_str());
+#endif
+			delete cb_in;
+			dc->remove_reconfig(this->index, rcb);
+
+			return ERROR;
+		}
+	
+		cb_out->dcb_in = cb_in;
+		cb_in->dcb_out = cb_out;
+
+		
 #ifdef DEBUG_RECONFIG
 		fprintf(stderr, "[%s][DyscoAgentIn-Control] It's the right anchor.\n",
 			ns.c_str());
@@ -800,17 +813,24 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 #ifdef DEBUG_RECONFIG
 		fprintf(stderr, "[%s][DyscoAgentIn-Control] insert_hash_input method\n", ns.c_str());
 #endif
+		
+		cb_in->in_iseq = rcb->leftIseq;
+		cb_in->in_iack = rcb->leftIack;
+		cb_in->two_paths = false;
+		
 		dc->insert_hash_input(this->index, cb_in);
 		
 		return TO_GATE_1;
 	}
+
+	
 #ifdef DEBUG_RECONFIG
 	fprintf(stderr, "[%s][DyscoAgentIn-Control] It isn't the right anchor\n",
 		ns.c_str());
 	fprintf(stderr, "[%s][DyscoAgentIn-Control] Do nothing, follows regular algorithm and forwads it to host.\n",
 		ns.c_str());
 #endif
-	cb_in->sup = rcb->super;
+	//cb_in->sup = rcb->super;
 	cb_in->out_iseq = rcb->leftIseq;
 	cb_in->out_iack = rcb->leftIack;
 	cb_in->seq_delta = cb_in->ack_delta = 0;
@@ -829,13 +849,12 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 	} else
 		cb_in->ws_ok = 0;
 
-	cb_out->sack_ok = cb_in->sack_ok = rcb->sack_ok;
+	cb_in->dcb_out->sack_ok = cb_in->sack_ok = rcb->sack_ok;
 
-	dc->insert_hash_output(this->index, cb_out);
+	dc->insert_hash_output(this->index, cb_in->dcb_out);
 
 	//TODO: should remove payload and forwards to app
 	//RECONFIG
-	dc->insert_hash_input(this->index, cb_in);
 	
 	cb_in->is_reconfiguration = 1;
 	memcpy(&cb_in->cmsg, cmsg, sizeof(DyscoControlMessage));
