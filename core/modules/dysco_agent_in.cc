@@ -944,8 +944,32 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 				return END;
 			}
 
-			cb_out->ack_cutoff = ntohl(cmsg->seqCutoff);
+			cb_out->ack_cutoff = cmsg->seqCutoff;
 			cb_out->valid_ack_cut = true;
+
+
+			// SEND ACK MESSAGE
+			//TEST //TODO
+			Ethernet* eth = pkt->head_data<Ethernet*>();
+			Ethernet::Address macswap = eth->dst_addr;
+			eth->dst_addr = eth->src_addr;
+			eth->src_addr = macswap;
+		
+			be32_t ipswap = ip->dst;
+			ip->dst = ip->src;
+			ip->src = ipswap;
+			ip->ttl = 32;
+			ip->id = be16_t(rand() % 65536);
+			
+			be16_t pswap = tcp->src_port;
+			tcp->src_port = tcp->dst_port;
+			tcp->dst_port = pswap;
+			ipswap = tcp->seq_num;
+			tcp->seq_num = be32_t(tcp->ack_num.value());
+			tcp->ack_num = be32_t(ipswap.value() + 1);
+			tcp->flags = Tcp::kAck;
+
+			return TO_GATE_1;
 		} else {
 			//TEST
 			DyscoHashIn* cb_in = dc->lookup_input(this->index, ip, tcp);
