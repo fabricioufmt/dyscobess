@@ -129,12 +129,17 @@ class DyscoAgentIn final : public Module {
 			}
 		}
 
+		if(!cb_in) {
+			fprintf(stderr, "false2");
+			return false;
+		}
+		
 		if((isTCPSYN(tcp) && isTCPACK(tcp)) || isTCPACK(tcp, true)) {
 			if(cb_in->is_reconfiguration)
 				return true;
 		}
 		
-		fprintf(stderr, "false2");
+		fprintf(stderr, "false22);
 		return false;
 	}
 	
