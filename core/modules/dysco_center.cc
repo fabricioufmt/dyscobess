@@ -501,7 +501,7 @@ DyscoHashIn* DyscoCenter::insert_cb_input(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_
 
 	fprintf(stderr, "[%s] lookup_output inserting %s:%u -> %s:%u\n",
 		ns.c_str(),
-		printip0(btohl(cb_out->sup.sip)), ntonl(cb_out->sup.sport),
+		printip0(ntohl(cb_out->sup.sip)), ntohl(cb_out->sup.sport),
 		printip0(ntohl(cb_out->sup.dip)), ntohs(cb_out->sup.dport));
 	
 	return cb_in;
