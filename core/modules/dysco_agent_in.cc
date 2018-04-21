@@ -943,6 +943,9 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 			fprintf(stderr, "error1\n");
 			return ERROR;
 		}
+
+		fprintf(stderr, "IPDST: %s and leftA: %s\n",
+			printip1(ip->dst.value()), printip1(ntohl(cmsg->leftA)));
 		
 		if(ip->dst.value() == ntohl(cmsg->leftA)) {
 			fprintf(stderr, "is left anchor\n");
