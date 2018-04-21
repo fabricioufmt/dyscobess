@@ -862,6 +862,9 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 	
 	cb_in->is_reconfiguration = 1;
 	cb_in->dcb_out->is_reconfiguration = 1;
+#ifdef DEBUG_RECONFIG
+	fprintf(stderr, "[%s][DyscoAgentIn-Control]: setting cb_in and cb_out as reconfiguration\n", ns.c_str());
+#endif
 	memcpy(&cb_in->cmsg, cmsg, sizeof(DyscoControlMessage));
 	remove_sc(pkt, ip, tcp);
 	in_hdr_rewrite(ip, tcp, &cb_in->sup);
