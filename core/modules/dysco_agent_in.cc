@@ -1070,7 +1070,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 			}
 
 			//return END;
-			reurn TO_GATE_0;
+			return TO_GATE_0;
 		} else {
 			fprintf(stderr, "it isn't right anchor\n");
 			return END;
