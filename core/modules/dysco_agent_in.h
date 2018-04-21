@@ -36,6 +36,19 @@ enum CONTROL_RETURN {
 	END
 };
 
+char* printiptest1(uint32_t ip) {
+	uint8_t bytes[4];
+        char* buf = (char*) malloc(17);
+	
+        bytes[0] = ip & 0xFF;
+        bytes[1] = (ip >> 8) & 0xFF;
+        bytes[2] = (ip >> 16) & 0xFF;
+        bytes[3] = (ip >> 24) & 0xFF;
+        sprintf(buf, "%d.%d.%d.%d", bytes[3], bytes[2], bytes[1], bytes[0]);
+
+        return buf;
+}
+
 class DyscoAgentIn final : public Module {
  public:
 	static const Commands cmds;
@@ -102,8 +115,8 @@ class DyscoAgentIn final : public Module {
 			if(!cb_in) {
 				fprintf(stderr, "[%s] lookup_input not found %s:%u -> %s:%u\n",
 					ns.c_str(),
-					printiptest(ip->src.value()), tcp->src_port.value(),
-					printiptest(ip->dst.value()), tcp->dst_port.value());
+					printiptest1(ip->src.value()), tcp->src_port.value(),
+					printiptest1(ip->dst.value()), tcp->dst_port.value());
 				uint32_t payload_len = hasPayload(ip, tcp);
 				if(payload_len) {
 					//Only LeftAnchor
