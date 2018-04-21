@@ -100,9 +100,9 @@ class DyscoAgentOut final : public Module {
 					uint32_t tcp_hlen = tcp->offset << 2;
 					if(((uint8_t*)tcp + tcp_hlen)[payload_len - 1] == 0xFF)
 						return true;
-					
-					return false;
 				}
+				
+				return false;
 			}
 
 			//Hosts in the middle (left - middle - right)
