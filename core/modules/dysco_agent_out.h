@@ -94,6 +94,10 @@ class DyscoAgentOut final : public Module {
 		if(isTCPSYN(tcp, true)) {
 			DyscoHashOut* cb_out = dc->lookup_output(this->index, ip, tcp);
 			if(!cb_out) {
+				fprintf(stderr, "[%s] lookup_output not found %s:%u -> %s:%u\n",
+					ns.c_str(),
+					printip2(ip->src.value()), tcp->src_port.value(),
+					printip2(ip->dst.value()), tcp->dst_port.value());
 				uint32_t payload_len = hasPayload(ip, tcp);
 				if(payload_len) {
 					//Only LeftAnchor
