@@ -82,12 +82,12 @@ class DyscoAgentOut final : public Module {
 	}
 
 	inline bool isLeftAnchor(Ipv4* ip, DyscoControlMessage* cmsg) {
-		return ip->dst.value() == ntohl(cmsg->leftA);
+		return ip->src.value() == ntohl(cmsg->leftA);
 	}
 
 
 	inline bool isRightAnchor(Ipv4* ip, DyscoControlMessage* cmsg) {
-		return ip->dst.value() == ntohl(cmsg->rightA);
+		return ip->src.value() == ntohl(cmsg->rightA);
 	}
 	
 	inline bool isReconfigPacket(Ipv4* ip, Tcp* tcp) {
