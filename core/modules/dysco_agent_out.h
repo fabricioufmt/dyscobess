@@ -101,7 +101,7 @@ class DyscoAgentOut final : public Module {
 					if(((uint8_t*)tcp + tcp_hlen)[payload_len - 1] == 0xFF)
 						return true;
 				}
-				
+				fprintf(stderr, "false1");
 				return false;
 			}
 
@@ -109,15 +109,17 @@ class DyscoAgentOut final : public Module {
 			
 			if(!cb_out->dcb_in) {
 				fprintf(stderr, "[DyscoCenter]: cb_out->dcb_in is NULL\n");
+				fprintf(stderr, "false2");
 				return false;
 			}
 			
 			if(cb_out->dcb_in->is_reconfiguration)
 				return true;
 
+			fprintf(stderr, "false3");
 			return false;
 		}
-
+		fprintf(stderr, "false4");
 		return false;
 	}
 
