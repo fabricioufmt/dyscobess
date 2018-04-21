@@ -976,7 +976,8 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 
 			if(!cb_out) {
 				fprintf(stderr, "!cb_out\n");
-				return ERROR; //TODO
+				//return ERROR; //TODO
+				return TO_GATE_1;
 			}
 			//return true;
 
