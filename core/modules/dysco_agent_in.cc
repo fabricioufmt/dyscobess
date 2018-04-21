@@ -944,7 +944,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 			return ERROR;
 		}
 		
-		if(isLeftAnchor(ip, cmsg)) {
+		if(ip->dst.value() == ntohl(cmsg->leftA)) {
 			fprintf(stderr, "is left anchor\n");
 			DyscoHashOut* cb_out = dc->lookup_output_by_ss(this->index, &cmsg->leftSS);
 
