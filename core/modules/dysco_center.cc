@@ -1000,7 +1000,7 @@ bool DyscoCenter::insert_cb_out(uint32_t i, DyscoHashOut* cb_out, uint8_t two_pa
 	return true;
 }
 
-DyscoHashIn* DyscoCenter::insert_cb_out_reverse(uint32_t i, DyscoHashOut* cb_out, uint8_t two_paths) {
+DyscoHashIn* DyscoCenter::insert_cb_out_reverse(uint32_t i, DyscoHashOut* cb_out, uint8_t two_paths, DyscoControlMessage* cmsg = 0) {
 	DyscoHashes* dh = get_hash(i);
 	if(!dh)
 		return 0;
@@ -1040,6 +1040,10 @@ DyscoHashIn* DyscoCenter::insert_cb_out_reverse(uint32_t i, DyscoHashOut* cb_out
 	
 	cb_in->two_paths = two_paths;
 
+	//TEST //TODO
+	if(cmsg)
+		memcpy(&cb_in->cmsg, cmsg, sizeof(DyscoControlMessage));
+	
 	cb_in->dcb_out = cb_out;
 	cb_out->dcb_in = cb_in;
 

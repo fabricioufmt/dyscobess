@@ -32,7 +32,7 @@ const Commands DyscoAgentIn::cmds = {
 };
 	
 DyscoAgentIn::DyscoAgentIn() : Module() {
-		dc = 0;
+	dc = 0;
 	devip = 0;
 	index = 0;
 

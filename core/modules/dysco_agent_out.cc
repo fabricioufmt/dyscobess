@@ -706,7 +706,7 @@ bool DyscoAgentOut::control_output_syn(Ipv4* ip, Tcp* tcp, DyscoControlMessage* 
 		//dysco_arp
 
 		new_dcb->other_path = old_dcb;
-		new_dcb->dcb_in = dc->insert_cb_out_reverse(this->index, new_dcb, 1);
+		new_dcb->dcb_in = dc->insert_cb_out_reverse(this->index, new_dcb, 1, cmsg);
 
 		if(!new_dcb->dcb_in) {
 #ifdef DEBUG_RECONFIG
@@ -715,7 +715,7 @@ bool DyscoAgentOut::control_output_syn(Ipv4* ip, Tcp* tcp, DyscoControlMessage* 
 		} else {
 			new_dcb->dcb_in->is_reconfiguration = 1;
 		}
-
+		memcpy(&new_dcb->cmsg, cmsg, sizeof(DyscoControlMessage));
 		new_dcb->is_reconfiguration = 1;
 
 #ifdef DEBUG_RECONFIG
