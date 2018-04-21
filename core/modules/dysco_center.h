@@ -350,7 +350,7 @@ class DyscoCenter final : public Module {
 	DyscoHashIn* insert_cb_input(uint32_t, Ipv4*, Tcp*, uint8_t*, uint32_t);
 	bool set_ack_number_out(uint32_t, Tcp*, DyscoHashIn*);
 	bool insert_tag(uint32_t, bess::Packet*, Ipv4*, Tcp*);
-	DyscoHashIn* insert_cb_out_reverse(uint32_t, DyscoHashOut*, uint8_t, DyscoControlMessage* cmsg = 0);
+	DyscoHashIn* insert_cb_out_reverse(uint32_t, DyscoHashOut*, uint8_t, DyscoControlMessage* = 0);
 	
 	/*
 	  Dysco methods (OUTPUT)
