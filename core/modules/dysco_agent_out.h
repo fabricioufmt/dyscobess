@@ -91,16 +91,31 @@ class DyscoAgentOut final : public Module {
 	}
 	
 	inline bool isReconfigPacket(Ipv4* ip, Tcp* tcp) {
-		if(isTCPSYN(tcp) && !isTCPACK(tcp)) {
+		if(isTCPSYN(tcp, true)) {
 			uint32_t payload_len = hasPayload(ip, tcp);
 			if(payload_len) {
+				//Only LeftAnchor
 				uint32_t tcp_hlen = tcp->offset << 2;
-				if(((uint8_t*)tcp + tcp_hlen)[payload_len - 1] == 0xFF) {
+				if(((uint8_t*)tcp + tcp_hlen)[payload_len - 1] == 0xFF)
 					return true;
-				} else {
-					return false;
-				}
+				
+				return false;
 			}
+
+			//Hosts in the middle (left - middle - right)
+			DyscoHashOut* cb_out = dc->lookup_output(this->index, ip, tcp);
+			if(!cb_out)
+				return false;
+
+			if(!cb_out->dcb_in) {
+				fprintf(stderr, "[DyscoCenter]: cb_out->dcb_in is NULL\n");
+				return false;
+			}
+			
+			if(cb_out->dcb_in->is_reconfiguration)
+				return true;
+
+			return false;
 		}
 
 		return false;
