@@ -741,6 +741,10 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 	DyscoHashIn* cb_in;
 	DyscoHashOut* cb_out;
 	if(!isRightAnchor(ip, cmsg)) {
+#ifdef DEBUG_RECONFIG		
+		fprintf(stderr, "[%s][DyscoAgentIn-Control] It isn't the right anchor\n",
+#endif
+		ns.c_str());
 		size_t tcp_hlen = tcp->offset << 2;
 		uint8_t* payload = reinterpret_cast<uint8_t*>(tcp) + tcp_hlen;
 
@@ -825,8 +829,6 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 
 	
 #ifdef DEBUG_RECONFIG
-	fprintf(stderr, "[%s][DyscoAgentIn-Control] It isn't the right anchor\n",
-		ns.c_str());
 	fprintf(stderr, "[%s][DyscoAgentIn-Control] Do nothing, follows regular algorithm and forwads it to host.\n",
 		ns.c_str());
 #endif
