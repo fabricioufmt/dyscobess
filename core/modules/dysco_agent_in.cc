@@ -952,13 +952,16 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 			//DyscoHashOut* cb_out = dc->lookup_output_by_ss(this->index, &cmsg->leftSS);
 			DyscoHashOut* cb_out = dc->lookup_output(this->index, ip, tcp);
 
-			if(!cb_out)
+			if(!cb_out) {
+				fprintf(stderr, "!cb_out\n");
 				return ERROR; //TODO
+			}
 			//return true;
 
 			if(cb_out->state == DYSCO_ESTABLISHED) {
 				// It is a retransmission
 				//break;
+				fprintf(stderr, "DYSCO_ESTABLISHED");
 				return END;
 			}
 
