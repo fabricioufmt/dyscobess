@@ -794,8 +794,9 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 		ip->src = ipswap;
 		ip->ttl = 32;
 		ip->id = be16_t(rand() % 65536);
-		//uint32_t payload_len = ip->length.value() - (ip->header_length << 2) - (tcp->offset << 2);
+		uint32_t payload_len = ip->length.value() - (ip->header_length << 2) - (tcp->offset << 2);
 		//ip->length = be16_t((ip->header_length << 2) + (tcp->offset << 2));
+		ip->length = ip->length - be16_t(payload_len);
 
 		be16_t pswap = tcp->src_port;
 		tcp->src_port = tcp->dst_port;
@@ -803,8 +804,9 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 		tcp->ack_num = be32_t(tcp->seq_num.value() + 1);
 		tcp->seq_num = be32_t(rand() % 4294967296);
 		tcp->flags |= Tcp::kAck;
-		//pkt->trim(payload_len);
+		pkt->trim(payload_len);
 
+		/*
 		uint32_t swp = cmsg->super.sip;
 		cmsg->super.sip = cmsg->super.dip;
 		cmsg->super.dip = swp;
@@ -813,7 +815,7 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 		cmsg->super.sport = cmsg->super.dport;
 		cmsg->super.dport = swp1;
 		cmsg->mtype = DYSCO_SYN_ACK;
-		
+		*/
 #ifdef DEBUG_RECONFIG
 		fprintf(stderr, "[%s][DyscoAgentIn-Control] insert_hash_input method\n", ns.c_str());
 #endif
