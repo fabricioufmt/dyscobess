@@ -398,6 +398,10 @@ DyscoHashOut* DyscoCenter::insert_cb_in_reverse(DyscoTcpSession* ss_payload, Ipv
 	if(!cb_out)
 		return 0;
 
+	fprintf(stderr, "[DyscoCenter] insert_cb_in_reverse inserting %s:%u -> %s:%u\n",
+		printip0(ntohl(ss_payload->sip)), ntohl(ss_payload->sport),
+		printip0(ntohl(ss_payload->dip)), ntohs(ss_payload->dport));
+	
 	cb_out->sup.sip = ss_payload->dip;
 	cb_out->sup.dip = ss_payload->sip;
 	cb_out->sup.sport = ss_payload->dport;
