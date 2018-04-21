@@ -955,12 +955,12 @@ bool DyscoCenter::out_handle_mb(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp* tc
 		fprintf(stderr, "[DyscoCenter] handle_mb_out method, tag_ok is false\n");
 	if(cb_out->is_reconfiguration) {
 #ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[DyscoCenter]: cb_out is reconfiguration\n", (tcp->offset << 2));
+		fprintf(stderr, "[DyscoCenter]: cb_out is reconfiguration\n");
 #endif		
 		//remove_tag(pkt, ip, tcp);
 	} else {
 #ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[DyscoCenter]: cb_out is not reconfiguration and calling remove_tag\n", (tcp->offset << 2));
+		fprintf(stderr, "[DyscoCenter]: cb_out is not reconfiguration and calling remove_tag\n");
 #endif		
 		remove_tag(pkt, ip, tcp);
 	}
