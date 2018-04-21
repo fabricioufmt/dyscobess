@@ -93,12 +93,14 @@ void DyscoAgentOut::ProcessBatch(bess::PacketBatch* batch) {
 			continue;
 			
 		Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
+#ifdef DEBUG_RECONFIG
+		fprintf(stderr, "[%s][DyscoAgentOut-Control] receives %s:%u -> %s:%u\n",
+			ns.c_str(),
+			printip2(ip->src.value()), tcp->src_port.value(),
+			printip2(ip->dst.value()), tcp->dst_port.value());
+#endif
 		if(isReconfigPacket(ip, tcp)) {
 #ifdef DEBUG_RECONFIG
-			fprintf(stderr, "[%s][DyscoAgentOut-Control] receives %s:%u -> %s:%u\n",
-				ns.c_str(),
-				printip2(ip->src.value()), tcp->src_port.value(),
-				printip2(ip->dst.value()), tcp->dst_port.value());
 			fprintf(stderr, "[%s][DyscoAgentOut-Control] It's reconfiguration packet.\n", ns.c_str());
 #endif
 			control_output(ip, tcp);
@@ -462,7 +464,7 @@ bool DyscoAgentOut::output(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 #endif
 	}
 
-	if(isTCPSYN(tcp)) {
+	if(isTCPSYN(tcp, true)) {
 #ifdef DEBUG
 		fprintf(stderr, "[%s][DyscoAgentOut] calls out_syn method for TCP SYN segment.\n", ns.c_str());
 #endif		
