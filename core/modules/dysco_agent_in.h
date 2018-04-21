@@ -72,8 +72,8 @@ class DyscoAgentIn final : public Module {
 		return ip->protocol == Ipv4::Proto::kTcp;
 	}
 
-	inline bool isTCPSYN(Tcp* tcp) {
-		return tcp->flags & Tcp::Flag::kSyn;
+	inline bool isTCPSYN(Tcp* tcp, bool exclusive = false) {
+		return exclusive ? tcp->flags == Tcp::Flag::kSyn : tcp->flags & Tcp::Flag::kSyn;
 	}
 
 	inline bool isTCPACK(Tcp* tcp, bool exclusive = false) {

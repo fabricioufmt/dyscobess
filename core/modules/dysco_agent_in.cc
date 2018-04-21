@@ -894,8 +894,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 
 	cmsg = reinterpret_cast<DyscoControlMessage*>(payload);
 
-	switch(cmsg->mtype) {
-	case DYSCO_SYN:
+	if(isTCPSYN(tcp, true)) {
 #ifdef DEBUG_RECONFIG
 		fprintf(stderr, "[%s][DyscoAgentIn-Control] DYSCO_SYN message.\n", ns.c_str());
 #endif
@@ -919,18 +918,17 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 		}
 		
 		return control_reconfig_in(pkt, ip, tcp, payload, rcb, cmsg);
-
-	case DYSCO_SYN_ACK:
+		
+	} else if(isTCPSYN(tcp) && isTCPACK(tcp)) {
 #ifdef DEBUG_RECONFIG
-		fprintf(stderr, "DYSCO_SYN_ACK message.\n");
+		fprintf(stderr, "[%s][DyscoAgentIn-Control] DYSCO_SYN_ACK message.\n", ns.c_str());
 #endif
-		//verify htonl
-		if(ip->dst.value() == ntohl(cmsg->leftA)) {
+		if(isLeftAnchor(ip, cmsg)) {
 			DyscoHashOut* cb_out = dc->lookup_output_by_ss(this->index, &cmsg->leftSS);
 
 			if(!cb_out)
 				return ERROR; //TODO
-				//return true;
+			//return true;
 
 			if(cb_out->state == DYSCO_ESTABLISHED) {
 				// It is a retransmission
@@ -940,11 +938,10 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 			cb_out->ack_cutoff = ntohl(cmsg->seqCutoff);
 			cb_out->valid_ack_cut = true;
 		}
-		break;
 
-	case DYSCO_ACK:
+	} else if(isTCPACK(tcp, true)) {
 #ifdef DEBUG_RECONFIG
-		fprintf(stderr, "DYSCO_ACK message.\n");
+		fprintf(stderr, "[%s][DyscoAgentIn-Control] DYSCO_ACK message.\n", ns.c_str());
 #endif
 		rcb = dc->lookup_reconfig_by_ss(this->index, &cmsg->super);
 
@@ -952,7 +949,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 			break;
 
 		//verify htonl
-		if(ip->dst.value() == ntohl(cmsg->rightA)) {
+		if(isRightAnchor(ip, cmsg)) {
 			DyscoHashOut* old_out;
 			DyscoHashOut* new_out;
 			uint32_t old_out_ack_cutoff;
@@ -982,12 +979,14 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 				old_out->state = DYSCO_ESTABLISHED;
 			}
 		}
-	case DYSCO_FIN:
-#ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[DyscoAgentIn]: DYSCO_FIN message.\n");
-#endif	
-		break;
+	} else {
+#ifdef DYSCO_RECONFIG
+		fprintf(stderr, "[%s][DyscoAgentIn-Control]: It isn't SYN, SYN/ACK or ACK messages.\n", ns.c_str());
+#endif
+	}
 
+	/*
+	  TODO: verify the necessity of this.
 	case DYSCO_STATE_TRANSFERRED:
 #ifdef DEBUG_RECONFIG
 		fprintf(stderr, "[DyscoAgentIn]: DYSCO_STATE_TRANSFERRED message.\n");
@@ -998,16 +997,16 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 			return END;
 
 		// verify htonl
-		if(ip->dst.value() == cmsg->leftA) {
+		if(isLeftAnchor(ip, cmsg)) {
 			dc->replace_cb_leftA(rcb, cmsg);
-		} else if(ip->dst.value() == cmsg->rightA) {
+		} else if(isRightAnchor(ip, cmsg)) {
 			DyscoHashOut* cb_out = rcb->old_dcb;
 			cb_out->state = DYSCO_ESTABLISHED;
 		}
 
 		break;
 	}
-	
+	*/
 	//skb modifies???
 	return END;
 }
