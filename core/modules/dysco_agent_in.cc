@@ -950,24 +950,6 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 		if(ip->dst.value() == ntohl(cmsg->leftA)) {
 			fprintf(stderr, "is left anchor\n");
 			//DyscoHashOut* cb_out = dc->lookup_output_by_ss(this->index, &cmsg->leftSS);
-			DyscoHashOut* cb_out = dc->lookup_output(this->index, ip, tcp);
-
-			if(!cb_out) {
-				fprintf(stderr, "!cb_out\n");
-				return ERROR; //TODO
-			}
-			//return true;
-
-			if(cb_out->state == DYSCO_ESTABLISHED) {
-				// It is a retransmission
-				//break;
-				fprintf(stderr, "DYSCO_ESTABLISHED");
-				return END;
-			}
-
-			cb_out->ack_cutoff = cmsg->seqCutoff;
-			cb_out->valid_ack_cut = true;
-
 
 			// SEND ACK MESSAGE
 			//TEST //TODO
@@ -990,6 +972,24 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 			tcp->ack_num = be32_t(ipswap.value() + 1);
 			tcp->flags = Tcp::kAck;
 
+			DyscoHashOut* cb_out = dc->lookup_output(this->index, ip, tcp);
+
+			if(!cb_out) {
+				fprintf(stderr, "!cb_out\n");
+				return ERROR; //TODO
+			}
+			//return true;
+
+			if(cb_out->state == DYSCO_ESTABLISHED) {
+				// It is a retransmission
+				//break;
+				fprintf(stderr, "DYSCO_ESTABLISHED");
+				return END;
+			}
+
+			cb_out->ack_cutoff = cmsg->seqCutoff;
+			cb_out->valid_ack_cut = true;
+			
 			return TO_GATE_1;
 		} else {
 			fprintf(stderr, "isn't left anchor\n");
