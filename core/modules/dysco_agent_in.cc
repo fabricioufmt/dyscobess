@@ -942,6 +942,19 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 
 			cb_out->ack_cutoff = ntohl(cmsg->seqCutoff);
 			cb_out->valid_ack_cut = true;
+		} else {
+			//TEST
+			DyscoHashIn* cb_in = dc->lookup_input(this->index, ip, tcp);
+
+			if(!cb_in)
+				return ERROR;
+
+			set_ack_number_out(this->index, tcp, cb_in);
+			in_hdr_rewrite_csum(ip, tcp, cb_in);
+
+			print_out1(ns, ip, tcp);
+
+			return TO_GATE_0;
 		}
 
 	} else if(isTCPACK(tcp, true)) {
