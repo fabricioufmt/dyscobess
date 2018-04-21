@@ -580,9 +580,6 @@ DyscoHashOut* DyscoCenter::create_cb_out(uint32_t i, Ipv4* ip, Tcp* tcp, DyscoPo
 }
 
 bool DyscoCenter::out_tx_init(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) {
-#ifdef DEBUG_RECONFIG
-	fprintf(stderr, "[DyscoCenter]: tcp->oftset: %u\n", (tcp->offset << 2));
-#endif
 	if(!add_sc(pkt, ip, cb_out))
 		return false;
 
@@ -959,6 +956,9 @@ bool DyscoCenter::out_handle_mb(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp* tc
 	remove_tag(pkt, ip, tcp);
 
 	add_sc(pkt, ip, cb_out);
+#ifdef DEBUG_RECONFIG
+	fprintf(stderr, "[DyscoCenter]: tcp->oftset: %u\n", (tcp->offset << 2));
+#endif
 	fix_tcp_ip_csum(ip, tcp);
 
 	return true;
