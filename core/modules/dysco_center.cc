@@ -1160,7 +1160,7 @@ bool DyscoCenter::add_sc(bess::Packet* pkt, Ipv4* ip, DyscoHashOut* cb_out) {
 		memcpy(payload + sizeof(DyscoTcpSession), cb_out->sc, payload_sz - sizeof(DyscoTcpSession));
 	}
 
-	ip->length = be32_t(ip->length.value() + payload_sz);
+	ip->length = be16_t(ip->length.value() + payload_sz);
 	return true;
 }
 
