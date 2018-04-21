@@ -931,6 +931,19 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 #ifdef DEBUG_RECONFIG
 		fprintf(stderr, "[%s][DyscoAgentIn-Control] DYSCO_SYN_ACK message.\n", ns.c_str());
 #endif
+
+		DyscoHashIn* cb_in = dc->lookup_input(this->index, ip, tcp);
+		if(!cb_in) {
+			fprintf(stderr, "error1\n");
+			return ERROR;
+		}
+
+		cmsg = &cb_in->cmsg;
+		if(!cmsg) {
+			fprintf(stderr, "error1\n");
+			return ERROR;
+		}
+		
 		if(isLeftAnchor(ip, cmsg)) {
 			DyscoHashOut* cb_out = dc->lookup_output_by_ss(this->index, &cmsg->leftSS);
 
