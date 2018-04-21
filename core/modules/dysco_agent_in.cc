@@ -945,6 +945,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 		}
 		
 		if(isLeftAnchor(ip, cmsg)) {
+			fprintf(stderr, "is left anchor\n");
 			DyscoHashOut* cb_out = dc->lookup_output_by_ss(this->index, &cmsg->leftSS);
 
 			if(!cb_out)
@@ -984,6 +985,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 
 			return TO_GATE_1;
 		} else {
+			fprintf(stderr, "isn't left anchor\n");
 			//TEST
 			DyscoHashIn* cb_in2 = dc->lookup_input(this->index, ip, tcp);
 
