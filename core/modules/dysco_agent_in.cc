@@ -985,13 +985,13 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 			return TO_GATE_1;
 		} else {
 			//TEST
-			DyscoHashIn* cb_in = dc->lookup_input(this->index, ip, tcp);
+			DyscoHashIn* cb_in2 = dc->lookup_input(this->index, ip, tcp);
 
-			if(!cb_in)
+			if(!cb_in2)
 				return ERROR;
 
-			set_ack_number_out(this->index, tcp, cb_in);
-			in_hdr_rewrite_csum(ip, tcp, cb_in);
+			set_ack_number_out(this->index, tcp, cb_in2);
+			in_hdr_rewrite_csum(ip, tcp, cb_in2);
 
 			print_out1(ns, ip, tcp);
 
