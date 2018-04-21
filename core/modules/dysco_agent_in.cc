@@ -1014,7 +1014,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 	}
 	*/
 	//skb modifies???
-	return END;
+	return TO_GATE_0; //TEST should be END;
 }
 
 
