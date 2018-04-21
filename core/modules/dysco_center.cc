@@ -1137,10 +1137,17 @@ bool DyscoCenter::add_sc(bess::Packet* pkt, Ipv4* ip, DyscoHashOut* cb_out) {
 		return false;
 
 	uint32_t payload_sz;
-	if(cb_out->is_reconfiguration == 1) 
+	if(cb_out->is_reconfiguration == 1)  {
 		payload_sz = sizeof(DyscoControlMessage) + cb_out->sc_len * sizeof(uint32_t) + 1;
-	else
+#ifdef DEBUG_RECONFIG
+		fprintf(stderr, "[DyscoCenter]: add sc in reconfiguration packet.\n");
+#endif
+	} else {
 		payload_sz = sizeof(DyscoTcpSession) + cb_out->sc_len * sizeof(uint32_t);
+#ifdef DEBUG_RECONFIG
+		fprintf(stderr, "[DyscoCenter]: add sc in regular packet.\n");
+#endif
+	}
 	
 	uint8_t* payload = reinterpret_cast<uint8_t*>(pkt->append(payload_sz));
 
