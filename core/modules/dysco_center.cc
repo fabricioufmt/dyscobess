@@ -399,7 +399,7 @@ DyscoHashOut* DyscoCenter::insert_cb_in_reverse(DyscoTcpSession* ss_payload, Ipv
 		return 0;
 
 	fprintf(stderr, "[DyscoCenter] insert_cb_in_reverse inserting %s:%u -> %s:%u\n",
-		printip0(ntohl(ss_payload->sip)), ntohl(ss_payload->sport),
+		printip0(ntohl(ss_payload->sip)), ntohs(ss_payload->sport),
 		printip0(ntohl(ss_payload->dip)), ntohs(ss_payload->dport));
 	
 	cb_out->sup.sip = ss_payload->dip;
@@ -504,7 +504,7 @@ DyscoHashIn* DyscoCenter::insert_cb_input(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_
 	dh->hash_out.insert(std::pair<DyscoTcpSession, DyscoHashOut>(cb_out->sup, *cb_out));
 
 	fprintf(stderr, "[DyscoCenter] lookup_output inserting %s:%u -> %s:%u\n",
-		printip0(ntohl(cb_out->sup.sip)), ntohl(cb_out->sup.sport),
+		printip0(ntohl(cb_out->sup.sip)), ntohs(cb_out->sup.sport),
 		printip0(ntohl(cb_out->sup.dip)), ntohs(cb_out->sup.dport));
 	
 	return cb_in;
