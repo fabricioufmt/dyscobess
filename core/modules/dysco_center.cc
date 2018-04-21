@@ -17,6 +17,9 @@ using bess::utils::Tcp;
 using bess::utils::Ipv4;
 using bess::utils::Ethernet;
 
+#define DYSCO_DEBUG 1
+#define DYSCO_RECONFIG 1
+
 const Commands DyscoCenter::cmds = {
 	{"add", "DyscoCenterAddArg", MODULE_CMD_FUNC(&DyscoCenter::CommandAdd), Command::THREAD_UNSAFE},
 	{"del", "DyscoCenterDelArg", MODULE_CMD_FUNC(&DyscoCenter::CommandDel), Command::THREAD_UNSAFE},
