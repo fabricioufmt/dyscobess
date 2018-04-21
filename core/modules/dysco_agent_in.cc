@@ -1031,9 +1031,11 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 		
 		rcb = dc->lookup_reconfig_by_ss(this->index, &cmsg->super);
 
-		if(!rcb)
+		if(!rcb) {
 			//break;
+			fprintf(stderr, "rcb is NULL\n");
 			return ERROR;
+		}
 
 		//verify htonl
 		if(isRightAnchor(ip, cmsg)) {
