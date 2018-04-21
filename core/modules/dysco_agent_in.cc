@@ -932,7 +932,8 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 
 			if(cb_out->state == DYSCO_ESTABLISHED) {
 				// It is a retransmission
-				break;
+				//break;
+				return END;
 			}
 
 			cb_out->ack_cutoff = ntohl(cmsg->seqCutoff);
@@ -946,7 +947,8 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 		rcb = dc->lookup_reconfig_by_ss(this->index, &cmsg->super);
 
 		if(!rcb)
-			break;
+			//break;
+			return ERROR;
 
 		//verify htonl
 		if(isRightAnchor(ip, cmsg)) {
@@ -955,12 +957,14 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 			uint32_t old_out_ack_cutoff;
 
 			if(!rcb->old_dcb)
-				break;
+				//break;
+				return ERROR;
 
 			old_out = rcb->old_dcb;
 
 			if(!old_out->other_path)
-				break;
+				//break;
+				return ERROR;
 
 			new_out = old_out->other_path;
 			old_out_ack_cutoff = ntohl(cmsg->seqCutoff);

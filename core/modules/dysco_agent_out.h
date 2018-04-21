@@ -81,6 +81,15 @@ class DyscoAgentOut final : public Module {
 		return ip->length.value() - ip_hlen - tcp_hlen;
 	}
 
+	inline bool isLeftAnchor(Ipv4* ip, DyscoControlMessage* cmsg) {
+		return ip->dst.value() == ntohl(cmsg->leftA);
+	}
+
+
+	inline bool isRightAnchor(Ipv4* ip, DyscoControlMessage* cmsg) {
+		return ip->dst.value() == ntohl(cmsg->rightA);
+	}
+	
 	inline bool isReconfigPacket(Ipv4* ip, Tcp* tcp) {
 		if(isTCPSYN(tcp) && !isTCPACK(tcp)) {
 			uint32_t payload_len = hasPayload(ip, tcp);
