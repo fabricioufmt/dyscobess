@@ -583,6 +583,10 @@ bool DyscoCenter::out_tx_init(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOu
 	if(!add_sc(pkt, ip, cb_out))
 		return false;
 
+#ifdef DEBUG_RECONFIG
+	fprintf(stderr, "[DyscoCenter]: tcp->oftset: %u\n", (tcp->offset << 2));
+#endif
+	
 	return fix_tcp_ip_csum(ip, tcp);
 }
 
