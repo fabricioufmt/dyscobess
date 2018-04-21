@@ -708,13 +708,27 @@ bool DyscoAgentOut::control_output_syn(Ipv4* ip, Tcp* tcp, DyscoControlMessage* 
 		new_dcb->other_path = old_dcb;
 		new_dcb->dcb_in = dc->insert_cb_out_reverse(this->index, new_dcb, 1);
 
+		if(!new_dcb->dcb_in) {
+#ifdef DEBUG_RECONFIG
+			fprintf(stderr, "[%s][DyscoAgentOut-Control]: new_dcb->dcb_in is NULL\n", ns.c_str());
+#endif
+		} else {
+			new_dcb->dcb_in->is_reconfiguration = 1;
+		}
+
+		new_dcb->is_reconfiguration = 1;
+
+#ifdef DEBUG_RECONFIG
+		fprintf(stderr, "[%s][DyscoAgentOut-Control]: new_dcb and new_dcb->dcb_in setted as reconfiguration.\n", ns.c_str());
+#endif
+		
 		old_dcb->old_path = 1;
 
 		if(ntohs(cmsg->semantic) == STATE_TRANSFER)
 			old_dcb->state_t = 1;
 
 		//FIXME //TODO //TEST
-		//old_dcb->dcb_in->two_paths = 1;
+		//old_dcb->dcb_in->two_paths = 1; //already did in insert_cb_out_reverse
 		old_dcb->state = DYSCO_SYN_SENT;
 
 		old_dcb->other_path = new_dcb;
@@ -753,18 +767,18 @@ bool DyscoAgentOut::control_output(Ipv4* ip, Tcp* tcp) {
 #endif
 
 	if(isTCPSYN(tcp, true)) {
-#ifdef DYSCO_RECONFIG
+#ifdef DEBUG_RECONFIG
 		fprintf(stderr, "[%s][DyscoAgentOut-Control]: It's a SYN message.\n", ns.c_str());
 #endif
 		return control_output_syn(ip, tcp, cmsg);
-	} else if(isTCPSYN(tcp, false) && isTCPACK(tcp, false)) {
-#ifdef DYSCO_RECONFIG
+	} else if(isTCPSYN(tcp) && isTCPACK(tcp)) {
+#ifdef DEBUG_RECONFIG
 		fprintf(stderr, "[%s][DyscoAgentOut-Control]: It's a SYN/ACK message.\n", ns.c_str());
 #endif
 		if(isRightAnchor(ip, cmsg))
 			replace_cb_rightA(cmsg);
 	} else if(isTCPACK(tcp, true)) {
-#ifdef DYSCO_RECONFIG
+#ifdef DEBUG_RECONFIG
 		fprintf(stderr, "[%s][DyscoAgentOut-Control]: It's an ACK message.\n", ns.c_str());
 #endif
 		rcb = dc->lookup_reconfig_by_ss(this->index, &cmsg->super);
