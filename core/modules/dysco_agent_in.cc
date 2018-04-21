@@ -1012,6 +1012,23 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 #ifdef DEBUG_RECONFIG
 		fprintf(stderr, "[%s][DyscoAgentIn-Control] DYSCO_ACK message.\n", ns.c_str());
 #endif
+
+		DyscoHashIn* cb_in = dc->lookup_input(this->index, ip, tcp);
+		if(!cb_in) {
+			fprintf(stderr, "error2\n");
+			return ERROR;
+		}
+
+		cmsg = &cb_in->cmsg;
+		if(!cmsg) {
+			fprintf(stderr, "error2,5\n");
+			return ERROR;
+		}
+
+		fprintf(stderr, "IPDST: %s and rightA: %s\n",
+			printip1(ip->dst.value()), printip1(ntohl(cmsg->rightA)));
+		
+		
 		rcb = dc->lookup_reconfig_by_ss(this->index, &cmsg->super);
 
 		if(!rcb)
@@ -1020,6 +1037,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 
 		//verify htonl
 		if(isRightAnchor(ip, cmsg)) {
+			fprintf(stderr, "it is right anchor\n");
 			DyscoHashOut* old_out;
 			DyscoHashOut* new_out;
 			uint32_t old_out_ack_cutoff;
@@ -1050,6 +1068,12 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 				old_out->valid_ack_cut = true;
 				old_out->state = DYSCO_ESTABLISHED;
 			}
+
+			//return END;
+			reurn TO_GATE_0;
+		} else {
+			fprintf(stderr, "it isn't right anchor\n");
+			return END;
 		}
 	} else {
 #ifdef DYSCO_RECONFIG
