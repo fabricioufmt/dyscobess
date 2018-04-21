@@ -499,8 +499,7 @@ DyscoHashIn* DyscoCenter::insert_cb_input(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_
 	dh->hash_in.insert(std::pair<DyscoTcpSession, DyscoHashIn>(cb_in->sub, *cb_in));
 	dh->hash_out.insert(std::pair<DyscoTcpSession, DyscoHashOut>(cb_out->sup, *cb_out));
 
-	fprintf(stderr, "[%s] lookup_output inserting %s:%u -> %s:%u\n",
-		ns.c_str(),
+	fprintf(stderr, "[DyscoCenter] lookup_output inserting %s:%u -> %s:%u\n",
 		printip0(ntohl(cb_out->sup.sip)), ntohl(cb_out->sup.sport),
 		printip0(ntohl(cb_out->sup.dip)), ntohs(cb_out->sup.dport));
 	
