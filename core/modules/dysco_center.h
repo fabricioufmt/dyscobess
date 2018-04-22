@@ -294,9 +294,12 @@ char* printip0(uint32_t ip) {
 }
 
 char* print_ss(DyscoTcpSession ss) {
+	char* buf = (char*) malloc(1024);
 	fprintf(stderr, "%s:%u -> %s:%u",
 		printip0(ntohl(ss.sip)), ntohs(ss.sport),
 		printip0(ntohl(ss.dip)), ntohs(ss.dport));
+
+	return buf;
 }
 
 class DyscoHashes {
