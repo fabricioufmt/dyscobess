@@ -1072,7 +1072,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 
 			if(!rcb->old_dcb) {
 				//break;
-				fprintf(stderr, "rcb->old_dcb is NULL. on rcb: %p(%s)\n", rcb, print_ss1(rcb->supss));
+				fprintf(stderr, "rcb->old_dcb is NULL. on rcb: %p(%s)\n", rcb, print_ss1(rcb->super));
 				return ERROR;
 			}
 
