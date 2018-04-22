@@ -508,28 +508,30 @@ bool DyscoAgentIn::input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
   Dysco codes below. Control input
 */
 
-DyscoCbReconfig* DyscoAgentIn::insert_rcb_control_input(Ipv4* ip, DyscoControlMessage* cmsg) {
+DyscoCbReconfig* DyscoAgentIn::insert_rcb_control_input(Ipv4* ip, Tcp* tcp, DyscoControlMessage* cmsg) {
 	DyscoCbReconfig* rcb = new DyscoCbReconfig();
 
 	rcb->super = cmsg->super;
 	rcb->leftSS = cmsg->leftSS;
 	rcb->rightSS = cmsg->rightSS;
-	rcb->sub_in.sip = ip->src.value();
-	rcb->sub_in.dip = ip->dst.value();
-	rcb->sub_in.sport = cmsg->sport;
-	rcb->sub_in.dport = cmsg->dport;
+	rcb->sub_in.sip = htonl(ip->src.value());
+	rcb->sub_in.dip = htonl(ip->dst.value());
+	rcb->sub_in.sport = htons(tcp->src_port.value());
+	rcb->sub_in.dport = htons(tcp->dst_port.value());
+	//rcb->sub_in.sport = cmsg->sport;
+	//rcb->sub_in.dport = cmsg->dport;
 	rcb->sub_out.sip = 0;
 
-	rcb->leftIseq = ntohl(cmsg->leftIseq);
-	rcb->leftIack = ntohl(cmsg->leftIack);
+	rcb->leftIseq = cmsg->leftIseq;
+	rcb->leftIack = cmsg->leftIack;
 
-	rcb->leftIts = ntohl(cmsg->leftIts);
-	rcb->leftItsr = ntohl(cmsg->leftItsr);
+	rcb->leftIts = cmsg->leftIts;
+	rcb->leftItsr = cmsg->leftItsr;
 
-	rcb->leftIws = ntohl(cmsg->leftIws);
-	rcb->leftIwsr = ntohl(cmsg->leftIwsr);
+	rcb->leftIws = cmsg->leftIws;
+	rcb->leftIwsr = cmsg->leftIwsr;
 
-	rcb->sack_ok = ntohs(cmsg->sackOk);
+	rcb->sack_ok = cmsg->sackOk;
 
 	if(!dc->insert_hash_reconfig(this->index, rcb))
 		return 0;
@@ -742,9 +744,8 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 	DyscoHashOut* cb_out;
 	if(!isRightAnchor(ip, cmsg)) {
 #ifdef DEBUG_RECONFIG		
-		fprintf(stderr, "[%s][DyscoAgentIn-Control] It isn't the right anchor\n",
+		fprintf(stderr, "[%s][DyscoAgentIn-Control] It isn't the right anchor\n",		ns.c_str());
 #endif
-		ns.c_str());
 		size_t tcp_hlen = tcp->offset << 2;
 		uint8_t* payload = reinterpret_cast<uint8_t*>(tcp) + tcp_hlen;
 
@@ -895,17 +896,20 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 }
 
 CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
-	size_t tcp_hlen = tcp->offset << 2;
-	uint8_t* payload = reinterpret_cast<uint8_t*>(tcp) + tcp_hlen;
-	DyscoControlMessage* cmsg;
 	DyscoCbReconfig* rcb;
-
-	cmsg = reinterpret_cast<DyscoControlMessage*>(payload);
-
+	DyscoControlMessage* cmsg = 0;
+	size_t tcp_hlen = tcp->offset << 2;
+	
 	if(isTCPSYN(tcp, true)) {
 #ifdef DEBUG_RECONFIG
 		fprintf(stderr, "[%s][DyscoAgentIn-Control] DYSCO_SYN message.\n", ns.c_str());
 #endif
+
+		if(!hasPayload(ip, tcp))
+			return END;
+
+		cmsg = reinterpret_cast<DyscoControlMessage*>(reinterpret_cast<uint8_t*>(tcp) + tcp_hlen);}
+		
 		rcb = dc->lookup_reconfig_by_ss(this->index, &cmsg->super);
 
 		if(rcb) {
@@ -917,7 +921,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 			return IS_RETRANSMISSION;
 		}
 
-		rcb = insert_rcb_control_input(ip, cmsg);
+		rcb = insert_rcb_control_input(ip, tcp, cmsg);
 		if(!rcb) {
 #ifdef DEBUG_RECONFIG
 			fprintf(stderr, "[%s][DyscoAgentIn-Control] Error to insert rcb control input.\n", ns.c_str());
@@ -1029,7 +1033,8 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 			printip1(ip->dst.value()), printip1(ntohl(cmsg->rightA)));
 		
 		
-		rcb = dc->lookup_reconfig_by_ss(this->index, &cmsg->super);
+		//rcb = dc->lookup_reconfig_by_ss(this->index, &cmsg->super);
+		rcb = dc->lookup_reconfig_by_ss(this->index, &cb_in->sup);
 
 		if(!rcb) {
 			//break;
