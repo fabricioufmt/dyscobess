@@ -121,7 +121,11 @@ void DyscoAgentIn::ProcessBatch(bess::PacketBatch* batch) {
 #ifdef DEBUG
 		print_out1(ns, ip, tcp);
 #endif
+		continue;
 	l1:
+#ifdef DEBUG_RECONFIG
+		fprintf(stderr, "[%s][DyscoAgentIn-Control]: not forwarding.\n", ns.c_str());
+#endif
 	}
 	
 	batch->clear();
