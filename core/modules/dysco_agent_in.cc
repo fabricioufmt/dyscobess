@@ -1011,8 +1011,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 
 			return TO_GATE_0;
 		}
-
-	} else if(isTCPACK(tcp, true)) {
+ } else if(isTCPACK(tcp, true)) {
 #ifdef DEBUG_RECONFIG
 		fprintf(stderr, "[%s][DyscoAgentIn-Control] DYSCO_ACK message.\n", ns.c_str());
 #endif
