@@ -547,11 +547,12 @@ DyscoCbReconfig* DyscoAgentOut::insert_cb_control(Ipv4* ip, Tcp* tcp, DyscoContr
 	cmsg->sport = rcb->sub_out.sport;
 	cmsg->dport = rcb->sub_out.dport;
 
-	fprintf(stderr, "[%s][DyscoAgentOut-Control] Inserting rcb: %p (super: %s)\n",
-		ns.c_str(), rcb, print_ss2(rcb->super));
 	if(!dc->insert_hash_reconfig(this->index, rcb))
 		return 0;
 
+	fprintf(stderr, "[%s][DyscoAgentOut-Control] Inserting rcb: %p (super: %s)\n",
+		ns.c_str(), rcb, print_ss2(rcb->super));
+	
 	return rcb;
 }
 
