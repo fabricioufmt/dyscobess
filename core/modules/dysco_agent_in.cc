@@ -908,7 +908,8 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 		if(!hasPayload(ip, tcp))
 			return END;
 
-		cmsg = reinterpret_cast<DyscoControlMessage*>(reinterpret_cast<uint8_t*>(tcp) + tcp_hlen);}
+		uint8_t* payload = reinterpret_cast<uint8_t*>(tcp) + tcp_hlen;
+		cmsg = reinterpret_cast<DyscoControlMessage*>(payload);
 		
 		rcb = dc->lookup_reconfig_by_ss(this->index, &cmsg->super);
 
