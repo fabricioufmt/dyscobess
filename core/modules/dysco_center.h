@@ -24,6 +24,25 @@ using bess::utils::Ethernet;
 using bess::utils::be32_t;
 using bess::utils::be16_t;
 
+char* printip0(uint32_t ip) {
+	uint8_t bytes[4];
+        char* buf = (char*) malloc(17);
+	
+        bytes[0] = ip & 0xFF;
+        bytes[1] = (ip >> 8) & 0xFF;
+        bytes[2] = (ip >> 16) & 0xFF;
+        bytes[3] = (ip >> 24) & 0xFF;
+        sprintf(buf, "%d.%d.%d.%d", bytes[3], bytes[2], bytes[1], bytes[0]);
+
+        return buf;
+}
+
+char* print_ss(DyscoTcpSession ss) {
+	fprintf(stderr, "%s:%u -> %s:%u",
+		printip0(ntohl(ss.sip)), ntohs(ss.sport),
+		printip0(ntohl(ss.dip)), ntohs(ss.dport));
+}
+
 #define DYSCO_TCP_OPTION 253
 #define DYSCO_TCP_OPTION_LEN 8
 #define TCPOLEN_SACK_BASE 2

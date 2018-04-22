@@ -941,7 +941,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 #endif			
 			return ERROR;
 		}
-		fprintf(stderr, "on SYN+PAYLOAd, created rcb:%p\n", rcb);
+		fprintf(stderr, "on SYN+PAYLOAd, created rcb:%p(supss: %s)\n", rcb, print_ss(rcb->super));
 		return control_reconfig_in(pkt, ip, tcp, payload, rcb, cmsg);
 		
 	} else if(isTCPSYN(tcp) && isTCPACK(tcp)) {
