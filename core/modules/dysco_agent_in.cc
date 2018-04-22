@@ -733,6 +733,7 @@ bool DyscoAgentIn::control_config_rightA(DyscoCbReconfig* rcb, DyscoControlMessa
 	cb_in->two_paths = true;
 
 	rcb->old_dcb = old_out;
+	fprintf(stderr, "setting old_dcb on rcb: %p\n", rcb);
 	rcb->new_dcb = cb_out;
 
 	cb_out->other_path = old_out;
@@ -1062,7 +1063,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 
 			if(!rcb->old_dcb) {
 				//break;
-				fprintf(stderr, "rcb->old_dcb is NULL.\n");
+				fprintf(stderr, "rcb->old_dcb is NULL. on rcb: %p\n", rcb);
 				return ERROR;
 			}
 
