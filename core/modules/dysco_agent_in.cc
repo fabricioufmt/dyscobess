@@ -1060,16 +1060,20 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 			DyscoHashOut* new_out;
 			uint32_t old_out_ack_cutoff;
 
-			if(!rcb->old_dcb)
+			if(!rcb->old_dcb) {
 				//break;
+				fprintf(stderr, "rcb->old_dcb is NULL.\n");
 				return ERROR;
+			}
 
 			old_out = rcb->old_dcb;
 
-			if(!old_out->other_path)
+			if(!old_out->other_path) {
 				//break;
+				fprintf(stderr, "old_dcb->other_path is false.\n");
 				return ERROR;
-
+			}
+			
 			new_out = old_out->other_path;
 			old_out_ack_cutoff = cmsg->seqCutoff;
 			if(new_out->in_iack < new_out->out_iack) {
