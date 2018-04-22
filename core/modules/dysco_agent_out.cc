@@ -22,6 +22,15 @@ char* printip2(uint32_t ip) {
         return buf;
 }
 
+char* print_ss2(DyscoTcpSession ss) {
+	char* buf = (char*) malloc(1024);
+	fprintf(stderr, "%s:%u -> %s:%u",
+		printip2(ntohl(ss.sip)), ntohs(ss.sport),
+		printip2(ntohl(ss.dip)), ntohs(ss.dport));
+
+	return buf;
+}
+
 void print_out2(std::string ns, Ipv4* ip, Tcp* tcp) {
 	fprintf(stderr, "[%s][DyscoAgentOut] forwards %s:%u -> %s:%u\n\n",
 		ns.c_str(),
@@ -538,6 +547,8 @@ DyscoCbReconfig* DyscoAgentOut::insert_cb_control(Ipv4* ip, Tcp* tcp, DyscoContr
 	cmsg->sport = rcb->sub_out.sport;
 	cmsg->dport = rcb->sub_out.dport;
 
+	fprintf(stderr, "[%s][DyscoAgentOut-Control] Inserting rcb: %p (super: %s)\n",
+		ns.c_str(), rcb, print_ss2(rcb->super));
 	dc->insert_hash_reconfig(this->index, rcb);
 
 	return rcb;
