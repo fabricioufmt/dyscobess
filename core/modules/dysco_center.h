@@ -281,28 +281,6 @@ class DyscoCbReconfig {
 	uint8_t sack_ok;
 };
 
-char* printip0(uint32_t ip) {
-	uint8_t bytes[4];
-        char* buf = (char*) malloc(17);
-	
-        bytes[0] = ip & 0xFF;
-        bytes[1] = (ip >> 8) & 0xFF;
-        bytes[2] = (ip >> 16) & 0xFF;
-        bytes[3] = (ip >> 24) & 0xFF;
-        sprintf(buf, "%d.%d.%d.%d", bytes[3], bytes[2], bytes[1], bytes[0]);
-
-        return buf;
-}
-
-char* print_ss(DyscoTcpSession ss) {
-	char* buf = (char*) malloc(1024);
-	fprintf(stderr, "%s:%u -> %s:%u",
-		printip0(ntohl(ss.sip)), ntohs(ss.sport),
-		printip0(ntohl(ss.dip)), ntohs(ss.dport));
-
-	return buf;
-}
-
 class DyscoHashes {
  public:
 	uint32_t index;
