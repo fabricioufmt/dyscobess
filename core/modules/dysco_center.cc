@@ -265,6 +265,14 @@ DyscoCbReconfig* DyscoCenter::lookup_reconfig_by_ss(uint32_t i, DyscoTcpSession*
 	DyscoHashes* dh = get_hash(i);
 	if(!dh)
 		return 0;
+
+	int i = 1;
+	unordered_map<DyscoTcpSession, DyscoCbReconfig, DyscoTcpSessionHash>::iterator it2 = dh->hash_reconfig.begin();
+	while(it2 != dh->hash_reconfig.end()) {
+		fprintf(stderr, "[DyscoCenter-ReconfigHashList]: %i - %p\n",
+			i++, &(*it2).second);
+		it2++;
+	}
 	
 	DyscoTcpSessionEqualTo equals;
 	unordered_map<DyscoTcpSession, DyscoCbReconfig, DyscoTcpSessionHash>::iterator it = dh->hash_reconfig.begin();
