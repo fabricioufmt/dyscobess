@@ -1057,6 +1057,8 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 		//rcb = dc->lookup_reconfig_by_ss(this->index, &cmsg->super);
 		rcb = dc->lookup_reconfig_by_ss(this->index, &cb_in->sup);
 
+		fprintf(stderr, "looking rcb with ss: %s\n", print_ss1(cb_in->sup));
+		
 		if(!rcb) {
 			//break;
 			fprintf(stderr, "rcb is NULL\n");
