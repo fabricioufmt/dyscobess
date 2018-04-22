@@ -24,7 +24,7 @@ char* printip2(uint32_t ip) {
 
 char* print_ss2(DyscoTcpSession ss) {
 	char* buf = (char*) malloc(1024);
-	fprintf(stderr, "%s:%u -> %s:%u",
+	sprintf(buf, "%s:%u -> %s:%u",
 		printip2(ntohl(ss.sip)), ntohs(ss.sport),
 		printip2(ntohl(ss.dip)), ntohs(ss.dport));
 
