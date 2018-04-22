@@ -111,6 +111,7 @@ void DyscoAgentIn::ProcessBatch(bess::PacketBatch* batch) {
 				out_gates[1].add(pkt);
 				break;
 			case END:
+				fprintf(stderr, "END CASE\n");
 				goto l1;
 			default:
 				//none
