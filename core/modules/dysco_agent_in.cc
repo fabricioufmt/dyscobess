@@ -549,12 +549,12 @@ DyscoCbReconfig* DyscoAgentIn::insert_rcb_control_input(Ipv4* ip, Tcp* tcp, Dysc
 	rcb->leftIwsr = cmsg->leftIwsr;
 
 	rcb->sack_ok = cmsg->sackOk;
-
-	fprintf(stderr, "[%s][DyscoAgentIn-Control] Inserting rcb: %p (super: %s)\n",
-		ns.c_str(), rcb, print_ss1(rcb->super));
 	
 	if(!dc->insert_hash_reconfig(this->index, rcb))
 		return 0;
+
+	fprintf(stderr, "[%s][DyscoAgentIn-Control] Inserting rcb: %p (super: %s)\n",
+		ns.c_str(), rcb, print_ss1(rcb->super));
 	
 	return rcb;
 }

@@ -549,7 +549,8 @@ DyscoCbReconfig* DyscoAgentOut::insert_cb_control(Ipv4* ip, Tcp* tcp, DyscoContr
 
 	fprintf(stderr, "[%s][DyscoAgentOut-Control] Inserting rcb: %p (super: %s)\n",
 		ns.c_str(), rcb, print_ss2(rcb->super));
-	dc->insert_hash_reconfig(this->index, rcb);
+	if(!dc->insert_hash_reconfig(this->index, rcb))
+		return 0;
 
 	return rcb;
 }
