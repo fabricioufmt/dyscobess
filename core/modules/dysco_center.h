@@ -3,6 +3,7 @@
 
 #include <map>
 #include <vector>
+#include <arpa/inet.h>
 #include <unordered_map>
 #include <rte_hash_crc.h>
 
