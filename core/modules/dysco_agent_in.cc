@@ -110,6 +110,8 @@ void DyscoAgentIn::ProcessBatch(bess::PacketBatch* batch) {
 			case TO_GATE_1:
 				out_gates[1].add(pkt);
 				break;
+			case END:
+				goto l1;
 			default:
 				//none
 				break;
@@ -119,6 +121,7 @@ void DyscoAgentIn::ProcessBatch(bess::PacketBatch* batch) {
 #ifdef DEBUG
 		print_out1(ns, ip, tcp);
 #endif
+	l1:
 	}
 	
 	batch->clear();
@@ -907,8 +910,9 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 		fprintf(stderr, "[%s][DyscoAgentIn-Control] DYSCO_SYN message.\n", ns.c_str());
 #endif
 
-		if(!hasPayload(ip, tcp))
-			return END;
+		//Impossible case
+		//if(!hasPayload(ip, tcp))
+		//	return END;
 
 		uint8_t* payload = reinterpret_cast<uint8_t*>(tcp) + tcp_hlen;
 		cmsg = reinterpret_cast<DyscoControlMessage*>(payload);
