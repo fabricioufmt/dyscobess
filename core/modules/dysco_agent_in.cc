@@ -22,7 +22,7 @@ char* printip1(uint32_t ip) {
 
 char* print_ss1(DyscoTcpSession ss) {
 	char* buf = (char*) malloc(1024);
-	fprintf(stderr, "%s:%u -> %s:%u",
+	sprintf(buf, "%s:%u -> %s:%u",
 		printip1(ntohl(ss.sip)), ntohs(ss.sport),
 		printip1(ntohl(ss.dip)), ntohs(ss.dport));
 
