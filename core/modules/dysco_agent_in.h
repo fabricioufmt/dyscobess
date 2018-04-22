@@ -170,7 +170,7 @@ class DyscoAgentIn final : public Module {
 	/*
 	  Control methods
 	 */
-	DyscoCbReconfig* insert_rcb_control_input(Ipv4*, DyscoControlMessage*);
+	DyscoCbReconfig* insert_rcb_control_input(Ipv4*, Tcp*, DyscoControlMessage*);
 	DyscoHashOut* build_cb_in_reverse(Ipv4*, DyscoCbReconfig*);
 	bool compute_deltas_in(DyscoHashIn*, DyscoHashOut*, DyscoCbReconfig*);
 	bool compute_deltas_out(DyscoHashOut*, DyscoHashOut*, DyscoCbReconfig*);
