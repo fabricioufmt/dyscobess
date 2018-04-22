@@ -20,6 +20,15 @@ char* printip1(uint32_t ip) {
         return buf;
 }
 
+char* print_ss1(DyscoTcpSession ss) {
+	char* buf = (char*) malloc(1024);
+	fprintf(stderr, "%s:%u -> %s:%u",
+		printip1(ntohl(ss.sip)), ntohs(ss.sport),
+		printip1(ntohl(ss.dip)), ntohs(ss.dport));
+
+	return buf;
+}
+
 void print_out1(std::string ns, Ipv4* ip, Tcp* tcp) {
 	fprintf(stderr, "[%s][DyscoAgentIn] forwards %s:%u -> %s:%u\n\n",
 		ns.c_str(),
@@ -941,7 +950,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 #endif			
 			return ERROR;
 		}
-		fprintf(stderr, "on SYN+PAYLOAd, created rcb:%p(supss: %s)\n", rcb, print_ss(rcb->super));
+		fprintf(stderr, "on SYN+PAYLOAd, created rcb:%p(supss: %s)\n", rcb, print_ss1(rcb->super));
 		return control_reconfig_in(pkt, ip, tcp, payload, rcb, cmsg);
 		
 	} else if(isTCPSYN(tcp) && isTCPACK(tcp)) {

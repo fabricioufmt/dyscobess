@@ -33,7 +33,7 @@ char* printip0(uint32_t ip) {
         return buf;
 }
 
-char* print_ss(DyscoTcpSession ss) {
+char* print_ss0(DyscoTcpSession ss) {
 	char* buf = (char*) malloc(1024);
 	fprintf(stderr, "%s:%u -> %s:%u",
 		printip0(ntohl(ss.sip)), ntohs(ss.sport),
