@@ -958,8 +958,12 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 
 		//TEST
 		DyscoTcpSession tt;
-		dc->lookup_reconfig_by_ss(this->index, &tt);
-		
+		DyscoCbReconfig* rcb2 = dc->lookup_reconfig_by_ss(this->index, &tt);
+		if(!rcb2) {
+			fprintf(stderr, "retornou rcb2 como null\n");
+		} else 
+			fprintf(stderr, "retornou rcb2 como não-null\n");
+			
 		if(!rcb) {
 #ifdef DEBUG_RECONFIG
 			fprintf(stderr, "[%s][DyscoAgentIn-Control] Error to insert rcb control input.\n", ns.c_str());
@@ -1081,7 +1085,9 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 		
 		//verify htonl
 		if(isRightAnchor(ip, cmsg)) {
-			fprintf(stderr, "it is right anchor\n");
+#ifdef DEBUG_RECONFIG
+			fprintf(stderr, "[%s][DyscoAgentIn-Control] It's the right anchor.\n", ns.c_str());
+#endif
 			DyscoHashOut* old_out;
 			DyscoHashOut* new_out;
 			uint32_t old_out_ack_cutoff;
@@ -1120,8 +1126,9 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 			return END;
 			//return TO_GATE_0;
 		} else {
-			fprintf(stderr, "it isn't right anchor\n");
-
+#ifdef DEBUG_RECONFIG
+			fprintf(stderr, "[%s][DyscoAgentIn-Control] It isn't the right anchor.\n", ns.c_str());
+#endif
 			set_ack_number_out(this->index, tcp, cb_in);
 			in_hdr_rewrite_csum(ip, tcp, cb_in);
 
