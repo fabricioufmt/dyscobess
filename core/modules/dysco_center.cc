@@ -153,7 +153,7 @@ uint32_t DyscoCenter::get_index(std::string ns, uint32_t ip) {
 	DyscoHashes* dh = get_hash(index);
 	if(!dh) {
 		dh = new DyscoHashes();
-		dh->ns = arg.ns();
+		dh->ns = ns;
 		dh->index = index;
 
 		hashes.insert(std::make_pair(index, dh));
