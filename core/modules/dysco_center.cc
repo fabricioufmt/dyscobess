@@ -1232,10 +1232,10 @@ bool DyscoCenter::insert_hash_reconfig(uint32_t i, DyscoCbReconfig* rcb) {
 	
 	DyscoTcpSession* ss = &rcb->super;
 	bool retvalue = dh->hash_reconfig.insert(std::pair<DyscoTcpSession, DyscoCbReconfig>(*ss, *rcb)).second;
-	if(ok)
-		fprintf(stderr, "ok true\n");
+	if(retvalue)
+		fprintf(stderr, "insert true\n");
 	else
-		fprintf(stderr, "ok not true\n");
+		fprintf(stderr, "insert not true\n");
 	fprintf(stderr, "(%u) insert_hash_reconfig added rcb: %p with %s\n", i, rcb, print_ss0(rcb->super));
 	return retvalue;
 }
