@@ -1242,6 +1242,7 @@ bool DyscoCenter::insert_hash_reconfig(uint32_t i, DyscoCbReconfig* rcb) {
 }
 
 bool DyscoCenter::remove_reconfig(uint32_t i, DyscoCbReconfig* rcb) {
+	fprintf(stderr, "removing rcb: %p\n", rcb);
 	DyscoHashes* dh = get_hash(i);
 	if(!dh)
 		return false;
