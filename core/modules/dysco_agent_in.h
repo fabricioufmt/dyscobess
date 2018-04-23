@@ -18,6 +18,9 @@
 #include "../utils/endian.h"
 #include "../utils/checksum.h"
 
+#define DEBUG 1
+#define DEBUG_RECONFIG 1
+
 #define RECONFIG_SPORT 8988
 #define RECONFIG_DPORT 8989
 
@@ -113,10 +116,14 @@ class DyscoAgentIn final : public Module {
 		DyscoHashIn* cb_in = dc->lookup_input(this->index, ip, tcp);
 		if(isTCPSYN(tcp, true)) {
 			if(!cb_in) {
-				fprintf(stderr, "[%s] lookup_input not found %s:%u -> %s:%u\n",
+#ifdef DEBUG_RECONFIG
+				fprintf(stderr, "[%s][DyscoAgentIn] lookup_input not found %s:%u -> %s:%u\n",
 					ns.c_str(),
-					printiptest1(ip->src.value()), tcp->src_port.value(),
-					printiptest1(ip->dst.value()), tcp->dst_port.value());
+					printiptest1(ip->src.value()),
+					tcp->src_port.value(),
+					printiptest1(ip->dst.value()),
+					tcp->dst_port.value());
+#endif
 				uint32_t payload_len = hasPayload(ip, tcp);
 				if(payload_len) {
 					//Only LeftAnchor
@@ -124,27 +131,44 @@ class DyscoAgentIn final : public Module {
 					if(((uint8_t*)tcp + tcp_hlen)[payload_len - 1] == 0xFF)
 						return true;
 				}
+				
 				fprintf(stderr, "false1");
 				return false;
 			}
+#ifdef DEBUG_RECONFIG
+			fprintf(stderr, "[%s][DyscoAgentIn] It's retransmission (cb_in not NULL)\n", ns.c_str());
+#endif
+			
+			return false;
 		}
 
 		if(!cb_in) {
-			fprintf(stderr, "false2");
+#ifdef DEBUG_RECONFIG
+			fprintf(stderr, "[%s][DyscoAgentIn] cb_in is NULL\n", ns.c_str());
+#endif
+			
 			return false;
 		}
 		
 		if((isTCPSYN(tcp) && isTCPACK(tcp)) || isTCPACK(tcp, true)) {
 			if(!cb_in->dcb_out) {
-				fprintf(stderr, "false2,5");
+#ifdef DEBUG_RECONFIG
+				fprintf(stderr, "[%s][DyscoAgentIn] cb_in->dcb_out is NULL (SYN/ACK or ACK)\n", ns.c_str());
+#endif
 				return false;
 			}
 			
-			if(cb_in->dcb_out->is_reconfiguration)
+			if(cb_in->dcb_out->is_reconfiguration) {
+#ifdef DEBUG_RECONFIG
+				fprintf(stderr, "[%s][DyscoAgentIn] cb_in->dcb_out->is_reconfiguration\n", ns.c_str());
+#endif				
 				return true;
+			}
 		}
-		
-		fprintf(stderr, "false3");
+#ifdef DEBUG_RECONFIG
+		fprintf(stderr, "[%s][DyscoAgentIn] It isn't reconfiguration packet\n", ns.c_str());
+#endif			
+
 		return false;
 	}
 	

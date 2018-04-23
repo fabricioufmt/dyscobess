@@ -5,9 +5,6 @@
 #include "../module_graph.h"
 #include "dysco_port_inc.h"
 
-#define DEBUG 1
-#define DEBUG_RECONFIG 1
-
 //debug
 char* printip2(uint32_t ip) {
 	uint8_t bytes[4];
@@ -116,7 +113,7 @@ void DyscoAgentOut::ProcessBatch(bess::PacketBatch* batch) {
 			dysco_packet(eth);
 
 #ifdef DEBUG_RECONFIG
-			fprintf(stderr, "[%s][DyscoAgentOut-Control] forwards %s:%u -> %s:%u\n",
+			fprintf(stderr, "[%s][DyscoAgentOut-Control] forwards %s:%u -> %s:%u\n\n",
 				ns.c_str(),
 				printip2(ip->src.value()), tcp->src_port.value(),
 				printip2(ip->dst.value()), tcp->dst_port.value());
