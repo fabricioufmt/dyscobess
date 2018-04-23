@@ -955,6 +955,11 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 		}
 
 		rcb = insert_rcb_control_input(ip, tcp, cmsg);
+
+		//TEST
+		DyscoTcpSession tt;
+		dc->lookup_reconfig_ss(this->index, &tt);
+		
 		if(!rcb) {
 #ifdef DEBUG_RECONFIG
 			fprintf(stderr, "[%s][DyscoAgentIn-Control] Error to insert rcb control input.\n", ns.c_str());
