@@ -555,8 +555,12 @@ DyscoCbReconfig* DyscoAgentIn::insert_rcb_control_input(Ipv4* ip, Tcp* tcp, Dysc
 		return 0;
 	}
 
-	fprintf(stderr, "[%s][DyscoAgentIn-Control] Inserting rcb: %p (super: %s)\n",
-		ns.c_str(), rcb, print_ss1(rcb->super));
+	DyscoCbReconfig* rcb2 = dc->lookup_reconfig_by_ss(this->index, &rcb->super);
+	if(!rcb2)
+		fprintf(stderr, "rcb2 dentro do insert_rcb_control_input eh null\n");
+	else {
+		fprintf(stderr, "[%s][DyscoAgentIn-Control] Inserting rcb(arg): %p (super: %s) e rcb2(lookup): %p\n",
+			ns.c_str(), rcb, print_ss1(rcb->super), rcb2);
 	
 	return rcb;
 }
