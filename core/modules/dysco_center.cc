@@ -269,8 +269,8 @@ DyscoCbReconfig* DyscoCenter::lookup_reconfig_by_ss(uint32_t i, DyscoTcpSession*
 	int j = 1;
 	unordered_map<DyscoTcpSession, DyscoCbReconfig, DyscoTcpSessionHash>::iterator it2 = dh->hash_reconfig.begin();
 	while(it2 != dh->hash_reconfig.end()) {
-		fprintf(stderr, "[DyscoCenter-ReconfigHashList]: %i - %p\n",
-			j++, &(*it2).second);
+		fprintf(stderr, "[DyscoCenter-ReconfigHashList](%u): %i - %p\n",
+			i, j++, &(*it2).second);
 		it2++;
 	}
 	
