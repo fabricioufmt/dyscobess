@@ -3,7 +3,7 @@
 #include "../module_graph.h"
 #include "dysco_port_out.h"
 
-#define DEBUG 1
+//#define DEBUG 1
 #define DEBUG_RECONFIG 1
 
 //debug
@@ -772,7 +772,7 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 	DyscoHashOut* cb_out;
 	if(!isRightAnchor(ip, cmsg)) {
 #ifdef DEBUG_RECONFIG		
-		fprintf(stderr, "[%s][DyscoAgentIn-Control] It isn't the right anchor\n",		ns.c_str());
+		fprintf(stderr, "[%s][DyscoAgentIn-Control] It isn't the right anchor\n", ns.c_str());
 #endif
 		size_t tcp_hlen = tcp->offset << 2;
 		uint8_t* payload = reinterpret_cast<uint8_t*>(tcp) + tcp_hlen;

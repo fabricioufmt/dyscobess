@@ -599,10 +599,6 @@ DyscoHashOut* DyscoCenter::create_cb_out(uint32_t i, Ipv4* ip, Tcp* tcp, DyscoPo
 bool DyscoCenter::out_tx_init(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) {
 	if(!add_sc(pkt, ip, cb_out))
 		return false;
-
-#ifdef DEBUG_RECONFIG
-	fprintf(stderr, "[DyscoCenter]: tcp->oftset: %u\n", (tcp->offset << 2));
-#endif
 	
 	return fix_tcp_ip_csum(ip, tcp);
 }
@@ -972,12 +968,12 @@ bool DyscoCenter::out_handle_mb(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp* tc
 		fprintf(stderr, "[DyscoCenter] handle_mb_out method, tag_ok is false\n");
 	if(cb_out->is_reconfiguration) {
 #ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[DyscoCenter]: cb_out is reconfiguration\n");
+		fprintf(stderr, "[DyscoCenter] cb_out is reconfiguration\n");
 #endif		
 		//remove_tag(pkt, ip, tcp);
 	} else {
 #ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[DyscoCenter]: cb_out is not reconfiguration and calling remove_tag\n");
+		fprintf(stderr, "[DyscoCenter] cb_out is not reconfiguration and calling remove_tag\n");
 #endif		
 		remove_tag(pkt, ip, tcp);
 	}
@@ -1178,14 +1174,8 @@ bool DyscoCenter::add_sc(bess::Packet* pkt, Ipv4* ip, DyscoHashOut* cb_out) {
 	uint32_t payload_sz;
 	if(cb_out->is_reconfiguration == 1)  {
 		payload_sz = sizeof(DyscoControlMessage) + cb_out->sc_len * sizeof(uint32_t) + 1;
-#ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[DyscoCenter]: add sc in reconfiguration packet.\n");
-#endif
 	} else {
 		payload_sz = sizeof(DyscoTcpSession) + cb_out->sc_len * sizeof(uint32_t);
-#ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[DyscoCenter]: add sc in regular packet.\n");
-#endif
 	}
 	
 	uint8_t* payload = reinterpret_cast<uint8_t*>(pkt->append(payload_sz));
