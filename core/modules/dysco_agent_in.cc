@@ -961,12 +961,16 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 		rcb = insert_rcb_control_input(ip, tcp, cmsg);
 
 		//TEST
-		DyscoTcpSession tt;
-		DyscoCbReconfig* rcb2 = dc->lookup_reconfig_by_ss(this->index, &tt);
-		if(!rcb2) {
+		DyscoCbReconfig* rcb2 = dc->lookup_reconfig_by_ss(this->index, &cmsg->super);
+		if(!rcb2)
 			fprintf(stderr, "retornou rcb2 como null\n");
-		} else 
+		else 
 			fprintf(stderr, "retornou rcb2 como não-null\n");
+
+		if(rcb == rcb2)
+			fprintf(stderr, "rcb(%p) == rcb2(%p)\n", rcb, rcb2);
+		else
+			fprintf(stderr, "rcb(%p) != rcb(%p)2\n", rcb, rcb2);
 			
 		if(!rcb) {
 #ifdef DEBUG_RECONFIG

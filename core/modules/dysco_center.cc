@@ -1231,13 +1231,13 @@ bool DyscoCenter::insert_hash_reconfig(uint32_t i, DyscoCbReconfig* rcb) {
 	}
 	
 	DyscoTcpSession* ss = &rcb->super;
-	bool ok = dh->hash_reconfig.insert(std::pair<DyscoTcpSession, DyscoCbReconfig>(*ss, *rcb)).second;
+	bool retvalue = dh->hash_reconfig.insert(std::pair<DyscoTcpSession, DyscoCbReconfig>(*ss, *rcb)).second;
 	if(ok)
 		fprintf(stderr, "ok true\n");
 	else
 		fprintf(stderr, "ok not true\n");
 	fprintf(stderr, "(%u) insert_hash_reconfig added rcb: %p with %s\n", i, rcb, print_ss0(rcb->super));
-	return true;
+	return retvalue;
 }
 
 bool DyscoCenter::remove_reconfig(uint32_t i, DyscoCbReconfig* rcb) {
