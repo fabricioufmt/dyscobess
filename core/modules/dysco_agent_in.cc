@@ -550,8 +550,10 @@ DyscoCbReconfig* DyscoAgentIn::insert_rcb_control_input(Ipv4* ip, Tcp* tcp, Dysc
 
 	rcb->sack_ok = cmsg->sackOk;
 	
-	if(!dc->insert_hash_reconfig(this->index, rcb))
+	if(!dc->insert_hash_reconfig(this->index, rcb)) {
+		delete rcb;
 		return 0;
+	}
 
 	fprintf(stderr, "[%s][DyscoAgentIn-Control] Inserting rcb: %p (super: %s)\n",
 		ns.c_str(), rcb, print_ss1(rcb->super));
@@ -733,6 +735,8 @@ bool DyscoAgentIn::control_config_rightA(DyscoCbReconfig* rcb, DyscoControlMessa
 #endif
 		delete cb_in;
 		dc->remove_reconfig(this->index, rcb);
+		//TEST
+		delete rcb;
 
 		return false;
 	}
@@ -745,12 +749,14 @@ bool DyscoAgentIn::control_config_rightA(DyscoCbReconfig* rcb, DyscoControlMessa
 	cb_in->two_paths = true;
 
 	rcb->old_dcb = old_out;
-	fprintf(stderr, "setting old_dcb on rcb: %p(%s)\n", rcb, print_ss1(rcb->super));
+#ifdef DEBUG_RECONFIG
+	fprintf(stderr, "[%s][DyscoAgentIn-Control] setting old_dcb on rcb [%p](super: %s)\n", rcb, print_ss1(rcb->super));
+#endif
 	rcb->new_dcb = cb_out;
 
 	cb_out->other_path = old_out;
 
-	if(ntohs(cmsg->semantic) == STATE_TRANSFER)
+	if(cmsg->semantic == STATE_TRANSFER)
 		old_out->state_t = true;
 
 	return true;
@@ -759,6 +765,7 @@ bool DyscoAgentIn::control_config_rightA(DyscoCbReconfig* rcb, DyscoControlMessa
 CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, uint8_t*, DyscoCbReconfig* rcb, DyscoControlMessage* cmsg) {
 #ifdef DEBUG_RECONFIG
 	fprintf(stderr, "[%s][DyscoAgentIn-Control] control_reconfig_in method\n", ns.c_str());
+	fprintf(stderr, "[%s][DyscoAgentIn-Control] created rcb: [%p](super: %s)\n", rcb, print_ss1(rcb->super));
 #endif
 	
 	DyscoHashIn* cb_in;
@@ -792,7 +799,9 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 #endif
 			delete cb_in;
 			dc->remove_reconfig(this->index, rcb);
-
+			//TEST
+			delete rcb;
+			
 			return ERROR;
 		}
 	
@@ -819,7 +828,6 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 		ip->ttl = 32;
 		ip->id = be16_t(rand() % 65536);
 		uint32_t payload_len = ip->length.value() - (ip->header_length << 2) - (tcp->offset << 2);
-		//ip->length = be16_t((ip->header_length << 2) + (tcp->offset << 2));
 		ip->length = ip->length - be16_t(payload_len);
 
 		be16_t pswap = tcp->src_port;
@@ -829,26 +837,26 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 		tcp->seq_num = be32_t(rand() % 4294967296);
 		tcp->flags |= Tcp::kAck;
 		pkt->trim(payload_len);
-
-		/*
-		uint32_t swp = cmsg->super.sip;
-		cmsg->super.sip = cmsg->super.dip;
-		cmsg->super.dip = swp;
-
-		uint16_t swp1 = cmsg->super.sport;
-		cmsg->super.sport = cmsg->super.dport;
-		cmsg->super.dport = swp1;
-		cmsg->mtype = DYSCO_SYN_ACK;
-		*/
-#ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[%s][DyscoAgentIn-Control] insert_hash_input method\n", ns.c_str());
-#endif
-		
+	
 		cb_in->in_iseq = rcb->leftIseq;
 		cb_in->in_iack = rcb->leftIack;
 		cb_in->two_paths = false;
-		
-		dc->insert_hash_input(this->index, cb_in);
+
+		if(!dc->insert_hash_input(this->index, cb_in)) {
+#ifdef DEBUG_RECONFIG
+			fprintf(stderr, "[%s][DyscoAgentIn-Control] insert_hash_input returns false.\n", ns.c_str());
+#endif
+			//TEST
+			delete cb_in;
+		} else {
+#ifdef DEBUG_RECONFIG
+			fprintf(stderr, "[%s][DyscoAgentIn-Control] insert_hash_input returns true.\n", ns.c_str());
+#endif	       
+		}
+
+#ifdef DEBUG_RECONFIG
+		fprintf(stderr, "[%s][DyscoAgentIn-Control] TO_GATE_1.\n", ns.c_str());
+#endif	       
 		
 		return TO_GATE_1;
 	}
@@ -953,7 +961,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 #endif			
 			return ERROR;
 		}
-		fprintf(stderr, "on SYN+PAYLOAd, created rcb:%p(supss: %s)\n", rcb, print_ss1(rcb->super));
+
 		return control_reconfig_in(pkt, ip, tcp, payload, rcb, cmsg);
 		
 	} else if(isTCPSYN(tcp) && isTCPACK(tcp)) {
