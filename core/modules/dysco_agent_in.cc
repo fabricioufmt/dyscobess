@@ -750,7 +750,7 @@ bool DyscoAgentIn::control_config_rightA(DyscoCbReconfig* rcb, DyscoControlMessa
 
 	rcb->old_dcb = old_out;
 #ifdef DEBUG_RECONFIG
-	fprintf(stderr, "[%s][DyscoAgentIn-Control] setting old_dcb on rcb [%p](super: %s)\n", rcb, print_ss1(rcb->super));
+	fprintf(stderr, "[%s][DyscoAgentIn-Control] setting old_dcb on rcb [%p](super: %s)\n", ns.c_str(), rcb, print_ss1(rcb->super));
 #endif
 	rcb->new_dcb = cb_out;
 
@@ -765,7 +765,7 @@ bool DyscoAgentIn::control_config_rightA(DyscoCbReconfig* rcb, DyscoControlMessa
 CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, uint8_t*, DyscoCbReconfig* rcb, DyscoControlMessage* cmsg) {
 #ifdef DEBUG_RECONFIG
 	fprintf(stderr, "[%s][DyscoAgentIn-Control] control_reconfig_in method\n", ns.c_str());
-	fprintf(stderr, "[%s][DyscoAgentIn-Control] created rcb: [%p](super: %s)\n", rcb, print_ss1(rcb->super));
+	fprintf(stderr, "[%s][DyscoAgentIn-Control] created rcb: [%p](super: %s)\n", ns.c_str(), rcb, print_ss1(rcb->super));
 #endif
 	
 	DyscoHashIn* cb_in;
