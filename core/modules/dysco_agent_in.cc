@@ -754,7 +754,7 @@ bool DyscoAgentIn::control_config_rightA(DyscoCbReconfig* rcb, DyscoControlMessa
 
 	rcb->old_dcb = old_out;
 #ifdef DEBUG_RECONFIG
-	fprintf(stderr, "[%s][DyscoAgentIn-Control] setting old_dcb[%] on rcb[%p](super: %s)\n", ns.c_str(), rcb->old_dcb, rcb, print_ss1(rcb->super));
+	fprintf(stderr, "[%s][DyscoAgentIn-Control] setting old_dcb[%p] on rcb[%p](super: %s)\n", ns.c_str(), rcb->old_dcb, rcb, print_ss1(rcb->super));
 #endif
 	rcb->new_dcb = cb_out;
 
