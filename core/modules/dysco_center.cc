@@ -149,8 +149,18 @@ CommandResponse DyscoCenter::CommandReconfig(const bess::pb::DyscoCenterReconfig
 
 uint32_t DyscoCenter::get_index(std::string ns, uint32_t ip) {
 	uint32_t index = std::hash<std::string>()(ns);
-	if(ip != 0)
-		hashes[index]->devip = ip;
+
+	DyscoHashes* dh = get_hash(index);
+	if(!dh) {
+		dh = new DyscoHashes();
+		dh->ns = arg.ns();
+		dh->index = index;
+
+		hashes.insert(std::make_pair(index, dh));
+	}
+	
+	dh->devip = ip;
+	
 	return index;
 }
 
