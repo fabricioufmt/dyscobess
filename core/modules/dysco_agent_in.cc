@@ -958,7 +958,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 
 		//TEST
 		DyscoTcpSession tt;
-		dc->lookup_reconfig_ss(this->index, &tt);
+		dc->lookup_reconfig_by_ss(this->index, &tt);
 		
 		if(!rcb) {
 #ifdef DEBUG_RECONFIG
