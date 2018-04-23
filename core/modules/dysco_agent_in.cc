@@ -761,12 +761,12 @@ bool DyscoAgentIn::control_config_rightA(DyscoCbReconfig* rcb, DyscoControlMessa
 	cb_out->other_path = old_out;
 
 #ifdef DEBUG_RECONFIG
-	fprintf(stderr, "[%s][DyscoAgentIn-Control] setting other_path[%p] on rcb[%p](super: %s)\n", ns.c_str(), rcb->other_path, rcb, print_ss1(rcb->super));
+	fprintf(stderr, "[%s][DyscoAgentIn-Control] setting other_path[%p] on cb_out[%p]\n", ns.c_str(), cb_out->other_path, cb_out);
 #endif
 	
 	if(cmsg->semantic == STATE_TRANSFER)
 		old_out->state_t = true;
-
+	
 	return true;
 }
 
