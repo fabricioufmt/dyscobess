@@ -290,10 +290,10 @@ class DyscoHashes {
 	DyscoPolicies policies;
 	uint32_t dysco_tag;
 	
-	unordered_map<DyscoTcpSession, DyscoHashIn, DyscoTcpSessionHash> hash_in;
-	unordered_map<DyscoTcpSession, DyscoHashOut, DyscoTcpSessionHash> hash_out;
-	unordered_map<DyscoTcpSession, DyscoHashOut, DyscoTcpSessionHash> hash_pen;
-	unordered_map<uint32_t, DyscoHashOut> hash_pen_tag;
+	unordered_map<DyscoTcpSession, DyscoHashIn*, DyscoTcpSessionHash> hash_in;
+	unordered_map<DyscoTcpSession, DyscoHashOut*, DyscoTcpSessionHash> hash_out;
+	unordered_map<DyscoTcpSession, DyscoHashOut*, DyscoTcpSessionHash> hash_pen;
+	unordered_map<uint32_t, DyscoHashOut*> hash_pen_tag;
 
 	unordered_map<DyscoTcpSession, DyscoCbReconfig*, DyscoTcpSessionHash> hash_reconfig;
 };
@@ -369,7 +369,7 @@ class DyscoCenter final : public Module {
 	
  private:
 	std::map<be32_t, struct arp_entry> entries;
-	unordered_map<uint32_t, DyscoHashes> hashes;
+	unordered_map<uint32_t, DyscoHashes*> hashes;
 
 	inline bool isTCPSYN(Tcp* tcp) {
 		return tcp->flags == Tcp::Flag::kSyn;

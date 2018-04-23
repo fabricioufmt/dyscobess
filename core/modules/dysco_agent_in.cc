@@ -760,6 +760,10 @@ bool DyscoAgentIn::control_config_rightA(DyscoCbReconfig* rcb, DyscoControlMessa
 
 	cb_out->other_path = old_out;
 
+#ifdef DEBUG_RECONFIG
+	fprintf(stderr, "[%s][DyscoAgentIn-Control] setting other_path[%p] on rcb[%p](super: %s)\n", ns.c_str(), rcb->other_path, rcb, print_ss1(rcb->super));
+#endif
+	
 	if(cmsg->semantic == STATE_TRANSFER)
 		old_out->state_t = true;
 
@@ -1102,7 +1106,6 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 				//break;
 				fprintf(stderr, "old_dcb->other_path is false.\n");
 				return ERROR;
-			}
 			
 			new_out = old_out->other_path;
 			old_out_ack_cutoff = cmsg->seqCutoff;
