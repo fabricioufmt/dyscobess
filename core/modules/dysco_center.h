@@ -295,7 +295,7 @@ class DyscoHashes {
 	unordered_map<DyscoTcpSession, DyscoHashOut, DyscoTcpSessionHash> hash_pen;
 	unordered_map<uint32_t, DyscoHashOut> hash_pen_tag;
 
-	unordered_map<DyscoTcpSession, DyscoCbReconfig, DyscoTcpSessionHash> hash_reconfig;
+	unordered_map<DyscoTcpSession, DyscoCbReconfig*, DyscoTcpSessionHash> hash_reconfig;
 };
 
 struct arp_entry {

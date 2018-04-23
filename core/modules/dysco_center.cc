@@ -267,18 +267,18 @@ DyscoCbReconfig* DyscoCenter::lookup_reconfig_by_ss(uint32_t i, DyscoTcpSession*
 		return 0;
 
 	int j = 1;
-	unordered_map<DyscoTcpSession, DyscoCbReconfig, DyscoTcpSessionHash>::iterator it2 = dh->hash_reconfig.begin();
+	unordered_map<DyscoTcpSession, DyscoCbReconfig*, DyscoTcpSessionHash>::iterator it2 = dh->hash_reconfig.begin();
 	while(it2 != dh->hash_reconfig.end()) {
 		fprintf(stderr, "[DyscoCenter-ReconfigHashList](%u): %i - %p\n",
-			i, j++, &(*it2).second);
+			i, j++, (*it2).second);
 		it2++;
 	}
 	
 	DyscoTcpSessionEqualTo equals;
-	unordered_map<DyscoTcpSession, DyscoCbReconfig, DyscoTcpSessionHash>::iterator it = dh->hash_reconfig.begin();
+	unordered_map<DyscoTcpSession, DyscoCbReconfig*, DyscoTcpSessionHash>::iterator it = dh->hash_reconfig.begin();
 	while(it != dh->hash_reconfig.end()) {
 		if(equals((*it).first, *ss))
-			return &(*it).second;
+			return (*it).second;
 		it++;
 	}
 	
@@ -1223,20 +1223,21 @@ bool DyscoCenter::insert_hash_reconfig(uint32_t i, DyscoCbReconfig* rcb) {
 		return false;
 
 	int j = 1;
-	unordered_map<DyscoTcpSession, DyscoCbReconfig, DyscoTcpSessionHash>::iterator it2 = dh->hash_reconfig.begin();
+	unordered_map<DyscoTcpSession, DyscoCbReconfig*, DyscoTcpSessionHash>::iterator it2 = dh->hash_reconfig.begin();
 	while(it2 != dh->hash_reconfig.end()) {
 		fprintf(stderr, "[DyscoCenter-ReconfigHashList](%u): %i - %p\n",
-			i, j++, &(*it2).second);
+			i, j++, (*it2).second);
 		it2++;
 	}
 	
 	DyscoTcpSession* ss = &rcb->super;
-	bool retvalue = dh->hash_reconfig.insert(std::pair<DyscoTcpSession, DyscoCbReconfig>(*ss, *rcb)).second;
+	bool retvalue = dh->hash_reconfig.insert(std::pair<DyscoTcpSession, DyscoCbReconfig*>(*ss, rcb)).second;
 	if(retvalue)
 		fprintf(stderr, "insert true\n");
 	else
 		fprintf(stderr, "insert not true\n");
-	fprintf(stderr, "(%u) insert_hash_reconfig added rcb: %p with %s\n", i, rcb, print_ss0(rcb->super));
+	fprintf(stderr, "(%u) insert_hash_reconfig added rcb: %p with %s\n", i, rcb, print_ss0(rcb->super));	
+	
 	return retvalue;
 }
 
