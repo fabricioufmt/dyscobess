@@ -1192,10 +1192,7 @@ bool DyscoCenter::insert_hash_input(uint32_t i, DyscoHashIn* cb_in) {
 	if(!dh)
 		return false;
 
-	DyscoTcpSession* ss = &cb_in->sub;
-	dh->hash_in.insert(std::pair<DyscoTcpSession, DyscoHashIn>(*ss, *cb_in));
-
-	return true;
+	return dh->hash_in.insert(std::pair<DyscoTcpSession, DyscoHashIn>(cb_in->sub, *cb_in)).second;
 }
 
 bool DyscoCenter::insert_hash_output(uint32_t i, DyscoHashOut* cb_out) {
@@ -1203,10 +1200,7 @@ bool DyscoCenter::insert_hash_output(uint32_t i, DyscoHashOut* cb_out) {
 	if(!dh)
 		return false;
 
-	DyscoTcpSession* ss = &cb_out->sup;
-	dh->hash_out.insert(std::pair<DyscoTcpSession, DyscoHashOut>(*ss, *cb_out));
-
-	return true;
+	return dh->hash_out.insert(std::pair<DyscoTcpSession, DyscoHashOut>(cb_out->sup, *cb_out)).second;
 }
 
 bool DyscoCenter::insert_hash_reconfig(uint32_t i, DyscoCbReconfig* rcb) {
@@ -1214,9 +1208,7 @@ bool DyscoCenter::insert_hash_reconfig(uint32_t i, DyscoCbReconfig* rcb) {
 	if(!dh)
 		return false;
 
-	bool retvalue = dh->hash_reconfig.insert(std::pair<DyscoTcpSession, DyscoCbReconfig*>(rcb->super, rcb)).second;
-	
-	return retvalue;
+	return dh->hash_reconfig.insert(std::pair<DyscoTcpSession, DyscoCbReconfig*>(rcb->super, rcb)).second;
 }
 
 bool DyscoCenter::remove_reconfig(uint32_t i, DyscoCbReconfig* rcb) {

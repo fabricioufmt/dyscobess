@@ -754,7 +754,7 @@ bool DyscoAgentIn::control_config_rightA(DyscoCbReconfig* rcb, DyscoControlMessa
 
 	rcb->old_dcb = old_out;
 #ifdef DEBUG_RECONFIG
-	fprintf(stderr, "[%s][DyscoAgentIn-Control] setting old_dcb on rcb [%p](super: %s)\n", ns.c_str(), rcb, print_ss1(rcb->super));
+	fprintf(stderr, "[%s][DyscoAgentIn-Control] setting old_dcb[%] on rcb[%p](super: %s)\n", ns.c_str(), rcb->old_dcb, rcb, print_ss1(rcb->super));
 #endif
 	rcb->new_dcb = cb_out;
 
@@ -959,18 +959,6 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 		}
 
 		rcb = insert_rcb_control_input(ip, tcp, cmsg);
-
-		//TEST
-		DyscoCbReconfig* rcb2 = dc->lookup_reconfig_by_ss(this->index, &cmsg->super);
-		if(!rcb2)
-			fprintf(stderr, "retornou rcb2 como null\n");
-		else 
-			fprintf(stderr, "retornou rcb2 como não-null\n");
-
-		if(rcb == rcb2)
-			fprintf(stderr, "rcb(%p) == rcb2(%p)\n", rcb, rcb2);
-		else
-			fprintf(stderr, "rcb(%p) != rcb(%p)2\n", rcb, rcb2);
 			
 		if(!rcb) {
 #ifdef DEBUG_RECONFIG
@@ -1102,8 +1090,10 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 
 			if(!rcb->old_dcb) {
 				//break;
-				fprintf(stderr, "rcb->old_dcb is NULL. on rcb: %p(%s)\n", rcb, print_ss1(rcb->super));
+				fprintf(stderr, "rcb->old_dcb is NULL on rcb[%p](super: %s)\n", rcb, print_ss1(rcb->super));
 				return ERROR;
+			} else {
+				fprintf(stderr, "rcb->old_dcb[%] is not NULL on rcb[%p](super: %s)\n", rcb->old_dcb, rcb, print_ss1(rcb->super));
 			}
 
 			old_out = rcb->old_dcb;
