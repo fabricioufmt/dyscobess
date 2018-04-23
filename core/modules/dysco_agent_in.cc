@@ -1040,8 +1040,6 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 			set_ack_number_out(this->index, tcp, cb_in2);
 			in_hdr_rewrite_csum(ip, tcp, cb_in2);
 
-			print_out1(ns, ip, tcp);
-
 			return TO_GATE_0;
 		}
 	} else if(isTCPACK(tcp, true)) {

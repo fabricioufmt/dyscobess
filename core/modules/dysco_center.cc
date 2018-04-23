@@ -980,9 +980,6 @@ bool DyscoCenter::out_handle_mb(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp* tc
 		
 
 	add_sc(pkt, ip, cb_out);
-#ifdef DEBUG_RECONFIG
-	fprintf(stderr, "[DyscoCenter]: tcp->oftset: %u\n", (tcp->offset << 2));
-#endif
 	fix_tcp_ip_csum(ip, tcp);
 
 	return true;
