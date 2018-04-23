@@ -1235,6 +1235,14 @@ bool DyscoCenter::insert_hash_reconfig(uint32_t i, DyscoCbReconfig* rcb) {
 	if(!dh)
 		return false;
 
+	int j = 1;
+	unordered_map<DyscoTcpSession, DyscoCbReconfig, DyscoTcpSessionHash>::iterator it2 = dh->hash_reconfig.begin();
+	while(it2 != dh->hash_reconfig.end()) {
+		fprintf(stderr, "[DyscoCenter-ReconfigHashList](%u): %i - %p\n",
+			i, j++, &(*it2).second);
+		it2++;
+	}
+	
 	DyscoTcpSession* ss = &rcb->super;
 	dh->hash_reconfig.insert(std::pair<DyscoTcpSession, DyscoCbReconfig>(*ss, *rcb));
 	fprintf(stderr, "(%u) insert_hash_reconfig added rcb: %p with %s\n", i, rcb, print_ss0(rcb->super));
