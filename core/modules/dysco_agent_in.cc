@@ -758,6 +758,9 @@ bool DyscoAgentIn::control_config_rightA(DyscoCbReconfig* rcb, DyscoControlMessa
 #endif
 	rcb->new_dcb = cb_out;
 
+	fprintf(stderr, "old_dcb->sub: %s\n", print_ss1(rcb->old_dcb->sub));
+	fprintf(stderr, "new_dcb->sub: %s\n", print_ss1(rcb->new_dcb->sub));
+
 	cb_out->other_path = old_out;
 
 #ifdef DEBUG_RECONFIG
