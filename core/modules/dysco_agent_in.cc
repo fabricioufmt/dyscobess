@@ -1106,6 +1106,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 				//break;
 				fprintf(stderr, "old_dcb->other_path is false.\n");
 				return ERROR;
+			}
 			
 			new_out = old_out->other_path;
 			old_out_ack_cutoff = cmsg->seqCutoff;
