@@ -573,8 +573,8 @@ DyscoHashOut* DyscoAgentIn::build_cb_in_reverse(Ipv4* ip, DyscoCbReconfig* rcb) 
 	cb_out->sup.sport = rcb->super.dport;
 	cb_out->sup.dport = rcb->super.sport;
 
-	cb_out->sub.sip = ip->dst.value();
-	cb_out->sub.dip = ip->src.value();
+	cb_out->sub.sip = htonl(ip->dst.value());
+	cb_out->sub.dip = htonl(ip->src.value());
 	cb_out->sub.sport = rcb->sub_in.dport;
 	cb_out->sub.dport = rcb->sub_in.sport;
 
