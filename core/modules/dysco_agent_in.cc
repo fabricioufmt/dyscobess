@@ -623,18 +623,26 @@ bool DyscoAgentIn::compute_deltas_in(DyscoHashIn* cb_in, DyscoHashOut* old_out, 
 
 	if(cb_in->in_iseq < cb_in->out_iseq) {
 		cb_in->seq_delta = cb_in->out_iseq - cb_in->in_iseq;
-		cb_in->seq_add = true;
+		cb_in->seq_add = 1;
+
+#ifdef DEBUG_RECONFIG
+		fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->seq_delta = cb_in->out_iseq - cb_in->in_iseq (%u %u %u)\n", cb_in->seq_delta, cb_in->out_iseq, cb_in->in_iseq);
+#endif
 	} else {
 		cb_in->seq_delta = cb_in->in_iseq - cb_in->out_iseq;
-		cb_in->seq_add = false;
+		cb_in->seq_add = 0;
+
+#ifdef DEBUG_RECONFIG
+		fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->seq_delta = cb_in->in_iseq - cb_in->out_iseq (%u %u %u)\n", cb_in->seq_delta, cb_in->in_iseq, cb_in->out_iseq);
+#endif
 	}
 
 	if(cb_in->in_iack < cb_in->out_iack) {
 		cb_in->ack_delta = cb_in->out_iack - cb_in->in_iack;
-		cb_in->ack_add = true;
+		cb_in->ack_add = 1;
 	} else {
 		cb_in->ack_delta = cb_in->in_iack - cb_in->out_iack;
-		cb_in->ack_add = false;
+		cb_in->ack_add = 0;
 	}
 
 	if(rcb->leftIts) {
@@ -644,10 +652,10 @@ bool DyscoAgentIn::compute_deltas_in(DyscoHashIn* cb_in, DyscoHashOut* old_out, 
 
 		if(cb_in->ts_in < cb_in->ts_out) {
 			cb_in->ts_delta = cb_in->ts_out - cb_in->ts_in;
-			cb_in->ts_add = true;
+			cb_in->ts_add = 1;
 		} else {
 			cb_in->ts_delta = cb_in->ts_in - cb_in->ts_out;
-			cb_in->ts_add = false;
+			cb_in->ts_add = 0;
 		}
 
 		cb_in->tsr_in = rcb->leftItsr;
@@ -655,10 +663,10 @@ bool DyscoAgentIn::compute_deltas_in(DyscoHashIn* cb_in, DyscoHashOut* old_out, 
 
 		if(cb_in->tsr_in < cb_in->tsr_out) {
 			cb_in->tsr_delta = cb_in->tsr_out - cb_in->tsr_in;
-			cb_in->tsr_add = true;
+			cb_in->tsr_add = 1;
 		} else {
 			cb_in->tsr_delta = cb_in->tsr_in - cb_in->tsr_out;
-			cb_in->tsr_add = false;
+			cb_in->tsr_add = 0;
 		}
 	} else
 		cb_in->ts_ok = 0;
@@ -686,18 +694,18 @@ bool DyscoAgentIn::compute_deltas_out(DyscoHashOut* cb_out, DyscoHashOut* old_ou
 
 	if(cb_out->in_iseq < cb_out->out_iseq) {
 		cb_out->seq_delta = cb_out->out_iseq - cb_out->in_iseq;
-		cb_out->seq_add = true;
+		cb_out->seq_add = 1;
 	} else {
 		cb_out->seq_delta = cb_out->in_iseq - cb_out->out_iseq;
-		cb_out->seq_add = false;
+		cb_out->seq_add = 0;
 	}
 
 	if(cb_out->in_iack < cb_out->out_iack) {
 		cb_out->ack_delta = cb_out->out_iack - cb_out->in_iack;
-		cb_out->ack_add = true;
+		cb_out->ack_add = 1;
 	} else {
 		cb_out->ack_delta = cb_out->in_iack - cb_out->out_iack;
-		cb_out->ack_add = false;
+		cb_out->ack_add = 0;
 	}
 
 	if(rcb->leftIts) {
@@ -707,10 +715,10 @@ bool DyscoAgentIn::compute_deltas_out(DyscoHashOut* cb_out, DyscoHashOut* old_ou
 
 		if(cb_out->ts_in < cb_out->ts_out) {
 			cb_out->ts_delta = cb_out->ts_out - cb_out->ts_in;
-			cb_out->ts_add = true;
+			cb_out->ts_add = 1;
 		} else {
 			cb_out->ts_delta = cb_out->ts_in - cb_out->ts_out;
-			cb_out->ts_add = false;
+			cb_out->ts_add = 0;
 		}
 
 		cb_out->tsr_in = old_out->tsr_in;
@@ -718,10 +726,10 @@ bool DyscoAgentIn::compute_deltas_out(DyscoHashOut* cb_out, DyscoHashOut* old_ou
 
 		if(cb_out->tsr_in < cb_out->tsr_out) {
 			cb_out->tsr_delta = cb_out->tsr_out - cb_out->tsr_in;
-			cb_out->tsr_add = true;
+			cb_out->tsr_add = 1;
 		} else {
 			cb_out->tsr_delta = cb_out->tsr_in - cb_out->tsr_out;
-			cb_out->tsr_add = false;
+			cb_out->tsr_add = 0;
 		}
 	}
 
