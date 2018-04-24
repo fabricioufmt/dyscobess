@@ -805,6 +805,8 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 #ifdef DEBUG_RECONFIG
 	fprintf(stderr, "[%s][DyscoAgentIn-Control] control_reconfig_in method\n", ns.c_str());
 	fprintf(stderr, "[%s][DyscoAgentIn-Control] created rcb: [%p](super: %s)\n", ns.c_str(), rcb, print_ss1(rcb->super));
+
+	fprintf(stderr, "rcb->leftIseq: %u and rcb->leftIack: %u\n", rcb->leftIseq, rcb->leftIack);
 #endif
 	
 	DyscoHashIn* cb_in;
