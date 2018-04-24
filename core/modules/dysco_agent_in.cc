@@ -115,27 +115,22 @@ void DyscoAgentIn::ProcessBatch(bess::PacketBatch* batch) {
 			switch(control_input(pkt, ip, tcp)) {
 			case TO_GATE_0:
 				out_gates[0].add(pkt);
+#ifdef DEBUG
+				print_out1(ns, ip, tcp);
+#endif
 				break;
 			case TO_GATE_1:
 				out_gates[1].add(pkt);
 				break;
 			case END:
-				fprintf(stderr, "END CASE\n");
-				goto l1;
+#ifdef DEBUG_RECONFIG
+				fprintf(stderr, "[%s][DyscoAgentIn-Control]: 3-way from Reconfiguration Session is DONE.\n", ns.c_str());
+#endif
+				break;
 			default:
-				//none
 				break;
 			}
 		}
-
-#ifdef DEBUG
-		print_out1(ns, ip, tcp);
-#endif
-		continue;
-	l1:
-#ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[%s][DyscoAgentIn-Control]: not forwarding.\n", ns.c_str());
-#endif
 	}
 	
 	batch->clear();
@@ -247,7 +242,7 @@ bool DyscoAgentIn::in_rewrite_seq(Tcp* tcp, DyscoHashIn* cb_in) {
 			new_seq = seq - ntohl(cb_in->seq_delta);
 
 #ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[%s][DyscoAgentIn-Control] old seq: %u, new seq: %u\n", ns.c_str(), seq, new_seq);
+		fprintf(stderr, "[%s][DyscoAgentIn-Control] old seq: %x, new seq: %x\n", ns.c_str(), seq, new_seq);
 #endif
 		
 		tcp->seq_num = be32_t(new_seq);
@@ -287,7 +282,7 @@ bool DyscoAgentIn::in_rewrite_ack(Tcp* tcp, DyscoHashIn* cb_in) {
 		//	dc->tcp_sack(tcp, cb_in);
 
 #ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[%s][DyscoAgentIn-Control] old ack: %u, new ack: %u\n", ns.c_str(), ack, new_ack);
+		fprintf(stderr, "[%s][DyscoAgentIn-Control] old ack: %x, new ack: %x\n", ns.c_str(), ack, new_ack);
 #endif
 		
 		tcp->ack_num = be32_t(new_ack);
@@ -626,14 +621,14 @@ bool DyscoAgentIn::compute_deltas_in(DyscoHashIn* cb_in, DyscoHashOut* old_out, 
 		cb_in->seq_add = 1;
 
 #ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->seq_delta = cb_in->out_iseq - cb_in->in_iseq (%u %u %u)\n", ns.c_str(), cb_in->seq_delta, cb_in->out_iseq, cb_in->in_iseq);
+		fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->seq_delta = cb_in->out_iseq - cb_in->in_iseq (%u(uint) %x %x)\n", ns.c_str(), cb_in->seq_delta, cb_in->out_iseq, cb_in->in_iseq);
 #endif
 	} else {
 		cb_in->seq_delta = cb_in->in_iseq - cb_in->out_iseq;
 		cb_in->seq_add = 0;
 
 #ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->seq_delta = cb_in->in_iseq - cb_in->out_iseq (%u %u %u)\n", ns.c_str(), cb_in->seq_delta, cb_in->in_iseq, cb_in->out_iseq);
+		fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->seq_delta = cb_in->in_iseq - cb_in->out_iseq (%u(uint) %x %x)\n", ns.c_str(), cb_in->seq_delta, cb_in->in_iseq, cb_in->out_iseq);
 #endif
 	}
 
