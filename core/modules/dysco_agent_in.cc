@@ -998,12 +998,14 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 #ifdef DEBUG_RECONFIG
 				fprintf(stderr, "[%s][DyscoAgentIn-Control]: rcb is NULL.\n", ns.c_str());
 #endif
+				return ERROR;
 			}
 
 			if(!rcb->old_dcb) {
 #ifdef DEBUG_RECONFIG
 				fprintf(stderr, "[%s][DyscoAgentIn-Control]: rcb->old_dcb is NULL.\n", ns.c_str());
 #endif
+				return ERROR;
 			}
 			
 			if(!rcb->old_dcb->state_t) {
