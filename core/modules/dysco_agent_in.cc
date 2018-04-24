@@ -834,6 +834,8 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 #endif	
 		cb_in = new DyscoHashIn();
 		cb_in->sub = rcb->sub_in;
+		cb_in->in_iseq = rcb->leftIseq;
+		cb_in->in_iack = rcb->leftIack;
 		cb_in->is_reconfiguration = 1;
 		memcpy(&cb_in->cmsg, cmsg, sizeof(DyscoControlMessage));
 		cb_out = build_cb_in_reverse(ip, rcb);
