@@ -947,66 +947,78 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 
 		DyscoHashIn* cb_in = dc->lookup_input(this->index, ip, tcp);
 		if(!cb_in) {
-			fprintf(stderr, "error1\n");
+#ifdef DEBUG_RECONFIG
+			fprintf(stderr, "[%s][DyscoAgentIn-Control] There isn't cb_in.\n", ns.c_str());
+#endif
 			return ERROR;
 		}
 
 		cmsg = &cb_in->cmsg;
 		if(!cmsg) {
-			fprintf(stderr, "error1\n");
+#ifdef DEBUG_RECONFIG
+			fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->cmsg is NULL.\n", ns.c_str());
+#endif
 			return ERROR;
 		}
 
-		fprintf(stderr, "IPDST: %s and leftA: %s\n",
-			printip1(ip->dst.value()), printip1(ntohl(cmsg->leftA)));
-		
 		if(ip->dst.value() == ntohl(cmsg->leftA)) {
-			fprintf(stderr, "is left anchor\n");
+#ifdef DEBUG_RECONFIG
+			fprintf(stderr, "[%s][DyscoAgentIn-Control]: It's the left anchor.\n", ns.c_str());
+#endif
 			//DyscoHashOut* cb_out = dc->lookup_output_by_ss(this->index, &cmsg->leftSS);
-
-			// SEND ACK MESSAGE
-			//TEST //TODO
-			Ethernet* eth = pkt->head_data<Ethernet*>();
-			Ethernet::Address macswap = eth->dst_addr;
-			eth->dst_addr = eth->src_addr;
-			eth->src_addr = macswap;
-		
-			be32_t ipswap = ip->dst;
-			ip->dst = ip->src;
-			ip->src = ipswap;
-			ip->ttl = 32;
-			ip->id = be16_t(rand() % 65536);
-			
-			be16_t pswap = tcp->src_port;
-			tcp->src_port = tcp->dst_port;
-			tcp->dst_port = pswap;
-			ipswap = tcp->seq_num;
-			tcp->seq_num = be32_t(tcp->ack_num.value());
-			tcp->ack_num = be32_t(ipswap.value() + 1);
-			tcp->flags = Tcp::kAck;
 
 			DyscoHashOut* cb_out = dc->lookup_output(this->index, ip, tcp);
 
 			if(!cb_out) {
-				fprintf(stderr, "!cb_out\n");
-				//return ERROR; //TODO
-				return TO_GATE_1;
+#ifdef DEBUG_RECONFIG
+				fprintf(stderr, "[%s][DyscoAgentIn-Control]: cb_out is NULL.\n", ns.c_str());
+#endif		
+				return ERROR;
 			}
-			//return true;
 
 			if(cb_out->state == DYSCO_ESTABLISHED) {
 				// It is a retransmission
-				//break;
-				fprintf(stderr, "DYSCO_ESTABLISHED");
+#ifdef DEBUG_RECONFIG
+				fprintf(stderr, "[%s][DyscoAgentIn-Control]: It's a retransmission packet. DYSCO_ESTABLISHED state.\n", ns.c_str());
+#endif
 				return END;
 			}
 
 			cb_out->ack_cutoff = cmsg->seqCutoff;
-			cb_out->valid_ack_cut = true;
+			cb_out->valid_ack_cut = 1;
+
+			// SEND ACK MESSAGE
+			//TEST //TODO
+			create_ack(pkt, ip, tcp);
+
+			rcb = dc->lookup_reconfig_by_ss(this->index, &cb_in->sup);
+			if(!rcb) {
+#ifdef DEBUG_RECONFIG
+				fprintf(stderr, "[%s][DyscoAgentIn-Control]: rcb is NULL.\n", ns.c_str());
+#endif
+			}
+
+			if(!rcb->old_dcb->state_t) {
+				DyscoHashOut* old_dcb = rcb->old_dcb;
+				if(!old_dcb) {
+#ifdef DEBUG_RECONFIG
+					fprintf(stderr, "[%s][DyscoAgentIn-Control]: old_dcb is NULL.\n", ns.c_str());
+#endif
+					return ERROR;
+				}
+
+				if(old_dcb->state == DYSCO_SYN_SENT)
+					old_dcb->state = DYSCO_ESTABLISHED;
+
+				cmsg->seqCutoff = old_dcb->seq_cutoff;
+			}
+			
 			
 			return TO_GATE_1;
 		} else {
-			fprintf(stderr, "isn't left anchor\n");
+#ifdef DEBUG_RECONFIG
+			fprintf(stderr, "[%s][DyscoAgentIn-Control]: It isn't left anchor.\n", ns.c_str());
+#endif		
 			//TEST
 			DyscoHashIn* cb_in2 = dc->lookup_input(this->index, ip, tcp);
 
@@ -1180,5 +1192,28 @@ void DyscoAgentIn::create_synack(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 	tcp->flags |= Tcp::kAck;
 	pkt->trim(payload_len);
 }
+
+void DyscoAgentIn::create_ack(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
+	Ethernet* eth = pkt->head_data<Ethernet*>();
+	Ethernet::Address macswap = eth->dst_addr;
+	eth->dst_addr = eth->src_addr;
+	eth->src_addr = macswap;
+		
+	be32_t ipswap = ip->dst;
+	ip->dst = ip->src;
+	ip->src = ipswap;
+	ip->ttl = 32;
+	ip->id = be16_t(rand() % 65536);
+	
+	be16_t pswap = tcp->src_port;
+	tcp->src_port = tcp->dst_port;
+	tcp->dst_port = pswap;
+
+	be32_t seqswap = tcp->seq_num;
+	tcp->seq_num = be32_t(tcp->ack_num.value());
+	tcp->ack_num = be32_t(ipswap.value() + 1);
+	tcp->flags = Tcp::kAck;
+}
+
 
 ADD_MODULE(DyscoAgentIn, "dysco_agent_in", "processes packets incoming to host")
