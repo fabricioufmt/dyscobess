@@ -1000,6 +1000,12 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 #endif
 			}
 
+			if(!rcb->old_dcb) {
+#ifdef DEBUG_RECONFIG
+				fprintf(stderr, "[%s][DyscoAgentIn-Control]: rcb->old_dcb is NULL.\n", ns.c_str());
+#endif
+			}
+			
 			if(!rcb->old_dcb->state_t) {
 				DyscoHashOut* old_dcb = rcb->old_dcb;
 				if(!old_dcb) {
