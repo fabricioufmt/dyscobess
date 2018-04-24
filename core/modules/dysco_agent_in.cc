@@ -339,7 +339,6 @@ bool DyscoAgentIn::in_rewrite_rcv_wnd(Tcp* tcp, DyscoHashIn* cb_in) {
 	return true;
 }
 
-//Ronaldo: about csum functions, is really necessary?
 //L.458
 bool DyscoAgentIn::in_hdr_rewrite_csum(Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
 	if(!cb_in)
@@ -525,7 +524,9 @@ bool DyscoAgentIn::input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 			in_two_paths_ack(tcp, cb_in);
 	}
 	
-	in_hdr_rewrite(ip, tcp, &cb_in->sup);
+	//in_hdr_rewrite_csum(ip, tcp, &cb_in->sup);
+	//TEST
+	in_hdr_rewrite_csum(ip, tcp, cb_in);
 
 #ifdef DEBUG
 	print_out1(ns, ip, tcp);
