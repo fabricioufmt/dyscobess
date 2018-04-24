@@ -967,8 +967,10 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 #endif
 			//DyscoHashOut* cb_out = dc->lookup_output_by_ss(this->index, &cmsg->leftSS);
 
-			DyscoHashOut* cb_out = dc->lookup_output(this->index, ip, tcp);
+			//DyscoHashOut* cb_out = dc->lookup_output(this->index, ip, tcp);
 
+			DyscoHashOut* cb_out = cb_in->dcb_out;
+			
 			if(!cb_out) {
 #ifdef DEBUG_RECONFIG
 				fprintf(stderr, "[%s][DyscoAgentIn-Control]: cb_out is NULL.\n", ns.c_str());
