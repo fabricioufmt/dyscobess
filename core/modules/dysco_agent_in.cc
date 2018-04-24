@@ -812,9 +812,24 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 		
 		if(!control_config_rightA(rcb, cmsg, cb_in, cb_out))
 			return ERROR;
-
+		
 		//TEST //TODO //Ronaldo
 		create_synack(pkt, ip, tcp);
+
+		//replace_cb_rightA from control_output
+		DyscoHashOut* old_out = rcb->old_dcb;
+		DyscoHashOut* new_out = rcb->new_dcb;
+		uint32_t seq_cutoff = old_out->seq_cutoff;
+		old_out->old_path = 1;
+		old_out->state = DYSCO_SYN_RECEIVED;
+		old_out->other_path = new_out;
+
+		if(new_out->seq_add)
+			seq_cutoff += new_out->seq_delta;
+		else
+			seq_cutoff -= new_out->seq_delta;
+
+		cmsg->seqCutoff = htonl(seq_cutoff);
 		
 		cb_in->in_iseq = rcb->leftIseq;
 		cb_in->in_iack = rcb->leftIack;
