@@ -1211,7 +1211,7 @@ void DyscoAgentIn::create_ack(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 
 	be32_t seqswap = tcp->seq_num;
 	tcp->seq_num = be32_t(tcp->ack_num.value());
-	tcp->ack_num = be32_t(ipswap.value() + 1);
+	tcp->ack_num = be32_t(seqswap.value() + 1);
 	tcp->flags = Tcp::kAck;
 }
 
