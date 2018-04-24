@@ -993,10 +993,11 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 			//TEST //TODO
 			create_ack(pkt, ip, tcp);
 
-			rcb = dc->lookup_reconfig_by_ss(this->index, &cb_in->sup);
+			//rcb = dc->lookup_reconfig_by_ss(this->index, &cb_in->sup);
+			rcb = dc->lookup_reconfig_by_ss(this->index, &cb_out->sup);
 			if(!rcb) {
 #ifdef DEBUG_RECONFIG
-				fprintf(stderr, "[%s][DyscoAgentIn-Control]: rcb is NULL (super: %s)\n", ns.c_str(), print_ss1(cb_in->sup));
+				fprintf(stderr, "[%s][DyscoAgentIn-Control]: rcb is NULL (super: %s)\n", ns.c_str(), print_ss1(cb_out->sup));
 #endif
 				return ERROR;
 			}
