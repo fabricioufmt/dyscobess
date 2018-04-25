@@ -115,8 +115,8 @@ void DyscoAgentIn::ProcessBatch(bess::PacketBatch* batch) {
 #ifdef DEBUG
 			fprintf(stderr, "[%s][DyscoAgentIn] forwards %s:%u -> %s:%u [%u:%u]\n\n",
 				ns.c_str(),
-				printip2(ip->src.value()), tcp->src_port.value(),
-				printip2(ip->dst.value()), tcp->dst_port.value(),
+				printip1(ip->src.value()), tcp->src_port.value(),
+				printip1(ip->dst.value()), tcp->dst_port.value(),
 				ntohl(tcp->seq_num.value()), ntohl(tcp->ack_num.value()));
 #endif
 		} else {
@@ -126,8 +126,8 @@ void DyscoAgentIn::ProcessBatch(bess::PacketBatch* batch) {
 #ifdef DEBUG
 				fprintf(stderr, "[%s][DyscoAgentIn] forwards %s:%u -> %s:%u [%u:%u]\n\n",
 					ns.c_str(),
-					printip2(ip->src.value()), tcp->src_port.value(),
-					printip2(ip->dst.value()), tcp->dst_port.value(),
+					printip1(ip->src.value()), tcp->src_port.value(),
+					printip1(ip->dst.value()), tcp->dst_port.value(),
 					ntohl(tcp->seq_num.value()), ntohl(tcp->ack_num.value()));
 #endif
 				break;
@@ -146,8 +146,8 @@ void DyscoAgentIn::ProcessBatch(bess::PacketBatch* batch) {
 #ifdef DEBUG_RECONFIG
 			fprintf(stderr, "[%s][DyscoAgentIn-Control] forwards %s:%u -> %s:%u [%u:%u]\n\n",
 				ns.c_str(),
-				printip2(ip->src.value()), tcp->src_port.value(),
-				printip2(ip->dst.value()), tcp->dst_port.value(),
+				printip1(ip->src.value()), tcp->src_port.value(),
+				printip1(ip->dst.value()), tcp->dst_port.value(),
 				ntohl(tcp->seq_num.value()), ntohl(tcp->ack_num.value()));
 #endif
 		}
