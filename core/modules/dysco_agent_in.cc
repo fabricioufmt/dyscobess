@@ -99,7 +99,7 @@ void DyscoAgentIn::ProcessBatch(bess::PacketBatch* batch) {
 			ns.c_str(),
 			printip1(ip->src.value()), tcp->src_port.value(),
 			printip1(ip->dst.value()), tcp->dst_port.value(),
-			ntohl(tcp->seq_num.value()), ntohl(tcp->ack_num.value()));
+			tcp->seq_num.value(), tcp->ack_num.value());
 #endif
 
 		if(!isReconfigPacket(ip, tcp)) {
@@ -110,7 +110,7 @@ void DyscoAgentIn::ProcessBatch(bess::PacketBatch* batch) {
 				ns.c_str(),
 				printip1(ip->src.value()), tcp->src_port.value(),
 				printip1(ip->dst.value()), tcp->dst_port.value(),
-				ntohl(tcp->seq_num.value()), ntohl(tcp->ack_num.value()));
+				tcp->seq_num.value(), tcp->ack_num.value());
 #endif
 		} else {
 			switch(control_input(pkt, ip, tcp)) {
@@ -121,7 +121,7 @@ void DyscoAgentIn::ProcessBatch(bess::PacketBatch* batch) {
 					ns.c_str(),
 					printip1(ip->src.value()), tcp->src_port.value(),
 					printip1(ip->dst.value()), tcp->dst_port.value(),
-					ntohl(tcp->seq_num.value()), ntohl(tcp->ack_num.value()));
+					tcp->seq_num.value(), tcp->ack_num.value());
 #endif
 				break;
 			case TO_GATE_1:
@@ -141,7 +141,7 @@ void DyscoAgentIn::ProcessBatch(bess::PacketBatch* batch) {
 				ns.c_str(),
 				printip1(ip->src.value()), tcp->src_port.value(),
 				printip1(ip->dst.value()), tcp->dst_port.value(),
-				ntohl(tcp->seq_num.value()), ntohl(tcp->ack_num.value()));
+				tcp->seq_num.value(), tcp->ack_num.value());
 #endif
 		}
 	}

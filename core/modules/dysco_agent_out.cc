@@ -107,7 +107,7 @@ void DyscoAgentOut::ProcessBatch(bess::PacketBatch* batch) {
 			ns.c_str(),
 			printip2(ip->src.value()), tcp->src_port.value(),
 			printip2(ip->dst.value()), tcp->dst_port.value(),
-			ntohl(tcp->seq_num.value()), ntohl(tcp->ack_num.value()));
+			tcp->seq_num.value(), tcp->ack_num.value());
 #endif
 		if(isReconfigPacket(ip, tcp)) {
 #ifdef DEBUG_RECONFIG
@@ -121,7 +121,7 @@ void DyscoAgentOut::ProcessBatch(bess::PacketBatch* batch) {
 				ns.c_str(),
 				printip2(ip->src.value()), tcp->src_port.value(),
 				printip2(ip->dst.value()), tcp->dst_port.value(),
-				ntohl(tcp->seq_num.value()), ntohl(tcp->ack_num.value()));
+				tcp->seq_num.value(), tcp->ack_num.value());
 #endif
 				
 			continue;
@@ -135,7 +135,7 @@ void DyscoAgentOut::ProcessBatch(bess::PacketBatch* batch) {
 			ns.c_str(),
 			printip2(ip->src.value()), tcp->src_port.value(),
 			printip2(ip->dst.value()), tcp->dst_port.value(),
-			ntohl(tcp->seq_num.value()), ntohl(tcp->ack_num.value()));
+			tcp->seq_num.value(), tcp->ack_num.value());
 #endif
 	}
 	
@@ -445,7 +445,7 @@ bool DyscoAgentOut::output(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 		ns.c_str(),
 		printip2(ip->src.value()), tcp->src_port.value(),
 		printip2(ip->dst.value()), tcp->dst_port.value(),
-		ntohl(tcp->seq_num.value()), ntohl(tcp->ack_num.value()));
+		tcp->seq_num.value(), tcp->ack_num.value());
 #endif
 	DyscoHashOut* cb_out = dc->lookup_output(this->index, ip, tcp);
 	if(!cb_out) {
