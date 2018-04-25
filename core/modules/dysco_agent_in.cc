@@ -573,6 +573,13 @@ DyscoCbReconfig* DyscoAgentIn::insert_rcb_control_input(Ipv4* ip, Tcp* tcp, Dysc
 	rcb->leftIseq = cmsg->leftIseq;
 	rcb->leftIack = cmsg->leftIack;
 
+#ifdef DEBUG_RECONFIG
+	fprintf(stderr, "[%s][DyscoAgentIn-Control] cmsg->leftIseq = %u\n",
+		ns.c_str(), cmsg->leftIseq);
+	fprintf(stderr, "[%s][DyscoAgentIn-Control] cmsg->leftIack = %u\n",
+		ns.c_str(), cmsg->leftIack);
+#endif
+	
 	rcb->leftIts = cmsg->leftIts;
 	rcb->leftItsr = cmsg->leftItsr;
 
