@@ -196,6 +196,14 @@ bool DyscoAgentOut::get_port_information() {
 
 //L.365
 bool DyscoAgentOut::out_rewrite_seq(Tcp* tcp, DyscoHashOut* cb_out) {
+	cb_out->out_iseq = htonl(tcp->seq_num.value());
+	cb_out->out_iack = htonl(tcp->ack_num.value());
+#ifdef DEBUG
+	fprintf(stderr, "[%s][DyscoAgentOut] updating cb_out->out_iseq = %u\n",
+		ns.c_str(), tcp->seq_num.value());
+	fprintf(stderr, "[%s][DyscoAgentOut] updating cb_out->out_iack = %u\n",
+		ns.c_str(), tcp->ack_num.value());
+#endif
 	if(cb_out->seq_delta) {
 		uint32_t new_seq;
 		uint32_t seq = tcp->seq_num.value();
