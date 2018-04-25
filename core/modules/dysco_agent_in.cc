@@ -545,7 +545,6 @@ bool DyscoAgentIn::input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 			}
 		}
 		
-		print_out1(ns, ip, tcp);
 		return false;
 	}
 
@@ -561,9 +560,6 @@ bool DyscoAgentIn::input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 	//TEST
 	in_hdr_rewrite_csum(ip, tcp, cb_in);
 
-#ifdef DEBUG
-	print_out1(ns, ip, tcp);
-#endif
 	return true;
 }
 

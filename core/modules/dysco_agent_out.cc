@@ -433,18 +433,19 @@ bool DyscoAgentOut::update_five_tuple(Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) 
 //L.1395
 bool DyscoAgentOut::output(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 #ifdef DEBUG
-	fprintf(stderr, "[%s][DyscoAgentOut]: receives %s:%u -> %s:%u\n",
+	fprintf(stderr, "[%s][DyscoAgentOut]: receives %s:%u -> %s:%u [%u:%u]\n",
 		ns.c_str(),
 		printip2(ip->src.value()), tcp->src_port.value(),
-		printip2(ip->dst.value()), tcp->dst_port.value());
+		printip2(ip->dst.value()), tcp->dst_port.value(),
+		ntohl(tcp->seq_num.value()), ntohl(tcp->ack_num.value()));
 #endif
 	DyscoHashOut* cb_out = dc->lookup_output(this->index, ip, tcp);
 	if(!cb_out) {
-		fprintf(stderr, "[%s][DyscoAgentOut] called lookup_output and its return is NULL\n", ns.c_str());
+		fprintf(stderr, "[%s][DyscoAgentOut] cb_out(lookup_output) is NULL\n", ns.c_str());
 		cb_out = dc->lookup_output_pending(this->index, ip, tcp);
 		if(cb_out) {
 #ifdef DEBUG
-			fprintf(stderr, "[%s][DyscoAgentOut] called lookup_output_pending and its return isn't NULL and it's calling out_handle_mb method.\n", ns.c_str());
+			fprintf(stderr, "[%s][DyscoAgentOut] cb_out(lookup_output_pending) isn't NULL.\n", ns.c_str());
 #endif
 			bool retvalue = dc->out_handle_mb(this->index, pkt, ip, tcp, cb_out, devip);		
 #ifdef DEBUG
@@ -456,7 +457,7 @@ bool DyscoAgentOut::output(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 		cb_out = dc->lookup_pending_tag(this->index, tcp);
 		if(cb_out) {
 #ifdef DEBUG
-			fprintf(stderr, "[%s][DyscoAgentOut] called lookup_pending_tag and its return isn't NULL and it's calling out_handle_mb method\n", ns.c_str());
+			fprintf(stderr, "[%s][DyscoAgentOut] cb_out(lookup_pending_tag) isn't NULL.\n", ns.c_str());
 #endif
 			update_five_tuple(ip, tcp, cb_out);
 			bool retvalue = dc->out_handle_mb(this->index, pkt, ip, tcp, cb_out, devip);
@@ -466,15 +467,11 @@ bool DyscoAgentOut::output(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 #endif
 			return retvalue;
 		}
-	} else {
-#ifdef DEBUG
-		fprintf(stderr, "[%s][DyscoAgentOut] called lookup_output and its return isn't NULL\n", ns.c_str());
-#endif
 	}
 
 	if(isTCPSYN(tcp, true)) {
 #ifdef DEBUG
-		fprintf(stderr, "[%s][DyscoAgentOut] calls out_syn method for TCP SYN segment.\n", ns.c_str());
+		fprintf(stderr, "[%s][DyscoAgentOut] It's a TCP SYN segment.\n", ns.c_str());
 #endif		
 		DyscoHashOut* ret = dc->out_syn(this->index, pkt, ip, tcp, cb_out, devip);
 		
