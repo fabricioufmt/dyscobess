@@ -752,7 +752,7 @@ bool DyscoAgentOut::ctl_save_rcv_window(DyscoControlMessage* cmsg) {
 */
 
 bool DyscoAgentOut::control_output(Ipv4* ip, Tcp* tcp) {
-	DyscoCbReconfig* rcb;
+	//DyscoCbReconfig* rcb;
 	DyscoControlMessage* cmsg;
 
 	uint8_t* payload = reinterpret_cast<uint8_t*>(tcp) + (tcp->offset << 2);
