@@ -29,13 +29,6 @@ char* print_ss1(DyscoTcpSession ss) {
 	return buf;
 }
 
-void print_out1(std::string ns, Ipv4* ip, Tcp* tcp) {
-	fprintf(stderr, "[%s][DyscoAgentIn] forwards %s:%u -> %s:%u\n\n",
-		ns.c_str(),
-		printip1(ip->src.value()), tcp->src_port.value(),
-		printip1(ip->dst.value()), tcp->dst_port.value());
-}
-
 const Commands DyscoAgentIn::cmds = {
 	{"get_info", "EmptyArg", MODULE_CMD_FUNC(&DyscoAgentIn::CommandInfo), Command::THREAD_UNSAFE}
 };
@@ -517,15 +510,9 @@ bool DyscoAgentIn::input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 #endif
 			bool retvalue = rx_initiation_new(pkt, ip, tcp);
 
-#ifdef DEBUG
-			print_out1(ns, ip, tcp);
-#endif
-
 			return retvalue;
 		}
-#ifdef DEBUG
-		print_out1(ns, ip, tcp);
-#endif		
+		
 		return false;
 	}
 
@@ -1183,8 +1170,6 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 #endif
 		set_ack_number_out(this->index, tcp, cb_in);
 		in_hdr_rewrite_csum(ip, tcp, cb_in);
-		
-		print_out1(ns, ip, tcp);
 		
 		return TO_GATE_0;
 	} else {
