@@ -5,7 +5,7 @@
 #include "../module_graph.h"
 #include "dysco_port_inc.h"
 
-//#define DEBUG 1
+#define DEBUG 1
 #define DEBUG_RECONFIG 1
 
 //debug
