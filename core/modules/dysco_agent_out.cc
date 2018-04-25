@@ -668,9 +668,9 @@ bool DyscoAgentOut::control_output_syn(Ipv4* ip, Tcp* tcp, DyscoControlMessage* 
 
 #ifdef DEBUG_RECONFIG
 		fprintf(stderr, "[%s][DyscoAgentOut-Control] cmsg->leftIseq = %u\n",
-			ns.c_str(), (old_dcb->in_iseq));
+			ns.c_str(), ntohl(old_dcb->in_iseq));
 		fprintf(stderr, "[%s][DyscoAgentOut-Control] cmsg->leftIack = %u\n",
-			ns.c_str(), (old_dcb->in_iack));
+			ns.c_str(), ntohl(old_dcb->in_iack));
 #endif
 		cmsg->leftIts = old_dcb->ts_in;
 		cmsg->leftItsr = old_dcb->tsr_in;
