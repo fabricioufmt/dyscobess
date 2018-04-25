@@ -107,10 +107,6 @@ class DyscoAgentOut final : public Module {
 		if(isTCPSYN(tcp, true)) {
 			DyscoHashOut* cb_out = dc->lookup_output(this->index, ip, tcp);
 			if(!cb_out) {
-				fprintf(stderr, "[%s] lookup_output not found %s:%u -> %s:%u\n",
-					ns.c_str(),
-					printiptest(ip->src.value()), tcp->src_port.value(),
-					printiptest(ip->dst.value()), tcp->dst_port.value());
 				uint32_t payload_len = hasPayload(ip, tcp);
 				if(payload_len) {
 					//Only LeftAnchor
@@ -122,12 +118,8 @@ class DyscoAgentOut final : public Module {
 				return false;
 			}
 
-			//Hosts in the middle (left - middle - right)
-			
-			if(!cb_out->dcb_in) {
-				fprintf(stderr, "[DyscoCenter]: cb_out->dcb_in is NULL\n");
+			if(!cb_out->dcb_in)
 				return false;
-			}
 			
 			if(cb_out->dcb_in->is_reconfiguration)
 				return true;

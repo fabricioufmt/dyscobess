@@ -102,21 +102,33 @@ void DyscoAgentIn::ProcessBatch(bess::PacketBatch* batch) {
 		Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
 
 #ifdef DEBUG
-		fprintf(stderr, "[%s][DyscoAgentIn] receives %s:%u -> %s:%u\n",
+		fprintf(stderr, "[%s][DyscoAgentIn] receives %s:%u -> %s:%u [%u:%u]\n",
 			ns.c_str(),
 			printip1(ip->src.value()), tcp->src_port.value(),
-			printip1(ip->dst.value()), tcp->dst_port.value());
+			printip1(ip->dst.value()), tcp->dst_port.value(),
+			ntohl(tcp->seq_num.value()), ntohl(tcp->ack_num.value()));
 #endif
 
 		if(!isReconfigPacket(ip, tcp)) {
 			input(pkt, ip, tcp);
 			out_gates[0].add(pkt);
+#ifdef DEBUG
+			fprintf(stderr, "[%s][DyscoAgentIn] forwards %s:%u -> %s:%u [%u:%u]\n\n",
+				ns.c_str(),
+				printip2(ip->src.value()), tcp->src_port.value(),
+				printip2(ip->dst.value()), tcp->dst_port.value(),
+				ntohl(tcp->seq_num.value()), ntohl(tcp->ack_num.value()));
+#endif
 		} else {
 			switch(control_input(pkt, ip, tcp)) {
 			case TO_GATE_0:
 				out_gates[0].add(pkt);
 #ifdef DEBUG
-				print_out1(ns, ip, tcp);
+				fprintf(stderr, "[%s][DyscoAgentIn] forwards %s:%u -> %s:%u [%u:%u]\n\n",
+					ns.c_str(),
+					printip2(ip->src.value()), tcp->src_port.value(),
+					printip2(ip->dst.value()), tcp->dst_port.value(),
+					ntohl(tcp->seq_num.value()), ntohl(tcp->ack_num.value()));
 #endif
 				break;
 			case TO_GATE_1:
@@ -124,12 +136,20 @@ void DyscoAgentIn::ProcessBatch(bess::PacketBatch* batch) {
 				break;
 			case END:
 #ifdef DEBUG_RECONFIG
-				fprintf(stderr, "[%s][DyscoAgentIn-Control]: 3-way from Reconfiguration Session is DONE.\n", ns.c_str());
+				fprintf(stderr, "[%s][DyscoAgentIn-Control]: 3-way from Reconfiguration Session is DONE.\n\n", ns.c_str());
 #endif
 				break;
 			default:
 				break;
 			}
+
+#ifdef DEBUG_RECONFIG
+			fprintf(stderr, "[%s][DyscoAgentIn-Control] forwards %s:%u -> %s:%u [%u:%u]\n\n",
+				ns.c_str(),
+				printip2(ip->src.value()), tcp->src_port.value(),
+				printip2(ip->dst.value()), tcp->dst_port.value(),
+				ntohl(tcp->seq_num.value()), ntohl(tcp->ack_num.value()));
+#endif
 		}
 	}
 	
