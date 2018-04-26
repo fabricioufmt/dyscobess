@@ -345,7 +345,7 @@ bool DyscoAgentOut::out_translate(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHa
 #endif
 		if(cb_out->state == DYSCO_ESTABLISHED) {
 #ifdef DEBUG_RECONFIG
-			fprintf(stderr, "[%s][DyscoAgentOut-Control] State: DYSCO_ESTABLISHED\n", ns.c_str());
+			fprintf(stderr, "[%s][DyscoAgentOut-Control] State: DYSCO_ESTABLISHED (seg_sz: %u)\n", ns.c_str(), seg_sz);
 #endif
 			if(seg_sz > 0)
 				cb_out = pick_path_seq(cb_out, seq);
