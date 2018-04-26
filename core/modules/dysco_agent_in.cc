@@ -631,18 +631,16 @@ bool DyscoAgentIn::compute_deltas_in(DyscoHashIn* cb_in, DyscoHashOut* old_out, 
 
 	if(cb_in->in_iseq < cb_in->out_iseq) {
 		cb_in->seq_delta = cb_in->out_iseq - cb_in->in_iseq;
-		cb_in->seq_add = 1;
-
 #ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->seq_delta = cb_in->out_iseq - cb_in->in_iseq (%u(uint) %x %x)\n", ns.c_str(), cb_in->seq_delta, cb_in->out_iseq, cb_in->in_iseq);
+		fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->seq_delta = %u (%X - %X).\n", ns.c_str(), cb_in->seq_delta, cb_in->out_iseq, cb_in->in_iseq);
 #endif
+		cb_in->seq_add = 1;
 	} else {
 		cb_in->seq_delta = cb_in->in_iseq - cb_in->out_iseq;
-		cb_in->seq_add = 0;
-
 #ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->seq_delta = cb_in->in_iseq - cb_in->out_iseq (%u(uint) %x %x)\n", ns.c_str(), cb_in->seq_delta, cb_in->in_iseq, cb_in->out_iseq);
+		fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->seq_delta = %u (%X - %X).\n", ns.c_str(), cb_in->seq_delta, cb_in->in_iseq, cb_in->out_iseq);
 #endif
+		cb_in->seq_add = 0;
 	}
 
 	if(cb_in->in_iack < cb_in->out_iack) {
@@ -702,9 +700,15 @@ bool DyscoAgentIn::compute_deltas_out(DyscoHashOut* cb_out, DyscoHashOut* old_ou
 
 	if(cb_out->in_iseq < cb_out->out_iseq) {
 		cb_out->seq_delta = cb_out->out_iseq - cb_out->in_iseq;
+#ifdef DEBUG_RECONFIG
+		fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_out->seq_delta = %u (%X - %X).\n", ns.c_str(), cb_out->seq_delta, cb_out->out_iseq, cb_out->in_iseq);
+#endif
 		cb_out->seq_add = 1;
 	} else {
 		cb_out->seq_delta = cb_out->in_iseq - cb_out->out_iseq;
+#ifdef DEBUG_RECONFIG
+		fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_out->seq_delta = %u (%X - %X).\n", ns.c_str(), cb_out->seq_delta, cb_out->in_iseq, cb_out->out_iseq);
+#endif
 		cb_out->seq_add = 0;
 	}
 
