@@ -375,8 +375,8 @@ class DyscoCenter final : public Module {
 		return tcp->flags == Tcp::Flag::kSyn;
 	}
 	
-	inline bool isTCPACK(Tcp* tcp) {
-		return tcp->flags == Tcp::Flag::kAck;
+	inline bool isTCPACK(Tcp* tcp, bool exclusive = false) {
+		return exclusive ? tcp->flags == Tcp::Flag::kAck : tcp->flags & Tcp::Flag::kAck;
 	}
 
 	inline uint32_t hasPayload(Ipv4* ip, Tcp* tcp) {
