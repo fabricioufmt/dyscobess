@@ -535,10 +535,15 @@ DyscoHashIn* DyscoCenter::insert_cb_input(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_
 }
 
 bool DyscoCenter::set_ack_number_out(uint32_t i, Tcp* tcp, DyscoHashIn* cb_in) {
-	cb_in->in_iseq = cb_in->out_iseq = htonl(tcp->seq_num.value());
-	cb_in->in_iack = cb_in->out_iack = htonl(tcp->ack_num.value() - 1);
+	cb_in->in_iseq = cb_in->out_iseq = tcp->seq_num.value();
+	cb_in->in_iack = cb_in->out_iack = tcp->ack_num.value() - 1;
 	cb_in->seq_delta = cb_in->ack_delta = 0;
 
+#ifdef DEBUG
+	fprintf(stderr, "[DyscoCenter] cb_in->in_iseq = %X.\n", cb_in->in_iseq);
+	fprintf(stderr, "[DyscoCenter] cb_in->out_iseq = %X.\n", cb_in->out_iseq);
+#endif
+	
 	DyscoTcpSession ss;
 	ss.sip = cb_in->sup.dip;
 	ss.dip = cb_in->sup.sip;
@@ -550,9 +555,13 @@ bool DyscoCenter::set_ack_number_out(uint32_t i, Tcp* tcp, DyscoHashIn* cb_in) {
 	if(!cb_out)
 		return false;
 
-	cb_out->out_iack = cb_out->in_iack = htonl(tcp->seq_num.value());
-	cb_out->out_iseq = cb_out->in_iseq = htonl(tcp->ack_num.value() - 1);
-
+	cb_out->out_iack = cb_out->in_iack = tcp->seq_num.value();
+	cb_out->out_iseq = cb_out->in_iseq = tcp->ack_num.value() - 1;
+	
+#ifdef DEBUG
+	fprintf(stderr, "[DyscoCenter] cb_out->in_iseq = %X.\n", cb_out->in_iseq);
+	fprintf(stderr, "[DyscoCenter] cb_out->out_iseq = %X.\n", cb_out->out_iseq);
+#endif
 	parse_tcp_syn_opt_r(tcp, cb_in);
 	if(cb_in->ts_ok) {
 		cb_out->ts_ok = 1;
