@@ -334,21 +334,36 @@ bool DyscoAgentOut::out_translate(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHa
 
 	DyscoHashOut* other_path = cb_out->other_path;
 	if(!other_path) {
+#ifdef DEBUG_RECONFIG
+		fprintf(stderr, "[%s][DyscoAgentOut-Control] There isn't other_path\n", ns.c_str());
+#endif
 		if(seg_sz > 0 && dc->after(seq, cb_out->seq_cutoff))
 			cb_out->seq_cutoff = seq;
 	} else {
+#ifdef DEBUG_RECONFIG
+		fprintf(stderr, "[%s][DyscoAgentOut-Control] There is other_path\n", ns.c_str());
+#endif
 		if(cb_out->state == DYSCO_ESTABLISHED) {
+#ifdef DEBUG_RECONFIG
+			fprintf(stderr, "[%s][DyscoAgentOut-Control] State: DYSCO_ESTABLISHED\n", ns.c_str());
+#endif
 			if(seg_sz > 0)
 				cb_out = pick_path_seq(cb_out, seq);
 			else
 				cb_out = pick_path_ack(tcp, cb_out);
 		} else if(cb_out->state == DYSCO_SYN_SENT) {
+#ifdef DEBUG_RECONFIG
+			fprintf(stderr, "[%s][DyscoAgentOut-Control] State: DYSCO_SYN_SENT\n", ns.c_str());
+#endif
 			if(seg_sz > 0) {
 				if(dc->after(seq, cb_out->seq_cutoff))
 					cb_out->seq_cutoff = seq;
 			} else
 				cb_out = pick_path_ack(tcp, cb_out);
 		} else if(cb_out->state == DYSCO_SYN_RECEIVED) {
+#ifdef DEBUG_RECONFIG
+			fprintf(stderr, "[%s][DyscoAgentOut-Control] State: DYSCO_SYN_RECEIVED\n", ns.c_str());
+#endif
 			if(seg_sz > 0) {
 				cb_out = pick_path_seq(cb_out, seq);
 				//if(!cb_out->old_path)
