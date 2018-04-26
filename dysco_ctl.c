@@ -241,7 +241,8 @@ int create_message_reconfig(struct tcp_session* supss, uint32_t sc_len, uint32_t
 	// Construct the TCP segment 
 	tcph->source = htons(40000 + rand() % 1000);
 	tcph->dest = htons(50000 + rand() % 1000);
-	tcph->seq = htonl(rand() % 4294967296);
+	//tcph->seq = htonl(rand() % 4294967296);
+	tcph->seq = htonl(127);
 	tcph->ack_seq = 0;
 	tcph->doff = 5;
 	tcph->fin = 0;
