@@ -607,8 +607,8 @@ DyscoHashOut* DyscoCenter::create_cb_out(uint32_t i, Ipv4* ip, Tcp* tcp, DyscoPo
 		cb_out->sub.dport = allocate_neighbor_port(i);
 
 		//TEST //FIXME //TODO
-		cb_out->out_iseq = htonl(tcp->seq_num.value());
-		cb_out->out_iack = htonl(tcp->ack_num.value());
+		//cb_out->out_iseq = htonl(tcp->seq_num.value());
+		//cb_out->out_iack = htonl(tcp->ack_num.value());
 
 		//get TS, WS, SACK, ...
 		//cb_out->ts_in = 
