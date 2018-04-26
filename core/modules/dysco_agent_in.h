@@ -151,14 +151,11 @@ class DyscoAgentIn final : public Module {
 			
 			if(cb_in->dcb_out->is_reconfiguration) {
 #ifdef DEBUG_RECONFIG
-				fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->dcb_out->is_reconfiguration\n", ns.c_str());
+				fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->dcb_out->is_reconfiguration == FALSE\n", ns.c_str());
 #endif				
 				return true;
 			}
 		}
-#ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[%s][DyscoAgentIn-Control] It isn't reconfiguration packet\n", ns.c_str());
-#endif			
 
 		return false;
 	}
