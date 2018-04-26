@@ -653,6 +653,9 @@ DyscoHashOut* DyscoCenter::out_syn(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp*
 	}
 
 	cb_out->seq_cutoff = tcp->seq_num.value();
+#ifdef DEBUG_RECONFIG
+	fprintf(stderr, "[DyscoCenter] (%s) cb_out->seq_cutoff = %X.\n", print_ss0(cb_out->sub), cb_out->seq_cutoff);
+#endif
 	parse_tcp_syn_opt_s(tcp, cb_out);
 	if(isTCPACK(tcp)) {
 		DyscoTcpSession local_sub;
