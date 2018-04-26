@@ -450,7 +450,7 @@ bool DyscoAgentOut::output(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 #ifdef DEBUG
 			fprintf(stderr, "[%s][DyscoAgentOut] There is a pending output.\n", ns.c_str());
 #endif
-			reuturn dc->out_handle_mb(this->index, pkt, ip, tcp, cb_out, devip);
+			return dc->out_handle_mb(this->index, pkt, ip, tcp, cb_out, devip);
 		}
 
 		cb_out = dc->lookup_pending_tag(this->index, tcp);
