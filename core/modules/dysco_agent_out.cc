@@ -103,7 +103,7 @@ void DyscoAgentOut::ProcessBatch(bess::PacketBatch* batch) {
 			
 		Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
 #ifdef DEBUG
-		fprintf(stderr, "[%s][DyscoAgentOut] receives %s:%u -> %s:%u [%u:%u]\n",
+		fprintf(stderr, "[%s][DyscoAgentOut] receives %s:%u -> %s:%u [%X:%X]\n",
 			ns.c_str(),
 			printip2(ip->src.value()), tcp->src_port.value(),
 			printip2(ip->dst.value()), tcp->dst_port.value(),
@@ -117,7 +117,7 @@ void DyscoAgentOut::ProcessBatch(bess::PacketBatch* batch) {
 				dysco_packet(eth);
 
 #ifdef DEBUG_RECONFIG
-			fprintf(stderr, "[%s][DyscoAgentOut-Control] forwards %s:%u -> %s:%u [%u:%u]\n\n",
+			fprintf(stderr, "[%s][DyscoAgentOut-Control] forwards %s:%u -> %s:%u [%X:%X]\n\n",
 				ns.c_str(),
 				printip2(ip->src.value()), tcp->src_port.value(),
 				printip2(ip->dst.value()), tcp->dst_port.value(),
@@ -131,7 +131,7 @@ void DyscoAgentOut::ProcessBatch(bess::PacketBatch* batch) {
 			dysco_packet(eth);
 
 #ifdef DEBUG
-		fprintf(stderr, "[%s][DyscoAgentOut] forwards %s:%u -> %s:%u [%u:%u]\n\n",
+		fprintf(stderr, "[%s][DyscoAgentOut] forwards %s:%u -> %s:%u [%X:%X]\n\n",
 			ns.c_str(),
 			printip2(ip->src.value()), tcp->src_port.value(),
 			printip2(ip->dst.value()), tcp->dst_port.value(),
