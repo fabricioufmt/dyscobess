@@ -540,8 +540,8 @@ bool DyscoCenter::set_ack_number_out(uint32_t i, Tcp* tcp, DyscoHashIn* cb_in) {
 	cb_in->seq_delta = cb_in->ack_delta = 0;
 
 #ifdef DEBUG
-	fprintf(stderr, "[DyscoCenter] cb_in->in_iseq = %X.\n", cb_in->in_iseq);
-	fprintf(stderr, "[DyscoCenter] cb_in->out_iseq = %X.\n", cb_in->out_iseq);
+	fprintf(stderr, "[DyscoCenter] (%s) cb_in->in_iseq = %X.\n", print_ss0(cb_in->sub), cb_in->in_iseq);
+	fprintf(stderr, "[DyscoCenter] (%s) cb_in->out_iseq = %X.\n", print_ss0(cb_in->sub) cb_in->out_iseq);
 #endif
 	
 	DyscoTcpSession ss;
