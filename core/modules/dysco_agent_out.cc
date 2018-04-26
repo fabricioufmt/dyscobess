@@ -196,13 +196,11 @@ bool DyscoAgentOut::get_port_information() {
 
 //L.365
 bool DyscoAgentOut::out_rewrite_seq(Tcp* tcp, DyscoHashOut* cb_out) {
-	cb_out->out_iseq = htonl(tcp->seq_num.value());
-	cb_out->out_iack = htonl(tcp->ack_num.value());
+	//cb_out->out_iseq = htonl(tcp->seq_num.value());
+	//cb_out->out_iack = htonl(tcp->ack_num.value());
 #ifdef DEBUG
-	fprintf(stderr, "[%s][DyscoAgentOut] updating cb_out->out_iseq = %u\n",
+	fprintf(stderr, "[%s][DyscoAgentOut] old_seq = %u\n",
 		ns.c_str(), tcp->seq_num.value());
-	fprintf(stderr, "[%s][DyscoAgentOut] updating cb_out->out_iack = %u\n",
-		ns.c_str(), tcp->ack_num.value());
 #endif
 	if(cb_out->seq_delta) {
 		uint32_t new_seq;
@@ -215,6 +213,11 @@ bool DyscoAgentOut::out_rewrite_seq(Tcp* tcp, DyscoHashOut* cb_out) {
 
 		tcp->seq_num = be32_t(new_seq);
 
+#ifdef DEBUG
+		fprintf(stderr, "[%s][DyscoAgentOut] new_seq = %u\n",
+			ns.c_str(), tcp->seq_num.value());
+#endif
+		
 		return true;
 	}
 
@@ -223,6 +226,10 @@ bool DyscoAgentOut::out_rewrite_seq(Tcp* tcp, DyscoHashOut* cb_out) {
 
 //L.391
 bool DyscoAgentOut::out_rewrite_ack(Tcp* tcp, DyscoHashOut* cb_out) {
+#ifdef DEBUG
+	fprintf(stderr, "[%s][DyscoAgentOut] old_ack = %u\n",
+		ns.c_str(), tcp->ack_num.value());
+#endif
 	if(cb_out->ack_delta) {
 		uint32_t new_ack;
 		uint32_t ack = tcp->ack_num.value();
@@ -236,7 +243,10 @@ bool DyscoAgentOut::out_rewrite_ack(Tcp* tcp, DyscoHashOut* cb_out) {
 			dc->tcp_sack(tcp, cb_out->ack_delta, cb_out->ack_add);
 		
 		tcp->ack_num = be32_t(new_ack);
-
+#ifdef DEBUG
+		fprintf(stderr, "[%s][DyscoAgentOut] new_ack = %u\n",
+			ns.c_str(), tcp->ack_num.value());
+#endif
 		return true;
 	}
 
@@ -290,12 +300,26 @@ bool DyscoAgentOut::out_rewrite_rcv_wnd(Tcp* tcp, DyscoHashOut* cb_out) {
 //L.492
 DyscoHashOut* DyscoAgentOut::pick_path_seq(DyscoHashOut* cb_out, uint32_t seq) {
 	if(cb_out->state_t) {
-		if(cb_out->state == DYSCO_ESTABLISHED)
+#ifdef DEBUG_RECONFIG
+		fprintf(stderr, "[%s][DyscoAgentOut-Control] cb_out->state_t == 1\n", ns.c_str());
+#endif	
+		if(cb_out->state == DYSCO_ESTABLISHED) {
+#ifdef DEBUG_RECONFIG
+			fprintf(stderr, "[%s][DyscoAgentOut-Control] cb_out->state == DYSCO_ESTABLISHED\n", ns.c_str());
+#endif	
 			cb_out = cb_out->other_path;
+		}
 	} else if(cb_out->use_np_seq) {
 		cb_out = cb_out->other_path;
-	} else if(!dc->before(seq, cb_out->seq_cutoff))
+#ifdef DEBUG_RECONFIG
+		fprintf(stderr, "[%s][DyscoAgentOut-Control] cb_out->use_np_seq == 1\n", ns.c_str());
+#endif	
+	} else if(!dc->before(seq, cb_out->seq_cutoff)) {
 		cb_out = cb_out->other_path;
+#ifdef DEBUG_RECONFIG
+		fprintf(stderr, "[%s][DyscoAgentOut-Control] before(seq, cb_out->seq_cutoff) == false\n", ns.c_str());
+#endif	
+	}
 
 	return cb_out;
 }
@@ -345,7 +369,7 @@ bool DyscoAgentOut::out_translate(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHa
 #endif
 		if(cb_out->state == DYSCO_ESTABLISHED) {
 #ifdef DEBUG_RECONFIG
-			fprintf(stderr, "[%s][DyscoAgentOut-Control] State: DYSCO_ESTABLISHED (seg_sz: %u)\n", ns.c_str(), seg_sz);
+			fprintf(stderr, "[%s][DyscoAgentOut-Control] cb_out->state: DYSCO_ESTABLISHED (seg_sz: %u)\n", ns.c_str(), seg_sz);
 #endif
 			if(seg_sz > 0)
 				cb_out = pick_path_seq(cb_out, seq);
@@ -353,7 +377,7 @@ bool DyscoAgentOut::out_translate(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHa
 				cb_out = pick_path_ack(tcp, cb_out);
 		} else if(cb_out->state == DYSCO_SYN_SENT) {
 #ifdef DEBUG_RECONFIG
-			fprintf(stderr, "[%s][DyscoAgentOut-Control] State: DYSCO_SYN_SENT\n", ns.c_str());
+			fprintf(stderr, "[%s][DyscoAgentOut-Control] cb_out->state: DYSCO_SYN_SENT\n", ns.c_str());
 #endif
 			if(seg_sz > 0) {
 				if(dc->after(seq, cb_out->seq_cutoff))
@@ -362,7 +386,7 @@ bool DyscoAgentOut::out_translate(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHa
 				cb_out = pick_path_ack(tcp, cb_out);
 		} else if(cb_out->state == DYSCO_SYN_RECEIVED) {
 #ifdef DEBUG_RECONFIG
-			fprintf(stderr, "[%s][DyscoAgentOut-Control] State: DYSCO_SYN_RECEIVED\n", ns.c_str());
+			fprintf(stderr, "[%s][DyscoAgentOut-Control] cb_out->state: DYSCO_SYN_RECEIVED\n", ns.c_str());
 #endif
 			if(seg_sz > 0) {
 				cb_out = pick_path_seq(cb_out, seq);
@@ -376,6 +400,9 @@ bool DyscoAgentOut::out_translate(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHa
 	out_rewrite_seq(tcp, cb_out);
 	out_rewrite_ack(tcp, cb_out);
 
+	cb_out->out_iseq = htonl(tcp->seq_num.value());
+	cb_out->out_iack = htonl(tcp->ack_num.value());
+	
 	if(cb_out->ts_ok)
 		out_rewrite_ts(tcp, cb_out);
 
