@@ -545,6 +545,16 @@ bool DyscoAgentIn::input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 	
 	//in_hdr_rewrite_csum(ip, tcp, &cb_in->sup);
 	//TEST
+	cb_in->in_iseq = htonl(tcp->seq_num.value());
+	cb_in->in_iack = htonl(tcp->ack_num.value());
+
+#ifdef DEBUG
+	fprintf(stderr, "[%s][DyscoAgentIn] updating cb_in->in_seq = %u.\n", ns.c_str(),
+		tcp->seq_num.value());
+	fprintf(stderr, "[%s][DyscoAgentIn] updating cb_in->in_ack = %u.\n", ns.c_str(),
+		tcp->ack_num.value());
+#endif
+	
 	in_hdr_rewrite_csum(ip, tcp, cb_in);
 
 	return true;

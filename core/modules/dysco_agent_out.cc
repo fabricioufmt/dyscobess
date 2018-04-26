@@ -440,40 +440,27 @@ bool DyscoAgentOut::update_five_tuple(Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) 
 
 //L.1395
 bool DyscoAgentOut::output(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
-#ifdef DEBUG
-	fprintf(stderr, "[%s][DyscoAgentOut]: receives %s:%u -> %s:%u [%u:%u]\n",
-		ns.c_str(),
-		printip2(ip->src.value()), tcp->src_port.value(),
-		printip2(ip->dst.value()), tcp->dst_port.value(),
-		tcp->seq_num.value(), tcp->ack_num.value());
-#endif
 	DyscoHashOut* cb_out = dc->lookup_output(this->index, ip, tcp);
 	if(!cb_out) {
-		fprintf(stderr, "[%s][DyscoAgentOut] cb_out(lookup_output) is NULL\n", ns.c_str());
+#ifdef DEBUG
+		fprintf(stderr, "[%s][DyscoAgentOut] There isn't the cb_out.\n", ns.c_str());
+#endif
 		cb_out = dc->lookup_output_pending(this->index, ip, tcp);
 		if(cb_out) {
 #ifdef DEBUG
-			fprintf(stderr, "[%s][DyscoAgentOut] cb_out(lookup_output_pending) isn't NULL.\n", ns.c_str());
+			fprintf(stderr, "[%s][DyscoAgentOut] There is a pending output.\n", ns.c_str());
 #endif
-			bool retvalue = dc->out_handle_mb(this->index, pkt, ip, tcp, cb_out, devip);		
-#ifdef DEBUG
-			print_out2(ns, ip, tcp);
-#endif	
-			return retvalue;
+			reuturn dc->out_handle_mb(this->index, pkt, ip, tcp, cb_out, devip);
 		}
 
 		cb_out = dc->lookup_pending_tag(this->index, tcp);
 		if(cb_out) {
 #ifdef DEBUG
-			fprintf(stderr, "[%s][DyscoAgentOut] cb_out(lookup_pending_tag) isn't NULL.\n", ns.c_str());
+			fprintf(stderr, "[%s][DyscoAgentOut] There is a pending_tag output.\n", ns.c_str());
 #endif
 			update_five_tuple(ip, tcp, cb_out);
-			bool retvalue = dc->out_handle_mb(this->index, pkt, ip, tcp, cb_out, devip);
-
-#ifdef DEBUG
-			print_out2(ns, ip, tcp);
-#endif
-			return retvalue;
+			
+			return dc->out_handle_mb(this->index, pkt, ip, tcp, cb_out, devip);
 		}
 	}
 
@@ -481,15 +468,7 @@ bool DyscoAgentOut::output(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 #ifdef DEBUG
 		fprintf(stderr, "[%s][DyscoAgentOut] It's a TCP SYN segment.\n", ns.c_str());
 #endif		
-		DyscoHashOut* ret = dc->out_syn(this->index, pkt, ip, tcp, cb_out, devip);
-		
-#ifdef DEBUG
-		print_out2(ns, ip, tcp);
-#endif
-		if(ret)
-			return true;
-		
-		return false;
+		return dc->out_syn(this->index, pkt, ip, tcp, cb_out, devip) != 0 ? true : false;
 	}
 
 	if(!cb_out) {
@@ -507,9 +486,6 @@ bool DyscoAgentOut::output(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 
 	out_translate(pkt, ip, tcp, cb_out);
 
-#ifdef DEBUG
-	print_out2(ns, ip, tcp);
-#endif	
 	return true;
 }
 
@@ -549,9 +525,6 @@ DyscoCbReconfig* DyscoAgentOut::insert_cb_control(Ipv4* ip, Tcp* tcp, DyscoContr
 
 	if(!dc->insert_hash_reconfig(this->index, rcb))
 		return 0;
-
-	fprintf(stderr, "[%s][DyscoAgentOut-Control] Inserting rcb: %p (super: %s)\n",
-		ns.c_str(), rcb, print_ss2(rcb->super));
 	
 	return rcb;
 }
@@ -773,7 +746,6 @@ bool DyscoAgentOut::ctl_save_rcv_window(DyscoControlMessage* cmsg) {
 */
 
 bool DyscoAgentOut::control_output(Ipv4* ip, Tcp* tcp) {
-	//DyscoCbReconfig* rcb;
 	DyscoControlMessage* cmsg;
 
 	uint8_t* payload = reinterpret_cast<uint8_t*>(tcp) + (tcp->offset << 2);
@@ -788,34 +760,6 @@ bool DyscoAgentOut::control_output(Ipv4* ip, Tcp* tcp) {
 #endif
 		return control_output_syn(ip, tcp, cmsg);
 	}
-
-	/*
-	  ------------------Never reach here, because DyscoAgentIn will handle SYN/ACK and ACK reconfiguration packet.
-	  else if(isTCPSYN(tcp) && isTCPACK(tcp)) {
-#ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[%s][DyscoAgentOut-Control]: It's a SYN/ACK message.\n", ns.c_str());
-#endif
-		if(isRightAnchor(ip, cmsg))
-			replace_cb_rightA(cmsg);
-	} else if(isTCPACK(tcp, true)) {
-#ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[%s][DyscoAgentOut-Control]: It's an ACK message.\n", ns.c_str());
-#endif
-		rcb = dc->lookup_reconfig_by_ss(this->index, &cmsg->super);
-		if(!rcb)
-			return false;
-		
-		if(ntohs(cmsg->semantic) == STATE_TRANSFER)
-			return true;
-		
-		if(isLeftAnchor(ip, cmsg))
-			if(!rcb->old_dcb->state_t)
-				replace_cb_leftA(rcb, cmsg);
-	} else {
-#ifdef DYSCO_RECONFIG
-		fprintf(stderr, "[%s][DyscoAgentOut-Control]: It isn't a SYN, SYN/ACK or ACK message.\n", ns.c_str());
-#endif
-}*/
 	
 	return true;
 }
