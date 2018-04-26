@@ -315,10 +315,11 @@ DyscoHashOut* DyscoAgentOut::pick_path_seq(DyscoHashOut* cb_out, uint32_t seq) {
 		fprintf(stderr, "[%s][DyscoAgentOut-Control] cb_out->use_np_seq == 1\n", ns.c_str());
 #endif	
 	} else if(!dc->before(seq, cb_out->seq_cutoff)) {
-		cb_out = cb_out->other_path;
 #ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[%s][DyscoAgentOut-Control] before(seq, cb_out->seq_cutoff) == false\n", ns.c_str());
+		fprintf(stderr, "[%s][DyscoAgentOut-Control] before(seq, cb_out->seq_cutoff)[%u and %u] == false\n", ns.c_str(), seq, cb_out->seq_cutoff);
+		fprintf(stderr, "[%s][DyscoAgentOut-Control] cb_out = %p cb_out->other_path =%p\n", ns.c_str(), cb_out, cb_out->other_path);
 #endif	
+		cb_out = cb_out->other_path;
 	}
 
 	return cb_out;
