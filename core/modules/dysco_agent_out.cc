@@ -372,6 +372,8 @@ bool DyscoAgentOut::out_translate(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHa
 	} else {
 #ifdef DEBUG_RECONFIG
 		fprintf(stderr, "[%s][DyscoAgentOut-Control] There is other_path\n", ns.c_str());
+		fprintf(stderr, "[%s][DyscoAgentOut-Control] cb_out (sub: %s).\n", ns.c_str(), print_ss2(cb_out->sub));
+		fprintf(stderr, "[%s][DyscoAgentOut-Control] cb_out->other_path (sub: %s).\n", ns.c_str(), print_ss2(cb_out->other_path->sub));
 #endif
 		if(cb_out->state == DYSCO_ESTABLISHED) {
 #ifdef DEBUG_RECONFIG
