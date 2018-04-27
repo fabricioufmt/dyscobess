@@ -275,7 +275,7 @@ bool DyscoAgentIn::in_rewrite_ack(Tcp* tcp, DyscoHashIn* cb_in) {
 		//	dc->tcp_sack(tcp, cb_in);
 
 #ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[%s][DyscoAgentIn-Control] old ack: %X, new ack: %X, ack_delta\n", ns.c_str(), ack, new_ack, cb_in->ack_delta);
+		fprintf(stderr, "[%s][DyscoAgentIn-Control] old ack: %X, new ack: %X, ack_delta: %X.\n", ns.c_str(), ack, new_ack, cb_in->ack_delta);
 #endif
 		
 		tcp->ack_num = be32_t(htonl(new_ack));
@@ -797,7 +797,7 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 #ifdef DEBUG_RECONFIG
 	fprintf(stderr, "[%s][DyscoAgentIn-Control] control_reconfig_in method\n", ns.c_str());
 	fprintf(stderr, "[%s][DyscoAgentIn-Control] created rcb(super: %s)\n", ns.c_str(), print_ss1(rcb->super));
-	fprintf(stderr, "[%s][DyscoAgentIn-Control] rcb->leftIseq: %X and rcb->leftIack: %X\n", rcb->leftIseq, rcb->leftIack);
+	fprintf(stderr, "[%s][DyscoAgentIn-Control] rcb->leftIseq: %X and rcb->leftIack: %X\n", ns.c_str(), rcb->leftIseq, rcb->leftIack);
 #endif
 	
 	DyscoHashIn* cb_in;
