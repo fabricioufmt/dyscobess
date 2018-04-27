@@ -195,8 +195,6 @@ bool DyscoAgentOut::get_port_information() {
 
 //L.365
 bool DyscoAgentOut::out_rewrite_seq(Tcp* tcp, DyscoHashOut* cb_out) {
-	//cb_out->out_iseq = htonl(tcp->seq_num.value());
-	//cb_out->out_iack = htonl(tcp->ack_num.value());
 #ifdef DEBUG
 	fprintf(stderr, "[%s][DyscoAgentOut] old_seq = %u\n",
 		ns.c_str(), tcp->seq_num.value());
@@ -406,8 +404,8 @@ bool DyscoAgentOut::out_translate(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHa
 	out_rewrite_seq(tcp, cb_out);
 	out_rewrite_ack(tcp, cb_out);
 
-	//cb_out->out_iseq = htonl(tcp->seq_num.value());
-	//cb_out->out_iack = htonl(tcp->ack_num.value());
+	cb_out->out_iseq = tcp->seq_num.value();
+	cb_out->out_iack = tcp->ack_num.value();
 	
 	if(cb_out->ts_ok)
 		out_rewrite_ts(tcp, cb_out);
@@ -650,7 +648,7 @@ bool DyscoAgentOut::control_output_syn(Ipv4* ip, Tcp* tcp, DyscoControlMessage* 
 	
 	if(isLeftAnchor(ip, cmsg)) {
 #ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[%s][DyscoAgentOut-Control]: It's the left anchor.\n", ns.c_str());
+		fprintf(stderr, "[%s][DyscoAgentOut-Control] It's the left anchor.\n", ns.c_str());
 #endif
 		DyscoHashOut* old_dcb;
 		DyscoHashOut* new_dcb;
