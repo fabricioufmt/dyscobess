@@ -828,7 +828,7 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 		cb_in->in_iseq = rcb->leftIseq;
 		cb_in->in_iack = rcb->leftIack;
 #ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->in_iseq: %X before call control_config_rightA\n", cb_in->in_iseq);
+		fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->in_iseq: %X before call control_config_rightA\n", ns.c_str(), cb_in->in_iseq);
 #endif
 		cb_in->is_reconfiguration = 1;
 		memcpy(&cb_in->cmsg, cmsg, sizeof(DyscoControlMessage));
