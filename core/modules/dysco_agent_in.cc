@@ -145,10 +145,7 @@ void DyscoAgentIn::ProcessBatch(bess::PacketBatch* batch) {
 }
 
 bool DyscoAgentIn::get_port_information() {
-	//if(info_flag)
-	//	return true;
-	
-	gate_idx_t ogate_idx = 0; //always 1 output gate (DyscoPortOut)
+	gate_idx_t ogate_idx = 0;
 
 	if(!is_active_gate<bess::OGate>(ogates(), ogate_idx))
 		return false;
@@ -167,7 +164,6 @@ bool DyscoAgentIn::get_port_information() {
 		return false;
 
 	info_flag = true;
-	//memcpy(ns, dysco_vport->ns, sizeof(ns));
 	ns = dysco_vport->ns;
 	devip = dysco_vport->devip;
 	netns_fd_ = dysco_vport->netns_fd_;
@@ -228,9 +224,6 @@ bool DyscoAgentIn::in_hdr_rewrite(Ipv4* ip, Tcp* tcp, DyscoTcpSession* sup) {
 
 //L.327
 bool DyscoAgentIn::in_rewrite_seq(Tcp* tcp, DyscoHashIn* cb_in) {
-#ifdef DEBUG_RECONFIG
-	fprintf(stderr, "[%s][DyscoAgentIn-Control] in_rewrite_seq method\n", ns.c_str());
-#endif
 	if(!cb_in) {
 #ifdef DEBUG_RECONFIG
 		fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in is NULL\n", ns.c_str());
@@ -243,15 +236,15 @@ bool DyscoAgentIn::in_rewrite_seq(Tcp* tcp, DyscoHashIn* cb_in) {
 		uint32_t seq = tcp->seq_num.value();
 
 		if(cb_in->seq_add)
-			new_seq = seq + ntohl(cb_in->seq_delta);
+			new_seq = seq + cb_in->seq_delta;
 		else
-			new_seq = seq - ntohl(cb_in->seq_delta);
+			new_seq = seq - cb_in->seq_delta;
 
 #ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[%s][DyscoAgentIn-Control] old seq: %x, new seq: %x\n", ns.c_str(), seq, new_seq);
+		fprintf(stderr, "[%s][DyscoAgentIn-Control] old seq: %X, new seq: %X, seq_delta: %u (int)\n", ns.c_str(), seq, new_seq, cb_in->seq_delta);
 #endif
 		
-		tcp->seq_num = be32_t(new_seq);
+		tcp->seq_num = be32_t(htonl(new_seq));
 		
 		return true;
 	}
@@ -264,13 +257,7 @@ bool DyscoAgentIn::in_rewrite_seq(Tcp* tcp, DyscoHashIn* cb_in) {
 
 //L.355
 bool DyscoAgentIn::in_rewrite_ack(Tcp* tcp, DyscoHashIn* cb_in) {
-#ifdef DEBUG_RECONFIG
-	fprintf(stderr, "[%s][DyscoAgentIn-Control] in_rewrite_ack method\n", ns.c_str());
-#endif
 	if(!cb_in) {
-#ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in is NULL\n", ns.c_str());
-#endif
 		return false;
 	}
 
@@ -279,19 +266,19 @@ bool DyscoAgentIn::in_rewrite_ack(Tcp* tcp, DyscoHashIn* cb_in) {
 		uint32_t ack = tcp->ack_num.value();
 
 		if(cb_in->ack_add)
-			new_ack = ack + ntohl(cb_in->ack_delta);
+			new_ack = ack + cb_in->ack_delta;
 		else
-			new_ack = ack - ntohl(cb_in->ack_delta);
+			new_ack = ack - cb_in->ack_delta;
 
 		//TODO
 		//if(cb_in->sack_ok)
 		//	dc->tcp_sack(tcp, cb_in);
 
 #ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[%s][DyscoAgentIn-Control] old ack: %x, new ack: %x\n", ns.c_str(), ack, new_ack);
+		fprintf(stderr, "[%s][DyscoAgentIn-Control] old ack: %X, new ack: %X, ack_delta\n", ns.c_str(), ack, new_ack, cb_in->ack_delta);
 #endif
 		
-		tcp->ack_num = be32_t(new_ack);
+		tcp->ack_num = be32_t(htonl(new_ack));
 
 		return true;
 	}
@@ -314,9 +301,9 @@ bool DyscoAgentIn::in_rewrite_ts(Tcp* tcp, DyscoHashIn* cb_in) {
 	uint32_t new_ts, new_tsr;
 	if(cb_in->ts_delta) {
 		if(cb_in->ts_add)
-			new_ts = ntohl(ts->ts) + ntohl(cb_in->ts_delta);
+			new_ts = ntohl(ts->ts) + cb_in->ts_delta;
 		else
-			new_ts = ntohl(ts->ts) - ntohl(cb_in->ts_delta);
+			new_ts = ntohl(ts->ts) - cb_in->ts_delta;
 
 		new_ts = htonl(new_ts);
 		ts->ts = new_ts;
@@ -326,9 +313,9 @@ bool DyscoAgentIn::in_rewrite_ts(Tcp* tcp, DyscoHashIn* cb_in) {
 
 	if(cb_in->tsr_delta) {
 		if(cb_in->tsr_add)
-			new_tsr = ntohl(ts->tsr) + ntohl(cb_in->tsr_delta);
+			new_tsr = ntohl(ts->tsr) + cb_in->tsr_delta;
 		else
-			new_tsr = ntohl(ts->tsr) - ntohl(cb_in->tsr_delta);
+			new_tsr = ntohl(ts->tsr) - cb_in->tsr_delta;
 
 		new_tsr = htonl(new_tsr);
 		ts->tsr = new_tsr;
@@ -348,8 +335,8 @@ bool DyscoAgentIn::in_rewrite_rcv_wnd(Tcp* tcp, DyscoHashIn* cb_in) {
 		uint16_t new_win;
 		uint32_t wnd = tcp->window.value();
 
-		wnd <<= ntohl(cb_in->ws_in);
-		wnd >>= ntohl(cb_in->ws_out);
+		wnd <<= cb_in->ws_in;
+		wnd >>= cb_in->ws_out;
 		new_win = htons(wnd);
 		new_win = ntohs(new_win);
 		tcp->window = be16_t(new_win);
@@ -431,11 +418,11 @@ bool DyscoAgentIn::in_two_paths_ack(Tcp* tcp, DyscoHashIn* cb_in) {
 	if(cb_out->old_path) {
 		if(cb_out->state_t) {
 			if(cb_out->state == DYSCO_ESTABLISHED)
-				cb_in->two_paths = false;
+				cb_in->two_paths = 0;
 		} else {
 			if(!dc->after(cb_out->seq_cutoff, ack_seq)) {
-				cb_out->use_np_seq = true;
-				cb_in->two_paths = false;
+				cb_out->use_np_seq = 1;
+				cb_in->two_paths = 0;
 			}
 		}
 	} else {
@@ -444,11 +431,11 @@ bool DyscoAgentIn::in_two_paths_ack(Tcp* tcp, DyscoHashIn* cb_in) {
 			return false;
 
 		if(cb_out->state_t && cb_out->state == DYSCO_ESTABLISHED)
-			cb_in->two_paths = false;
+			cb_in->two_paths = 0;
 		else {
 			if(!dc->after(cb_out->seq_cutoff, ack_seq)) {
-				cb_out->use_np_seq = true;
-				cb_in->two_paths = false;
+				cb_out->use_np_seq = 1;
+				cb_in->two_paths = 0;
 			}
 		}
 	}
@@ -538,13 +525,13 @@ bool DyscoAgentIn::input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 	
 	//in_hdr_rewrite_csum(ip, tcp, &cb_in->sup);
 	//TEST
-	cb_in->in_iseq = htonl(tcp->seq_num.value());
-	cb_in->in_iack = htonl(tcp->ack_num.value());
+	//cb_in->in_iseq = htonl(tcp->seq_num.value());
+	//cb_in->in_iack = htonl(tcp->ack_num.value());
 
 #ifdef DEBUG
-	fprintf(stderr, "[%s][DyscoAgentIn] updating cb_in->in_seq = %u.\n", ns.c_str(),
+	fprintf(stderr, "[%s][DyscoAgentIn] cb_in->in_seq = %u.\n", ns.c_str(),
 		tcp->seq_num.value());
-	fprintf(stderr, "[%s][DyscoAgentIn] updating cb_in->in_ack = %u.\n", ns.c_str(),
+	fprintf(stderr, "[%s][DyscoAgentIn] cb_in->in_ack = %u.\n", ns.c_str(),
 		tcp->ack_num.value());
 #endif
 	
@@ -573,8 +560,8 @@ DyscoCbReconfig* DyscoAgentIn::insert_rcb_control_input(Ipv4* ip, Tcp* tcp, Dysc
 	//rcb->sub_in.dport = cmsg->dport;
 	rcb->sub_out.sip = 0;
 
-	rcb->leftIseq = cmsg->leftIseq;
-	rcb->leftIack = cmsg->leftIack;
+	rcb->leftIseq = ntohl(cmsg->leftIseq);
+	rcb->leftIack = ntohl(cmsg->leftIack);
 
 #ifdef DEBUG_RECONFIG
 	fprintf(stderr, "[%s][DyscoAgentIn-Control] cmsg->leftIseq = %u\n",
@@ -583,25 +570,18 @@ DyscoCbReconfig* DyscoAgentIn::insert_rcb_control_input(Ipv4* ip, Tcp* tcp, Dysc
 		ns.c_str(), ntohl(cmsg->leftIack));
 #endif
 	
-	rcb->leftIts = cmsg->leftIts;
-	rcb->leftItsr = cmsg->leftItsr;
+	rcb->leftIts = ntohl(cmsg->leftIts);
+	rcb->leftItsr = ntohl(cmsg->leftItsr);
 
-	rcb->leftIws = cmsg->leftIws;
-	rcb->leftIwsr = cmsg->leftIwsr;
+	rcb->leftIws = ntohl(cmsg->leftIws);
+	rcb->leftIwsr = ntohl(cmsg->leftIwsr);
 
-	rcb->sack_ok = cmsg->sackOk;
+	rcb->sack_ok = ntohl(cmsg->sackOk);
 	
 	if(!dc->insert_hash_reconfig(this->index, rcb)) {
 		delete rcb;
 		return 0;
 	}
-
-	DyscoCbReconfig* rcb2 = dc->lookup_reconfig_by_ss(this->index, &rcb->super);
-	if(!rcb2)
-		fprintf(stderr, "rcb2 dentro do insert_rcb_control_input eh null\n");
-	else
-		fprintf(stderr, "[%s][DyscoAgentIn-Control] Inserting rcb(arg): %p (super: %s) e rcb2(lookup): %p\n",
-			ns.c_str(), rcb, print_ss1(rcb->super), rcb2);
 	
 	return rcb;
 }
@@ -799,14 +779,14 @@ bool DyscoAgentIn::control_config_rightA(DyscoCbReconfig* rcb, DyscoControlMessa
 	rcb->new_dcb = cb_out;
 	rcb->old_dcb = old_out;
 	cb_out->other_path = old_out;
-	
+	/*	
 #ifdef DEBUG_RECONFIG
 	fprintf(stderr, "[%s][DyscoAgentIn-Control] setting old_dcb[%p] on rcb[%p](super: %s)\n", ns.c_str(), rcb->old_dcb, rcb, print_ss1(rcb->super));
 	fprintf(stderr, "old_dcb->sub: %s\n", print_ss1(rcb->old_dcb->sub));
 	fprintf(stderr, "new_dcb->sub: %s\n", print_ss1(rcb->new_dcb->sub));
 	fprintf(stderr, "[%s][DyscoAgentIn-Control] setting other_path[%p] on cb_out[%p]\n", ns.c_str(), cb_out->other_path, cb_out);
 #endif
-
+	*/
 	if(cmsg->semantic == STATE_TRANSFER)
 		old_out->state_t = true;
 	
@@ -816,9 +796,8 @@ bool DyscoAgentIn::control_config_rightA(DyscoCbReconfig* rcb, DyscoControlMessa
 CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, uint8_t*, DyscoCbReconfig* rcb, DyscoControlMessage* cmsg) {
 #ifdef DEBUG_RECONFIG
 	fprintf(stderr, "[%s][DyscoAgentIn-Control] control_reconfig_in method\n", ns.c_str());
-	fprintf(stderr, "[%s][DyscoAgentIn-Control] created rcb: [%p](super: %s)\n", ns.c_str(), rcb, print_ss1(rcb->super));
-
-	fprintf(stderr, "rcb->leftIseq: %u and rcb->leftIack: %u\n", rcb->leftIseq, rcb->leftIack);
+	fprintf(stderr, "[%s][DyscoAgentIn-Control] created rcb(super: %s)\n", ns.c_str(), print_ss1(rcb->super));
+	fprintf(stderr, "[%s][DyscoAgentIn-Control] rcb->leftIseq: %X and rcb->leftIack: %X\n", rcb->leftIseq, rcb->leftIack);
 #endif
 	
 	DyscoHashIn* cb_in;
@@ -838,7 +817,7 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 		
 		cb_in->in_iseq = rcb->leftIseq;
 		cb_in->in_iack = rcb->leftIack;
-		cb_in->two_paths = false;
+		cb_in->two_paths = 0;
 	} else {
 #ifdef DEBUG_RECONFIG
 		fprintf(stderr, "[%s][DyscoAgentIn-Control] It's the right anchor.\n",
@@ -848,7 +827,9 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 		cb_in->sub = rcb->sub_in;
 		cb_in->in_iseq = rcb->leftIseq;
 		cb_in->in_iack = rcb->leftIack;
-		fprintf(stderr, "cb_in->iniseq: %u before call control_config_rightA\n", cb_in->in_iseq);
+#ifdef DEBUG_RECONFIG
+		fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->in_iseq: %X before call control_config_rightA\n", cb_in->in_iseq);
+#endif
 		cb_in->is_reconfiguration = 1;
 		memcpy(&cb_in->cmsg, cmsg, sizeof(DyscoControlMessage));
 		cb_out = build_cb_in_reverse(ip, rcb);
@@ -878,6 +859,11 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 		DyscoHashOut* old_out = rcb->old_dcb;
 		DyscoHashOut* new_out = rcb->new_dcb;
 		uint32_t seq_cutoff = old_out->seq_cutoff;
+
+#ifdef DEBUG_RECONFIG
+		fprintf(stderr, "[%s][DyscoAgentIn-Control] old_out->seq_cutoff = %X.\n", ns.c_str(), seq_cutoff);
+#endif
+		
 		old_out->old_path = 1;
 		old_out->state = DYSCO_SYN_RECEIVED;
 		old_out->other_path = new_out;
@@ -887,11 +873,12 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 		else
 			seq_cutoff -= new_out->seq_delta;
 
+		//Not necessary
 		cmsg->seqCutoff = htonl(seq_cutoff);
 		
 		cb_in->in_iseq = rcb->leftIseq;
 		cb_in->in_iack = rcb->leftIack;
-		cb_in->two_paths = false;
+		cb_in->two_paths = 0;
 
 		if(!dc->insert_hash_input(this->index, cb_in)) {
 #ifdef DEBUG_RECONFIG
