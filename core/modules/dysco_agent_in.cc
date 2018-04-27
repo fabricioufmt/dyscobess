@@ -1031,7 +1031,17 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 				return END;
 			}
 
+
+#ifdef DEBUG_RECONFIG
+			fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->in_iseq = %X, cb_in->in_iack = %X.\n", ns.c_str(), cb_in->in_iseq, cb_in->in_iack);
+			fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->out_iseq = %X, cb_in->out_iack = %X.\n", ns.c_str(), cb_in->out_iseq, cb_in->out_iack);
+			fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_out->in_iseq = %X, cb_out->in_iack = %X.\n", ns.c_str(), cb_out->in_iseq, cb_out->in_iack);
+			fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_out->out_iseq = %X, cb_out->out_iack = %X.\n", ns.c_str(), cb_out->out_iseq, cb_out->out_iack);
+#endif
+			
+			//not necessary
 			cb_out->ack_cutoff = cmsg->seqCutoff;
+			
 			cb_out->valid_ack_cut = 1;
 
 			// SEND ACK MESSAGE
