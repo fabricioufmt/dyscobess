@@ -49,6 +49,7 @@ DyscoAgentOut::DyscoAgentOut() : Module() {
 
 	netns_fd_ = 0;
 	info_flag = false;
+}
 
 bool DyscoAgentOut::insert_metadata(bess::Packet* pkt) {
 	uint32_t* metadata = (uint32_t*) _ptr_attr_with_offset<uint8_t>(0, pkt);
