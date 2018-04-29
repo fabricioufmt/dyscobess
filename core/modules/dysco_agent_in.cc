@@ -1031,6 +1031,9 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 				return END;
 			}
 
+			//TEST
+			cb_in->in_iseq = htonl(tcp->seq_num.value());
+			cb_in->in_iack = htonl(tcp->ack_num.value());
 
 #ifdef DEBUG_RECONFIG
 			fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->in_iseq = %X, cb_in->in_iack = %X.\n", ns.c_str(), cb_in->in_iseq, cb_in->in_iack);
@@ -1085,12 +1088,6 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 #ifdef DEBUG_RECONFIG
 			fprintf(stderr, "[%s][DyscoAgentIn-Control]: It isn't left anchor.\n", ns.c_str());
 #endif		
-			//TEST
-			DyscoHashIn* cb_in2 = dc->lookup_input(this->index, ip, tcp);
-
-			if(!cb_in2)
-				return ERROR;
-
 			set_ack_number_out(this->index, tcp, cb_in2);
 			in_hdr_rewrite_csum(ip, tcp, cb_in2);
 
