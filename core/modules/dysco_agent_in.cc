@@ -1088,8 +1088,8 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 #ifdef DEBUG_RECONFIG
 			fprintf(stderr, "[%s][DyscoAgentIn-Control]: It isn't left anchor.\n", ns.c_str());
 #endif		
-			set_ack_number_out(this->index, tcp, cb_in2);
-			in_hdr_rewrite_csum(ip, tcp, cb_in2);
+			set_ack_number_out(this->index, tcp, cb_in);
+			in_hdr_rewrite_csum(ip, tcp, cb_in);
 
 			return TO_GATE_0;
 		}
