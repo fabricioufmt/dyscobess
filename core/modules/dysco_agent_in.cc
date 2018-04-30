@@ -599,8 +599,9 @@ DyscoHashOut* DyscoAgentIn::build_cb_in_reverse(Ipv4* ip, DyscoCbReconfig* rcb) 
 	cb_out->sub.sport = rcb->sub_in.dport;
 	cb_out->sub.dport = rcb->sub_in.sport;
 
-	cb_out->out_iseq = cb_out->in_iseq = rcb->leftIack;
-	cb_out->out_iack = cb_out->in_iack = rcb->leftIseq;
+	//TEST
+	//cb_out->out_iseq = cb_out->in_iseq = rcb->leftIack;
+	//cb_out->out_iack = cb_out->in_iack = rcb->leftIseq;
 
 	return cb_out;
 }
@@ -850,11 +851,12 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 #endif	
 		cb_in = new DyscoHashIn();
 		cb_in->sub = rcb->sub_in;
-		cb_in->in_iseq = rcb->leftIseq;
-		cb_in->in_iack = rcb->leftIack;
-#ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->in_iseq: %X before call control_config_rightA\n", ns.c_str(), cb_in->in_iseq);
-#endif
+		//TEST
+		//cb_in->in_iseq = rcb->leftIseq;
+		//cb_in->in_iack = rcb->leftIack;
+		cb_in->in_iseq = tcp->seq_num.value();
+		cb_in->in_iack = tcp->ack_num.value();
+		
 		cb_in->is_reconfiguration = 1;
 		memcpy(&cb_in->cmsg, cmsg, sizeof(DyscoControlMessage));
 		cb_out = build_cb_in_reverse(ip, rcb);
@@ -869,6 +871,12 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 			
 			return ERROR;
 		}
+
+		//TEST //TODO //Ronaldo
+		create_synack(pkt, ip, tcp);
+
+		cb_out->out_iseq = tcp->seq_num.value();
+		cb_out->out_iack = tcp->ack_num.value();
 		
 		cb_out->is_reconfiguration = 1;
 		cb_out->dcb_in = cb_in;
@@ -877,9 +885,6 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 		if(!control_config_rightA(rcb, cmsg, cb_in, cb_out))
 			return ERROR;
 		
-		//TEST //TODO //Ronaldo
-		create_synack(pkt, ip, tcp);
-
 		//replace_cb_rightA from control_output
 		DyscoHashOut* old_out = rcb->old_dcb;
 		DyscoHashOut* new_out = rcb->new_dcb;
