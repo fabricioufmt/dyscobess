@@ -296,6 +296,8 @@ bool DyscoAgentOut::out_rewrite_rcv_wnd(Tcp* tcp, DyscoHashOut* cb_out) {
 
 //L.492
 DyscoHashOut* DyscoAgentOut::pick_path_seq(DyscoHashOut* cb_out, uint32_t seq) {
+	DyscoHashOut* cb = cb_out;
+	
 	if(cb_out->state_t) {
 #ifdef DEBUG_RECONFIG
 		fprintf(stderr, "[%s][DyscoAgentOut-Control] cb_out->state_t == 1\n", ns.c_str());
@@ -304,18 +306,18 @@ DyscoHashOut* DyscoAgentOut::pick_path_seq(DyscoHashOut* cb_out, uint32_t seq) {
 #ifdef DEBUG_RECONFIG
 			fprintf(stderr, "[%s][DyscoAgentOut-Control] cb_out->state == DYSCO_ESTABLISHED\n", ns.c_str());
 #endif	
-			cb_out = cb_out->other_path;
+			cb = cb_out->other_path;
 		}
 	} else if(cb_out->use_np_seq) {
-		cb_out = cb_out->other_path;
+		cb = cb_out->other_path;
 #ifdef DEBUG_RECONFIG
 		fprintf(stderr, "[%s][DyscoAgentOut-Control] cb_out->use_np_seq == 1\n", ns.c_str());
 #endif	
 	} else if(!dc->before(seq, cb_out->seq_cutoff)) {
 #ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[%s][DyscoAgentOut-Control] before(seq, cb_out->seq_cutoff)[%u and %u] == false (going to other_path)\n", ns.c_str(), seq, cb_out->seq_cutoff);
+		fprintf(stderr, "[%s][DyscoAgentOut-Control] before(seq, cb_out->seq_cutoff)[%X and %X] == false (going to other_path)\n", ns.c_str(), seq, cb_out->seq_cutoff);
 #endif	
-		cb_out = cb_out->other_path;
+		cb = cb_out->other_path;
 	}
 
 #ifdef DEBUG_RECONFIG
@@ -326,22 +328,23 @@ DyscoHashOut* DyscoAgentOut::pick_path_seq(DyscoHashOut* cb_out, uint32_t seq) {
 	fprintf(stderr, "[%s][DyscoAgentOut-Control] Sequence numbers of cb_out->other_path->in_iseq = %X and cb_out->other_path->out_iseq = %X.\n", ns.c_str(), cb_out->other_path->in_iseq, cb_out->other_path->out_iseq);
 #endif	
 	
-	return cb_out;
+	return cb;
 }
 
 //L.519
 DyscoHashOut* DyscoAgentOut::pick_path_ack(Tcp* tcp, DyscoHashOut* cb_out) {
+	DyscoHashOut* cb = cb_out;
 	uint32_t ack = tcp->ack_num.value();
 
 	if(cb_out->state_t) {
 		if(cb_out->state == DYSCO_ESTABLISHED)
-			cb_out = cb_out->other_path;
+			cb = cb_out->other_path;
 	} else if(cb_out->valid_ack_cut) {
 		if(cb_out->use_np_ack) {
-			cb_out = cb_out->other_path;
+			cb = cb_out->other_path;
 		} else if(!dc->after(cb_out->ack_cutoff, ack)) {
 			if(tcp->flags & Tcp::kFin)
-				cb_out = cb_out->other_path;
+				cb = cb_out->other_path;
 			else {
 				tcp->ack_num = be32_t(cb_out->ack_cutoff);
 				cb_out->ack_ctr++;
@@ -351,7 +354,7 @@ DyscoHashOut* DyscoAgentOut::pick_path_ack(Tcp* tcp, DyscoHashOut* cb_out) {
 		}
 	}
 
-	return cb_out;
+	return cb;
 }
 
 //L.585
