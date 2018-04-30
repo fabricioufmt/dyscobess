@@ -696,7 +696,7 @@ bool DyscoAgentIn::compute_deltas_out(DyscoHashOut* cb_out, DyscoHashOut* old_ou
 	fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_out->in_iseq: %X.\n", ns.c_str(), cb_out->in_iseq);
 	fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_out->in_iack: %X.\n", ns.c_str(), cb_out->in_iack);
 	fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_out->out_iseq: %X.\n", ns.c_str(), cb_out->out_iseq);
-	fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_out->out_iack: %X.\n", ns.c_str(), cb_out>out_iack);
+	fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_out->out_iack: %X.\n", ns.c_str(), cb_out->out_iack);
 	fprintf(stderr, "[%s][DyscoAgentIn-Control] old_out->in_iseq: %X.\n", ns.c_str(), old_out->in_iseq);
 	fprintf(stderr, "[%s][DyscoAgentIn-Control] old_out->in_iack: %X.\n", ns.c_str(), old_out->in_iack);
 	fprintf(stderr, "[%s][DyscoAgentIn-Control] old_out->out_iseq: %X.\n", ns.c_str(), old_out->out_iseq);
