@@ -1027,9 +1027,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 			fprintf(stderr, "[%s][DyscoAgentIn-Control]: It's the left anchor.\n", ns.c_str());
 #endif
 			//DyscoHashOut* cb_out = dc->lookup_output_by_ss(this->index, &cmsg->leftSS);
-
 			//DyscoHashOut* cb_out = dc->lookup_output(this->index, ip, tcp);
-
 			DyscoHashOut* cb_out = cb_in->dcb_out;
 			
 			if(!cb_out) {
@@ -1053,6 +1051,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 
 #ifdef DEBUG_RECONFIG
 			fprintf(stderr, "[%s][DyscoAgentIn-Control] IMPORTANT\n", ns.c_str());
+			fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in (sub_in: %s)\n", ns.c_str(), print_ss1(cb_in->sub));
 			fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->in_iseq = %X, cb_in->in_iack = %X.\n", ns.c_str(), cb_in->in_iseq, cb_in->in_iack);
 			fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->out_iseq = %X, cb_in->out_iack = %X.\n", ns.c_str(), cb_in->out_iseq, cb_in->out_iack);
 			fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_out->in_iseq = %X, cb_out->in_iack = %X.\n", ns.c_str(), cb_out->in_iseq, cb_out->in_iack);
@@ -1172,6 +1171,11 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 #endif
 			new_out = old_out->other_path;
 			old_out_ack_cutoff = cmsg->seqCutoff;
+
+#ifdef DEBUG_RECONFIG
+			fprintf(stderr, "[%s][DyscoAgentIn-Control] cmsg->seqCutoff: %X.\n" ns.c_str(), ntohl(cmsg->seqCutoff));
+#endif
+			
 			if(new_out->in_iack < new_out->out_iack) {
 				uint32_t delta = new_out->out_iack - new_out->in_iack;
 				old_out_ack_cutoff += delta;
