@@ -1046,7 +1046,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 			}
 
 			//TEST
-			//cb_in->in_iseq = htonl(tcp->seq_num.value());
+			cb_in->in_iseq = tcp->seq_num.value();
 			//cb_in->in_iack = htonl(tcp->ack_num.value());
 
 #ifdef DEBUG_RECONFIG
