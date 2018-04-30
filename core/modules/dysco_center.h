@@ -195,6 +195,9 @@ class DyscoHashIn {
 	
 	uint32_t skb_iif;
 
+	uint32_t lastSeq_ho;
+	uint32_t lastAck_ho;
+	
 	uint32_t is_reconfiguration; //could be smaller
 	DyscoControlMessage cmsg;
 };
@@ -250,6 +253,9 @@ class DyscoHashOut {
 	
 	uint32_t ack_ctr;
 
+	uint32_t lastSeq_ho;
+	uint32_t lastAck_ho;
+	
 	uint32_t is_reconfiguration; //could be smaller
 	DyscoControlMessage cmsg;
 };

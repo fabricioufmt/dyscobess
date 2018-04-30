@@ -527,6 +527,9 @@ bool DyscoAgentOut::output(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 	//		fix_rcv_window(cb_out);
 	//L.1462 -- dysco_output.c ???
 
+	cb_out->lastSeq_ho = tcp->seq_num.value();
+	cb_out->lastAck_ho = tcp->ack_num.value();
+	
 	out_translate(pkt, ip, tcp, cb_out);
 
 	return true;
@@ -690,9 +693,15 @@ bool DyscoAgentOut::control_output_syn(Ipv4* ip, Tcp* tcp, DyscoControlMessage* 
 		cmsg->leftIack = htonl(old_dcb->out_iack);
 
 #ifdef DEBUG_RECONFIG
+		fprintf(stderr, "[%s][DyscoAgentOut-Control] FILL CMSG TO SEND\n", ns.c_str());
+		fprintf(stderr, "[%s][DyscoAgentOut-Control] old_dcb->lastSeq_ho = %X\n", ns.c_str(), old_dcb->lastSeq_ho);
+		fprintf(stderr, "[%s][DyscoAgentOut-Control] old_dcb->lastAck_ho = %X\n", ns.c_str(), old_dcb->lastAck_ho);
 		fprintf(stderr, "[%s][DyscoAgentOut-Control] cmsg->leftIseq (old_dcb->out_iseq) = %X\n", ns.c_str(), old_dcb->out_iseq);
 		fprintf(stderr, "[%s][DyscoAgentOut-Control] cmsg->leftIack (old_dcb->out_iack) = %X\n", ns.c_str(), old_dcb->out_iack);
 #endif
+
+		cmsg->seq_cutoff = htonl(old_dcb->lastSeq_ho);
+		
 		cmsg->leftIts = htonl(old_dcb->ts_in);
 		cmsg->leftItsr = htonl(old_dcb->tsr_in);
 

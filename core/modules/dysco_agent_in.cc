@@ -385,6 +385,9 @@ bool DyscoAgentIn::rx_initiation_new(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 		DyscoHashIn* cb_in = dc->insert_cb_input(this->index, ip, tcp, payload, payload_sz);
 		if(!cb_in)
 			return false;
+
+		cb_in->lastSeq_ho = tcp->seq_num.value();
+		cb_in->lastAck_ho = tcp->ack_num.value();
 		
 		remove_sc(pkt, ip, tcp);
 		dc->parse_tcp_syn_opt_r(tcp, cb_in);
@@ -496,6 +499,10 @@ bool DyscoAgentIn::input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 		return false;
 	}
 
+	//TEST
+	cb_in->lastSeq_ho = tcp->seq_num.value();
+	cb_in->lastAck_ho = tcp->ack_num.value();
+	
 	if(isTCPSYN(tcp)) {
 		if(isTCPACK(tcp)) {
 			set_ack_number_out(this->index, tcp, cb_in);
@@ -1049,6 +1056,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 
 			//TEST
 			cb_in->in_iseq = tcp->seq_num.value();
+			cb_out->out_iack = cb_in->in_iseq;
 			//cb_in->in_iack = htonl(tcp->ack_num.value());
 
 #ifdef DEBUG_RECONFIG

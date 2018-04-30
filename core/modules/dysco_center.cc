@@ -651,8 +651,12 @@ DyscoHashOut* DyscoCenter::out_syn(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp*
 
 		insert_cb_out(i, cb_out, 0);
 	}
+	//ASK to Ronaldo
+	//cb_out->seq_cutoff = tcp->seq_num.value();
 
-	cb_out->seq_cutoff = tcp->seq_num.value();
+	cb_out->lastSeq_ho = tcp->seq_num.value();
+	cb_out->lastAck_ho = tcp->ack_num.value();
+	
 #ifdef DEBUG_RECONFIG
 	fprintf(stderr, "[DyscoCenter] (%s) cb_out->seq_cutoff = %X.\n", print_ss0(cb_out->sub), cb_out->seq_cutoff);
 #endif
@@ -1023,6 +1027,9 @@ bool DyscoCenter::out_handle_mb(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp* tc
 	add_sc(pkt, ip, cb_out);
 	fix_tcp_ip_csum(ip, tcp);
 
+	//TEST
+	cb_out->lastSeq_ho = tcp->seq_num.value();
+	cb_out->lastAck_ho = tcp->seq_ack.value();
 	return true;
 }
 
