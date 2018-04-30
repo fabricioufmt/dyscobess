@@ -1104,7 +1104,7 @@ DyscoHashIn* DyscoCenter::insert_cb_out_reverse(uint32_t i, DyscoHashOut* cb_out
 }
 
 
-bool DyscoCenter::out_hdr_rewrite(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoTcpSession* sub) {
+bool DyscoCenter::out_hdr_rewrite(bess::Packet*, Ipv4* ip, Tcp* tcp, DyscoTcpSession* sub) {
 	if(!sub)
 		return false;
 
