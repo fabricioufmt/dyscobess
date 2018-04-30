@@ -321,6 +321,7 @@ DyscoHashOut* DyscoAgentOut::pick_path_seq(DyscoHashOut* cb_out, uint32_t seq) {
 #ifdef DEBUG_RECONFIG
 	fprintf(stderr, "[%s][DyscoAgentOut-Control] seq: %X.\n", ns.c_str(), seq);
 	fprintf(stderr, "[%s][DyscoAgentOut-Control] cb_out->seq_cutoff: %X.\n", ns.c_str(), cb_out->seq_cutoff);
+	fprintf(stderr, "[%s][DyscoAgentOut-Control] cb_out->other_path->seq_cutoff: %X.\n", ns.c_str(), cb_out->other_path->seq_cutoff);
 	fprintf(stderr, "[%s][DyscoAgentOut-Control] Sequence numbers of cb_out->in_iseq = %X and cb_out->out_iseq = %X.\n", ns.c_str(), cb_out->in_iseq, cb_out->out_iseq);
 	fprintf(stderr, "[%s][DyscoAgentOut-Control] Sequence numbers of cb_out->other_path->in_iseq = %X and cb_out->other_path->out_iseq = %X.\n", ns.c_str(), cb_out->other_path->in_iseq, cb_out->other_path->out_iseq);
 #endif	
