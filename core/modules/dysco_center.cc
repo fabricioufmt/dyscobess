@@ -1070,6 +1070,9 @@ DyscoHashIn* DyscoCenter::insert_cb_out_reverse(uint32_t i, DyscoHashOut* cb_out
 	cb_in->sup.sport = cb_out->sup.dport;
 	cb_in->sup.dport = cb_out->sup.sport;
 
+	//TEST
+	cb_in->in_iack = cb_out->out_iseq;
+	cb_in->in_iseq = cb_out->out_iack;
 	//cb_in->in_iack = cb_in->out_iack = cb_out->out_iseq;
 	//cb_in->in_iseq = cb_in->out_iseq = cb_out->out_iack;
 	if(cmsg) {

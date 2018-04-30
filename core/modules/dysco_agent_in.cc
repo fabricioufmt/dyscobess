@@ -858,10 +858,12 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 		//TEST //TODO //Ronaldo
 		create_synack(pkt, ip, tcp);
 
+		//TEST
 		cb_out->in_iseq = rcb->leftIack;
 		cb_out->in_iack = rcb->leftIseq;
 		cb_out->out_iseq = tcp->seq_num.value(); //new values due create_synack method (already switched)
 		cb_out->out_iack = tcp->ack_num.value(); //new values due create_synack method
+		cb_in->in_iack = cb_out->out_iack;
 		
 		cb_out->is_reconfiguration = 1;
 		cb_out->dcb_in = cb_in;
