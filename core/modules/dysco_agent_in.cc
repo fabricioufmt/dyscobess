@@ -620,13 +620,13 @@ bool DyscoAgentIn::compute_deltas_in(DyscoHashIn* cb_in, DyscoHashOut* old_out, 
 	fprintf(stderr, "[%s][DyscoAgentIn-Control] old_out->out_iack: %X.\n", ns.c_str(), old_out->out_iack);	
 #endif
 	if(cb_in->in_iseq < cb_in->out_iseq) {
-		cb_in->seq_delta = ntohl(cb_in->out_iseq - cb_in->in_iseq);
+		cb_in->seq_delta = cb_in->out_iseq - cb_in->in_iseq;
 #ifdef DEBUG_RECONFIG
 		fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->seq_delta1 = %u (%X - %X).\n", ns.c_str(), cb_in->seq_delta, cb_in->out_iseq, cb_in->in_iseq);
 #endif
 		cb_in->seq_add = 1;
 	} else {
-		cb_in->seq_delta = ntohl(cb_in->in_iseq - cb_in->out_iseq);
+		cb_in->seq_delta = cb_in->in_iseq - cb_in->out_iseq;
 #ifdef DEBUG_RECONFIG
 		fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->seq_delta2 = %u (%X - %X).\n", ns.c_str(), cb_in->seq_delta, cb_in->in_iseq, cb_in->out_iseq);
 #endif
@@ -634,10 +634,10 @@ bool DyscoAgentIn::compute_deltas_in(DyscoHashIn* cb_in, DyscoHashOut* old_out, 
 	}
 	
 	if(cb_in->in_iack < cb_in->out_iack) {
-		cb_in->ack_delta = ntohl(cb_in->out_iack - cb_in->in_iack);
+		cb_in->ack_delta = cb_in->out_iack - cb_in->in_iack;
 		cb_in->ack_add = 1;
 	} else {
-		cb_in->ack_delta = ntohl(cb_in->in_iack - cb_in->out_iack);
+		cb_in->ack_delta = cb_in->in_iack - cb_in->out_iack;
 		cb_in->ack_add = 0;
 	}
 
@@ -704,13 +704,13 @@ bool DyscoAgentIn::compute_deltas_out(DyscoHashOut* cb_out, DyscoHashOut* old_ou
 #endif
 	
 	if(cb_out->in_iseq < cb_out->out_iseq) {
-		cb_out->seq_delta = ntohl(cb_out->out_iseq - cb_out->in_iseq);
+		cb_out->seq_delta = cb_out->out_iseq - cb_out->in_iseq;
 #ifdef DEBUG_RECONFIG
 		fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_out->seq_delta1 = %u (%X - %X).\n", ns.c_str(), cb_out->seq_delta, cb_out->out_iseq, cb_out->in_iseq);
 #endif
 		cb_out->seq_add = 1;
 	} else {
-		cb_out->seq_delta = ntohl(cb_out->in_iseq - cb_out->out_iseq);
+		cb_out->seq_delta = cb_out->in_iseq - cb_out->out_iseq;
 #ifdef DEBUG_RECONFIG
 		fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_out->seq_delta2 = %u (%X - %X).\n", ns.c_str(), cb_out->seq_delta, cb_out->in_iseq, cb_out->out_iseq);
 #endif
@@ -718,10 +718,10 @@ bool DyscoAgentIn::compute_deltas_out(DyscoHashOut* cb_out, DyscoHashOut* old_ou
 	}
 
 	if(cb_out->in_iack < cb_out->out_iack) {
-		cb_out->ack_delta = ntohl(cb_out->out_iack - cb_out->in_iack);
+		cb_out->ack_delta = cb_out->out_iack - cb_out->in_iack;
 		cb_out->ack_add = 1;
 	} else {
-		cb_out->ack_delta = ntohl(cb_out->in_iack - cb_out->out_iack);
+		cb_out->ack_delta = cb_out->in_iack - cb_out->out_iack;
 		cb_out->ack_add = 0;
 	}
 
@@ -806,7 +806,7 @@ bool DyscoAgentIn::control_config_rightA(DyscoCbReconfig* rcb, DyscoControlMessa
 	cb_out->other_path = old_out;
 	
 	if(cmsg->semantic == STATE_TRANSFER)
-		old_out->state_t = true;
+		old_out->state_t = 1;
 	
 	return true;
 }
