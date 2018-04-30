@@ -677,6 +677,8 @@ bool DyscoAgentIn::compute_deltas_in(DyscoHashIn* cb_in, DyscoHashOut* old_out, 
 
 bool DyscoAgentIn::compute_deltas_out(DyscoHashOut* cb_out, DyscoHashOut* old_out, DyscoCbReconfig* rcb) {
 	//TEST
+	old_out->in_iseq = cb_out->in_iseq;
+	old_out->out_iseq = cb_out->in_iseq;
 	//cb_out->in_iseq = old_out->in_iseq;
 	//cb_out->in_iack = old_out->in_iack;
 
