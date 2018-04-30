@@ -609,6 +609,19 @@ bool DyscoAgentIn::compute_deltas_in(DyscoHashIn* cb_in, DyscoHashOut* old_out, 
 	cb_in->out_iseq = old_out->in_iack;
 	cb_in->out_iack = old_out->in_iseq;
 
+#ifdef DEBUG_RECONFIG
+	fprintf(stderr, "[%s][DyscoAgentIn-Control] compute_deltas_in.\n", ns.c_str());
+	fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->in_iseq: %X.\n", ns.c_str(), cb_in->in_iseq);
+	fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->in_iack: %X.\n", ns.c_str(), cb_in->in_iack);
+	fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->out_iseq: %X.\n", ns.c_str(), cb_in->out_iseq);
+	fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->out_iack: %X.\n", ns.c_str(), cb_in->out_iack);
+	fprintf(stderr, "[%s][DyscoAgentIn-Control] old_out->in_iseq: %X.\n", ns.c_str(), old_out->in_iseq);
+	fprintf(stderr, "[%s][DyscoAgentIn-Control] old_out->in_iack: %X.\n", ns.c_str(), old_out->in_iack);
+	fprintf(stderr, "[%s][DyscoAgentIn-Control] old_out->out_iseq: %X.\n", ns.c_str(), old_out->out_iseq);
+	fprintf(stderr, "[%s][DyscoAgentIn-Control] old_out->out_iack: %X.\n", ns.c_str(), old_out->out_iack);	
+#endif
+
+	
 	if(cb_in->in_iseq < cb_in->out_iseq) {
 		cb_in->seq_delta = ntohl(cb_in->out_iseq - cb_in->in_iseq);
 #ifdef DEBUG_RECONFIG
@@ -678,6 +691,18 @@ bool DyscoAgentIn::compute_deltas_out(DyscoHashOut* cb_out, DyscoHashOut* old_ou
 	cb_out->in_iseq = old_out->in_iseq;
 	cb_out->in_iack = old_out->in_iack;
 
+#ifdef DEBUG_RECONFIG
+	fprintf(stderr, "[%s][DyscoAgentIn-Control] compute_deltas_out.\n", ns.c_str());
+	fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_out->in_iseq: %X.\n", ns.c_str(), cb_out->in_iseq);
+	fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_out->in_iack: %X.\n", ns.c_str(), cb_out->in_iack);
+	fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_out->out_iseq: %X.\n", ns.c_str(), cb_out->out_iseq);
+	fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_out->out_iack: %X.\n", ns.c_str(), cb_out>out_iack);
+	fprintf(stderr, "[%s][DyscoAgentIn-Control] old_out->in_iseq: %X.\n", ns.c_str(), old_out->in_iseq);
+	fprintf(stderr, "[%s][DyscoAgentIn-Control] old_out->in_iack: %X.\n", ns.c_str(), old_out->in_iack);
+	fprintf(stderr, "[%s][DyscoAgentIn-Control] old_out->out_iseq: %X.\n", ns.c_str(), old_out->out_iseq);
+	fprintf(stderr, "[%s][DyscoAgentIn-Control] old_out->out_iack: %X.\n", ns.c_str(), old_out->out_iack);	
+#endif
+	
 	if(cb_out->in_iseq < cb_out->out_iseq) {
 		cb_out->seq_delta = ntohl(cb_out->out_iseq - cb_out->in_iseq);
 #ifdef DEBUG_RECONFIG
