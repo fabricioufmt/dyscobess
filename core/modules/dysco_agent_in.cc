@@ -1173,7 +1173,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 			old_out_ack_cutoff = cmsg->seqCutoff;
 
 #ifdef DEBUG_RECONFIG
-			fprintf(stderr, "[%s][DyscoAgentIn-Control] cmsg->seqCutoff: %X.\n" ns.c_str(), ntohl(cmsg->seqCutoff));
+			fprintf(stderr, "[%s][DyscoAgentIn-Control] cmsg->seqCutoff: %X.\n", ns.c_str(), ntohl(cmsg->seqCutoff));
 #endif
 			
 			if(new_out->in_iack < new_out->out_iack) {
