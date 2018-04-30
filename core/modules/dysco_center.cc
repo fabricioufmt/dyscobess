@@ -1073,6 +1073,22 @@ DyscoHashIn* DyscoCenter::insert_cb_out_reverse(uint32_t i, DyscoHashOut* cb_out
 	cb_in->in_iack = cb_in->out_iack = cb_out->out_iseq;
 	cb_in->in_iseq = cb_in->out_iseq = cb_out->out_iack;
 
+#ifdef DEBUG_RECONFIG
+	fprintf(stderr, "[DyscoCenter]: insert_cb_out_reverse.\n");
+	fprintf(stderr, "[DyscoCenter]: cb_in (sup: %s).\n", print_ss0(cb_in->sup));
+	fprintf(stderr, "[DyscoCenter]: cb_in (sub: %s).\n", print_ss0(cb_in->sub));
+	fprintf(stderr, "[DyscoCenter]: cb_in->in_iseq: %X.\n", cb_in->in_iseq);
+	fprintf(stderr, "[DyscoCenter]: cb_in->in_iack: %X.\n", cb_in->in_iack);
+	fprintf(stderr, "[DyscoCenter]: cb_in->out_iseq: %X.\n", cb_in->out_iseq);
+	fprintf(stderr, "[DyscoCenter]: cb_in->out_iack: %X.\n", cb_in->out_iack);
+	fprintf(stderr, "[DyscoCenter]: cb_out (sup: %s).\n", print_ss0(cb_out->sup));
+	fprintf(stderr, "[DyscoCenter]: cb_out (sub: %s).\n", print_ss0(cb_out->sub));
+	fprintf(stderr, "[DyscoCenter]: cb_out->in_iseq: %X.\n", cb_out->in_iseq);
+	fprintf(stderr, "[DyscoCenter]: cb_out->in_iack: %X.\n", cb_out->in_iack);
+	fprintf(stderr, "[DyscoCenter]: cb_out->out_iseq: %X.\n", cb_out->out_iseq);
+	fprintf(stderr, "[DyscoCenter]: cb_out->out_iack: %X.\n", cb_out->out_iack);
+#endif
+	
 	cb_in->seq_delta = cb_in->ack_delta = 0;
 
 	cb_in->ts_ok = cb_out->ts_ok;
