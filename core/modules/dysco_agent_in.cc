@@ -621,8 +621,6 @@ bool DyscoAgentIn::compute_deltas_in(DyscoHashIn* cb_in, DyscoHashOut* old_out, 
 	fprintf(stderr, "[%s][DyscoAgentIn-Control] old_out->out_iseq: %X.\n", ns.c_str(), old_out->out_iseq);
 	fprintf(stderr, "[%s][DyscoAgentIn-Control] old_out->out_iack: %X.\n", ns.c_str(), old_out->out_iack);	
 #endif
-
-	
 	if(cb_in->in_iseq < cb_in->out_iseq) {
 		cb_in->seq_delta = ntohl(cb_in->out_iseq - cb_in->in_iseq);
 #ifdef DEBUG_RECONFIG
@@ -636,7 +634,7 @@ bool DyscoAgentIn::compute_deltas_in(DyscoHashIn* cb_in, DyscoHashOut* old_out, 
 #endif
 		cb_in->seq_add = 0;
 	}
-
+	
 	if(cb_in->in_iack < cb_in->out_iack) {
 		cb_in->ack_delta = ntohl(cb_in->out_iack - cb_in->in_iack);
 		cb_in->ack_add = 1;
@@ -846,16 +844,13 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 		cb_in->two_paths = 0;
 	} else {
 #ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[%s][DyscoAgentIn-Control] It's the right anchor.\n",
-			ns.c_str());
+		fprintf(stderr, "[%s][DyscoAgentIn-Control] It's the right anchor.\n", ns.c_str());
 #endif	
 		cb_in = new DyscoHashIn();
 		cb_in->sub = rcb->sub_in;
-		//TEST
-		//cb_in->in_iseq = rcb->leftIseq;
-		//cb_in->in_iack = rcb->leftIack;
-		cb_in->in_iseq = tcp->seq_num.value();
-		cb_in->in_iack = tcp->ack_num.value();
+
+		cb_in->in_iseq = rcb->leftIseq;
+		cb_in->in_iack = rcb->leftIack;
 		
 		cb_in->is_reconfiguration = 1;
 		memcpy(&cb_in->cmsg, cmsg, sizeof(DyscoControlMessage));
@@ -875,8 +870,8 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 		//TEST //TODO //Ronaldo
 		create_synack(pkt, ip, tcp);
 
-		cb_out->out_iseq = tcp->seq_num.value();
-		cb_out->out_iack = tcp->ack_num.value();
+		cb_out->out_iseq = tcp->seq_num.value(); //new values due create_synack method
+		cb_out->out_iack = tcp->ack_num.value(); //new values due create_synack method
 		
 		cb_out->is_reconfiguration = 1;
 		cb_out->dcb_in = cb_in;
@@ -885,7 +880,7 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 		if(!control_config_rightA(rcb, cmsg, cb_in, cb_out))
 			return ERROR;
 		
-		//replace_cb_rightA from control_output
+		//replace_cb_rightA method from control_output
 		DyscoHashOut* old_out = rcb->old_dcb;
 		DyscoHashOut* new_out = rcb->new_dcb;
 		uint32_t seq_cutoff = old_out->seq_cutoff;
@@ -905,9 +900,12 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 
 		//Not necessary
 		cmsg->seqCutoff = htonl(seq_cutoff);
-		
-		cb_in->in_iseq = rcb->leftIseq;
-		cb_in->in_iack = rcb->leftIack;
+
+		//TEST
+		//cb_in->in_iseq = rcb->leftIseq;
+		//cb_in->in_iack = rcb->leftIack;
+		cb_in->in_iseq = tcp->ack_num.value();
+		cb_in->in_iack = tcp->seq_num.value();
 		cb_in->two_paths = 0;
 
 		if(!dc->insert_hash_input(this->index, cb_in)) {
