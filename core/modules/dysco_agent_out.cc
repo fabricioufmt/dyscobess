@@ -365,6 +365,9 @@ bool DyscoAgentOut::out_translate(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHa
 	if(!other_path) {
 #ifdef DEBUG_RECONFIG
 		fprintf(stderr, "[%s][DyscoAgentOut-Control] There isn't other_path\n", ns.c_str());
+		fprintf(stderr, "[%s][DyscoAgentOut-Control] seg_sz: %u\n", ns.c_str(), seg_sz);
+		fprintf(stderr, "[%s][DyscoAgentOut-Control] seq: %X\n", ns.c_str(), seq);
+		fprintf(stderr, "[%s][DyscoAgentOut-Control] cb_out->seq_cutoff: %X\n", ns.c_str(), cb_out->seq_cutoff);
 #endif
 		if(seg_sz > 0 && dc->after(seq, cb_out->seq_cutoff))
 			cb_out->seq_cutoff = seq;
@@ -372,7 +375,9 @@ bool DyscoAgentOut::out_translate(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHa
 #ifdef DEBUG_RECONFIG
 		fprintf(stderr, "[%s][DyscoAgentOut-Control] There is other_path\n", ns.c_str());
 		fprintf(stderr, "[%s][DyscoAgentOut-Control] cb_out (sub: %s).\n", ns.c_str(), print_ss2(cb_out->sub));
+		fprintf(stderr, "[%s][DyscoAgentOut-Control] cb_out->seq_cutoff: %X.\n", ns.c_str(), cb_out->seq_cutoff);
 		fprintf(stderr, "[%s][DyscoAgentOut-Control] cb_out->other_path (sub: %s).\n", ns.c_str(), print_ss2(cb_out->other_path->sub));
+		fprintf(stderr, "[%s][DyscoAgentOut-Control] cb_out->other_path->seq_cutoff: %X.\n", ns.c_str(), cb_out->other_path->seq_cutoff);
 #endif
 		if(cb_out->state == DYSCO_ESTABLISHED) {
 #ifdef DEBUG_RECONFIG
