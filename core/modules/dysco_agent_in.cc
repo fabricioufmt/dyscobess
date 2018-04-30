@@ -563,6 +563,8 @@ DyscoCbReconfig* DyscoAgentIn::insert_rcb_control_input(Ipv4* ip, Tcp* tcp, Dysc
 		ns.c_str(), ntohl(cmsg->leftIseq));
 	fprintf(stderr, "[%s][DyscoAgentIn-Control] cmsg->leftIack = %X\n",
 		ns.c_str(), ntohl(cmsg->leftIack));
+	fprintf(stderr, "[%s][DyscoAgentIn-Control] cmsg->seqCutoff = %X\n",
+		ns.c_str(), ntohl(cmsg->seqCutoff));
 #endif
 	
 	rcb->leftIts = ntohl(cmsg->leftIts);
@@ -866,6 +868,7 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 		create_synack(pkt, ip, tcp);
 
 		//TEST
+		cb_out->ack_cutoff = ntohl(cmsg->seqCutoff);
 		cb_out->in_iseq = rcb->leftIack;
 		cb_out->in_iack = rcb->leftIseq;
 		cb_out->out_iseq = tcp->seq_num.value(); //new values due create_synack method (already switched)
@@ -885,7 +888,9 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 		uint32_t seq_cutoff = old_out->seq_cutoff;
 
 #ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[%s][DyscoAgentIn-Control] old_out->seq_cutoff = %X.\n", ns.c_str(), seq_cutoff);
+		fprintf(stderr, "[%s][DyscoAgentIn-Control] old_out->seq_cutoff = %X.\n", ns.c_str(), old_out->seq_cutoff);
+		fprintf(stderr, "[%s][DyscoAgentIn-Control] new_out->seq_cutoff = %X.\n", ns.c_str(), new_out->seq_cutoff);
+		fprintf(stderr, "[%s][DyscoAgentIn-Control] cmsg->seqCutoff = %X.\n", ns.c_str(), ntohl(cmsg->seqCutoff));
 #endif
 		
 		old_out->old_path = 1;
