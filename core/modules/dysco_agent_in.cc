@@ -887,7 +887,10 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 		DyscoHashOut* new_out = rcb->new_dcb;
 		uint32_t seq_cutoff = old_out->seq_cutoff;
 
+		
+		
 #ifdef DEBUG_RECONFIG
+		fprintf(stderr, "[%s][DyscoAgentIn-Control] old_out->lastSeq_ho = %X.\n", ns.c_str(), old_out->lastSeq_ho);
 		fprintf(stderr, "[%s][DyscoAgentIn-Control] old_out->seq_cutoff = %X.\n", ns.c_str(), old_out->seq_cutoff);
 		fprintf(stderr, "[%s][DyscoAgentIn-Control] new_out->seq_cutoff = %X.\n", ns.c_str(), new_out->seq_cutoff);
 		fprintf(stderr, "[%s][DyscoAgentIn-Control] cmsg->seqCutoff = %X.\n", ns.c_str(), ntohl(cmsg->seqCutoff));
