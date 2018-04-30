@@ -404,9 +404,6 @@ bool DyscoAgentOut::out_translate(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHa
 	out_rewrite_seq(tcp, cb_out);
 	out_rewrite_ack(tcp, cb_out);
 
-	cb_out->out_iseq = tcp->seq_num.value();
-	cb_out->out_iack = tcp->ack_num.value();
-	
 	if(cb_out->ts_ok)
 		out_rewrite_ts(tcp, cb_out);
 

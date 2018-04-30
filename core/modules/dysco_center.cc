@@ -435,8 +435,8 @@ DyscoHashOut* DyscoCenter::insert_cb_in_reverse(DyscoTcpSession* ss_payload, Ipv
 	cb_out->sub.sport = htons(tcp->dst_port.value());
 	cb_out->sub.dport = htons(tcp->src_port.value());
 
-	cb_out->in_iack = htonl(tcp->seq_num.value());
-	cb_out->out_iack = htonl(tcp->seq_num.value());
+	cb_out->in_iack = tcp->seq_num.value();
+	cb_out->out_iack = tcp->seq_num.value();
 
 	cb_out->other_path = 0;
 	cb_out->old_path = 0;
@@ -995,7 +995,7 @@ bool DyscoCenter::out_handle_mb(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp* tc
 	cb_out->sub.sport = allocate_local_port(i);
 	cb_out->sub.dport = allocate_neighbor_port(i);
 
-	cb_out->out_iseq = cb_out->in_iseq = htonl(tcp->seq_num.value());
+	cb_out->out_iseq = cb_out->in_iseq = tcp->seq_num.value();
 	parse_tcp_syn_opt_s(tcp, cb_out);
 
 	insert_cb_out(i, cb_out, 0);
@@ -1117,6 +1117,7 @@ bool DyscoCenter::out_hdr_rewrite(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoTc
 	//fix_tcp_ip_csum(ip, tcp);
 
 	//TEST
+	/*
 	std::string ip0("10.0.1.1");
 	std::string ip1("10.0.1.2");
 	std::string ip2("10.0.2.1");
@@ -1192,7 +1193,7 @@ bool DyscoCenter::out_hdr_rewrite(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoTc
 		eth->dst_addr = mac9;
 	else
 		fprintf(stderr, "not change\n");
-	
+	*/
 	return true;
 }
 
