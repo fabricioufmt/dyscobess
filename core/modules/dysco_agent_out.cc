@@ -738,6 +738,20 @@ bool DyscoAgentOut::control_output_syn(Ipv4* ip, Tcp* tcp, DyscoControlMessage* 
 		//new_dcb->out_iack = new_dcb->in_iack = rcb->leftIack;
 		new_dcb->out_iseq = tcp->seq_num.value();
 		new_dcb->out_iack = tcp->ack_num.value();
+		//TEST
+		if(new_dcb->in_iseq < new_dcb->out_iseq) {
+			new_dcb->seq_delta = new_dcb->out_iseq - new_dcb->in_iseq;
+#ifdef DEBUG_RECONFIG
+			fprintf(stderr, "[%s][DyscoAgentOut-Control] new_dcb->seq_delta1 = %u (%X - %X).\n", ns.c_str(), new_dcb->seq_delta, new_dcb->out_iseq, new_dcb->in_iseq);
+#endif
+			new_dcb->seq_add = 1;
+		} else {
+			new_dcb->seq_delta = new_dcb->in_iseq - new_dcb->out_iseq;
+#ifdef DEBUG_RECONFIG
+			fprintf(stderr, "[%s][DyscoAgentOut-Control] new_dcb->seq_delta2 = %u (%X - %X).\n", ns.c_str(), new_dcb->seq_delta, new_dcb->in_iseq, new_dcb->out_iseq);
+#endif
+			new_dcb->seq_add = 0;
+		}
 		
 		new_dcb->ts_out = new_dcb->ts_in = rcb->leftIts;
 		new_dcb->tsr_out = new_dcb->tsr_in = rcb->leftItsr;
