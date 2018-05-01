@@ -360,6 +360,7 @@ bool DyscoAgentOut::out_translate(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHa
 	uint32_t seg_sz = ip->length.value() - ip_hlen - tcp_hlen;
 	uint32_t seq = tcp->seq_num.value() + seg_sz;
 
+	DyscoHashOut* cb = cb_out;
 	DyscoHashOut* other_path = cb_out->other_path;
 	if(!other_path) {
 #ifdef DEBUG_RECONFIG
@@ -368,8 +369,10 @@ bool DyscoAgentOut::out_translate(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHa
 		fprintf(stderr, "[%s][DyscoAgentOut-Control] seq: %X\n", ns.c_str(), seq);
 		fprintf(stderr, "[%s][DyscoAgentOut-Control] cb_out->seq_cutoff: %X\n", ns.c_str(), cb_out->seq_cutoff);
 #endif
-		if(seg_sz > 0 && dc->after(seq, cb_out->seq_cutoff))
-			cb_out->seq_cutoff = seq;
+		//TEST
+		cb_out->seq_cutoff = seq;
+		//if(seg_sz > 0 && dc->after(seq, cb_out->seq_cutoff))
+		//	cb_out->seq_cutoff = seq;
 	} else {
 #ifdef DEBUG_RECONFIG
 		fprintf(stderr, "[%s][DyscoAgentOut-Control] There is other_path\n", ns.c_str());
@@ -383,9 +386,9 @@ bool DyscoAgentOut::out_translate(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHa
 			fprintf(stderr, "[%s][DyscoAgentOut-Control] cb_out->state: DYSCO_ESTABLISHED (seg_sz: %u)\n", ns.c_str(), seg_sz);
 #endif
 			if(seg_sz > 0)
-				cb_out = pick_path_seq(cb_out, seq);
+				cb = pick_path_seq(cb_out, seq);
 			else
-				cb_out = pick_path_ack(tcp, cb_out);
+				cb = pick_path_ack(tcp, cb_out);
 		} else if(cb_out->state == DYSCO_SYN_SENT) {
 #ifdef DEBUG_RECONFIG
 			fprintf(stderr, "[%s][DyscoAgentOut-Control] cb_out->state: DYSCO_SYN_SENT\n", ns.c_str());
@@ -394,31 +397,31 @@ bool DyscoAgentOut::out_translate(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHa
 				if(dc->after(seq, cb_out->seq_cutoff))
 					cb_out->seq_cutoff = seq;
 			} else
-				cb_out = pick_path_ack(tcp, cb_out);
+				cb = pick_path_ack(tcp, cb_out);
 		} else if(cb_out->state == DYSCO_SYN_RECEIVED) {
 #ifdef DEBUG_RECONFIG
 			fprintf(stderr, "[%s][DyscoAgentOut-Control] cb_out->state: DYSCO_SYN_RECEIVED\n", ns.c_str());
 #endif
 			if(seg_sz > 0) {
-				cb_out = pick_path_seq(cb_out, seq);
+				cb = pick_path_seq(cb_out, seq);
 				//if(!cb_out->old_path)
 
 			} else
-				cb_out = pick_path_ack(tcp, cb_out);
+				cb = pick_path_ack(tcp, cb_out);
 		}
 	}
 
-	out_rewrite_seq(tcp, cb_out);
-	out_rewrite_ack(tcp, cb_out);
+	out_rewrite_seq(tcp, cb);
+	out_rewrite_ack(tcp, cb);
 
-	if(cb_out->ts_ok)
-		out_rewrite_ts(tcp, cb_out);
+	if(cb->ts_ok)
+		out_rewrite_ts(tcp, cb);
 
-	if(cb_out->ws_ok)
-		out_rewrite_rcv_wnd(tcp, cb_out);
+	if(cb->ws_ok)
+		out_rewrite_rcv_wnd(tcp, cb);
 
 	//dc->out_hdr_rewrite(ip, tcp, &cb_out->sub);
-	if(dc->out_hdr_rewrite(pkt, ip, tcp, &cb_out->sub)) {
+	if(dc->out_hdr_rewrite(pkt, ip, tcp, &cb->sub)) {
 		/*
 		uint32_t val = 1;
 		const void* val_ptr = &val;
