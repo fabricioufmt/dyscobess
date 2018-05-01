@@ -1111,6 +1111,56 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 
 
 
+#ifdef DEBUG_RECONFIG
+			fprintf(stderr, "COMPUTE DELTA WHEN RECEIVE SYN/ACK ON LEFT ANCHOR.\n");
+			fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->sub: %s.\n", ns.c_str(), print_ss1(cb_in->sub));
+			fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->sup: %s.\n", ns.c_str(), print_ss1(cb_in->sup));
+#endif
+
+			if(cb_in->in_iseq < cb_in->out_iseq) {
+				cb_in->seq_delta = cb_in->out_iseq - cb_in->in_iseq;
+#ifdef DEBUG_RECONFIG
+				fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->seq_delta = cb_in->out_iseq - cb_in->in_iseq.\n", ns.c_str());
+				fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->seq_delta5 = %X (%X - %X).\n", ns.c_str(), cb_in->seq_delta, cb_in->out_iseq, cb_in->in_iseq);
+#endif
+				cb_in->seq_add = 1;
+			} else {
+				cb_in->seq_delta = cb_in->in_iseq - cb_in->out_iseq;
+#ifdef DEBUG_RECONFIG
+				fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->seq_delta = cb_in->in_iseq - cb_in->out_iseq.\n", ns.c_str());	
+				fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->seq_delta6 = %X (%X - %X).\n", ns.c_str(), cb_in->seq_delta, cb_in->in_iseq, cb_in->out_iseq);
+#endif
+				cb_in->seq_add = 0;
+			}
+			
+			if(cb_in->in_iack < cb_in->out_iack) {
+				cb_in->ack_delta = cb_in->out_iack - cb_in->in_iack;
+#ifdef DEBUG_RECONFIG
+				fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->ack_delta = cb_in->out_iack - cb_in->in_iack.\n", ns.c_str());
+				fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->ack_delta1 = %X (%X - %X).\n", ns.c_str(), cb_in->ack_delta, cb_in->out_iack, cb_in->in_iack);
+#endif
+				cb_in->ack_add = 1;
+			} else {
+				cb_in->ack_delta = cb_in->in_iack - cb_in->out_iack;
+#ifdef DEBUG_RECONFIG
+				fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->ack_delta = cb_in->in_iack - cb_in->out_iack.\n", ns.c_str());
+				fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->ack_delta2 = %X (%X - %X).\n", ns.c_str(), cb_in->ack_delta, cb_in->in_iack, cb_in->out_iack);
+#endif
+				cb_in->ack_add = 0;
+			}
+
+
+
+
+
+
+
+
+
+
+			
+
+
 			
 			//not necessary
 			cb_out->ack_cutoff = cmsg->seqCutoff;
