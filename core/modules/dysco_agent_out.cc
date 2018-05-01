@@ -325,9 +325,13 @@ DyscoHashOut* DyscoAgentOut::pick_path_ack(Tcp* tcp, DyscoHashOut* cb_out) {
 	uint32_t ack = tcp->ack_num.value();
 
 	if(cb_out->state_t) {
-		if(cb_out->state == DYSCO_ESTABLISHED)
+		fprintf(stderr, "pick_path_ack: cb_out->state_t is TRUE.\n");
+		if(cb_out->state == DYSCO_ESTABLISHED) {
 			cb = cb_out->other_path;
+			fprintf(stderr, "pick_path_ack: cb_out->state == DYSCO_ESTABLISHED is TRUE.\n");
+		}
 	} else if(cb_out->valid_ack_cut) {
+		fprintf(stderr, "pick_path_ack: cb_out->valid_ack_cut is TRUE.\n");
 		if(cb_out->use_np_ack) {
 			cb = cb_out->other_path;
 		} else if(!dc->after(cb_out->ack_cutoff, ack)) {
