@@ -1049,7 +1049,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 			//DyscoHashOut* cb_out = dc->lookup_output_by_ss(this->index, &cmsg->leftSS);
 			//DyscoHashOut* cb_out = dc->lookup_output(this->index, ip, tcp);
 			DyscoHashOut* cb_out = cb_in->dcb_out;
-			DyscoHashOut* old_dcb = dc->lookup_output_by_ss(this->index, &cb_in->sup);
+			DyscoHashOut* old_dcb2 = dc->lookup_output_by_ss(this->index, &cb_in->sup);
 			
 			if(!cb_out) {
 #ifdef DEBUG_RECONFIG
@@ -1075,7 +1075,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 			cb_in->lastSeq_ho = tcp->seq_num.value();
 			cb_in->lastAck_ho = tcp->ack_num.value();
 			//TEST
-			cb_out->in_iack = old_dcb->lastAck_ho;
+			cb_out->in_iack = old_dcb2->lastAck_ho;
 			
 #ifdef DEBUG_RECONFIG
 			fprintf(stderr, "[%s][DyscoAgentIn-Control] IMPORTANT\n", ns.c_str());
