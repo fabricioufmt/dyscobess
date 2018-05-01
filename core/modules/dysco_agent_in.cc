@@ -1070,6 +1070,10 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 			cb_out->out_iack = cb_in->in_iseq;
 			//cb_in->in_iack = htonl(tcp->ack_num.value());
 
+			//TEST
+			cb_in->lastSeq_ho = tcp->seq_num.value();
+			cb_in->lastAck_ho = tcp->ack_num.value();
+			
 #ifdef DEBUG_RECONFIG
 			fprintf(stderr, "[%s][DyscoAgentIn-Control] IMPORTANT\n", ns.c_str());
 			fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in (sub_in: %s)\n", ns.c_str(), print_ss1(cb_in->sub));
