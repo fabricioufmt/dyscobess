@@ -464,6 +464,7 @@ bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in) {
 				seq += delta;
 			}
 
+			fprintf(stderr, "[BEFORE]old_out->ack_cutoff: %X\n", old_out->ack_cutoff);
 			if(old_out->valid_ack_cut) {
 				if(dc->before(seq, old_out->ack_cutoff))
 					old_out->ack_cutoff = seq;
@@ -471,6 +472,7 @@ bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in) {
 				old_out->ack_cutoff = seq;
 				old_out->valid_ack_cut = 1;
 			}
+			fprintf(stderr, "[AFTER]old_out->ack_cutoff: %X\n", old_out->ack_cutoff);
 		}
 	}
 
@@ -877,6 +879,7 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 #endif
 		//TEST
 		cb_out->ack_cutoff = ntohl(cmsg->seqCutoff);
+		fprintf(stderr, "cb_out->ack_cutoff: %X\n", cb_out->ack_cutoff);
 		cb_out->in_iseq = rcb->leftIack;
 		cb_out->in_iack = rcb->leftIseq;
 		cb_out->out_iseq = tcp->seq_num.value(); //new values due create_synack method (already switched)
@@ -1163,8 +1166,8 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 
 			
 			//not necessary
-			cb_out->ack_cutoff = cmsg->seqCutoff;
-			
+			cb_out->ack_cutoff = ntohl(cmsg->seqCutoff);
+			fprintf(stderr, "cb_out->ack_cutoff: %X\n", cb_out->ack_cutoff);
 			cb_out->valid_ack_cut = 1;
 
 			// SEND ACK MESSAGE
@@ -1333,7 +1336,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 			new_out = old_out->other_path;
 			//TEST
 			new_out->out_iseq = tcp->ack_num.value();
-			old_out_ack_cutoff = cmsg->seqCutoff;
+			old_out_ack_cutoff = ntohl(cmsg->seqCutoff);
 			
 			if(new_out->in_iack < new_out->out_iack) {
 				uint32_t delta = new_out->out_iack - new_out->in_iack;
