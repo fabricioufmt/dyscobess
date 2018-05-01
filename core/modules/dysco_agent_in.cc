@@ -1115,7 +1115,14 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 
 				cmsg->seqCutoff = old_dcb->seq_cutoff;
 			}
-			
+
+			if(rcb->new_dcb) {
+#ifdef DEBUG_RECONFIG
+				fprintf(stderr, "[%s][DyscoAgentIn-Control] updating lastSeq and lastAck in rcb->new_dcb.\n", ns.c_str());
+#endif
+				rcb->new_dcb->lastSeq_ho = tcp->seq_num.value();
+				rcb->new_dcb->lastAck_ho = tcp->ack_num.value();
+			}
 			
 			return TO_GATE_1;
 		} else {
