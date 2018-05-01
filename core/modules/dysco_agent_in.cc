@@ -605,6 +605,7 @@ DyscoHashOut* DyscoAgentIn::build_cb_in_reverse(Ipv4* ip, DyscoCbReconfig* rcb) 
 
 bool DyscoAgentIn::compute_deltas_in(DyscoHashIn* cb_in, DyscoHashOut* old_out, DyscoCbReconfig* rcb) {
 	//TEST
+	cb_in->in_iseq++;
 	//cb_in->out_iseq = old_out->in_iack;
 	//cb_in->out_iack = old_out->in_iseq;
 
