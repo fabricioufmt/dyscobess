@@ -991,6 +991,7 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 }
 
 CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
+	DyscoHashIn* cb_in;
 	DyscoCbReconfig* rcb;
 	DyscoControlMessage* cmsg = 0;
 	size_t tcp_hlen = tcp->offset << 2;
@@ -1034,7 +1035,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 		fprintf(stderr, "[%s][DyscoAgentIn-Control] DYSCO_SYN_ACK message.\n", ns.c_str());
 #endif
 
-		DyscoHashIn* cb_in = dc->lookup_input(this->index, ip, tcp);
+		cb_in = dc->lookup_input(this->index, ip, tcp);
 		if(!cb_in) {
 #ifdef DEBUG_RECONFIG
 			fprintf(stderr, "[%s][DyscoAgentIn-Control] There isn't cb_in.\n", ns.c_str());
@@ -1183,7 +1184,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 		fprintf(stderr, "[%s][DyscoAgentIn-Control] DYSCO_ACK message.\n", ns.c_str());
 #endif
 
-		DyscoHashIn* cb_in = dc->lookup_input(this->index, ip, tcp);
+		cb_in = dc->lookup_input(this->index, ip, tcp);
 		if(!cb_in) {
 #ifdef DEBUG_RECONFIG
 			fprintf(stderr, "[%s][DyscoAgentIn-Control] There isn't cb_in.\n", ns.c_str());
@@ -1218,6 +1219,28 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 			DyscoHashOut* new_out;
 			uint32_t old_out_ack_cutoff;
 
+
+			if(cb_in->in_iack < cb_in->out_iack) {
+				cb_in->ack_delta = cb_in->out_iack - cb_in->in_iack;
+#ifdef DEBUG_RECONFIG
+				fprintf(stderr, "[%s][DyscoAgentIn-Control] sub: %s.\n", ns.c_str(), print_ss1(cb_in->sub));
+				fprintf(stderr, "[%s][DyscoAgentIn-Control] sup: %s.\n", ns.c_str(), print_ss1(cb_in->sup));
+				fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->ack_delta = cb_in->out_iack - cb_in->in_iack.\n", ns.c_str());
+				fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->ack_delta1 = %X (%X - %X).\n", ns.c_str(), cb_in->ack_delta, cb_in->out_iack, cb_in->in_iack);
+#endif
+				cb_in->ack_add = 1;
+			} else {
+				cb_in->ack_delta = cb_in->in_iack - cb_in->out_iack;
+#ifdef DEBUG_RECONFIG
+				fprintf(stderr, "[%s][DyscoAgentIn-Control] sub: %s.\n", ns.c_str(), print_ss1(cb_in->sub));
+				fprintf(stderr, "[%s][DyscoAgentIn-Control] sup: %s.\n", ns.c_str(), print_ss1(cb_in->sup));
+				fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->ack_delta = cb_in->in_iack - cb_in->out_iack.\n", ns.c_str());
+				fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->ack_delta2 = %X (%X - %X).\n", ns.c_str(), cb_in->ack_delta, cb_in->in_iack, cb_in->out_iack);
+#endif
+				cb_in->ack_add = 0;
+			}
+
+			
 			if(!rcb->old_dcb) {
 #ifdef DEBUG_RECONFIG
 				fprintf(stderr, "[%s][DyscoAgentIn-Control] rcb->old_dcb is NULL on rcb[%p](super: %s)\n", ns.c_str(), rcb, print_ss1(rcb->super));
