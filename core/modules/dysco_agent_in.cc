@@ -1295,7 +1295,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 				fprintf(stderr, "[%s][DyscoAgentIn-Control] new_out->seq_delta = new_out->out_iseq - new_out->in_iseq.\n", ns.c_str());
 				fprintf(stderr, "[%s][DyscoAgentIn-Control] new_out->seq_delta5 = %X (%X - %X).\n", ns.c_str(), new_out->seq_delta, new_out->out_iseq, new_out->in_iseq);
 #endif
-				new_out->_add = 1;
+				new_out->seq_add = 1;
 			} else {
 				new_out->seq_delta = new_out->in_iseq - new_out->out_iseq;
 #ifdef DEBUG_RECONFIG
