@@ -691,8 +691,11 @@ bool DyscoAgentOut::control_output_syn(Ipv4* ip, Tcp* tcp, DyscoControlMessage* 
 			return false;
 		}
 
-		cmsg->leftIseq = htonl(old_dcb->out_iseq);
-		cmsg->leftIack = htonl(old_dcb->out_iack);
+		//TEST
+		//cmsg->leftIseq = htonl(old_dcb->out_iseq);
+		//cmsg->leftIack = htonl(old_dcb->out_iack);
+		cmsg->leftIseq = htonl(old_dcb->lastSeq_ho);
+		cmsg->leftIack = htonl(old_dcb->lastAck_ho);
 
 #ifdef DEBUG_RECONFIG
 		fprintf(stderr, "[%s][DyscoAgentOut-Control] FILL CMSG TO SEND\n", ns.c_str());
