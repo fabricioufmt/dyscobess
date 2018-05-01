@@ -241,10 +241,10 @@ bool DyscoAgentIn::in_rewrite_seq(Tcp* tcp, DyscoHashIn* cb_in) {
 			new_seq = seq - cb_in->seq_delta;
 
 #ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[%s][DyscoAgentIn-Control] old seq: %X, new seq: %X, seq_delta: %u (int)\n", ns.c_str(), seq, new_seq, cb_in->seq_delta);
+		fprintf(stderr, "[%s][DyscoAgentIn-Control] old seq: %X, new seq: %X, seq_delta: %X.\n", ns.c_str(), seq, new_seq, cb_in->seq_delta);
 #endif
 		
-		tcp->seq_num = be32_t(htonl(new_seq));
+		tcp->seq_num = be32_t(new_seq);
 		
 		return true;
 	}
@@ -278,7 +278,7 @@ bool DyscoAgentIn::in_rewrite_ack(Tcp* tcp, DyscoHashIn* cb_in) {
 		fprintf(stderr, "[%s][DyscoAgentIn-Control] old ack: %X, new ack: %X, ack_delta: %X.\n", ns.c_str(), ack, new_ack, cb_in->ack_delta);
 #endif
 		
-		tcp->ack_num = be32_t(htonl(new_ack));
+		tcp->ack_num = be32_t(new_ack);
 
 		return true;
 	}
