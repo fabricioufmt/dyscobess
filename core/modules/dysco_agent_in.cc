@@ -1038,17 +1038,11 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 
 		cb_in = dc->lookup_input(this->index, ip, tcp);
 		if(!cb_in) {
-#ifdef DEBUG_RECONFIG
-			fprintf(stderr, "[%s][DyscoAgentIn-Control] There isn't cb_in.\n", ns.c_str());
-#endif
 			return ERROR;
 		}
 
 		cmsg = &cb_in->cmsg;
 		if(!cmsg) {
-#ifdef DEBUG_RECONFIG
-			fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->cmsg is NULL.\n", ns.c_str());
-#endif
 			return ERROR;
 		}
 
@@ -1061,9 +1055,6 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 			DyscoHashOut* cb_out = cb_in->dcb_out;
 			
 			if(!cb_out) {
-#ifdef DEBUG_RECONFIG
-				fprintf(stderr, "[%s][DyscoAgentIn-Control]: cb_out is NULL.\n", ns.c_str());
-#endif		
 				return ERROR;
 			}
 
@@ -1075,15 +1066,15 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 				return END;
 			}
 
-			//TEST
 			cb_in->in_iseq = tcp->seq_num.value();
-			cb_out->out_iack = cb_in->in_iseq + 1;
+			cb_in->in_iack = tcp->ack_num.value();
+			//cb_out->out_iack = cb_in->in_iseq + 1;
 			//cb_in->in_iack = htonl(tcp->ack_num.value());
 
 			//TEST
 			cb_in->lastSeq_ho = tcp->seq_num.value();
 			cb_in->lastAck_ho = tcp->ack_num.value();
-			
+			/*
 #ifdef DEBUG_RECONFIG
 			fprintf(stderr, "[%s][DyscoAgentIn-Control] IMPORTANT\n", ns.c_str());
 			fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in (sub_in: %s)\n", ns.c_str(), print_ss1(cb_in->sub));
@@ -1117,7 +1108,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 				cb_out->ack_add = 0;
 			}
 
-
+			*/
 
 
 
@@ -1133,6 +1124,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 
 			//TEST
 			cb_out->out_iseq = tcp->seq_num.value();
+			cb_out->out_iack = tcp->ack_num.value();
 			if(cb_out->in_iseq < cb_out->out_iseq) {
 				cb_out->seq_delta = cb_out->out_iseq - cb_out->in_iseq;
 #ifdef DEBUG_RECONFIG
@@ -1245,8 +1237,6 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 #endif
 				cb_in->seq_add = 0;
 			}
-
-
 			
 			if(cb_in->in_iack < cb_in->out_iack) {
 				cb_in->ack_delta = cb_in->out_iack - cb_in->in_iack;
