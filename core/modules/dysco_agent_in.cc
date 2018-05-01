@@ -481,6 +481,9 @@ bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in) {
 bool DyscoAgentIn::input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 	DyscoHashIn* cb_in = dc->lookup_input(this->index, ip, tcp);
 	if(!cb_in) {
+#ifdef DEBUG_RECONFIG
+		fprintf(stderr, "cb_in is NULL\n");
+#endif
 		if(isTCPSYN(tcp) && hasPayload(ip, tcp)) {
 #ifdef DEBUG
 			fprintf(stderr, "[%s][DyscoAgentIn] receives a TCP SYN+PAYLOAD segment\n", ns.c_str());
@@ -515,6 +518,17 @@ bool DyscoAgentIn::input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 		
 		return false;
 	}
+
+#ifdef DEBUG_RECONFIG
+	fprintf(stderr, "cb_in->sub: %s.\n", print_ss1(cb_in->sub));
+	fprintf(stderr, "cb_in->sup: %s.\n", print_ss1(cb_in->sup));
+	fprintf(stderr, "cb_in->in_iseq: %X.\n", cb_in->in_iseq);
+	fprintf(stderr, "cb_in->in_iack: %X.\n", cb_in->in_iack);
+	fprintf(stderr, "cb_in->out_iseq: %X.\n", cb_in->out_iseq);
+	fprintf(stderr, "cb_in->out_iack: %X.\n", cb_in->out_iack);
+							
+#endif
+	
 
 	if(cb_in->two_paths) {
 		if(hasPayload(ip, tcp)) {
