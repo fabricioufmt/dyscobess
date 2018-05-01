@@ -210,7 +210,7 @@ bool DyscoAgentOut::out_rewrite_seq(Tcp* tcp, DyscoHashOut* cb_out) {
 		tcp->seq_num = be32_t(new_seq);
 
 #ifdef DEBUG
-		fprintf(stderr, "[%s][DyscoAgentOut] new_seq = %X\n", ns.c_str(), tcp->seq_num.value());
+		fprintf(stderr, "[%s][DyscoAgentOut] new_seq = %X (%X +/- %X)\n", ns.c_str(), tcp->seq_num.value(), seq, cb_out->seq_delta);
 #endif
 		
 		return true;
