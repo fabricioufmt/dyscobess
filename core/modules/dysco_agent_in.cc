@@ -608,7 +608,7 @@ bool DyscoAgentIn::compute_deltas_in(DyscoHashIn* cb_in, DyscoHashOut* old_out, 
 	//cb_in->in_iseq++;
 	//cb_in->out_iseq = old_out->in_iack;
 	//cb_in->out_iack = old_out->in_iseq;
-
+	/*
 #ifdef DEBUG_RECONFIG
 	fprintf(stderr, "[%s][DyscoAgentIn-Control] compute_deltas_in.\n", ns.c_str());
 	fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->in_iseq: %X (should be zero, when ACK received is filled.\n", ns.c_str(), cb_in->in_iseq);
@@ -643,7 +643,7 @@ bool DyscoAgentIn::compute_deltas_in(DyscoHashIn* cb_in, DyscoHashOut* old_out, 
 #endif
 		cb_in->ack_add = 0;
 	}
-
+*/
 	if(rcb->leftIts) {
 		cb_in->ts_ok = 1;
 		cb_in->ts_in = rcb->leftIts;
@@ -693,7 +693,7 @@ bool DyscoAgentIn::compute_deltas_out(DyscoHashOut* cb_out, DyscoHashOut* old_ou
 	//old_out->out_iseq = cb_out->in_iseq;
 	//cb_out->in_iseq = old_out->in_iseq;
 	//cb_out->in_iack = old_out->in_iack;
-
+	/*
 #ifdef DEBUG_RECONFIG
 	fprintf(stderr, "[%s][DyscoAgentIn-Control] compute_deltas_out.\n", ns.c_str());
 	fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_out->in_iseq: %X.\n", ns.c_str(), cb_out->in_iseq);
@@ -723,7 +723,7 @@ bool DyscoAgentIn::compute_deltas_out(DyscoHashOut* cb_out, DyscoHashOut* old_ou
 		cb_out->ack_delta = cb_out->in_iack - cb_out->out_iack;
 		cb_out->ack_add = 0;
 	}
-
+	*/
 	if(rcb->leftIts) {
 		cb_out->ts_ok = 1;
 		cb_out->ts_in = old_out->ts_in;
