@@ -704,6 +704,8 @@ bool DyscoAgentOut::control_output_syn(Ipv4* ip, Tcp* tcp, DyscoControlMessage* 
 
 #ifdef DEBUG_RECONFIG
 		fprintf(stderr, "[%s][DyscoAgentOut-Control] FILL CMSG TO SEND\n", ns.c_str());
+		fprintf(stderr, "[%s][DyscoAgentOut-Control] old_dcb->sub: %s\n", ns.c_str(), print_ss2(old_dcb->sub));
+		fprintf(stderr, "[%s][DyscoAgentOut-Control] old_dcb->sup: %s\n", ns.c_str(), print_ss2(old_dcb->sup));
 		fprintf(stderr, "[%s][DyscoAgentOut-Control] old_dcb->lastSeq_ho = %X\n", ns.c_str(), old_dcb->lastSeq_ho);
 		fprintf(stderr, "[%s][DyscoAgentOut-Control] old_dcb->lastAck_ho = %X\n", ns.c_str(), old_dcb->lastAck_ho);
 		fprintf(stderr, "[%s][DyscoAgentOut-Control] cmsg->leftIseq (old_dcb->out_iseq) = %X\n", ns.c_str(), old_dcb->out_iseq);
@@ -739,8 +741,10 @@ bool DyscoAgentOut::control_output_syn(Ipv4* ip, Tcp* tcp, DyscoControlMessage* 
 		//TEST
 		//new_dcb->out_iseq = new_dcb->in_iseq = rcb->leftIseq;
 		//new_dcb->out_iack = new_dcb->in_iack = rcb->leftIack;
-		new_dcb->in_iseq = rcb->leftIseq;
-		new_dcb->in_iseq = rcb->leftIack;
+		//new_dcb->in_iseq = rcb->leftIseq;
+		//new_dcb->in_iseq = rcb->leftIack;
+		new_dcb->in_iseq = old_dcb->lastSeq_ho;
+		new_dcb->in_iack = old_dcb->lastAck_ho;
 		new_dcb->out_iseq = tcp->seq_num.value();
 		new_dcb->out_iack = tcp->ack_num.value();
 		//TEST
