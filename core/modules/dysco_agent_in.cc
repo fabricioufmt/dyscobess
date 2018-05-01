@@ -887,6 +887,30 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 		DyscoHashOut* new_out = rcb->new_dcb;
 		uint32_t seq_cutoff = old_out->seq_cutoff;
 
+
+
+
+
+		if(new_dcb->in_iack < new_dcb->out_iack) {
+			new_dcb->ack_delta = new_dcb->out_iack - new_dcb->in_iack;
+#ifdef DEBUG_RECONFIG
+			fprintf(stderr, "[%s][DyscoAgentOut-Control] sub: %s.\n", ns.c_str(), print_ss2(new_dcb->sub));
+			fprintf(stderr, "[%s][DyscoAgentOut-Control] sup: %s.\n", ns.c_str(), print_ss2(new_dcb->sup));
+			fprintf(stderr, "[%s][DyscoAgentOut-Control] new_dcb->ack_delta = new_dcb->out_iack - new_dcb->in_iack.\n", ns.c_str());
+			fprintf(stderr, "[%s][DyscoAgentOut-Control] new_dcb->ack_delta1 = %X (%X - %X).\n", ns.c_str(), new_dcb->ack_delta, new_dcb->out_iack, new_dcb->in_iack);
+#endif
+			new_dcb->ack_add = 1;
+		} else {
+			new_dcb->ack_delta = new_dcb->in_iack - new_dcb->out_iack;
+#ifdef DEBUG_RECONFIG
+			fprintf(stderr, "[%s][DyscoAgentOut-Control] sub: %s.\n", ns.c_str(), print_ss2(new_dcb->sub));
+			fprintf(stderr, "[%s][DyscoAgentOut-Control] sup: %s.\n", ns.c_str(), print_ss2(new_dcb->sup));
+			fprintf(stderr, "[%s][DyscoAgentOut-Control] new_dcb->ack_delta = new_dcb->in_iack - new_dcb->out_iack.\n", ns.c_str());
+			fprintf(stderr, "[%s][DyscoAgentOut-Control] new_dcb->ack_delta2 = %X (%X - %X).\n", ns.c_str(), new_dcb->ack_delta, new_dcb->in_iack, new_dcb->out_iack);
+#endif
+			new_dcb->ack_add = 0;
+		}
+
 		
 		
 #ifdef DEBUG_RECONFIG

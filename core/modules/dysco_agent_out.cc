@@ -747,7 +747,7 @@ bool DyscoAgentOut::control_output_syn(Ipv4* ip, Tcp* tcp, DyscoControlMessage* 
 		new_dcb->in_iseq = old_dcb->lastSeq_ho;
 		new_dcb->in_iack = old_dcb->lastAck_ho;
 		new_dcb->out_iseq = tcp->seq_num.value() + 1;
-		new_dcb->out_iack = tcp->ack_num.value() + 1;
+		new_dcb->out_iack = tcp->ack_num.value(); //empty value because not received yet.
 		//TEST
 		if(new_dcb->in_iseq < new_dcb->out_iseq) {
 			new_dcb->seq_delta = new_dcb->out_iseq - new_dcb->in_iseq;
@@ -767,26 +767,6 @@ bool DyscoAgentOut::control_output_syn(Ipv4* ip, Tcp* tcp, DyscoControlMessage* 
 			fprintf(stderr, "[%s][DyscoAgentOut-Control] new_dcb->seq_delta2 = %X (%X - %X).\n", ns.c_str(), new_dcb->seq_delta, new_dcb->in_iseq, new_dcb->out_iseq);
 #endif
 			new_dcb->seq_add = 0;
-		}
-
-		if(new_dcb->in_iack < new_dcb->out_iack) {
-			new_dcb->ack_delta = new_dcb->out_iack - new_dcb->in_iack;
-#ifdef DEBUG_RECONFIG
-			fprintf(stderr, "[%s][DyscoAgentOut-Control] sub: %s.\n", ns.c_str(), print_ss2(new_dcb->sub));
-			fprintf(stderr, "[%s][DyscoAgentOut-Control] sup: %s.\n", ns.c_str(), print_ss2(new_dcb->sup));
-			fprintf(stderr, "[%s][DyscoAgentOut-Control] new_dcb->ack_delta = new_dcb->out_iack - new_dcb->in_iack.\n", ns.c_str());
-			fprintf(stderr, "[%s][DyscoAgentOut-Control] new_dcb->ack_delta1 = %X (%X - %X).\n", ns.c_str(), new_dcb->ack_delta, new_dcb->out_iack, new_dcb->in_iack);
-#endif
-			new_dcb->ack_add = 1;
-		} else {
-			new_dcb->ack_delta = new_dcb->in_iack - new_dcb->out_iack;
-#ifdef DEBUG_RECONFIG
-			fprintf(stderr, "[%s][DyscoAgentOut-Control] sub: %s.\n", ns.c_str(), print_ss2(new_dcb->sub));
-			fprintf(stderr, "[%s][DyscoAgentOut-Control] sup: %s.\n", ns.c_str(), print_ss2(new_dcb->sup));
-			fprintf(stderr, "[%s][DyscoAgentOut-Control] new_dcb->ack_delta = new_dcb->in_iack - new_dcb->out_iack.\n", ns.c_str());
-			fprintf(stderr, "[%s][DyscoAgentOut-Control] new_dcb->ack_delta2 = %X (%X - %X).\n", ns.c_str(), new_dcb->ack_delta, new_dcb->in_iack, new_dcb->out_iack);
-#endif
-			new_dcb->ack_add = 0;
 		}
 		
 		new_dcb->ts_out = new_dcb->ts_in = rcb->leftIts;
