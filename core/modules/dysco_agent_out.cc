@@ -403,6 +403,10 @@ bool DyscoAgentOut::out_translate(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHa
 		}
 	}
 
+#ifdef DEBUG_RECONFIG
+	fprintf(stderr, "[%s][DyscoAgentOut-Control] after pick_path_seq, cb->seq_delta: %X and cb->ack_delta: %X\n", ns.c_str(), cb->seq_delta, cb->ack_delta);
+#endif
+	
 	out_rewrite_seq(tcp, cb);
 	out_rewrite_ack(tcp, cb);
 
