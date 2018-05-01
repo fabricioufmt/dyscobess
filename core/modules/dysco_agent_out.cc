@@ -734,6 +734,7 @@ bool DyscoAgentOut::control_output_syn(Ipv4* ip, Tcp* tcp, DyscoControlMessage* 
 		new_dcb = new DyscoHashOut();
 
 		rcb->old_dcb = old_dcb;
+		rcb->new_dcb = new_dcb;
 
 		new_dcb->sup = rcb->super;
 		new_dcb->sub = rcb->sub_out;
