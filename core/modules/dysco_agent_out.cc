@@ -334,18 +334,25 @@ DyscoHashOut* DyscoAgentOut::pick_path_ack(Tcp* tcp, DyscoHashOut* cb_out) {
 		fprintf(stderr, "pick_path_ack: cb_out->valid_ack_cut is TRUE.\n");
 		if(cb_out->use_np_ack) {
 			cb = cb_out->other_path;
+			fprintf(stderr, "pick_path_ack: cb_out->use_np_ack is TRUE.\n");			
 		} else if(!dc->after(cb_out->ack_cutoff, ack)) {
+			fprintf(stderr, "pick_path_ack: !after(cb_out->ack_cutoff, ack) [%X %x].\n", cb_out->ack_cutoff, ack);			
 			if(tcp->flags & Tcp::kFin)
 				cb = cb_out->other_path;
 			else {
 				tcp->ack_num = be32_t(cb_out->ack_cutoff);
 				cb_out->ack_ctr++;
 				if(cb_out->ack_ctr > 1)
-					cb_out->use_np_ack = true;
+					cb_out->use_np_ack = 1;
 			}
 		}
 	}
 
+	if(cb != cb_out)
+		fprintf(stderr, "pick_path_ack: going to new path\n");
+	else
+		fprintf(stderr, "pick_path_ack: going to old path\n");
+	
 	return cb;
 }
 

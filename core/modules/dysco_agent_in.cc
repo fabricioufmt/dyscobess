@@ -1345,8 +1345,9 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 
 			if(!old_out->state_t) {
 				old_out->ack_cutoff = old_out_ack_cutoff;
-				old_out->valid_ack_cut = true;
+				old_out->valid_ack_cut = 1;
 				old_out->state = DYSCO_ESTABLISHED;
+				fprintf(stderr, "old_out->ack_cutoff: %X, old_out->state == DYSCO_ESTABLISHED.\n", old_out_ack_cutoff);
 			}
 
 
