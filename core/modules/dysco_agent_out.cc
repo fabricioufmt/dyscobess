@@ -747,13 +747,19 @@ bool DyscoAgentOut::control_output_syn(Ipv4* ip, Tcp* tcp, DyscoControlMessage* 
 		if(new_dcb->in_iseq < new_dcb->out_iseq) {
 			new_dcb->seq_delta = new_dcb->out_iseq - new_dcb->in_iseq;
 #ifdef DEBUG_RECONFIG
-			fprintf(stderr, "[%s][DyscoAgentOut-Control] new_dcb->seq_delta1 = %u (%X - %X).\n", ns.c_str(), new_dcb->seq_delta, new_dcb->out_iseq, new_dcb->in_iseq);
+			fprintf(stderr, "[%s][DyscoAgentOut-Control] sub: %s.\n", ns.c_str(), print_ss2(new_dcb->sub));
+			fprintf(stderr, "[%s][DyscoAgentOut-Control] sup: %s.\n", ns.c_str(), print_ss2(new_dcb->sup));
+			fprintf(stderr, "[%s][DyscoAgentOut-Control] new_dcb->seq_delta = new_dcb->out_iseq - new_dcb->in_iseq.\n", ns.c_str());
+			fprintf(stderr, "[%s][DyscoAgentOut-Control] new_dcb->seq_delta1 = %X (%X - %X).\n", ns.c_str(), new_dcb->seq_delta, new_dcb->out_iseq, new_dcb->in_iseq);
 #endif
 			new_dcb->seq_add = 1;
 		} else {
 			new_dcb->seq_delta = new_dcb->in_iseq - new_dcb->out_iseq;
 #ifdef DEBUG_RECONFIG
-			fprintf(stderr, "[%s][DyscoAgentOut-Control] new_dcb->seq_delta2 = %u (%X - %X).\n", ns.c_str(), new_dcb->seq_delta, new_dcb->in_iseq, new_dcb->out_iseq);
+			fprintf(stderr, "[%s][DyscoAgentOut-Control] sub: %s.\n", ns.c_str(), print_ss2(new_dcb->sub));
+			fprintf(stderr, "[%s][DyscoAgentOut-Control] sup: %s.\n", ns.c_str(), print_ss2(new_dcb->sup));
+			fprintf(stderr, "[%s][DyscoAgentOut-Control] new_dcb->seq_delta = new_dcb->in_iseq - new_dcb->out_iseq.\n", ns.c_str());
+			fprintf(stderr, "[%s][DyscoAgentOut-Control] new_dcb->seq_delta2 = %X (%X - %X).\n", ns.c_str(), new_dcb->seq_delta, new_dcb->in_iseq, new_dcb->out_iseq);
 #endif
 			new_dcb->seq_add = 0;
 		}
