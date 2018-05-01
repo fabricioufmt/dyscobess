@@ -1077,6 +1077,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 			fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->out_iseq = %X, cb_in->out_iack = %X.\n", ns.c_str(), cb_in->out_iseq, cb_in->out_iack);
 			fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_out->in_iseq = %X, cb_out->in_iack = %X.\n", ns.c_str(), cb_out->in_iseq, cb_out->in_iack);
 			fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_out->out_iseq = %X, cb_out->out_iack = %X.\n", ns.c_str(), cb_out->out_iseq, cb_out->out_iack);
+			fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_out->lastAck_ho = %X, cb_in->lastAck_ho = %X.\n", ns.c_str(), cb_out->lastAck_ho, cb_in->lastAck_ho);
 #endif
 
 
