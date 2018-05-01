@@ -526,6 +526,8 @@ bool DyscoAgentIn::input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 	fprintf(stderr, "cb_in->in_iack: %X.\n", cb_in->in_iack);
 	fprintf(stderr, "cb_in->out_iseq: %X.\n", cb_in->out_iseq);
 	fprintf(stderr, "cb_in->out_iack: %X.\n", cb_in->out_iack);
+	fprintf(stderr, "cb_in->seq_delta: %X.\n", cb_in->seq_delta);
+	fprintf(stderr, "cb_in->ack_delta: %X.\n", cb_in->ack_delta);
 							
 #endif
 	
@@ -1063,7 +1065,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 				return END;
 			}
 
-			cb_in->in_iseq = tcp->seq_num.value();
+			cb_in->in_iseq = tcp->seq_num.value() + 1; //18h20 TEST
 			cb_in->in_iack = tcp->ack_num.value();
 			//cb_out->out_iack = cb_in->in_iseq + 1;
 			//cb_in->in_iack = htonl(tcp->ack_num.value());
