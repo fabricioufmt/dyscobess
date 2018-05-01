@@ -195,9 +195,6 @@ bool DyscoAgentOut::get_port_information() {
 
 //L.365
 bool DyscoAgentOut::out_rewrite_seq(Tcp* tcp, DyscoHashOut* cb_out) {
-#ifdef DEBUG
-	fprintf(stderr, "[%s][DyscoAgentOut] old_seq = %X\n", ns.c_str(), tcp->seq_num.value());
-#endif
 	if(cb_out->seq_delta) {
 		uint32_t new_seq;
 		uint32_t seq = tcp->seq_num.value();
@@ -206,12 +203,10 @@ bool DyscoAgentOut::out_rewrite_seq(Tcp* tcp, DyscoHashOut* cb_out) {
 			new_seq = seq + cb_out->seq_delta;
 		else
 			new_seq = seq - cb_out->seq_delta;
-
-		tcp->seq_num = be32_t(new_seq);
-
 #ifdef DEBUG
-		fprintf(stderr, "[%s][DyscoAgentOut] new_seq = %X (%X +/- %X)\n", ns.c_str(), tcp->seq_num.value(), seq, cb_out->seq_delta);
+		fprintf(stderr, "[%s][DyscoAgentOut] old_seq = %X, new_seq = %X (%X +/- %X)\n", ns.c_str(), tcp->seq_num.value(), new_seq, seq, cb_out->seq_delta);
 #endif
+		tcp->seq_num = be32_t(new_seq);
 		
 		return true;
 	}
@@ -221,9 +216,6 @@ bool DyscoAgentOut::out_rewrite_seq(Tcp* tcp, DyscoHashOut* cb_out) {
 
 //L.391
 bool DyscoAgentOut::out_rewrite_ack(Tcp* tcp, DyscoHashOut* cb_out) {
-#ifdef DEBUG
-	fprintf(stderr, "[%s][DyscoAgentOut] old_ack = %X\n", ns.c_str(), tcp->ack_num.value());
-#endif
 	if(cb_out->ack_delta) {
 		uint32_t new_ack;
 		uint32_t ack = tcp->ack_num.value();
@@ -235,11 +227,11 @@ bool DyscoAgentOut::out_rewrite_ack(Tcp* tcp, DyscoHashOut* cb_out) {
 
 		if(cb_out->sack_ok)
 			dc->tcp_sack(tcp, cb_out->ack_delta, cb_out->ack_add);
-		
-		tcp->ack_num = be32_t(new_ack);
 #ifdef DEBUG
-		fprintf(stderr, "[%s][DyscoAgentOut] new_ack = %X\n", ns.c_str(), tcp->ack_num.value());
-#endif
+		fprintf(stderr, "[%s][DyscoAgentOut] old_ack = %X, new_ack = %X (%X +/ %X)\n", ns.c_str(), tcp->ack_num.value(), new_ack, ack, cb_out->ack_delta);
+#endif		
+		tcp->ack_num = be32_t(new_ack);
+
 		return true;
 	}
 
