@@ -1117,17 +1117,30 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 			if(cb_out->in_iseq < cb_out->out_iseq) {
 				cb_out->seq_delta = cb_out->out_iseq - cb_out->in_iseq;
 #ifdef DEBUG_RECONFIG
-				fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_out->seq_delta3 = %u (%X - %X).\n", ns.c_str(), cb_out->seq_delta, cb_out->out_iseq, cb_out->in_iseq);
+				fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_out->seq_delta3 = %X (%X - %X).\n", ns.c_str(), cb_out->seq_delta, cb_out->out_iseq, cb_out->in_iseq);
 #endif
 				cb_out->seq_add = 1;
 			} else {
 				cb_out->seq_delta = cb_out->in_iseq - cb_out->out_iseq;
 #ifdef DEBUG_RECONFIG
-				fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_out->seq_delta4 = %u (%X - %X).\n", ns.c_str(), cb_out->seq_delta, cb_out->in_iseq, cb_out->out_iseq);
+				fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_out->seq_delta4 = %X (%X - %X).\n", ns.c_str(), cb_out->seq_delta, cb_out->in_iseq, cb_out->out_iseq);
 #endif
 				cb_out->seq_add = 0;
 			}
-			
+
+			if(cb_out->in_iack < cb_out->out_iack) {
+				cb_out->ack_delta = cb_out->out_iack - cb_out->in_iack;
+#ifdef DEBUG_RECONFIG
+				fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_out->ack_delta3 = %X (%X - %X).\n", ns.c_str(), cb_out->ack_delta, cb_out->out_iack, cb_out->in_iack);
+#endif
+				cb_out->ack_add = 1;
+			} else {
+				cb_out->ack_delta = cb_out->in_iack - cb_out->out_iack;
+#ifdef DEBUG_RECONFIG
+				fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_out->ack_delta4 = %X (%X - %X).\n", ns.c_str(), cb_out->ack_delta, cb_out->in_iack, cb_out->out_iack);
+#endif
+				cb_out->ack_add = 0;
+			}
 
 			//rcb = dc->lookup_reconfig_by_ss(this->index, &cb_in->sup);
 			rcb = dc->lookup_reconfig_by_ss(this->index, &cb_out->sup);
