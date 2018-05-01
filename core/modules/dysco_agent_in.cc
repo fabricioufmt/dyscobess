@@ -873,6 +873,8 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 		//TEST //TODO //Ronaldo
 		create_synack(pkt, ip, tcp);
 
+		fprintf(stderr, "[%s][DyscoAgentIn-Control] creating SYN/ACK segment.\n", ns.c_str());
+		
 		//TEST
 		cb_out->ack_cutoff = ntohl(cmsg->seqCutoff);
 		cb_out->in_iseq = rcb->leftIack;
