@@ -744,9 +744,9 @@ bool DyscoAgentOut::control_output_syn(Ipv4* ip, Tcp* tcp, DyscoControlMessage* 
 		//new_dcb->out_iack = new_dcb->in_iack = rcb->leftIack;
 		//new_dcb->in_iseq = rcb->leftIseq;
 		//new_dcb->in_iseq = rcb->leftIack;
-		new_dcb->in_iseq = old_dcb->lastSeq_ho + 1;
+		new_dcb->in_iseq = old_dcb->lastSeq_ho;
 		new_dcb->in_iack = old_dcb->lastAck_ho;
-		new_dcb->out_iseq = tcp->seq_num.value();
+		new_dcb->out_iseq = tcp->seq_num.value() + 1;
 		new_dcb->out_iack = tcp->ack_num.value();
 		//TEST
 		if(new_dcb->in_iseq < new_dcb->out_iseq) {
