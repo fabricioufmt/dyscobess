@@ -812,6 +812,7 @@ bool DyscoAgentIn::control_config_rightA(DyscoCbReconfig* rcb, DyscoControlMessa
 	compute_deltas_out(cb_out, old_out, rcb);
 
 	cb_in->two_paths = 1;
+	fprintf(stderr, "[%s] Setting cb_in->two_paths = 1 (sub: %s)\n", ns.c_str(), print_ss1(cb_in->sub));
 	cb_in->sup = cmsg->super;
 
 	rcb->new_dcb = cb_out;
