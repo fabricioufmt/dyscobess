@@ -583,10 +583,6 @@ DyscoCbReconfig* DyscoAgentOut::insert_cb_control(Ipv4* ip, Tcp* tcp, DyscoContr
 	rcb->sub_out.dip = htonl(ip->dst.value());
 	rcb->sub_out.sport = htons(tcp->src_port.value());
 	rcb->sub_out.dport = htons(tcp->dst_port.value());
-	//rcb->sub_out.sip = ip->src.value();
-	//rcb->sub_out.dip = ip->dst.value();
-	//rcb->sub_out.sport = dc->allocate_local_port(this->index);
-	//rcb->sub_out.dport = dc->allocate_neighbor_port(this->index);
 	
 	rcb->leftIseq = ntohl(cmsg->leftIseq);
 	rcb->leftIack = ntohl(cmsg->leftIack);
@@ -762,10 +758,6 @@ bool DyscoAgentOut::control_output_syn(Ipv4* ip, Tcp* tcp, DyscoControlMessage* 
 		new_dcb->sub = rcb->sub_out;
 
 		//TEST
-		//new_dcb->out_iseq = new_dcb->in_iseq = rcb->leftIseq;
-		//new_dcb->out_iack = new_dcb->in_iack = rcb->leftIack;
-		//new_dcb->in_iseq = rcb->leftIseq;
-		//new_dcb->in_iseq = rcb->leftIack;
 		new_dcb->in_iseq = old_dcb->lastSeq_ho;
 		new_dcb->in_iack = old_dcb->lastAck_ho;
 		new_dcb->out_iseq = tcp->seq_num.value() + 1;

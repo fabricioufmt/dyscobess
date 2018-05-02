@@ -111,36 +111,7 @@ CommandResponse DyscoCenter::CommandList(const bess::pb::DyscoCenterListArg& arg
 	//l.set_msg("... Done.");
 	return CommandSuccess(l);
 }
-/*
-CommandResponse DyscoCenter::CommandReconfig(const bess::pb::DyscoCenterReconfigArg& arg) {
-	std::string ns = arg.ns();
-	bess::pb::DyscoCenterListArg l;
 
-	DyscoHashes* dh = get_hash(get_index(ns, 0));
-	if(!dh) {
-		l.set_msg("Hash not found.");
-		return CommandSuccess(l);
-	}
-
-	std::string sip = arg.sssource().substr(0, arg.sssource().find(':'));
-	int sport = std::stoi(arg.sssource().substr(arg.sssource().find(':') + 1, arg.sssource().length()), nullptr, 10);
-
-	std::string dip = arg.ssdest().substr(0, arg.ssdest().find(':'));
-	int dport = std::stoi(arg.ssdest().substr(arg.ssdest().find(':') + 1, arg.ssdest().length()), nullptr, 10);
-
-	uint32_t i = 0;
-	uint32_t* sc = new uint32_t[arg.sc_len()];
-	for(std::string s : arg.chain()) {
-		inet_pton(AF_INET, s.c_str(), sc + i);
-		i++;
-	}
-
-	//TODO: just for compile
-	fprintf(stderr, "%d %d\n", sport, dport);
-	
-	return CommandSuccess(l);
-}
-*/
 /************************************************************************/
 /************************************************************************/
 /*
@@ -1151,88 +1122,7 @@ bool DyscoCenter::out_hdr_rewrite(bess::Packet*, Ipv4* ip, Tcp* tcp, DyscoTcpSes
 	ip->dst = be32_t(ntohl(sub->dip));
 	tcp->src_port = be16_t(ntohs(sub->sport));
 	tcp->dst_port = be16_t(ntohs(sub->dport));
-	
-	//TODO: verify if it's really necessary
-	//fix_tcp_ip_csum(ip, tcp);
 
-	//TEST
-	/*
-	std::string ip0("10.0.1.1");
-	std::string ip1("10.0.1.2");
-	std::string ip2("10.0.2.1");
-	std::string ip3("10.0.2.2");
-	std::string ip4("10.0.2.3");
-	std::string ip5("10.0.3.1");
-	std::string ip6("10.0.3.2");
-	std::string ip7("10.0.3.3");
-	std::string ip8("10.0.4.1");
-	std::string ip9("10.0.4.2");
-	be32_t iip0;
-	be32_t iip1;
-	be32_t iip2;
-	be32_t iip3;
-	be32_t iip4;
-	be32_t iip5;
-	be32_t iip6;
-	be32_t iip7;
-	be32_t iip8;
-	be32_t iip9;
-	bess::utils::ParseIpv4Address(ip0, &iip0);
-	bess::utils::ParseIpv4Address(ip1, &iip1);
-	bess::utils::ParseIpv4Address(ip2, &iip2);
-	bess::utils::ParseIpv4Address(ip3, &iip3);
-	bess::utils::ParseIpv4Address(ip4, &iip4);
-	bess::utils::ParseIpv4Address(ip5, &iip5);
-	bess::utils::ParseIpv4Address(ip6, &iip6);
-	bess::utils::ParseIpv4Address(ip7, &iip7);
-	bess::utils::ParseIpv4Address(ip8, &iip8);
-	bess::utils::ParseIpv4Address(ip9, &iip9);
-	Ethernet::Address mac0;
-	Ethernet::Address mac1;
-	Ethernet::Address mac2;
-	Ethernet::Address mac3;
-	Ethernet::Address mac4;
-	Ethernet::Address mac5;
-	Ethernet::Address mac6;
-	Ethernet::Address mac7;
-	Ethernet::Address mac8;
-	Ethernet::Address mac9;
-	mac0.FromString("00:00:00:00:00:11");
-	mac1.FromString("00:00:00:00:00:12");
-	mac2.FromString("00:00:00:00:00:21");
-	mac3.FromString("00:00:00:00:00:22");
-	mac4.FromString("00:00:00:00:00:23");
-	mac5.FromString("00:00:00:00:00:31");
-	mac6.FromString("00:00:00:00:00:32");
-	mac7.FromString("00:00:00:00:00:33");
-	mac8.FromString("00:00:00:00:00:41");
-	mac9.FromString("00:00:00:00:00:42");
-
-	Ethernet* eth = pkt->head_data<Ethernet*>();
-		
-	if(ip->dst.value() == iip0.value())
-		eth->dst_addr = mac0;
-	else if(ip->dst.value() == iip1.value())
-		eth->dst_addr = mac1;
-	else if(ip->dst.value() == iip2.value())
-		eth->dst_addr = mac2;
-	else if(ip->dst.value() == iip3.value())
-		eth->dst_addr = mac3;
-	else if(ip->dst.value() == iip4.value())
-		eth->dst_addr = mac4;
-	else if(ip->dst.value() == iip5.value())
-		eth->dst_addr = mac5;
-	else if(ip->dst.value() == iip6.value())
-		eth->dst_addr = mac6;
-	else if(ip->dst.value() == iip7.value())
-		eth->dst_addr = mac7;
-	else if(ip->dst.value() == iip8.value())
-		eth->dst_addr = mac8;
-	else if(ip->dst.value() == iip9.value())
-		eth->dst_addr = mac9;
-	else
-		fprintf(stderr, "not change\n");
-	*/
 	return true;
 }
 

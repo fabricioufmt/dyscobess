@@ -934,12 +934,6 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 		//Not necessary
 		cmsg->seqCutoff = htonl(seq_cutoff);
 
-		//TEST
-		//cb_in->in_iseq = rcb->leftIseq;
-		//cb_in->in_iack = rcb->leftIack;
-		//cb_in->two_paths = 0;
-		//fprintf(stderr, "puttttting cb_in->two_paths = 0 (sub: %s)\n", print_ss1(cb_in->sub));
-
 		if(!dc->insert_hash_input(this->index, cb_in)) {
 #ifdef DEBUG_RECONFIG
 			fprintf(stderr, "[%s][DyscoAgentIn-Control] insert_hash_input returns false.\n", ns.c_str());
@@ -1081,52 +1075,13 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 				return END;
 			}
 
-			cb_in->in_iseq = tcp->seq_num.value() + 1; //18h20 TEST
+			cb_in->in_iseq = tcp->seq_num.value() + 1;
 			cb_in->in_iack = tcp->ack_num.value();
-			//cb_out->out_iack = cb_in->in_iseq + 1;
-			//cb_in->in_iack = htonl(tcp->ack_num.value());
 
 			//TEST
 			cb_in->lastSeq_ho = tcp->seq_num.value();
 			cb_in->lastAck_ho = tcp->ack_num.value();
-			/*
-#ifdef DEBUG_RECONFIG
-			fprintf(stderr, "[%s][DyscoAgentIn-Control] IMPORTANT\n", ns.c_str());
-			fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in (sub_in: %s)\n", ns.c_str(), print_ss1(cb_in->sub));
-			fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->in_iseq = %X, cb_in->in_iack = %X.\n", ns.c_str(), cb_in->in_iseq, cb_in->in_iack);
-			fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->out_iseq = %X, cb_in->out_iack = %X.\n", ns.c_str(), cb_in->out_iseq, cb_in->out_iack);
-			fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_out->in_iseq = %X, cb_out->in_iack = %X.\n", ns.c_str(), cb_out->in_iseq, cb_out->in_iack);
-			fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_out->out_iseq = %X, cb_out->out_iack = %X.\n", ns.c_str(), cb_out->out_iseq, cb_out->out_iack);
-			fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_out->lastAck_ho = %X, cb_in->lastAck_ho = %X.\n", ns.c_str(), cb_out->lastAck_ho, cb_in->lastAck_ho);
-#endif
-
-
-
-
-			if(cb_out->in_iack < cb_out->out_iack) {
-				cb_out->ack_delta = cb_out->out_iack - cb_out->in_iack;
-#ifdef DEBUG_RECONFIG
-				fprintf(stderr, "[%s][DyscoAgentIn-Control] sub: %s.\n", ns.c_str(), print_ss1(cb_out->sub));
-				fprintf(stderr, "[%s][DyscoAgentIn-Control] sup: %s.\n", ns.c_str(), print_ss1(cb_out->sup));
-				fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_out->ack_delta = cb_out->out_iack - cb_out->in_iack.\n", ns.c_str());
-				fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_out->ack_delta1 = %X (%X - %X).\n", ns.c_str(), cb_out->ack_delta, cb_out->out_iack, cb_out->in_iack);
-#endif
-				cb_out->ack_add = 1;
-			} else {
-				cb_out->ack_delta = cb_out->in_iack - cb_out->out_iack;
-#ifdef DEBUG_RECONFIG
-				fprintf(stderr, "[%s][DyscoAgentIn-Control] sub: %s.\n", ns.c_str(), print_ss1(cb_out->sub));
-				fprintf(stderr, "[%s][DyscoAgentIn-Control] sup: %s.\n", ns.c_str(), print_ss1(cb_out->sup));
-				fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_out->ack_delta = cb_out->in_iack - cb_out->out_iack.\n", ns.c_str());
-				fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_out->ack_delta2 = %X (%X - %X).\n", ns.c_str(), cb_out->ack_delta, cb_out->in_iack, cb_out->out_iack);
-#endif
-				cb_out->ack_add = 0;
-			}
-
-			*/
-
-
-
+			
 #ifdef DEBUG_RECONFIG
 			fprintf(stderr, "COMPUTE DELTA WHEN RECEIVE SYN/ACK ON LEFT ANCHOR.\n");
 			fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->sub: %s.\n", ns.c_str(), print_ss1(cb_in->sub));
@@ -1236,12 +1191,6 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 #endif
 				return ERROR;
 			}
-
-			//TEST
-			//rcb->old_dcb->valid_ack_cut = 1;
-			//rcb->old_dcb->ack_cutoff = cb_out->ack_cutoff;
-			//rcb->old_dcb->ack_cutoff = cb_out->in_iack;
-			//fprintf(stderr, "rcb->old_dcb->ack_cutoff: %X\n", rcb->old_dcb->ack_cutoff);
 			
 			if(!rcb->old_dcb->state_t) {
 				DyscoHashOut* old_dcb = rcb->old_dcb;
@@ -1458,7 +1407,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 	}
 
 	/*
-	  TODO: verify the necessity of this.
+	  TODO: verify
 	case DYSCO_STATE_TRANSFERRED:
 #ifdef DEBUG_RECONFIG
 		fprintf(stderr, "[DyscoAgentIn]: DYSCO_STATE_TRANSFERRED message.\n");
