@@ -356,7 +356,9 @@ DyscoHashOut* DyscoAgentOut::pick_path_ack(Tcp* tcp, DyscoHashOut* cb_out) {
 		fprintf(stderr, "pick_path_ack: going to new path\n");
 	else
 		fprintf(stderr, "pick_path_ack: going to old path\n");
-
+	
+	fprintf(stderr, "cb->sup: %s\n", print_ss2(cb->sup));
+	fprintf(stderr, "cb->sub: %s\n", print_ss2(cb->sub));
 	fprintf(stderr, "cb_out->sup: %s\n", print_ss2(cb_out->sup));
 	fprintf(stderr, "cb_out->sub: %s\n", print_ss2(cb_out->sub));
 	
