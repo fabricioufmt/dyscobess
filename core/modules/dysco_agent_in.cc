@@ -542,11 +542,13 @@ bool DyscoAgentIn::input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 
 	if(cb_in->two_paths) {
 		fprintf(stderr, "does have two paths\n");
+		/*
 		if(hasPayload(ip, tcp)) {
 			if(!in_two_paths_data_seg(tcp, cb_in))
 				return false;
 		} else
 			in_two_paths_ack(tcp, cb_in);
+		*/
 	} else
 		fprintf(stderr, "does not have two paths\n");
 	
@@ -1163,7 +1165,8 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 				cb_in->ack_add = 0;
 			}
 
-
+			//TEST
+			cb_in->two_paths = 1;
 
 
 
@@ -1335,6 +1338,8 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 				cb_in->ack_add = 0;
 			}
 
+			//TEST
+			cb_in->two_paths = 1;
 			
 			if(!rcb->old_dcb) {
 				return ERROR;
