@@ -471,6 +471,7 @@ bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in) {
 			} else {
 				old_out->ack_cutoff = seq;
 				old_out->valid_ack_cut = 1;
+				fprintf(stderr, "[AFTER]old_out->valid_ack_cut: 1\n");
 			}
 			fprintf(stderr, "[AFTER]old_out->ack_cutoff: %X\n", old_out->ack_cutoff);
 		}
@@ -1167,8 +1168,9 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 			
 			//not necessary
 			cb_out->ack_cutoff = ntohl(cmsg->seqCutoff);
-			fprintf(stderr, "cb_out->ack_cutoff: %X\n", cb_out->ack_cutoff);
 			cb_out->valid_ack_cut = 1;
+			fprintf(stderr, "cb_out->ack_cutoff: %X\n", cb_out->ack_cutoff);
+			fprintf(stderr, "cb_out->valid_ack_cut: 1\n");
 
 			// SEND ACK MESSAGE
 			//TEST //TODO
@@ -1351,6 +1353,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 				old_out->valid_ack_cut = 1;
 				old_out->state = DYSCO_ESTABLISHED;
 				fprintf(stderr, "old_out->ack_cutoff: %X, old_out->state == DYSCO_ESTABLISHED.\n", old_out_ack_cutoff);
+				fprintf(stderr, "old_out->valid_ack_cut: 1.\n");
 			}
 
 
