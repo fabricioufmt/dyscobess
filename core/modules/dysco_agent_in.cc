@@ -1184,6 +1184,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 			cb_out->valid_ack_cut = 1;
 			fprintf(stderr, "cb_out->ack_cutoff: %X\n", cb_out->ack_cutoff);
 			fprintf(stderr, "cb_out->valid_ack_cut: 1\n");
+			fprintf(stderr, "cb_out->sub: %s\ncb_out->sup: %s.\n", print_ss1(cb_out->sub), print_ss1(cb_out->sup));
 
 			// SEND ACK MESSAGE
 			//TEST //TODO
