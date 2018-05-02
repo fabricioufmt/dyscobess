@@ -935,8 +935,8 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 		//TEST
 		//cb_in->in_iseq = rcb->leftIseq;
 		//cb_in->in_iack = rcb->leftIack;
-		cb_in->two_paths = 0;
-		fprintf(stderr, "puttttting cb_in->two_paths = 0 (sub: %s)\n", print_ss1(cb_in->sub));
+		//cb_in->two_paths = 0;
+		//fprintf(stderr, "puttttting cb_in->two_paths = 0 (sub: %s)\n", print_ss1(cb_in->sub));
 
 		if(!dc->insert_hash_input(this->index, cb_in)) {
 #ifdef DEBUG_RECONFIG
