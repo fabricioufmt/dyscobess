@@ -414,12 +414,15 @@ bool DyscoAgentIn::in_two_paths_ack(Tcp* tcp, DyscoHashIn* cb_in) {
 
 	if(cb_out->old_path) {
 		if(cb_out->state_t) {
-			if(cb_out->state == DYSCO_ESTABLISHED)
+			if(cb_out->state == DYSCO_ESTABLISHED) {
 				cb_in->two_paths = 0;
+				fprintf(stderr, "puting cb_in->two_paths = 0 (sub: %s)\n", print_ss1(cb_in->sub));
+			}
 		} else {
 			if(!dc->after(cb_out->seq_cutoff, ack_seq)) {
 				cb_out->use_np_seq = 1;
 				cb_in->two_paths = 0;
+				fprintf(stderr, "puting cb_in->two_paths = 0 (sub: %s)\n", print_ss1(cb_in->sub));
 			}
 		}
 	} else {
@@ -427,12 +430,15 @@ bool DyscoAgentIn::in_two_paths_ack(Tcp* tcp, DyscoHashIn* cb_in) {
 		if(!cb_out)
 			return false;
 
-		if(cb_out->state_t && cb_out->state == DYSCO_ESTABLISHED)
+		if(cb_out->state_t && cb_out->state == DYSCO_ESTABLISHED) {
 			cb_in->two_paths = 0;
+			fprintf(stderr, "puting cb_in->two_paths = 0 (sub: %s)\n", print_ss1(cb_in->sub));
+		}
 		else {
 			if(!dc->after(cb_out->seq_cutoff, ack_seq)) {
 				cb_out->use_np_seq = 1;
 				cb_in->two_paths = 0;
+				fprintf(stderr, "puting cb_in->two_paths = 0 (sub: %s)\n", print_ss1(cb_in->sub));
 			}
 		}
 	}
@@ -850,6 +856,7 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 		cb_in->in_iseq = rcb->leftIseq;
 		cb_in->in_iack = rcb->leftIack;
 		cb_in->two_paths = 0;
+		fprintf(stderr, "not right anchor puting cb_in->two_paths = 0 (sub: %s)\n", print_ss1(cb_in->sub));
 	} else {
 #ifdef DEBUG_RECONFIG
 		fprintf(stderr, "[%s][DyscoAgentIn-Control] It's the right anchor.\n", ns.c_str());
@@ -929,6 +936,7 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 		//cb_in->in_iseq = rcb->leftIseq;
 		//cb_in->in_iack = rcb->leftIack;
 		cb_in->two_paths = 0;
+		fprintf(stderr, "puttttting cb_in->two_paths = 0 (sub: %s)\n", print_ss1(cb_in->sub));
 
 		if(!dc->insert_hash_input(this->index, cb_in)) {
 #ifdef DEBUG_RECONFIG
