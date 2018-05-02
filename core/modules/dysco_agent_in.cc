@@ -531,17 +531,18 @@ bool DyscoAgentIn::input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 	fprintf(stderr, "cb_in->out_iack: %X.\n", cb_in->out_iack);
 	fprintf(stderr, "cb_in->seq_delta: %X.\n", cb_in->seq_delta);
 	fprintf(stderr, "cb_in->ack_delta: %X.\n", cb_in->ack_delta);
-							
 #endif
 	
 
 	if(cb_in->two_paths) {
+		fprintf(stderr, "does have two paths\n");
 		if(hasPayload(ip, tcp)) {
 			if(!in_two_paths_data_seg(tcp, cb_in))
 				return false;
 		} else
 			in_two_paths_ack(tcp, cb_in);
-	}
+	} else
+		fprintf(stderr, "does not have two paths\n");
 	
 	in_hdr_rewrite_csum(ip, tcp, cb_in);
 
