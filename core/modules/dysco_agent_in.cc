@@ -1359,7 +1359,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 			new_out = old_out->other_path;
 			//TEST
 			new_out->out_iseq = tcp->ack_num.value();
-			old_out_ack_cutoff = cb_in->out_iack;
+			old_out->ack_cutoff = cb_in->out_iseq;
 			
 			if(new_out->in_iack < new_out->out_iack) {
 				uint32_t delta = new_out->out_iack - new_out->in_iack;
