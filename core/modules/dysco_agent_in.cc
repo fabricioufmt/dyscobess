@@ -1239,7 +1239,8 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 
 			//TEST
 			rcb->old_dcb->valid_ack_cut = 1;
-			rcb->old_dcb->ack_cutoff = cb_out->ack_cutoff;
+			//rcb->old_dcb->ack_cutoff = cb_out->ack_cutoff;
+			rcb->old_dcb->ack_cutoff = cb_out->in_iack;
 			fprintf(stderr, "rcb->old_dcb->ack_cutoff: %X\n", rcb->old_dcb->ack_cutoff);
 			
 			if(!rcb->old_dcb->state_t) {
@@ -1359,7 +1360,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 			new_out = old_out->other_path;
 			//TEST
 			new_out->out_iseq = tcp->ack_num.value();
-			old_out->ack_cutoff = cb_in->out_iseq;
+			old_out_ack_cutoff = cb_in->out_iseq;
 			
 			if(new_out->in_iack < new_out->out_iack) {
 				uint32_t delta = new_out->out_iack - new_out->in_iack;
