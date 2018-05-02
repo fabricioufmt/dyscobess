@@ -1239,6 +1239,8 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 
 			//TEST
 			rcb->old_dcb->valid_ack_cut = 1;
+			rcb->old_dcb->ack_cutoff = cb_out->ack_cutoff;
+			fprintf(stderr, "rcb->old_dcb->ack_cutoff: %X\n", rcb->old_dcb->ack_cutoff);
 			
 			if(!rcb->old_dcb->state_t) {
 				DyscoHashOut* old_dcb = rcb->old_dcb;
