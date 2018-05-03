@@ -339,21 +339,20 @@ DyscoHashOut* DyscoAgentOut::pick_path_ack(Tcp* tcp, DyscoHashOut* cb_out) {
 			if(cb_out->use_np_ack) {
 				cb = cb_out->other_path;
 				fprintf(stderr, "pick_path_ack: cb_out->use_np_ack is TRUE.\n");			
-			} else if(!dc->after(cb_out->ack_cutoff, ack)) {
-				fprintf(stderr, "pick_path_ack: !after(cb_out->ack_cutoff, ack) [%X %X].\n", cb_out->ack_cutoff, ack);			
+			} else if(dc->after(cb_out->ack_cutoff, ack)) {
+				fprintf(stderr, "pick_path_ack: after(cb_out->ack_cutoff, ack) [%X %X].\n", cb_out->ack_cutoff, ack);			
 				if(tcp->flags & Tcp::kFin)
 					cb = cb_out->other_path;
 				else {
 					//TEST
 					//tcp->ack_num = be32_t(cb_out->ack_cutoff);
+					cb = cb_out->other_path;
 					cb_out->ack_ctr++;
 					if(cb_out->ack_ctr > 1)
 						cb_out->use_np_ack = 1;
 				}
 			} else {
-				fprintf(stderr, "pick_path_ack: after(cb_out->ack_cutoff, ack) [%X %X].\n", cb_out->ack_cutoff, ack);
-				//TEST
-				cb = cb_out->other_path;
+				fprintf(stderr, "pick_path_ack: !after(cb_out->ack_cutoff, ack) [%X %X].\n", cb_out->ack_cutoff, ack);
 			}
 		} else
 			fprintf(stderr, "pick_path_ack: cb_out->valid_ack_cut is FALSE.\n");
@@ -364,13 +363,7 @@ DyscoHashOut* DyscoAgentOut::pick_path_ack(Tcp* tcp, DyscoHashOut* cb_out) {
 	else
 		fprintf(stderr, "pick_path_ack: going to old path\n");
 	
-	fprintf(stderr, "cb->sup: %s\n", print_ss2(cb->sup));
-	fprintf(stderr, "cb->sub: %s\n", print_ss2(cb->sub));
-	fprintf(stderr, "cb_out->sup: %s\n", print_ss2(cb_out->sup));
-	fprintf(stderr, "cb_out->sub: %s\n", print_ss2(cb_out->sub));
-	
-	//return cb;
-	return cb_out->other_path;
+	return cb;
 }
 
 //L.585
