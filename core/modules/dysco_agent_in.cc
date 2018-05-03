@@ -591,7 +591,7 @@ DyscoCbReconfig* DyscoAgentIn::insert_rcb_control_input(Ipv4* ip, Tcp* tcp, Dysc
 	return rcb;
 }
 
-DyscoHashOut* DyscoAgentIn::build_cb_in_reverse(Ipv4* ip, DyscoCbReconfig* rcb) {
+DyscoHashOut* DyscoAgentIn::build_cb_in_reverse(Ipv4*, DyscoCbReconfig* rcb) {
 	DyscoHashOut* cb_out = new DyscoHashOut();
 
 	cb_out->sup.sip = rcb->super.dip;
@@ -1204,7 +1204,7 @@ void DyscoAgentIn::create_synack(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 	be16_t pswap = tcp->src_port;
 	tcp->src_port = tcp->dst_port;
 	tcp->dst_port = pswap;
-	be32_t seqswap = tcp->seq_num.value();
+	be32_t seqswap = tcp->seq_num;
 	tcp->seq_num = tcp->ack_num;
 	tcp->ack_num = seqswap + be32_t(1);
 	tcp->flags |= Tcp::kAck;
