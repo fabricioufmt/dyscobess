@@ -1112,6 +1112,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 
 			//ACK message doesn't load cmsg instead Dysco (with UDP)
 			//old_out_ack_cutoff = ntohl(cmsg->seqCutoff);
+			old_out_ack_cutoff = 0;
 			
 			if(new_out->in_iack < new_out->out_iack) {
 				uint32_t delta = new_out->out_iack - new_out->in_iack;
