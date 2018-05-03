@@ -422,7 +422,6 @@ DyscoHashOut* DyscoCenter::insert_cb_in_reverse(DyscoTcpSession* ss_payload, Ipv
 	return cb_out;
 }
 
-//ONLY INST_RIGHT_ANCHOR reaches here
 DyscoHashIn* DyscoCenter::insert_cb_input(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_t* payload, uint32_t payload_sz) {
 #ifdef DEBUG_RECONFIG
 	fprintf(stderr, "[DyscoCenter]: insert_cb_input method.\n");
@@ -637,10 +636,10 @@ DyscoHashOut* DyscoCenter::out_syn(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp*
 		DyscoTcpSession local_sub;
 		DyscoHashIn* cb_in_aux;
 
-		local_sub.sip = cb_out->sup.dip;
-		local_sub.dip = cb_out->sup.sip;
-		local_sub.sport = cb_out->sup.dport;
-		local_sub.dport = cb_out->sup.sport;
+		local_sub.sip = cb_out->sub.dip;
+		local_sub.dip = cb_out->sub.sip;
+		local_sub.sport = cb_out->sub.dport;
+		local_sub.dport = cb_out->sub.sport;
 
 		fprintf(stderr, "cb_out->sup: %s\n", print_ss0(cb_out->sup));
 		fprintf(stderr, "cb_out->sub: %s\n", print_ss0(cb_out->sub));
