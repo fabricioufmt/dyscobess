@@ -645,8 +645,6 @@ DyscoHashOut* DyscoCenter::out_syn(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp*
 		if(!cb_in_aux)
 			return 0;
 
-		//cb_out->in_iseq = cb_out->out_iseq = htonl(tcp->seq_num.value());
-		//cb_out->in_iack = cb_out->out_iack = htonl(tcp->ack_num.value() - 1);
 		cb_out->in_iseq = cb_out->out_iseq = tcp->seq_num.value();
 		cb_out->in_iack = cb_out->out_iack = tcp->ack_num.value() - 1;
 

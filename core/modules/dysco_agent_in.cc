@@ -618,7 +618,7 @@ bool DyscoAgentIn::compute_deltas_in(DyscoHashIn* cb_in, DyscoHashOut* old_out, 
 	
 #ifdef DEBUG_RECONFIG
 	fprintf(stderr, "[%s][DyscoAgentIn-Control] compute_deltas_in.\n", ns.c_str());
-	fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->in_iseq: %X (should be zero, when ACK received is filled.\n", ns.c_str(), cb_in->in_iseq);
+	fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->in_iseq: %X.\n", ns.c_str(), cb_in->in_iseq);
 	fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->in_iack: %X.\n", ns.c_str(), cb_in->in_iack);
 	fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->out_iseq: %X.\n", ns.c_str(), cb_in->out_iseq);
 	fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->out_iack: %X.\n", ns.c_str(), cb_in->out_iack);	

@@ -536,9 +536,9 @@ bool DyscoAgentOut::output(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 		}
 	}
 
-	if(isTCPSYN(tcp, true)) {
+	if(isTCPSYN(tcp)) {
 #ifdef DEBUG
-		fprintf(stderr, "[%s][DyscoAgentOut] It's a TCP SYN segment.\n", ns.c_str());
+		fprintf(stderr, "[%s][DyscoAgentOut] It's a TCP SYN or SYN/ACK segment.\n", ns.c_str());
 #endif		
 		return dc->out_syn(this->index, pkt, ip, tcp, cb_out, devip) != 0 ? true : false;
 	}
