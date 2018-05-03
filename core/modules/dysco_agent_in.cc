@@ -1050,7 +1050,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 			}
 
 			//TEST
-			cb_out->ack_cutoff = rcb->old_dcb->out_iseq; //should be + delta (but, which delta value?)
+			cb_out->ack_cutoff = rcb->old_dcb->in_iseq; //should be + delta (but, which delta value?)
 			
 			if(!rcb->old_dcb->state_t) {
 				DyscoHashOut* old_dcb = rcb->old_dcb;
