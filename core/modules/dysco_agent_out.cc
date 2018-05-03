@@ -339,8 +339,8 @@ DyscoHashOut* DyscoAgentOut::pick_path_ack(Tcp* tcp, DyscoHashOut* cb_out) {
 			if(cb_out->use_np_ack) {
 				cb = cb_out->other_path;
 				fprintf(stderr, "pick_path_ack: cb_out->use_np_ack is TRUE.\n");			
-			} else if(dc->after(cb_out->ack_cutoff, ack)) {
-				fprintf(stderr, "pick_path_ack: after(cb_out->ack_cutoff, ack) [%X %X].\n", cb_out->ack_cutoff, ack);			
+			} else if(!dc->after(cb_out->ack_cutoff, ack)) {
+				fprintf(stderr, "pick_path_ack: !after(cb_out->ack_cutoff, ack) [%X %X].\n", cb_out->ack_cutoff, ack);			
 				if(tcp->flags & Tcp::kFin)
 					cb = cb_out->other_path;
 				else {
@@ -352,7 +352,7 @@ DyscoHashOut* DyscoAgentOut::pick_path_ack(Tcp* tcp, DyscoHashOut* cb_out) {
 						cb_out->use_np_ack = 1;
 				}
 			} else {
-				fprintf(stderr, "pick_path_ack: !after(cb_out->ack_cutoff, ack) [%X %X].\n", cb_out->ack_cutoff, ack);
+				fprintf(stderr, "pick_path_ack: after(cb_out->ack_cutoff, ack) [%X %X].\n", cb_out->ack_cutoff, ack);
 			}
 		} else
 			fprintf(stderr, "pick_path_ack: cb_out->valid_ack_cut is FALSE.\n");
