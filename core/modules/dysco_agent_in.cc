@@ -573,28 +573,14 @@ DyscoCbReconfig* DyscoAgentIn::insert_rcb_control_input(Ipv4* ip, Tcp* tcp, Dysc
 	rcb->sub_in.dip = htonl(ip->dst.value());
 	rcb->sub_in.sport = htons(tcp->src_port.value());
 	rcb->sub_in.dport = htons(tcp->dst_port.value());
-	//rcb->sub_in.sport = cmsg->sport;
-	//rcb->sub_in.dport = cmsg->dport;
 	rcb->sub_out.sip = 0;
 
 	rcb->leftIseq = ntohl(cmsg->leftIseq);
 	rcb->leftIack = ntohl(cmsg->leftIack);
-
-#ifdef DEBUG_RECONFIG
-	fprintf(stderr, "[%s][DyscoAgentIn-Control] cmsg->leftIseq = %X\n",
-		ns.c_str(), ntohl(cmsg->leftIseq));
-	fprintf(stderr, "[%s][DyscoAgentIn-Control] cmsg->leftIack = %X\n",
-		ns.c_str(), ntohl(cmsg->leftIack));
-	fprintf(stderr, "[%s][DyscoAgentIn-Control] cmsg->seqCutoff = %X\n",
-		ns.c_str(), ntohl(cmsg->seqCutoff));
-#endif
-	
 	rcb->leftIts = ntohl(cmsg->leftIts);
 	rcb->leftItsr = ntohl(cmsg->leftItsr);
-
 	rcb->leftIws = ntohl(cmsg->leftIws);
 	rcb->leftIwsr = ntohl(cmsg->leftIwsr);
-
 	rcb->sack_ok = ntohl(cmsg->sackOk);
 	
 	if(!dc->insert_hash_reconfig(this->index, rcb)) {
@@ -613,24 +599,23 @@ DyscoHashOut* DyscoAgentIn::build_cb_in_reverse(Ipv4* ip, DyscoCbReconfig* rcb) 
 	cb_out->sup.sport = rcb->super.dport;
 	cb_out->sup.dport = rcb->super.sport;
 
-	cb_out->sub.sip = htonl(ip->dst.value());
-	cb_out->sub.dip = htonl(ip->src.value());
+	//cb_out->sub.sip = htonl(ip->dst.value());
+	//cb_out->sub.dip = htonl(ip->src.value());
+	cb_out->sub.sip = rcb->sub_in.dip;
+	cb_out->sub.dip = rcb->sub_in.sip;
 	cb_out->sub.sport = rcb->sub_in.dport;
 	cb_out->sub.dport = rcb->sub_in.sport;
 
-	//TEST
-	//cb_out->out_iseq = cb_out->in_iseq = rcb->leftIack;
-	//cb_out->out_iack = cb_out->in_iack = rcb->leftIseq;
+	cb_out->out_iseq = cb_out->in_iseq = rcb->leftIack;
+	cb_out->out_iack = cb_out->in_iack = rcb->leftIseq;
 
 	return cb_out;
 }
 
 bool DyscoAgentIn::compute_deltas_in(DyscoHashIn* cb_in, DyscoHashOut* old_out, DyscoCbReconfig* rcb) {
-	//TEST
-	//cb_in->in_iseq++;
-	//cb_in->out_iseq = old_out->in_iack;
-	//cb_in->out_iack = old_out->in_iseq;
-	/*
+	cb_in->out_iseq = old_out->in_iack;
+	cb_in->out_iack = old_out->in_iseq;
+	
 #ifdef DEBUG_RECONFIG
 	fprintf(stderr, "[%s][DyscoAgentIn-Control] compute_deltas_in.\n", ns.c_str());
 	fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->in_iseq: %X (should be zero, when ACK received is filled.\n", ns.c_str(), cb_in->in_iseq);
@@ -665,7 +650,7 @@ bool DyscoAgentIn::compute_deltas_in(DyscoHashIn* cb_in, DyscoHashOut* old_out, 
 #endif
 		cb_in->ack_add = 0;
 	}
-*/
+
 	if(rcb->leftIts) {
 		cb_in->ts_ok = 1;
 		cb_in->ts_in = rcb->leftIts;
@@ -710,12 +695,9 @@ bool DyscoAgentIn::compute_deltas_in(DyscoHashIn* cb_in, DyscoHashOut* old_out, 
 }
 
 bool DyscoAgentIn::compute_deltas_out(DyscoHashOut* cb_out, DyscoHashOut* old_out, DyscoCbReconfig* rcb) {
-	//TEST
-	//old_out->in_iseq = cb_out->in_iseq;
-	//old_out->out_iseq = cb_out->in_iseq;
-	//cb_out->in_iseq = old_out->in_iseq;
-	//cb_out->in_iack = old_out->in_iack;
-	/*
+	cb_out->in_iseq = old_out->in_iseq;
+	cb_out->in_iack = old_out->in_iack;
+
 #ifdef DEBUG_RECONFIG
 	fprintf(stderr, "[%s][DyscoAgentIn-Control] compute_deltas_out.\n", ns.c_str());
 	fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_out->in_iseq: %X.\n", ns.c_str(), cb_out->in_iseq);
@@ -745,7 +727,7 @@ bool DyscoAgentIn::compute_deltas_out(DyscoHashOut* cb_out, DyscoHashOut* old_ou
 		cb_out->ack_delta = cb_out->in_iack - cb_out->out_iack;
 		cb_out->ack_add = 0;
 	}
-	*/
+
 	if(rcb->leftIts) {
 		cb_out->ts_ok = 1;
 		cb_out->ts_in = old_out->ts_in;
@@ -808,7 +790,6 @@ bool DyscoAgentIn::control_config_rightA(DyscoCbReconfig* rcb, DyscoControlMessa
 	if(!old_out) {
 		delete cb_in;
 		dc->remove_reconfig(this->index, rcb);
-		//TEST
 		delete rcb;
 
 		return false;
@@ -820,26 +801,19 @@ bool DyscoAgentIn::control_config_rightA(DyscoCbReconfig* rcb, DyscoControlMessa
 	compute_deltas_out(cb_out, old_out, rcb);
 
 	cb_in->two_paths = 1;
-	fprintf(stderr, "[%s] Setting cb_in->two_paths = 1 (sub: %s)\n", ns.c_str(), print_ss1(cb_in->sub));
 	cb_in->sup = cmsg->super;
 
 	rcb->new_dcb = cb_out;
 	rcb->old_dcb = old_out;
 	cb_out->other_path = old_out;
 	
-	if(cmsg->semantic == STATE_TRANSFER)
+	if(ntohl(cmsg->semantic) == STATE_TRANSFER)
 		old_out->state_t = 1;
 	
 	return true;
 }
 
 CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, uint8_t*, DyscoCbReconfig* rcb, DyscoControlMessage* cmsg) {
-#ifdef DEBUG_RECONFIG
-	fprintf(stderr, "[%s][DyscoAgentIn-Control] control_reconfig_in method\n", ns.c_str());
-	fprintf(stderr, "[%s][DyscoAgentIn-Control] created rcb(super: %s)\n", ns.c_str(), print_ss1(rcb->super));
-	fprintf(stderr, "[%s][DyscoAgentIn-Control] rcb->leftIseq: %X and rcb->leftIack: %X\n", ns.c_str(), rcb->leftIseq, rcb->leftIack);
-#endif
-	
 	DyscoHashIn* cb_in;
 	DyscoHashOut* cb_out;
 	if(!isRightAnchor(ip, cmsg)) {
@@ -866,9 +840,6 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 		cb_in = new DyscoHashIn();
 		cb_in->sub = rcb->sub_in;
 
-		//TEST
-		//cb_in->in_iseq = tcp->seq_num.value();
-		//cb_in->in_iack = tcp->ack_num.value();
 		cb_in->out_iseq = rcb->leftIseq;
 		cb_in->out_iack = rcb->leftIack;
 				
@@ -878,7 +849,6 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 		if(!cb_out) {
 			delete cb_in;
 			dc->remove_reconfig(this->index, rcb);
-			//TEST
 			delete rcb;
 			
 			return ERROR;
@@ -889,18 +859,6 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 #ifdef DEBUG_RECONFIG
 		fprintf(stderr, "[%s][DyscoAgentIn-Control] creating SYN/ACK segment.\n", ns.c_str());
 #endif
-		//TEST
-		cb_out->ack_cutoff = ntohl(cmsg->seqCutoff);
-		fprintf(stderr, "cb_out->ack_cutoff: %X\n", cb_out->ack_cutoff);
-		cb_out->in_iseq = rcb->leftIack;
-		cb_out->in_iack = rcb->leftIseq;
-		cb_out->out_iseq = tcp->seq_num.value(); //new values due create_synack method (already switched)
-		cb_out->out_iack = tcp->ack_num.value(); //new values due create_synack method
-		cb_in->in_iack = cb_out->out_iack;
-		
-		cb_out->is_reconfiguration = 1;
-		cb_out->dcb_in = cb_in;
-		cb_in->dcb_out = cb_out;
 		
 		if(!control_config_rightA(rcb, cmsg, cb_in, cb_out))
 			return ERROR;
@@ -910,29 +868,17 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 		DyscoHashOut* new_out = rcb->new_dcb;
 		uint32_t seq_cutoff = old_out->seq_cutoff;
 
-
-
-
-		
-		
-#ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[%s][DyscoAgentIn-Control] old_out->lastSeq_ho = %X.\n", ns.c_str(), old_out->lastSeq_ho);
-		fprintf(stderr, "[%s][DyscoAgentIn-Control] old_out->seq_cutoff = %X.\n", ns.c_str(), old_out->seq_cutoff);
-		fprintf(stderr, "[%s][DyscoAgentIn-Control] new_out->seq_cutoff = %X.\n", ns.c_str(), new_out->seq_cutoff);
-		fprintf(stderr, "[%s][DyscoAgentIn-Control] cmsg->seqCutoff = %X.\n", ns.c_str(), ntohl(cmsg->seqCutoff));
-#endif
-		
 		old_out->old_path = 1;
 		old_out->state = DYSCO_SYN_RECEIVED;
 		old_out->other_path = new_out;
-
+		fprintf(stderr, "new_seq_cutoff: %X +/- %X\n", seq_cutoff, new_out->seq_delta);
 		if(new_out->seq_add)
 			seq_cutoff += new_out->seq_delta;
 		else
 			seq_cutoff -= new_out->seq_delta;
 
 		//Not necessary
-		cmsg->seqCutoff = htonl(seq_cutoff);
+		//cmsg->seqCutoff = htonl(seq_cutoff);
 
 		if(!dc->insert_hash_input(this->index, cb_in)) {
 #ifdef DEBUG_RECONFIG
@@ -1010,11 +956,6 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 #ifdef DEBUG_RECONFIG
 		fprintf(stderr, "[%s][DyscoAgentIn-Control] DYSCO_SYN message.\n", ns.c_str());
 #endif
-
-		//Impossible case
-		//if(!hasPayload(ip, tcp))
-		//	return END;
-
 		uint8_t* payload = reinterpret_cast<uint8_t*>(tcp) + tcp_hlen;
 		cmsg = reinterpret_cast<DyscoControlMessage*>(payload);
 		
@@ -1024,8 +965,6 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 #ifdef DEBUG_RECONFIG
 			fprintf(stderr, "[%s][DyscoAgentIn-Control] It's a retransmission of reconfiguration packet.\n", ns.c_str());
 #endif
-			//TODO: verify, when is left or right anchor, should do nothing
-			//when not, should remove_payload and forward to gate0
 			return IS_RETRANSMISSION;
 		}
 
@@ -1075,108 +1014,22 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 				return END;
 			}
 
-			cb_in->in_iseq = tcp->seq_num.value() + 1;
-			cb_in->in_iack = tcp->ack_num.value();
-
-			//TEST
-			cb_in->lastSeq_ho = tcp->seq_num.value();
-			cb_in->lastAck_ho = tcp->ack_num.value();
-			
-#ifdef DEBUG_RECONFIG
-			fprintf(stderr, "COMPUTE DELTA WHEN RECEIVE SYN/ACK ON LEFT ANCHOR.\n");
-			fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->sub: %s.\n", ns.c_str(), print_ss1(cb_in->sub));
-			fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->sup: %s.\n", ns.c_str(), print_ss1(cb_in->sup));
-#endif
-
-			if(cb_in->in_iseq < cb_in->out_iseq) {
-				cb_in->seq_delta = cb_in->out_iseq - cb_in->in_iseq;
-#ifdef DEBUG_RECONFIG
-				fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->seq_delta = cb_in->out_iseq - cb_in->in_iseq.\n", ns.c_str());
-				fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->seq_delta5 = %X (%X - %X).\n", ns.c_str(), cb_in->seq_delta, cb_in->out_iseq, cb_in->in_iseq);
-#endif
-				cb_in->seq_add = 1;
-			} else {
-				cb_in->seq_delta = cb_in->in_iseq - cb_in->out_iseq;
-#ifdef DEBUG_RECONFIG
-				fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->seq_delta = cb_in->in_iseq - cb_in->out_iseq.\n", ns.c_str());	
-				fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->seq_delta6 = %X (%X - %X).\n", ns.c_str(), cb_in->seq_delta, cb_in->in_iseq, cb_in->out_iseq);
-#endif
-				cb_in->seq_add = 0;
-			}
-			
-			if(cb_in->in_iack < cb_in->out_iack) {
-				cb_in->ack_delta = cb_in->out_iack - cb_in->in_iack;
-#ifdef DEBUG_RECONFIG
-				fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->ack_delta = cb_in->out_iack - cb_in->in_iack.\n", ns.c_str());
-				fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->ack_delta1 = %X (%X - %X).\n", ns.c_str(), cb_in->ack_delta, cb_in->out_iack, cb_in->in_iack);
-#endif
-				cb_in->ack_add = 1;
-			} else {
-				cb_in->ack_delta = cb_in->in_iack - cb_in->out_iack;
-#ifdef DEBUG_RECONFIG
-				fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->ack_delta = cb_in->in_iack - cb_in->out_iack.\n", ns.c_str());
-				fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->ack_delta2 = %X (%X - %X).\n", ns.c_str(), cb_in->ack_delta, cb_in->in_iack, cb_in->out_iack);
-#endif
-				cb_in->ack_add = 0;
-			}
-
-			//TEST
-			cb_in->two_paths = 1;
-
-
-
-
-
-
 
 
 			
 
 
 			
-			//not necessary
-			cb_out->ack_cutoff = ntohl(cmsg->seqCutoff);
+			// Which seqCutoff??? SYN/ACK doesn't load cmsg instead Dysco (with UDP)
+			//cb_out->ack_cutoff = ntohl(cmsg->seqCutoff);
 			cb_out->valid_ack_cut = 1;
-			fprintf(stderr, "cb_out->ack_cutoff: %X\n", cb_out->ack_cutoff);
-			fprintf(stderr, "cb_out->valid_ack_cut: 1\n");
-			fprintf(stderr, "cb_out->sub: %s\ncb_out->sup: %s.\n", print_ss1(cb_out->sub), print_ss1(cb_out->sup));
+			
 
-			// SEND ACK MESSAGE
-			//TEST //TODO
+			//SEND ACK MESSAGE
 			create_ack(pkt, ip, tcp);
-
-			//TEST
-			cb_out->out_iseq = tcp->seq_num.value();
-			cb_out->out_iack = tcp->ack_num.value();
-			if(cb_out->in_iseq < cb_out->out_iseq) {
-				cb_out->seq_delta = cb_out->out_iseq - cb_out->in_iseq;
-#ifdef DEBUG_RECONFIG
-				fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_out->seq_delta3 = %X (%X - %X).\n", ns.c_str(), cb_out->seq_delta, cb_out->out_iseq, cb_out->in_iseq);
-#endif
-				cb_out->seq_add = 1;
-			} else {
-				cb_out->seq_delta = cb_out->in_iseq - cb_out->out_iseq;
-#ifdef DEBUG_RECONFIG
-				fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_out->seq_delta4 = %X (%X - %X).\n", ns.c_str(), cb_out->seq_delta, cb_out->in_iseq, cb_out->out_iseq);
-#endif
-				cb_out->seq_add = 0;
-			}
-
-			if(cb_out->in_iack < cb_out->out_iack) {
-				cb_out->ack_delta = cb_out->out_iack - cb_out->in_iack;
-#ifdef DEBUG_RECONFIG
-				fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_out->ack_delta3 = %X (%X - %X).\n", ns.c_str(), cb_out->ack_delta, cb_out->out_iack, cb_out->in_iack);
-#endif
-				cb_out->ack_add = 1;
-			} else {
-				cb_out->ack_delta = cb_out->in_iack - cb_out->out_iack;
-#ifdef DEBUG_RECONFIG
-				fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_out->ack_delta4 = %X (%X - %X).\n", ns.c_str(), cb_out->ack_delta, cb_out->in_iack, cb_out->out_iack);
-#endif
-				cb_out->ack_add = 0;
-			}
-
+			
 			//rcb = dc->lookup_reconfig_by_ss(this->index, &cb_in->sup);
+			
 			rcb = dc->lookup_reconfig_by_ss(this->index, &cb_out->sup);
 			if(!rcb) {
 #ifdef DEBUG_RECONFIG
@@ -1204,15 +1057,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 				if(old_dcb->state == DYSCO_SYN_SENT)
 					old_dcb->state = DYSCO_ESTABLISHED;
 
-				cmsg->seqCutoff = old_dcb->seq_cutoff;
-			}
-
-			if(rcb->new_dcb) {
-#ifdef DEBUG_RECONFIG
-				fprintf(stderr, "[%s][DyscoAgentIn-Control] updating lastSeq and lastAck in rcb->new_dcb.\n", ns.c_str());
-#endif
-				rcb->new_dcb->lastSeq_ho = tcp->seq_num.value();
-				rcb->new_dcb->lastAck_ho = tcp->ack_num.value();
+				//cmsg->seqCutoff = old_dcb->seq_cutoff;
 			}
 			
 			return TO_GATE_1;
@@ -1253,49 +1098,6 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 			DyscoHashOut* old_out;
 			DyscoHashOut* new_out;
 			uint32_t old_out_ack_cutoff;
-
-			cb_in->in_iseq = tcp->seq_num.value();
-			cb_in->in_iack = tcp->ack_num.value();
-
-#ifdef DEBUG_RECONFIG
-			fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->sub: %s.\n", ns.c_str(), print_ss1(cb_in->sub));
-			fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->sup: %s.\n", ns.c_str(), print_ss1(cb_in->sup));
-#endif
-
-			if(cb_in->in_iseq < cb_in->out_iseq) {
-				cb_in->seq_delta = cb_in->out_iseq - cb_in->in_iseq;
-#ifdef DEBUG_RECONFIG
-				fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->seq_delta = cb_in->out_iseq - cb_in->in_iseq.\n", ns.c_str());
-				fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->seq_delta5 = %X (%X - %X).\n", ns.c_str(), cb_in->seq_delta, cb_in->out_iseq, cb_in->in_iseq);
-#endif
-				cb_in->seq_add = 1;
-			} else {
-				cb_in->seq_delta = cb_in->in_iseq - cb_in->out_iseq;
-#ifdef DEBUG_RECONFIG
-				fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->seq_delta = cb_in->in_iseq - cb_in->out_iseq.\n", ns.c_str());	
-				fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->seq_delta6 = %X (%X - %X).\n", ns.c_str(), cb_in->seq_delta, cb_in->in_iseq, cb_in->out_iseq);
-#endif
-				cb_in->seq_add = 0;
-			}
-			
-			if(cb_in->in_iack < cb_in->out_iack) {
-				cb_in->ack_delta = cb_in->out_iack - cb_in->in_iack;
-#ifdef DEBUG_RECONFIG
-				fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->ack_delta = cb_in->out_iack - cb_in->in_iack.\n", ns.c_str());
-				fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->ack_delta1 = %X (%X - %X).\n", ns.c_str(), cb_in->ack_delta, cb_in->out_iack, cb_in->in_iack);
-#endif
-				cb_in->ack_add = 1;
-			} else {
-				cb_in->ack_delta = cb_in->in_iack - cb_in->out_iack;
-#ifdef DEBUG_RECONFIG
-				fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->ack_delta = cb_in->in_iack - cb_in->out_iack.\n", ns.c_str());
-				fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->ack_delta2 = %X (%X - %X).\n", ns.c_str(), cb_in->ack_delta, cb_in->in_iack, cb_in->out_iack);
-#endif
-				cb_in->ack_add = 0;
-			}
-
-			//TEST
-			cb_in->two_paths = 1;
 			
 			if(!rcb->old_dcb) {
 				return ERROR;
@@ -1307,9 +1109,9 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 			}
 			
 			new_out = old_out->other_path;
-			//TEST
-			new_out->out_iseq = tcp->ack_num.value();
-			old_out_ack_cutoff = cb_in->out_iseq;
+
+			//ACK message doesn't load cmsg instead Dysco (with UDP)
+			//old_out_ack_cutoff = ntohl(cmsg->seqCutoff);
 			
 			if(new_out->in_iack < new_out->out_iack) {
 				uint32_t delta = new_out->out_iack - new_out->in_iack;
@@ -1323,74 +1125,8 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 				old_out->ack_cutoff = old_out_ack_cutoff;
 				old_out->valid_ack_cut = 1;
 				old_out->state = DYSCO_ESTABLISHED;
-				fprintf(stderr, "old_out->ack_cutoff: %X, old_out->state == DYSCO_ESTABLISHED.\n", old_out_ack_cutoff);
-				fprintf(stderr, "old_out->valid_ack_cut: 1.\n");
 			}
 
-
-
-
-#ifdef DEBUG_RECONFIG
-			fprintf(stderr, "[%s][DyscoAgentIn-Control] new_out->sub: %s.\n", ns.c_str(), print_ss1(new_out->sub));
-			fprintf(stderr, "[%s][DyscoAgentIn-Control] new_out->sup: %s.\n", ns.c_str(), print_ss1(new_out->sup));
-#endif
-
-			if(new_out->in_iseq < new_out->out_iseq) {
-				new_out->seq_delta = new_out->out_iseq - new_out->in_iseq;
-#ifdef DEBUG_RECONFIG
-				fprintf(stderr, "[%s][DyscoAgentIn-Control] new_out->seq_delta = new_out->out_iseq - new_out->in_iseq.\n", ns.c_str());
-				fprintf(stderr, "[%s][DyscoAgentIn-Control] new_out->seq_delta5 = %X (%X - %X).\n", ns.c_str(), new_out->seq_delta, new_out->out_iseq, new_out->in_iseq);
-#endif
-				new_out->seq_add = 1;
-			} else {
-				new_out->seq_delta = new_out->in_iseq - new_out->out_iseq;
-#ifdef DEBUG_RECONFIG
-				fprintf(stderr, "[%s][DyscoAgentIn-Control] new_out->seq_delta = new_out->in_iseq - new_out->out_iseq.\n", ns.c_str());	
-				fprintf(stderr, "[%s][DyscoAgentIn-Control] new_out->seq_delta6 = %X (%X - %X).\n", ns.c_str(), new_out->seq_delta, new_out->in_iseq, new_out->out_iseq);
-#endif
-				new_out->seq_add = 0;
-			}
-			
-			if(new_out->in_iack < new_out->out_iack) {
-				new_out->ack_delta = new_out->out_iack - new_out->in_iack;
-#ifdef DEBUG_RECONFIG
-				fprintf(stderr, "[%s][DyscoAgentIn-Control] new_out->ack_delta = new_out->out_iack - new_out->in_iack.\n", ns.c_str());
-				fprintf(stderr, "[%s][DyscoAgentIn-Control] new_out->ack_delta1 = %X (%X - %X).\n", ns.c_str(), new_out->ack_delta, new_out->out_iack, new_out->in_iack);
-#endif
-				new_out->ack_add = 1;
-			} else {
-				new_out->ack_delta = new_out->in_iack - new_out->out_iack;
-#ifdef DEBUG_RECONFIG
-				fprintf(stderr, "[%s][DyscoAgentIn-Control] new_out->ack_delta = new_out->in_iack - new_out->out_iack.\n", ns.c_str());
-				fprintf(stderr, "[%s][DyscoAgentIn-Control] new_out->ack_delta2 = %X (%X - %X).\n", ns.c_str(), new_out->ack_delta, new_out->in_iack, new_out->out_iack);
-#endif
-				new_out->ack_add = 0;
-			}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-			
-
-			
 			return END;
 		}
 #ifdef DEBUG_RECONFIG
@@ -1468,9 +1204,9 @@ void DyscoAgentIn::create_synack(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 	be16_t pswap = tcp->src_port;
 	tcp->src_port = tcp->dst_port;
 	tcp->dst_port = pswap;
-	tcp->ack_num = be32_t(tcp->seq_num.value() + 1);
-	//tcp->seq_num = be32_t(rand() % 4294967296);
-	tcp->seq_num = be32_t(255);
+	be32_t seqswap = tcp->seq_num.value();
+	tcp->seq_num = tcp->ack_num;
+	tcp->ack_num = seqswap + be32_t(1);
 	tcp->flags |= Tcp::kAck;
 	pkt->trim(payload_len);
 }

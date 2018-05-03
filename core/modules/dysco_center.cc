@@ -622,8 +622,8 @@ DyscoHashOut* DyscoCenter::out_syn(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp*
 
 		insert_cb_out(i, cb_out, 0);
 	}
-	//ASK to Ronaldo
-	//cb_out->seq_cutoff = tcp->seq_num.value();
+
+	cb_out->seq_cutoff = tcp->seq_num.value();
 
 	cb_out->lastSeq_ho = tcp->seq_num.value();
 	cb_out->lastAck_ho = tcp->ack_num.value();
@@ -1048,57 +1048,19 @@ DyscoHashIn* DyscoCenter::insert_cb_out_reverse(uint32_t i, DyscoHashOut* cb_out
 	cb_in->sup.sport = cb_out->sup.dport;
 	cb_in->sup.dport = cb_out->sup.sport;
 
-	//TEST
-	cb_in->in_iack = cb_out->out_iseq;
-	cb_in->in_iseq = cb_out->out_iack;
-	//cb_in->in_iack = cb_in->out_iack = cb_out->out_iseq;
-	//cb_in->in_iseq = cb_in->out_iseq = cb_out->out_iack;
-	if(cmsg) {
-#ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[DyscoCenter] cmsg is not NULL.\n");
-#endif		
-		cb_in->out_iseq = ntohl(cmsg->leftIack);
-		cb_in->out_iack = ntohl(cmsg->leftIseq);
-		cb_out->in_iseq = ntohl(cmsg->leftIseq);
-		cb_out->in_iack = ntohl(cmsg->leftIack);
-	} else {
-#ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[DyscoCenter] cmsg is NULL.\n");
-#endif
-	}
+	cb_in->in_iack = cb_in->out_iack = cb_out->out_iseq;
+	cb_in->in_iseq = cb_in->out_iseq = cb_out->out_iack;
 
-#ifdef DEBUG_RECONFIG
-	fprintf(stderr, "[DyscoCenter] insert_cb_out_reverse.\n");
-	fprintf(stderr, "[DyscoCenter] cb_in (sup: %s).\n", print_ss0(cb_in->sup));
-	fprintf(stderr, "[DyscoCenter] cb_in (sub: %s).\n", print_ss0(cb_in->sub));
-	fprintf(stderr, "[DyscoCenter] cb_in->in_iseq: %X.\n", cb_in->in_iseq);
-	fprintf(stderr, "[DyscoCenter] cb_in->in_iack: %X.\n", cb_in->in_iack);
-	fprintf(stderr, "[DyscoCenter] cb_in->out_iseq: %X.\n", cb_in->out_iseq);
-	fprintf(stderr, "[DyscoCenter] cb_in->out_iack: %X.\n", cb_in->out_iack);
-	fprintf(stderr, "[DyscoCenter] cb_out (sup: %s).\n", print_ss0(cb_out->sup));
-	fprintf(stderr, "[DyscoCenter] cb_out (sub: %s).\n", print_ss0(cb_out->sub));
-	fprintf(stderr, "[DyscoCenter] cb_out->in_iseq: %X.\n", cb_out->in_iseq);
-	fprintf(stderr, "[DyscoCenter] cb_out->in_iack: %X.\n", cb_out->in_iack);
-	fprintf(stderr, "[DyscoCenter] cb_out->out_iseq: %X.\n", cb_out->out_iseq);
-	fprintf(stderr, "[DyscoCenter] cb_out->out_iack: %X.\n", cb_out->out_iack);
-#endif
-	
 	cb_in->seq_delta = cb_in->ack_delta = 0;
-
 	cb_in->ts_ok = cb_out->ts_ok;
-
 	cb_in->ts_in = cb_in->ts_out = cb_out->tsr_in;
 	cb_in->ts_delta = 0;
-
 	cb_in->tsr_in = cb_in->tsr_out = cb_out->ts_in;
 	cb_in->tsr_delta = 0;
-
 	cb_in->ws_ok = cb_out->ws_ok;
 	cb_in->ws_in = cb_in->ws_out = cb_out->ws_in;
 	cb_in->ws_delta = 0;
-
 	cb_in->sack_ok = cb_out->sack_ok;
-	
 	cb_in->two_paths = two_paths;
 
 	//TEST //TODO
