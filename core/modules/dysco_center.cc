@@ -663,7 +663,7 @@ DyscoHashOut* DyscoCenter::out_syn(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp*
 		fprintf(stderr, "cb_in_aux->sup: %s\n", print_ss0(cb_in_aux->sup));
 		fprintf(stderr, "cb_in_aux->sub: %s\n", print_ss0(cb_in_aux->sub));
 		fprintf(stderr, "cb_in_aux->in_iseq = cb_in_aux->out_iseq = %X\n", cb_in_aux->in_iseq);
-		fprintf(stderr, "cb_in_aux->in_iack = cb_in_aux->out_iack = %X\n", cb_in_aux->in_iack)
+		fprintf(stderr, "cb_in_aux->in_iack = cb_in_aux->out_iack = %X\n", cb_in_aux->in_iack);
 
 		
 		cb_in_aux->seq_delta = cb_in_aux->ack_delta = 0;
