@@ -1049,6 +1049,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 			}
 
 			//TEST
+			cb_in->is_reconfiguration = 0;
 			rcb->old_dcb->ack_cutoff = rcb->old_dcb->in_iack;//should be + delta (but, which delta value?)
 			rcb->old_dcb->valid_ack_cut = 1;
 			
@@ -1102,6 +1103,9 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 #ifdef DEBUG_RECONFIG
 			fprintf(stderr, "[%s][DyscoAgentIn-Control] It's the right anchor.\n", ns.c_str());
 #endif
+			//TEST
+			cb_in->is_reconfiguration = 0;
+			
 			DyscoHashOut* old_out;
 			DyscoHashOut* new_out;
 			uint32_t old_out_ack_cutoff;
