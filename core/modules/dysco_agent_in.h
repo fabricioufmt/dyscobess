@@ -142,16 +142,16 @@ class DyscoAgentIn final : public Module {
 		}
 		
 		if((isTCPSYN(tcp) && isTCPACK(tcp)) || isTCPACK(tcp, true)) {
-			if(!cb_in->dcb_out) {
+			/*if(!cb_in->dcb_out) {
 #ifdef DEBUG_RECONFIG
 				fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->dcb_out is NULL (SYN/ACK or ACK)\n", ns.c_str());
 #endif
 				return false;
 			}
-			
-			if(cb_in->dcb_out->is_reconfiguration) {
+			*/
+			if(cb_in->is_reconfiguration) {
 #ifdef DEBUG_RECONFIG
-				fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->dcb_out->is_reconfiguration == FALSE\n", ns.c_str());
+				fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->is_reconfiguration == TRUE\n", ns.c_str());
 #endif				
 				return true;
 			}
