@@ -642,6 +642,9 @@ DyscoHashOut* DyscoCenter::out_syn(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp*
 		local_sub.sport = cb_out->sup.dport;
 		local_sub.dport = cb_out->sup.sport;
 
+		fprintf(stderr, "cb_out->sup: %s\n", print_ss0(cb_out-sup));
+		fprintf(stderr, "cb_out->sub: %s\n", print_ss0(cb_out-sub));
+		
 		cb_in_aux = lookup_input_by_ss(i, &local_sub);
 		if(!cb_in_aux)
 			return 0;
