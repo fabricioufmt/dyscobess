@@ -718,8 +718,8 @@ bool DyscoAgentOut::control_output_syn(Ipv4* ip, Tcp* tcp, DyscoControlMessage* 
 		//these 4 it isn't necessary
 		cmsg->leftIseq = htonl(old_dcb->out_iseq);
 		cmsg->leftIack = htonl(old_dcb->out_iack);
-		cmsg->sport = ntohs(rcb->sub_out.sport);
-		cmsg->dport = ntohs(rcb->sub_out.dport);
+		//cmsg->sport = ntohs(rcb->sub_out.sport);
+		//cmsg->dport = ntohs(rcb->sub_out.dport);
 		//cmsg->leftIseq = htonl(old_dcb->lastSeq_ho);
 		//cmsg->leftIack = htonl(old_dcb->lastAck_ho);
 
