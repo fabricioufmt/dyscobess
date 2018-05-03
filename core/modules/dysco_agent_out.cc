@@ -344,7 +344,9 @@ DyscoHashOut* DyscoAgentOut::pick_path_ack(Tcp* tcp, DyscoHashOut* cb_out) {
 				if(tcp->flags & Tcp::kFin)
 					cb = cb_out->other_path;
 				else {
-					tcp->ack_num = be32_t(cb_out->ack_cutoff);
+					//TEST
+					if(cb_out->ack_cutoff != 0)
+						tcp->ack_num = be32_t(cb_out->ack_cutoff);
 					cb_out->ack_ctr++;
 					if(cb_out->ack_ctr > 1)
 						cb_out->use_np_ack = 1;
