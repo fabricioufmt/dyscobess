@@ -633,6 +633,7 @@ DyscoHashOut* DyscoCenter::out_syn(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp*
 #endif
 	parse_tcp_syn_opt_s(tcp, cb_out);
 	if(isTCPACK(tcp)) {
+		fprintf(stderr, "It is ACK.\n");
 		DyscoTcpSession local_sub;
 		DyscoHashIn* cb_in_aux;
 
@@ -686,6 +687,7 @@ DyscoHashOut* DyscoCenter::out_syn(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp*
 
 		return cb_out;
 	} else {
+		fprintf(stderr, "It isn't ACK.\n");
 		out_hdr_rewrite(pkt, ip, tcp, &cb_out->sub);
 		out_tx_init(pkt, ip, tcp, cb_out);
 	}
