@@ -1,0 +1,212 @@
+/*
+ * 
+ *	Dynamic Service Chaining with Dysco
+ *	Dysco user agent: tcp_proxy.go
+ *
+ *	Implements  a TCP  proxy that  is instrummented  to trigger  a
+ *	reconfiguration at a time specified at the command line.
+ *
+ *	Author: Ronaldo A. Ferreira (raf@facom.ufms.br)
+ *
+ *
+ *	This program is free software;  you can redistribute it and/or
+ *	modify it under the terms of the GNU General Public License as
+ *	published by the Free Software Foundation; either version 2 of
+ *	the License, or (at your option) any later version.
+ *
+ *	THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESS OR IMPLIED
+ *	WARRANTIES,  INCLUDING,  BUT  NOT   LIMITED  TO,  THE  IMPLIED
+ *	WARRANTIES  OF MERCHANTABILITY  AND FITNESS  FOR A  PARTICULAR
+ *	PURPOSE  ARE DISCLAIMED.   IN NO  EVENT SHALL  THE AUTHORS  OR
+ *	CONTRIBUTORS BE  LIABLE FOR ANY DIRECT,  INDIRECT, INCIDENTAL,
+ *	SPECIAL, EXEMPLARY,  OR CONSEQUENTIAL DAMAGES  (INCLUDING, BUT
+ *	NOT LIMITED  TO, PROCUREMENT OF SUBSTITUTE  GOODS OR SERVICES;
+ *	LOSS  OF  USE, DATA,  OR  PROFITS;  OR BUSINESS  INTERRUPTION)
+ *	HOWEVER  CAUSED AND  ON ANY  THEORY OF  LIABILITY, WHETHER  IN
+ *	CONTRACT, STRICT  LIABILITY, OR TORT (INCLUDING  NEGLIGENCE OR
+ *	OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ *	EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+
+package main
+
+import (
+	dysco "./dysco/"
+	"fmt"
+	"io"
+	"log"
+	"net"
+	"os"
+	"strconv"
+	"strings"
+	"time"
+)
+
+const EXIT_FAILURE = 1
+const MAX_BUFFER   = 4000
+
+var spliceTime	int
+	
+/*********************************************************************
+ *
+ *	spliceConnections: builds  a control message and  sends to the
+ *	Dysco daemon  on the left anchor  of the proxy to  trigger the
+ *	proxy removal.
+ *
+ *********************************************************************/	
+func spliceConnections(l, r net.Conn) {
+	
+	c1Local  := strings.Split(l.LocalAddr().String(), ":")
+	c1Remote := strings.Split(l.RemoteAddr().String(), ":")
+	
+	c2Local  := strings.Split(r.LocalAddr().String(), ":")
+	c2Remote := strings.Split(r.RemoteAddr().String(), ":")
+
+	srcPort, _ := strconv.Atoi(c1Remote[1])
+	dstPort, _ := strconv.Atoi(c1Local[1])
+	
+	leftSS := dysco.NewTcpSession(net.ParseIP(c1Remote[0]),
+		  net.ParseIP(c1Local[0]), uint16(srcPort), uint16(dstPort))
+
+	srcPort, _ = strconv.Atoi(c2Local[1])
+	dstPort, _ = strconv.Atoi(c2Remote[1])
+	
+	rightSS := dysco.NewTcpSession(net.ParseIP(c2Local[0]),
+	  	   net.ParseIP(c2Remote[0]), uint16(srcPort), uint16(dstPort))
+
+	chain := []string{c1Remote[0], c2Remote[0]}
+	sc, _ := dysco.CreateSCUser(2, chain)
+	
+	rec :=  dysco.NewReconfigMessage(leftSS, leftSS, rightSS,		
+		net.ParseIP(c1Remote[0]), net.ParseIP(c2Remote[0]),
+		dysco.NOSTATE_TRANSFER, net.ParseIP("0.0.0.0"),
+		net.ParseIP("0.0.0.0"), sc)	
+	dysco_msg := dysco.NewUserMessage(dysco.DYSCO_SYN, rec.Serializer())
+		
+	time.Sleep(time.Duration(spliceTime) * time.Second)	
+
+	addrSrv := fmt.Sprintf("%s:%d", c1Remote[0], dysco.DYSCO_MANAGEMENT_PORT)
+	client, err := dysco.NewClient(addrSrv)
+	if err != nil {
+		fmt.Println("could not create Dysco client")
+		return
+	}
+	
+	buf := dysco_msg.Serializer()
+	client.Send(buf)
+}
+
+
+/*********************************************************************
+ *
+ *	pipe: forwards data from one socket to the other.
+ *
+ *********************************************************************/	
+func pipe(a, b net.Conn) error {
+	errors := make(chan error, 1)
+
+	copy := func(write, read net.Conn) {
+		_, err := io.Copy(write, read)
+		errors <- err
+	}
+	go copy(a, b)
+	go copy(b, a)
+	return <- errors
+}
+/* pipe */
+
+
+/*********************************************************************
+ *
+ *	handleRequest: handles a new connection request.
+ *
+ *********************************************************************/	
+func handleRequest(w net.Conn, serverAddr string) {
+	defer w.Close()
+	
+	conn, err := net.Dial("tcp", serverAddr)
+	if err != nil {
+		fmt.Println("could not open server connection")
+		return
+	}
+	defer conn.Close()
+
+	go spliceConnections(w, conn)
+
+	pipe(w, conn)
+}
+/* handleRequest */
+
+
+/*********************************************************************
+ *
+ *	usage: shows the program usage.
+ *
+ *********************************************************************/	
+func usage() {
+	fmt.Println("Usage: tcp_proxy <port-number> <server-addr> <server-port> <splice-time>")
+	os.Exit(EXIT_FAILURE)
+}
+/* usage */
+
+
+/*********************************************************************
+ *
+ *	usageError: shows error message and the program usage.
+ *
+ *********************************************************************/	
+func usageError() {
+	fmt.Print("Port number must be a positive number! ")
+	usage()
+}
+/* usageError */
+
+
+/*********************************************************************
+ *
+ *	main: main function.
+ *
+ *********************************************************************/	
+func main() {
+	var str []string
+	var serverStr []string
+	
+	if len(os.Args) != 5 {
+		usage()
+	}
+	
+	port, err := strconv.Atoi(os.Args[1])
+	if err != nil || port < 0 {
+		usageError()
+	}
+
+	str = append(str, ":", os.Args[1])
+	portStr := strings.Join(str, "")	
+	ln, err := net.Listen("tcp4", portStr)
+	if err != nil {
+		log.Fatal("ListenAndServe: ", err)
+	}
+	
+	serverPort, err := strconv.Atoi(os.Args[3])
+	if err != nil || serverPort < 0 {
+		usageError()
+	}
+	
+	serverStr   = append(serverStr, os.Args[2], ":", os.Args[3])
+	serverAddr := strings.Join(serverStr, "")
+	
+	spliceTime , err = strconv.Atoi(os.Args[4])
+	if err != nil || spliceTime < 0 {
+		usageError()
+	}
+
+	for {
+		conn, err := ln.Accept()
+		if err != nil {
+			log.Fatal("Accept: ", err)
+		}
+		go handleRequest(conn, serverAddr)
+	}
+}
+/* main */

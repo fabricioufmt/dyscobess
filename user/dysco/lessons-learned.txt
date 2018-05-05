@@ -1,0 +1,8 @@
+The UDP implementation of the control protocol does not scale:
+- Too many interrupts prevent the process from being scheduled.
+- One UDP socket has to read all the packets and dispatch to
+  working threads. The main thread becomes a bottleneck.
+
+The UDP implementation of the control protocol is not the right approach:
+- It does not allow reconfiguration throught NATs.
+- It is handled at user space (see topic above).
