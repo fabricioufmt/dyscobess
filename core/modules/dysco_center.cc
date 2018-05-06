@@ -385,7 +385,7 @@ bool DyscoCenter::insert_pending(DyscoHashes* dh, uint8_t* payload, uint32_t pay
 	cb_out->sc = sc;
 	cb_out->is_reconfiguration = 0;
 
-	fprintf(stderr, "Inserting (hash_pen): %s.\n", print_ss(*sup));
+	fprintf(stderr, "Inserting (hash_pen): %s.\n", print_ss0(*sup));
 	dh->hash_pen.insert(std::pair<DyscoTcpSession, DyscoHashOut*>(*sup, cb_out));
 	dh->hash_pen_tag.insert(std::pair<uint32_t, DyscoHashOut*>(cb_out->dysco_tag, cb_out));
 	//TODO: DyscoTag (verify)
