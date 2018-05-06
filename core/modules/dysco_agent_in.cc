@@ -767,18 +767,18 @@ bool DyscoAgentIn::compute_deltas_out(DyscoHashOut* cb_out, DyscoHashOut* old_ou
 bool DyscoAgentIn::control_config_rightA(DyscoCbReconfig* rcb, DyscoControlMessage* cmsg, DyscoHashIn* cb_in, DyscoHashOut* cb_out) {
 	DyscoTcpSession local_ss;
 
-	/*
 	local_ss.sip = cmsg->rightSS.dip;
 	local_ss.dip = cmsg->rightSS.sip;
 	local_ss.sport = cmsg->rightSS.dport;
 	local_ss.dport = cmsg->rightSS.sport;
-	*/
+	
 	//TEST
+	/*
 	local_ss.sip = cmsg->super.dip;
 	local_ss.dip = cmsg->super.sip;
 	local_ss.sport = cmsg->super.dport;
 	local_ss.dport = cmsg->super.sport;
-	
+	*/
 	DyscoHashOut* old_out = dc->lookup_output_by_ss(this->index, &local_ss);
 	
 	if(!old_out) {
