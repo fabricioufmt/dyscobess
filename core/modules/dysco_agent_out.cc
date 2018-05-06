@@ -703,8 +703,8 @@ bool DyscoAgentOut::control_output_syn(Ipv4* ip, Tcp* tcp, DyscoControlMessage* 
 		fprintf(stderr, "[%s][DyscoAgentOut-Control] rcb is NULL.\n", ns.c_str());
 #endif
 		//TEST //TODO //Ronaldo
-		//old_dcb = dc->lookup_output_by_ss(this->index, &cmsg->leftSS);
-		old_dcb = dc->lookup_output_by_ss(this->index, &cmsg->super);
+		old_dcb = dc->lookup_output_by_ss(this->index, &cmsg->leftSS);
+		//old_dcb = dc->lookup_output_by_ss(this->index, &cmsg->super);
 
 		if(!old_dcb) {
 #ifdef DEBUG_RECONFIG

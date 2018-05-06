@@ -225,9 +225,6 @@ bool DyscoAgentIn::in_hdr_rewrite(Ipv4* ip, Tcp* tcp, DyscoTcpSession* sup) {
 //L.327
 bool DyscoAgentIn::in_rewrite_seq(Tcp* tcp, DyscoHashIn* cb_in) {
 	if(!cb_in) {
-#ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in is NULL\n", ns.c_str());
-#endif		
 		return false;
 	}
 	
@@ -490,12 +487,9 @@ bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in) {
 bool DyscoAgentIn::input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 	DyscoHashIn* cb_in = dc->lookup_input(this->index, ip, tcp);
 	if(!cb_in) {
-#ifdef DEBUG_RECONFIG
-		fprintf(stderr, "cb_in is NULL\n");
-#endif
 		if(isTCPSYN(tcp) && hasPayload(ip, tcp)) {
 #ifdef DEBUG
-			fprintf(stderr, "[%s][DyscoAgentIn] receives a TCP SYN+PAYLOAD segment\n", ns.c_str());
+			fprintf(stderr, "[%s][DyscoAgentIn] receives a new TCP SYN+PAYLOAD segment\n", ns.c_str());
 #endif
 			bool retvalue = rx_initiation_new(pkt, ip, tcp);
 
