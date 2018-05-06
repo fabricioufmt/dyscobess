@@ -709,22 +709,28 @@ bool DyscoAgentIn::compute_deltas_out(DyscoHashOut* cb_out, DyscoHashOut* old_ou
 	if(cb_out->in_iseq < cb_out->out_iseq) {
 		cb_out->seq_delta = cb_out->out_iseq - cb_out->in_iseq;
 #ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_out->seq_delta1 = %u (%X - %X).\n", ns.c_str(), cb_out->seq_delta, cb_out->out_iseq, cb_out->in_iseq);
+		fprintf(stderr, "cb_out->seq_delta1 = %X (%X - %X).\n", cb_out->seq_delta, cb_out->out_iseq, cb_out->in_iseq);
 #endif
 		cb_out->seq_add = 1;
 	} else {
 		cb_out->seq_delta = cb_out->in_iseq - cb_out->out_iseq;
 #ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_out->seq_delta2 = %u (%X - %X).\n", ns.c_str(), cb_out->seq_delta, cb_out->in_iseq, cb_out->out_iseq);
+		fprintf(stderr, "cb_out->seq_delta2 = %X (%X - %X).\n", cb_out->seq_delta, cb_out->in_iseq, cb_out->out_iseq);
 #endif
 		cb_out->seq_add = 0;
 	}
 
 	if(cb_out->in_iack < cb_out->out_iack) {
 		cb_out->ack_delta = cb_out->out_iack - cb_out->in_iack;
+#ifdef DEBUG_RECONFIG
+		fprintf(stderr, "cb_out->ack_delta1 = %X (%X - %X).\n", cb_out->ack_delta, cb_out->out_iack, cb_out->in_iack);
+#endif		
 		cb_out->ack_add = 1;
 	} else {
 		cb_out->ack_delta = cb_out->in_iack - cb_out->out_iack;
+#ifdef DEBUG_RECONFIG
+		fprintf(stderr, "cb_out->ack_delta2 = %X (%X - %X).\n", cb_out->ack_delta, cb_out->in_iack, cb_out->out_iack);
+#endif	
 		cb_out->ack_add = 0;
 	}
 
@@ -842,8 +848,8 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 		cb_in->out_iack = rcb->leftIack;
 		cb_in->seq_delta = cb_in->ack_delta = 0;
 		//TEST
-		//cb_in->in_iseq = rcb->leftIseq;
-		//cb_in->in_iack = rcb->leftIack;
+		cb_in->in_iseq = tcp->seq_num.value(); //When LeftA sends TCP SYN segment, TCP and ACK values are, respectively, ISN values.
+		cb_in->in_iack = tcp->ack_num.value();;
 				
 		cb_in->is_reconfiguration = 1;
 		memcpy(&cb_in->cmsg, cmsg, sizeof(DyscoControlMessage));
@@ -861,7 +867,7 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 		//TEST //TODO //Ronaldo
 		create_synack(pkt, ip, tcp);
 #ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[%s][DyscoAgentIn-Control] creating SYN/ACK segment.\n", ns.c_str());
+		fprintf(stderr, "Creating SYN/ACK segment.\n");
 #endif
 		
 		if(!control_config_rightA(rcb, cmsg, cb_in, cb_out)) {
