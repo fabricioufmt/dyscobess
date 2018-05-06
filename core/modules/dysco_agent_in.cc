@@ -493,18 +493,12 @@ bool DyscoAgentIn::input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 #ifdef DEBUG
 			fprintf(stderr, "[%s][DyscoAgentIn] receives a new TCP SYN+PAYLOAD segment\n", ns.c_str());
 #endif
-			bool retvalue = rx_initiation_new(pkt, ip, tcp);
-
-			return retvalue;
+			return rx_initiation_new(pkt, ip, tcp);
 		}
 		
 		return false;
 	}
 
-	//TEST
-	cb_in->lastSeq_ho = tcp->seq_num.value();
-	cb_in->lastAck_ho = tcp->ack_num.value();
-	
 	if(isTCPSYN(tcp)) {
 		if(isTCPACK(tcp)) {
 			set_ack_number_out(this->index, tcp, cb_in);

@@ -166,7 +166,7 @@ DyscoHashIn* DyscoCenter::lookup_input_by_ss(uint32_t i, DyscoTcpSession* ss) {
 	if(!dh)
 		return 0;
 
-	fprintf(stderr, "Looking for %s.\n", print_ss0(*ss));
+	fprintf(stderr, "Looking (input) for %s.\n", print_ss0(*ss));
 	
 	DyscoTcpSessionEqualTo equals;
 	unordered_map<DyscoTcpSession, DyscoHashIn*, DyscoTcpSessionHash>::iterator it = dh->hash_in.begin();
@@ -198,7 +198,7 @@ DyscoHashOut* DyscoCenter::lookup_output_by_ss(uint32_t i, DyscoTcpSession* ss) 
 	if(!dh)
 		return 0;
 
-	fprintf(stderr, "Looking for %s.\n", print_ss0(*ss));
+	fprintf(stderr, "Looking (output) for %s.\n", print_ss0(*ss));
 	
 	DyscoTcpSessionEqualTo equals;
 	unordered_map<DyscoTcpSession, DyscoHashOut*, DyscoTcpSessionHash>::iterator it = dh->hash_out.begin();
@@ -251,6 +251,8 @@ DyscoCbReconfig* DyscoCenter::lookup_reconfig_by_ss(uint32_t i, DyscoTcpSession*
 	DyscoHashes* dh = get_hash(i);
 	if(!dh)
 		return 0;
+
+	fprintf(stderr, "Looking (reconfig) for %s.\n", print_ss0(*ss));
 	
 	DyscoTcpSessionEqualTo equals;
 	unordered_map<DyscoTcpSession, DyscoCbReconfig*, DyscoTcpSessionHash>::iterator it = dh->hash_reconfig.begin();
