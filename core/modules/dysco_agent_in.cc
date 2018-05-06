@@ -379,6 +379,8 @@ bool DyscoAgentIn::rx_initiation_new(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 
 		cb_in->in_iseq = tcp->seq_num.value();
 		cb_in->in_iack = tcp->ack_num.value();
+
+		fprintf(stderr, "sub_ss: %s (cb_in->in_iseq: %X) (cb_in->in_iack: %X)\n", print_ss1(cb_in->sub), cb_in->in_iseq, cb_in->in_iack);
 		
 		remove_sc(pkt, ip, tcp);
 		dc->parse_tcp_syn_opt_r(tcp, cb_in);
