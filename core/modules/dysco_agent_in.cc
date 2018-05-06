@@ -122,9 +122,11 @@ void DyscoAgentIn::ProcessBatch(bess::PacketBatch* batch) {
 				break;
 			case END:
 #ifdef DEBUG_RECONFIG
-				fprintf(stderr, "[%s][DyscoAgentIn-Control]: 3-way from Reconfiguration Session is DONE.\n\n", ns.c_str());
+				fprintf(stderr, "3-way from Reconfiguration Session is DONE.\n\n");
 #endif
 				break;
+			case ERROR:
+				fprintf(stderr, "ERROR on control_input\n");
 			default:
 				break;
 			}
@@ -938,24 +940,19 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 	
 	if(isTCPSYN(tcp, true)) {
 #ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[%s][DyscoAgentIn-Control] DYSCO_SYN message.\n", ns.c_str());
+		fprintf(stderr, "DYSCO_SYN message.\n");
 #endif
 		uint8_t* payload = reinterpret_cast<uint8_t*>(tcp) + tcp_hlen;
 		cmsg = reinterpret_cast<DyscoControlMessage*>(payload);
 		
 		rcb = dc->lookup_reconfig_by_ss(this->index, &cmsg->super);
 		if(rcb) {
-#ifdef DEBUG_RECONFIG
-			fprintf(stderr, "[%s][DyscoAgentIn-Control] It's a retransmission of reconfiguration packet.\n", ns.c_str());
-#endif
+			// It is a retransmission
 			return IS_RETRANSMISSION;
 		}
 
 		rcb = insert_rcb_control_input(ip, tcp, cmsg);
 		if(!rcb) {
-#ifdef DEBUG_RECONFIG
-			fprintf(stderr, "[%s][DyscoAgentIn-Control] Error to insert rcb control input.\n", ns.c_str());
-#endif			
 			return ERROR;
 		}
 
@@ -963,7 +960,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 		
 	} else if(isTCPSYN(tcp) && isTCPACK(tcp)) {
 #ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[%s][DyscoAgentIn-Control] DYSCO_SYN_ACK message.\n", ns.c_str());
+		fprintf(stderr, "DYSCO_SYN_ACK message.\n");
 #endif
 
 		cb_in = dc->lookup_input(this->index, ip, tcp);
@@ -978,7 +975,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 
 		if(ip->dst.value() == ntohl(cmsg->leftA)) {
 #ifdef DEBUG_RECONFIG
-			fprintf(stderr, "[%s][DyscoAgentIn-Control]: It's the left anchor.\n", ns.c_str());
+			fprintf(stderr, "It's the left anchor.\n");
 #endif
 			DyscoHashOut* cb_out = dc->lookup_output_by_ss(this->index, &cmsg->leftSS);
 			//DyscoHashOut* cb_out = dc->lookup_output(this->index, ip, tcp);
@@ -990,53 +987,42 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 
 			if(cb_out->state == DYSCO_ESTABLISHED) {
 				// It is a retransmission
-#ifdef DEBUG_RECONFIG
-				fprintf(stderr, "[%s][DyscoAgentIn-Control]: It's a retransmission packet. DYSCO_ESTABLISHED state.\n", ns.c_str());
-#endif
-				return END;
+				return IS_RETRANSMISSION;
 			}
 
-
-
-			
-
-
-			
-			// Which seqCutoff??? SYN/ACK doesn't load cmsg instead Dysco (with UDP)
+			//seqCutoff??? SYN/ACK doesn't load cmsg instead Dysco (with UDP)
 			//cb_out->ack_cutoff = ntohl(cmsg->seqCutoff);
-			//cb_out->valid_ack_cut = 1;
+			cb_out->valid_ack_cut = 1;
 
-			//SEND ACK MESSAGE
-			create_ack(pkt, ip, tcp);
-			fprintf(stderr, "Creating ACK message\n");
-			//rcb = dc->lookup_reconfig_by_ss(this->index, &cb_in->sup);
+			/*
+			 *
+			 * OUTPUT SIDE
+			 *
+			 */
+
 			
+			//SEND ACK MESSAGE
+			fprintf(stderr, "Creating ACK message\n");
+			create_ack(pkt, ip, tcp);
+			
+			//rcb = dc->lookup_reconfig_by_ss(this->index, &cb_in->sup);
 			rcb = dc->lookup_reconfig_by_ss(this->index, &cb_out->sup);
 			if(!rcb) {
-#ifdef DEBUG_RECONFIG
-				fprintf(stderr, "[%s][DyscoAgentIn-Control]: rcb is NULL (super: %s)\n", ns.c_str(), print_ss1(cb_out->sup));
-#endif
 				return ERROR;
 			}
 
 			if(!rcb->old_dcb) {
-#ifdef DEBUG_RECONFIG
-				fprintf(stderr, "[%s][DyscoAgentIn-Control]: rcb->old_dcb is NULL.\n", ns.c_str());
-#endif
 				return ERROR;
 			}
 
 			//TEST
-			cb_in->is_reconfiguration = 0;
-			rcb->old_dcb->ack_cutoff = rcb->old_dcb->in_iack;//should be + delta (but, which delta value?)
-			rcb->old_dcb->valid_ack_cut = 1;
+			//cb_in->is_reconfiguration = 0;
+			//rcb->old_dcb->ack_cutoff = rcb->old_dcb->in_iack;//should be + delta (but, which delta value?)
+			//rcb->old_dcb->valid_ack_cut = 1;
 			
 			if(!rcb->old_dcb->state_t) {
 				DyscoHashOut* old_dcb = rcb->old_dcb;
 				if(!old_dcb) {
-#ifdef DEBUG_RECONFIG
-					fprintf(stderr, "[%s][DyscoAgentIn-Control]: old_dcb is NULL.\n", ns.c_str());
-#endif
 					return ERROR;
 				}
 
