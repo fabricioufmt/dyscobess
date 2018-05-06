@@ -789,13 +789,12 @@ bool DyscoAgentIn::control_config_rightA(DyscoCbReconfig* rcb, DyscoControlMessa
 		return false;
 	}
 
-	//Test
-	//cb_in->sup = cmsg->rightSS;
+	cb_in->sup = cmsg->rightSS;
 	compute_deltas_in(cb_in, old_out, rcb);
 	compute_deltas_out(cb_out, old_out, rcb);
 
 	cb_in->two_paths = 1;
-	cb_in->sup = cmsg->super;
+	//cb_in->sup = cmsg->super;
 
 	rcb->new_dcb = cb_out;
 	rcb->old_dcb = old_out;
@@ -996,9 +995,9 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 #ifdef DEBUG_RECONFIG
 			fprintf(stderr, "[%s][DyscoAgentIn-Control]: It's the left anchor.\n", ns.c_str());
 #endif
-			//DyscoHashOut* cb_out = dc->lookup_output_by_ss(this->index, &cmsg->leftSS);
+			DyscoHashOut* cb_out = dc->lookup_output_by_ss(this->index, &cmsg->leftSS);
 			//DyscoHashOut* cb_out = dc->lookup_output(this->index, ip, tcp);
-			DyscoHashOut* cb_out = cb_in->dcb_out;
+			//DyscoHashOut* cb_out = cb_in->dcb_out;
 			
 			if(!cb_out) {
 				return ERROR;

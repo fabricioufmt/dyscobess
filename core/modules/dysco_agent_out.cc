@@ -574,9 +574,7 @@ DyscoCbReconfig* DyscoAgentOut::insert_cb_control(Ipv4* ip, Tcp* tcp, DyscoContr
 	//Ronaldo:
 	//rec_done
 
-	//rcb->super = cmsg->leftSS;
-	//TEST //TODO //Ronaldo
-	rcb->super = cmsg->super;
+	rcb->super = cmsg->leftSS;
 	rcb->sub_out.sip = htonl(ip->src.value());
 	rcb->sub_out.dip = htonl(ip->dst.value());
 	rcb->sub_out.sport = htons(tcp->src_port.value());
