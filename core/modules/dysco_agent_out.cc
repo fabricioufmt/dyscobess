@@ -667,9 +667,10 @@ bool DyscoAgentOut::replace_cb_leftA(DyscoCbReconfig* rcb, DyscoControlMessage* 
 bool DyscoAgentOut::control_output_syn(Ipv4* ip, Tcp* tcp, DyscoControlMessage* cmsg) {
 	DyscoCbReconfig* rcb = dc->lookup_reconfig_by_ss(this->index, &cmsg->super);
 
-	fprintf(stderr, "%s == %s ?\n", printip2(ip->dst.value()), printip2(ntohl(cmsg->leftA))); 
+	fprintf(stderr, "IP: src=%s dst=%s ?\n", printip2(ip->src.value()), printip2(ip->src.value()));
+	fprintf(stderr, "CMSG: leftA=%s rightA=%s ?\n", printip2(ntohl(cmsg->leftA)), printip2(ntohl(cmsg->rightA)));
 	
-	if(isLeftAnchor(ip, cmsg)) {
+	if(isFromLeftAnchor(ip, cmsg)) {
 #ifdef DEBUG_RECONFIG
 		fprintf(stderr, "[%s][DyscoAgentOut-Control] It's the left anchor.\n", ns.c_str());
 #endif
