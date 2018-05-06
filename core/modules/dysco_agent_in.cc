@@ -586,10 +586,18 @@ DyscoCbReconfig* DyscoAgentIn::insert_rcb_control_input(Ipv4* ip, Tcp* tcp, Dysc
 DyscoHashOut* DyscoAgentIn::build_cb_in_reverse(Ipv4*, DyscoCbReconfig* rcb) {
 	DyscoHashOut* cb_out = new DyscoHashOut();
 
+	/*
 	cb_out->sup.sip = rcb->super.dip;
 	cb_out->sup.dip = rcb->super.sip;
 	cb_out->sup.sport = rcb->super.dport;
 	cb_out->sup.dport = rcb->super.sport;
+	*/
+
+	//Ronaldo: Again, RightA doesn't know about leftSS.
+	cb_out->sup.sip = rcb->rightSS.dip;
+	cb_out->sup.dip = rcb->rightSS.sip;
+	cb_out->sup.sport = rcb->rightSS.dport;
+	cb_out->sup.dport = rcb->rightSS.sport;
 
 	//cb_out->sub.sip = htonl(ip->dst.value());
 	//cb_out->sub.dip = htonl(ip->src.value());
@@ -808,7 +816,7 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 	DyscoHashOut* cb_out;
 	if(!isRightAnchor(ip, cmsg)) {
 #ifdef DEBUG_RECONFIG		
-		fprintf(stderr, "[%s][DyscoAgentIn-Control] It isn't the right anchor\n", ns.c_str());
+		fprintf(stderr, "It isn't the right anchor.\n");
 #endif
 		size_t tcp_hlen = tcp->offset << 2;
 		uint8_t* payload = reinterpret_cast<uint8_t*>(tcp) + tcp_hlen;
@@ -825,7 +833,7 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 		fprintf(stderr, "not right anchor puting cb_in->two_paths = 0 (sub: %s)\n", print_ss1(cb_in->sub));
 	} else {
 #ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[%s][DyscoAgentIn-Control] It's the right anchor.\n", ns.c_str());
+		fprintf(stderr, "It's the right anchor.\n");
 #endif	
 		cb_in = new DyscoHashIn();
 		
@@ -945,7 +953,8 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 		uint8_t* payload = reinterpret_cast<uint8_t*>(tcp) + tcp_hlen;
 		cmsg = reinterpret_cast<DyscoControlMessage*>(payload);
 		
-		rcb = dc->lookup_reconfig_by_ss(this->index, &cmsg->super);
+		//rcb = dc->lookup_reconfig_by_ss(this->index, &cmsg->super);
+		rcb = dc->lookup_reconfig_by_ss(this->index, &cmsg->rightSS); //Ronaldo: RightA doesn't know about supss (or leftSS)
 		if(rcb) {
 			// It is a retransmission
 			return IS_RETRANSMISSION;
