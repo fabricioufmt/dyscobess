@@ -23,7 +23,7 @@
 #define IFACE "lo"
 #define SEED 1024
 #define LISTENQ 50
-#define LISTENPORT 50123
+#define LISTENPORT 2017
 #define BUFSIZE 1500
 #define RECONFIG_SPORT 8988
 #define RECONFIG_DPORT 8989
@@ -76,8 +76,7 @@ struct pseudo_header {
 	uint16_t tcp_length;
 };
 
-struct control_message {
-	uint32_t		mtype;
+struct reconfig_message {
 	struct tcp_session	super;
 	struct tcp_session	leftSS;
 	struct tcp_session	rightSS;
@@ -111,7 +110,7 @@ struct control_message {
 
 unsigned short csum(unsigned short*, uint32_t);
 uint32_t get_srcip(uint32_t*, int32_t*);
-int create_message_reconfig(struct tcp_session*, uint32_t, uint32_t*);
+int create_message_reconfig(struct reconfig_message*, uint32_t, uint32_t*);
 void tcp_program(uint32_t, unsigned char*, uint32_t, struct sockaddr_ll*);
 
 
@@ -128,6 +127,11 @@ int main(int argc, char** argv) {
 	int sc_len;
 	uint32_t* sc;
 	struct tcp_session* supss;
+
+	if(argc != 2) {
+		fprintf(stderr, "Usage: %s <port>.\n", argv[0]);
+		return -1;
+	}
 	
 	if((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
 		perror("socket failed");
@@ -138,7 +142,7 @@ int main(int argc, char** argv) {
 	
 	serv_addr.sin_family = AF_INET;
 	serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
-	serv_addr.sin_port = htons(LISTENPORT);
+	serv_addr.sin_port = htons(atoi(argv[1]));
 
 	if(bind(sockfd, (struct sockaddr*) &serv_addr, sizeof(serv_addr)) == -1) {
 		perror("bind failed");
@@ -168,17 +172,16 @@ int main(int argc, char** argv) {
 		}
 
 		//NOTE: at least one element on sc list
-		if(n < sizeof(struct tcp_session) + sizeof(uint32_t)) {
+		if(n < sizeof(struct reconfig_message) + sizeof(uint32_t)) {
 			fprintf(stderr, "reconfig command failed.\n");
 			close(connfd);
 			continue;
 		}
 
-		sc_len = (n - sizeof(struct tcp_session))/sizeof(uint32_t);
-		supss = (struct tcp_session*)(buff);
-		sc = (uint32_t*)(buff + sizeof(struct tcp_session));
+		sc_len = (n - sizeof(struct reconfig_message))/sizeof(uint32_t);
+		sc = (uint32_t*)(buff + sizeof(struct reconfig_message));
 
-		create_message_reconfig(supss, sc_len, sc);
+		create_message_reconfig((struct reconfig_message*) buff, sc_len, sc);
 		close(connfd);
 	}
 
@@ -187,14 +190,12 @@ int main(int argc, char** argv) {
 	return 0;
 }
 
-//itself is the left anchor
-//sc[sc_len-1] is the right anchor
-int create_message_reconfig(struct tcp_session* supss, uint32_t sc_len, uint32_t* sc) {
+int create_message_reconfig(struct reconfig_message* rmsg, uint32_t sc_len, uint32_t* sc) {
 	int on;
 	int32_t ifindex;
 	struct iphdr* iph;
 	struct tcphdr* tcph;
-	struct control_message* cmsg;
+	struct reconfig_message* cmsg;
 	uint32_t tx_len;
 	uint32_t sockfd;
 	uint32_t payload_len;
@@ -215,12 +216,13 @@ int create_message_reconfig(struct tcp_session* supss, uint32_t sc_len, uint32_t
 	memset(sendbuf, 0, BUFSIZ);
 	iph = (struct iphdr*) (sendbuf);
 	tcph = (struct tcphdr*) (sendbuf + sizeof(struct iphdr));
-	cmsg = (struct control_message*) (sendbuf + sizeof(struct iphdr) + sizeof(struct tcphdr));
-
+	memcpy(sendbuf + sizeof(struct iphdr) + sizeof(struct tcphdr), rmsg, sizeof(struct reconfig_message));
+	cmsg = (struct reconfig_message*) (sendbuf + sizeof(struct iphdr) + sizeof(struct tcphdr));
+	
 	tx_len = 0;
-	//payload_len = sizeof(struct control_message) + sc_len * sizeof(uint32_t);
-	//Last byte for Reconfiguration tag
-	payload_len = sizeof(struct control_message) + sc_len * sizeof(uint32_t) + 1;
+	//payload_len = sizeof(struct reconfig_message) + sc_len * sizeof(uint32_t);
+	//Last byte for Reconfiguration tag (+1)
+	payload_len = sizeof(struct reconfig_message) + sc_len * sizeof(uint32_t) + 1;
 	
 	// Construct the IP datagram
 	iph->ihl = 5;
@@ -232,17 +234,18 @@ int create_message_reconfig(struct tcp_session* supss, uint32_t sc_len, uint32_t
 	iph->ttl = 32;
 	iph->protocol = IPPROTO_TCP;
 	iph->check = 0;
-	iph->saddr = get_srcip(&sc[sc_len - 1], &ifindex);
+	iph->saddr = get_srcip(&rmsg->rightA, &ifindex); //or rmsg->leftA; ?
+	iph->daddr = rmsg->rightA;
 	//iph->daddr = sc[sc_len - 1];
-	iph->daddr = sc[0];
+	//iph->daddr = sc[0];
 	iph->check = csum((unsigned short*) sendbuf, sizeof(struct iphdr) + sizeof(struct tcphdr));
 	tx_len += sizeof(struct iphdr); //IP does not have Option field.
 	
 	// Construct the TCP segment 
 	tcph->source = htons(40000 + rand() % 1000);
 	tcph->dest = htons(50000 + rand() % 1000);
-	//tcph->seq = htonl(rand() % 4294967296);
-	tcph->seq = htonl(127);
+	tcph->seq = htonl(rand() % 4294967296);
+	//tcph->seq = htonl(127);
 	tcph->ack_seq = 0;
 	tcph->doff = 5;
 	tcph->fin = 0;
@@ -256,16 +259,7 @@ int create_message_reconfig(struct tcp_session* supss, uint32_t sc_len, uint32_t
 	tcph->urg_ptr = 0;
 	tx_len += sizeof(struct tcphdr); //TCP does not have Option field
 
-	// Construct Control Message
-	cmsg->mtype = DYSCO_SYN;
-	cmsg->super = *supss;
-	cmsg->leftA = iph->saddr;
-	cmsg->rightA = sc[sc_len - 1];
-	cmsg->sport = tcph->source;
-	cmsg->dport = tcph->dest;
-	cmsg->leftIseq = tcph->seq;
-	cmsg->leftIack = 0;
-	tx_len += sizeof(struct control_message);
+	tx_len += sizeof(struct reconfig_message);
 
 	// Construct Service Chain
 	memcpy(sendbuf + tx_len, sc, sc_len * sizeof(uint32_t));
@@ -287,8 +281,8 @@ int create_message_reconfig(struct tcp_session* supss, uint32_t sc_len, uint32_t
 
 	memcpy(pgram, (char*) &psh, sizeof(struct pseudo_header));
 	memcpy(pgram + sizeof(struct pseudo_header), tcph, sizeof(struct tcphdr));
-	memcpy(pgram + sizeof(struct pseudo_header) + sizeof(struct tcphdr), cmsg, sizeof(struct control_message));
-	memcpy(pgram + sizeof(struct pseudo_header) + sizeof(struct tcphdr) + sizeof(struct control_message), sc, sc_len * sizeof(uint32_t));
+	memcpy(pgram + sizeof(struct pseudo_header) + sizeof(struct tcphdr), cmsg, sizeof(struct reconfig_message));
+	memcpy(pgram + sizeof(struct pseudo_header) + sizeof(struct tcphdr) + sizeof(struct reconfig_message), sc, sc_len * sizeof(uint32_t));
 	pgram[psize - 1] = 0xFF;
 
 	tcph->check = csum((unsigned short*) pgram, psize);

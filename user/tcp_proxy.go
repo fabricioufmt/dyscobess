@@ -32,7 +32,7 @@
 package main
 
 import (
-	dysco "./dysco/"
+	dysco "./dysco"
 	"fmt"
 	"io"
 	"log"
@@ -78,23 +78,24 @@ func spliceConnections(l, r net.Conn) {
 	chain := []string{c1Remote[0], c2Remote[0]}
 	sc, _ := dysco.CreateSCUser(2, chain)
 	
-	rec :=  dysco.NewReconfigMessage(leftSS, leftSS, rightSS,		
+	dysco_msg :=  dysco.NewReconfigMessage(leftSS, leftSS, rightSS,		
 		net.ParseIP(c1Remote[0]), net.ParseIP(c2Remote[0]),
 		dysco.NOSTATE_TRANSFER, net.ParseIP("0.0.0.0"),
-		net.ParseIP("0.0.0.0"), sc)	
-	dysco_msg := dysco.NewUserMessage(dysco.DYSCO_SYN, rec.Serializer())
+		net.ParseIP("0.0.0.0"), sc)
 		
 	time.Sleep(time.Duration(spliceTime) * time.Second)	
 
 	addrSrv := fmt.Sprintf("%s:%d", c1Remote[0], dysco.DYSCO_MANAGEMENT_PORT)
-	client, err := dysco.NewClient(addrSrv)
+
+	conn, err := net.Dial("tcp", addrSrv)
 	if err != nil {
 		fmt.Println("could not create Dysco client")
 		return
 	}
 	
 	buf := dysco_msg.Serializer()
-	client.Send(buf)
+	conn.Write(buf)
+	conn.Close()
 }
 
 
