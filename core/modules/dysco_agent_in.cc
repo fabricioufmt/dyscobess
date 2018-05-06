@@ -1023,7 +1023,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 
 			//SEND ACK MESSAGE
 			create_ack(pkt, ip, tcp);
-			
+			fprintf(stderr, "Creating ACK message\n");
 			//rcb = dc->lookup_reconfig_by_ss(this->index, &cb_in->sup);
 			
 			rcb = dc->lookup_reconfig_by_ss(this->index, &cb_out->sup);
@@ -1078,17 +1078,20 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 
 		cb_in = dc->lookup_input(this->index, ip, tcp);
 		if(!cb_in) {
+			fprintf(stderr, "error1\n");
 			return ERROR;
 		}
 
 		cmsg = &cb_in->cmsg;
 		if(!cmsg) {
+			fprintf(stderr, "error2\n");
 			return ERROR;
 		}
 
 		rcb = dc->lookup_reconfig_by_ss(this->index, &cb_in->sup);
 
 		if(!rcb) {
+			fprintf(stderr, "error3\n");
 			return ERROR;
 		}
 		
