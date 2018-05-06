@@ -126,7 +126,6 @@ class DyscoTcpTs {
 
 class DyscoControlMessage {
  public:
-	uint32_t mtype;
 	DyscoTcpSession super;
 	DyscoTcpSession leftSS;
 	DyscoTcpSession rightSS;
