@@ -628,12 +628,6 @@ DyscoHashOut* DyscoCenter::out_syn(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp*
 
 	cb_out->seq_cutoff = tcp->seq_num.value();
 
-	cb_out->lastSeq_ho = tcp->seq_num.value();
-	cb_out->lastAck_ho = tcp->ack_num.value();
-	
-#ifdef DEBUG_RECONFIG
-	fprintf(stderr, "[DyscoCenter] (%s) cb_out->seq_cutoff = %X.\n", print_ss0(cb_out->sub), cb_out->seq_cutoff);
-#endif
 	parse_tcp_syn_opt_s(tcp, cb_out);
 	if(isTCPACK(tcp)) {
 		fprintf(stderr, "It is ACK.\n");
@@ -693,7 +687,6 @@ DyscoHashOut* DyscoCenter::out_syn(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp*
 
 		return cb_out;
 	} else {
-		fprintf(stderr, "It isn't ACK.\n");
 		out_hdr_rewrite(pkt, ip, tcp, &cb_out->sub);
 		out_tx_init(pkt, ip, tcp, cb_out);
 	}

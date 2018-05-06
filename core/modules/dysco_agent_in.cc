@@ -377,8 +377,8 @@ bool DyscoAgentIn::rx_initiation_new(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 		if(!cb_in)
 			return false;
 
-		cb_in->lastSeq_ho = tcp->seq_num.value();
-		cb_in->lastAck_ho = tcp->ack_num.value();
+		cb_in->in_iseq = tcp->seq_num.value();
+		cb_in->in_iack = tcp->ack_num.value();
 		
 		remove_sc(pkt, ip, tcp);
 		dc->parse_tcp_syn_opt_r(tcp, cb_in);
