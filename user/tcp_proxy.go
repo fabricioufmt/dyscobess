@@ -87,13 +87,14 @@ func spliceConnections(l, r net.Conn) {
 
 	addrSrv := fmt.Sprintf("%s:%d", c1Remote[0], dysco.DYSCO_MANAGEMENT_PORT)
 
-	fmt.Println("Trying to connect %s", addrSrv)
+	fmt.Printf("Trying to connect %s... ", addrSrv)
 
 	conn, err := net.Dial("tcp", addrSrv)
 	if err != nil {
-		fmt.Println("could not create Dysco client")
+		fmt.Println("could not connect Dysco daemon.")
 		return
 	}
+	fmt.Println("Ok.")
 	
 	buf := dysco_msg.Serializer()
 	conn.Write(buf)
