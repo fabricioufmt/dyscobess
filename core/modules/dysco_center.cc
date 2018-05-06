@@ -197,6 +197,8 @@ DyscoHashOut* DyscoCenter::lookup_output_by_ss(uint32_t i, DyscoTcpSession* ss) 
 	DyscoHashes* dh = get_hash(i);
 	if(!dh)
 		return 0;
+
+	fprintf(stderr, "Looking for %s.\n", print_ss0(*ss));
 	
 	DyscoTcpSessionEqualTo equals;
 	unordered_map<DyscoTcpSession, DyscoHashOut*, DyscoTcpSessionHash>::iterator it = dh->hash_out.begin();
