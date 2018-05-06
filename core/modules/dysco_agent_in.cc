@@ -555,10 +555,15 @@ bool DyscoAgentIn::input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
   Dysco codes below. Control input
 */
 
+/*
+  Ronaldo: only RightA calls this method.
+ */
 DyscoCbReconfig* DyscoAgentIn::insert_rcb_control_input(Ipv4* ip, Tcp* tcp, DyscoControlMessage* cmsg) {
 	DyscoCbReconfig* rcb = new DyscoCbReconfig();
 
-	rcb->super = cmsg->super;
+	//TEST
+	//rcb->super = cmsg->super;
+	rcb->super = cmsg->rightSS;
 	rcb->leftSS = cmsg->leftSS;
 	rcb->rightSS = cmsg->rightSS;
 	rcb->sub_in.sip = htonl(ip->src.value());
@@ -626,13 +631,13 @@ bool DyscoAgentIn::compute_deltas_in(DyscoHashIn* cb_in, DyscoHashOut* old_out, 
 	if(cb_in->in_iseq < cb_in->out_iseq) {
 		cb_in->seq_delta = cb_in->out_iseq - cb_in->in_iseq;
 #ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->seq_delta1 = %X (%X - %X).\n", ns.c_str(), cb_in->seq_delta, cb_in->out_iseq, cb_in->in_iseq);
+		fprintf(stderr, "cb_in->seq_delta1 = %X (%X - %X).\n", cb_in->seq_delta, cb_in->out_iseq, cb_in->in_iseq);
 #endif
 		cb_in->seq_add = 1;
 	} else {
 		cb_in->seq_delta = cb_in->in_iseq - cb_in->out_iseq;
 #ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->seq_delta2 = %X (%X - %X).\n", ns.c_str(), cb_in->seq_delta, cb_in->in_iseq, cb_in->out_iseq);
+		fprintf(stderr, "cb_in->seq_delta2 = %X (%X - %X).\n", cb_in->seq_delta, cb_in->in_iseq, cb_in->out_iseq);
 #endif
 		cb_in->seq_add = 0;
 	}
@@ -640,13 +645,13 @@ bool DyscoAgentIn::compute_deltas_in(DyscoHashIn* cb_in, DyscoHashOut* old_out, 
 	if(cb_in->in_iack < cb_in->out_iack) {
 		cb_in->ack_delta = cb_in->out_iack - cb_in->in_iack;
 #ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->ack_delta1 = %X (%X - %X).\n", ns.c_str(), cb_in->ack_delta, cb_in->out_iack, cb_in->in_iack);
+		fprintf(stderr, "cb_in->ack_delta1 = %X (%X - %X).\n", cb_in->ack_delta, cb_in->out_iack, cb_in->in_iack);
 #endif
 		cb_in->ack_add = 1;
 	} else {
 		cb_in->ack_delta = cb_in->in_iack - cb_in->out_iack;
 #ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->ack_delta2 = %X (%X - %X).\n", ns.c_str(), cb_in->ack_delta, cb_in->in_iack, cb_in->out_iack);
+		fprintf(stderr, "cb_in->ack_delta2 = %X (%X - %X).\n", cb_in->ack_delta, cb_in->in_iack, cb_in->out_iack);
 #endif
 		cb_in->ack_add = 0;
 	}
