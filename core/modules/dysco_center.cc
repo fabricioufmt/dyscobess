@@ -498,10 +498,8 @@ DyscoHashIn* DyscoCenter::insert_cb_input(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_
 	dh->hash_in.insert(std::pair<DyscoTcpSession, DyscoHashIn*>(cb_in->sub, cb_in));
 	dh->hash_out.insert(std::pair<DyscoTcpSession, DyscoHashOut*>(cb_out->sup, cb_out));
 
-#ifdef DEBUG
 	fprintf(stderr, "[DyscoCenter] Inserting (hash_in): %s\n", print_ss0(cb_in->sub));
 	fprintf(stderr, "[DyscoCenter] Inserting (hash_out): %s\n", print_ss0(cb_out->sup));
-#endif
 	
 	return cb_in;
 }
@@ -1087,9 +1085,7 @@ DyscoHashIn* DyscoCenter::insert_cb_out_reverse(uint32_t i, DyscoHashOut* cb_out
 
 	dh->hash_in.insert(std::pair<DyscoTcpSession, DyscoHashIn*>(cb_in->sub, cb_in));
 
-#ifdef DEBUG_RECONFIG
 	fprintf(stderr, "Inserting (hash_in): %s.\n", print_ss0(cb_in->sub));
-#endif
 	
 	return cb_in;
 }
