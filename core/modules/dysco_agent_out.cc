@@ -732,8 +732,8 @@ bool DyscoAgentOut::control_output_syn(Ipv4* ip, Tcp* tcp, DyscoControlMessage* 
 		fprintf(stderr, "[%s][DyscoAgentOut-Control] cmsg->leftIack (old_dcb->out_iack) = %X\n", ns.c_str(), old_dcb->out_iack);
 #endif
 
-		cmsg->seqCutoff = htonl(old_dcb->lastSeq_ho);
-		
+		//cmsg->seqCutoff = htonl(old_dcb->lastSeq_ho);
+
 		cmsg->leftIts = htonl(old_dcb->ts_in);
 		cmsg->leftItsr = htonl(old_dcb->tsr_in);
 

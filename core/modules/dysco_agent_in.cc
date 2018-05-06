@@ -780,7 +780,6 @@ bool DyscoAgentIn::control_config_rightA(DyscoCbReconfig* rcb, DyscoControlMessa
 	local_ss.dport = cmsg->super.sport;
 	*/
 	DyscoHashOut* old_out = dc->lookup_output_by_ss(this->index, &local_ss);
-	
 	if(!old_out) {
 		delete cb_in;
 		dc->remove_reconfig(this->index, rcb);
@@ -831,14 +830,14 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 		fprintf(stderr, "[%s][DyscoAgentIn-Control] It's the right anchor.\n", ns.c_str());
 #endif	
 		cb_in = new DyscoHashIn();
+		
 		cb_in->sub = rcb->sub_in;
-
 		cb_in->out_iseq = rcb->leftIseq;
 		cb_in->out_iack = rcb->leftIack;
-
+		cb_in->seq_delta = cb_in->ack_delta = 0;
 		//TEST
-		cb_in->in_iseq = rcb->leftIseq;
-		cb_in->in_iack = rcb->leftIack;
+		//cb_in->in_iseq = rcb->leftIseq;
+		//cb_in->in_iack = rcb->leftIack;
 				
 		cb_in->is_reconfiguration = 1;
 		memcpy(&cb_in->cmsg, cmsg, sizeof(DyscoControlMessage));
@@ -851,14 +850,18 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 			return ERROR;
 		}
 
+		dc->insert_hash_input(this->index, cb_in);
+
 		//TEST //TODO //Ronaldo
 		create_synack(pkt, ip, tcp);
 #ifdef DEBUG_RECONFIG
 		fprintf(stderr, "[%s][DyscoAgentIn-Control] creating SYN/ACK segment.\n", ns.c_str());
 #endif
 		
-		if(!control_config_rightA(rcb, cmsg, cb_in, cb_out))
+		if(!control_config_rightA(rcb, cmsg, cb_in, cb_out)) {
+			fprintf(stderr, "error in control_config_rightA\n");
 			return ERROR;
+		}
 		
 		//replace_cb_rightA method from control_output
 		DyscoHashOut* old_out = rcb->old_dcb;
@@ -874,20 +877,8 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 		else
 			seq_cutoff -= new_out->seq_delta;
 
-		//Not necessary
+		//Not necessary because cmsg doesn't forward in SYN/ACK segments.
 		//cmsg->seqCutoff = htonl(seq_cutoff);
-
-		if(!dc->insert_hash_input(this->index, cb_in)) {
-#ifdef DEBUG_RECONFIG
-			fprintf(stderr, "[%s][DyscoAgentIn-Control] insert_hash_input returns false.\n", ns.c_str());
-#endif
-			//TEST
-			delete cb_in;
-		} else {
-#ifdef DEBUG_RECONFIG
-			fprintf(stderr, "[%s][DyscoAgentIn-Control] insert_hash_input returns true.\n", ns.c_str());
-#endif	       
-		}
 
 #ifdef DEBUG_RECONFIG
 		fprintf(stderr, "[%s][DyscoAgentIn-Control] TO_GATE_1.\n", ns.c_str());
@@ -957,7 +948,6 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 		cmsg = reinterpret_cast<DyscoControlMessage*>(payload);
 		
 		rcb = dc->lookup_reconfig_by_ss(this->index, &cmsg->super);
-
 		if(rcb) {
 #ifdef DEBUG_RECONFIG
 			fprintf(stderr, "[%s][DyscoAgentIn-Control] It's a retransmission of reconfiguration packet.\n", ns.c_str());
@@ -966,7 +956,6 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 		}
 
 		rcb = insert_rcb_control_input(ip, tcp, cmsg);
-			
 		if(!rcb) {
 #ifdef DEBUG_RECONFIG
 			fprintf(stderr, "[%s][DyscoAgentIn-Control] Error to insert rcb control input.\n", ns.c_str());
@@ -1089,7 +1078,6 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 		}
 
 		rcb = dc->lookup_reconfig_by_ss(this->index, &cb_in->sup);
-
 		if(!rcb) {
 			fprintf(stderr, "error3\n");
 			return ERROR;
