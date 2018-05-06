@@ -166,15 +166,19 @@ DyscoHashIn* DyscoCenter::lookup_input_by_ss(uint32_t i, DyscoTcpSession* ss) {
 	if(!dh)
 		return 0;
 
-	fprintf(stderr, "Looking (input) for %s.\n", print_ss0(*ss));
+	fprintf(stderr, "Looking (input) for %s... ", print_ss0(*ss));
 	
 	DyscoTcpSessionEqualTo equals;
 	unordered_map<DyscoTcpSession, DyscoHashIn*, DyscoTcpSessionHash>::iterator it = dh->hash_in.begin();
 	while(it != dh->hash_in.end()) {
-		if(equals((*it).first, *ss))
+		if(equals((*it).first, *ss)) {
+			fprintf(stderr, "found.\n");
 			return (*it).second;
+		}
 		it++;
 	}
+
+	fprintf(stderr, "not found.\n");
 	
 	return 0;
 }
@@ -198,15 +202,19 @@ DyscoHashOut* DyscoCenter::lookup_output_by_ss(uint32_t i, DyscoTcpSession* ss) 
 	if(!dh)
 		return 0;
 
-	fprintf(stderr, "Looking (output) for %s.\n", print_ss0(*ss));
+	fprintf(stderr, "Looking (output) for %s... ", print_ss0(*ss));
 	
 	DyscoTcpSessionEqualTo equals;
 	unordered_map<DyscoTcpSession, DyscoHashOut*, DyscoTcpSessionHash>::iterator it = dh->hash_out.begin();
 	while(it != dh->hash_out.end()) {
-		if(equals((*it).first, *ss))
+		if(equals((*it).first, *ss)) {
+			fprintf(stderr, "found.\n");
 			return (*it).second;
+		}
 		it++;
 	}
+
+	fprintf(stderr, "not found.\n");
 	
 	return 0;
 }
@@ -252,15 +260,19 @@ DyscoCbReconfig* DyscoCenter::lookup_reconfig_by_ss(uint32_t i, DyscoTcpSession*
 	if(!dh)
 		return 0;
 
-	fprintf(stderr, "Looking (reconfig) for %s.\n", print_ss0(*ss));
+	fprintf(stderr, "Looking (reconfig) for %s... ", print_ss0(*ss));
 	
 	DyscoTcpSessionEqualTo equals;
 	unordered_map<DyscoTcpSession, DyscoCbReconfig*, DyscoTcpSessionHash>::iterator it = dh->hash_reconfig.begin();
 	while(it != dh->hash_reconfig.end()) {
-		if(equals((*it).first, *ss))
+		if(equals((*it).first, *ss)) {
+			fprintf(stderr, "found.\n");
 			return (*it).second;
+		}
 		it++;
 	}
+
+	fprintf(stderr, "not found.\n");
 	
 	return 0;
 }
