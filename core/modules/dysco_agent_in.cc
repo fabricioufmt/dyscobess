@@ -546,6 +546,28 @@ bool DyscoAgentIn::input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 	
 	if(cb_in->two_paths) {
 		fprintf(stderr, "does have two paths\n");
+		//TEST
+		if(tcp->flags & Tcp::kFin) {
+			fprintf(stderr, "It's FIN segment.\n");
+			if(cb_in->dcb_out) {
+				fprintf(stderr, "cb_in->dcb_out (sub: %s) ", print_ss1(cb_in->dcb_out->sub));
+				if(cb_in->dcb_out->old_path)
+					fprintf(stderr, "is OLD_PATH\n");
+				else
+					fprintf(stderr, "isn't OLD_PATH\n");
+
+				if(cb_in->dcb_out->other_path) {
+					fprintf(stderr, "cb_in->dcb_out->other_path (sub: %s) ", print_ss1(cb_in->dcb_out->other_path->sub));
+					if(cb_in->dcb_out->other_path->old_path)
+						fprintf(stderr, "is OLD_PATH\n");
+					else
+						fprintf(stderr, "isn't OLD_PATH\n");
+				}
+			}
+		}
+
+
+		
 		//TODO
 		/*
 		if(cb_in->dcb_out)
