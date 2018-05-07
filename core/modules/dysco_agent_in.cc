@@ -1012,6 +1012,18 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 
 			//seqCutoff??? SYN/ACK doesn't load cmsg instead Dysco (with UDP)
 			//cb_out->ack_cutoff = ntohl(cmsg->seqCutoff);
+
+			fprintf(stderr, "ACK_CUTOFF values:\n");
+			fprintf(stderr, "cb_in->in_iseq: %X\n", cb_in->in_iseq);
+			fprintf(stderr, "cb_in->in_iack: %X\n", cb_in->in_iack);
+			fprintf(stderr, "cb_in->out_iseq: %X\n", cb_in->out_iseq);
+			fprintf(stderr, "cb_in->out_iack: %X\n", cb_in->out_iack);
+			fprintf(stderr, "cb_out->in_iseq: %X\n", cb_out->in_iseq);
+			fprintf(stderr, "cb_out->in_iack: %X\n", cb_out->in_iack);
+			fprintf(stderr, "cb_out->out_iseq: %X\n", cb_out->out_iseq);
+			fprintf(stderr, "cb_out->out_iack: %X\n", cb_out->out_iack);
+			fprintf(stderr, "cmsg->seqCutoff: %X\n", ntohl(cmsg->seqCutoff));
+			
 			cb_out->valid_ack_cut = 1;
 
 			/*
