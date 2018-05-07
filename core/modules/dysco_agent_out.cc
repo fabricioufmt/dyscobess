@@ -554,8 +554,8 @@ bool DyscoAgentOut::output(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 	//		fix_rcv_window(cb_out);
 	//L.1462 -- dysco_output.c ???
 
-	cb_out->lastSeq_ho = tcp->seq_num.value();
-	cb_out->lastAck_ho = tcp->ack_num.value();
+	//cb_out->lastSeq_ho = tcp->seq_num.value();
+	//cb_out->lastAck_ho = tcp->ack_num.value();
 	
 	out_translate(pkt, ip, tcp, cb_out);
 

@@ -51,19 +51,16 @@ int main(int argc, char** argv) {
 		return EXIT_FAILURE;
 	}
 	
-	srand(SEED);
-	heartvalue = rand();
-	memset(buff, 0, BUFFSIZE);
-	memcpy(buff, &heartvalue, sizeof(int));
-	
+	//srand(SEED);
+	//heartvalue = rand();
+	//memset(buff, 0, BUFFSIZE);
+	//memcpy(buff, &heartvalue, sizeof(int));
+
+	int val;
 	while(1) {
-		printf("Sending from %s:%u to %s:%s...\n",
-		       inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port),
-		       argv[1], argv[2]);
-		write(sockfd, buff, sizeof(int));
-		read(sockfd, buff, sizeof(int));
-		(*(int*)buff)++;
-		sleep(2);
+		//printf("Sending from %s:%u to %s:%s...\n", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port), argv[1], argv[2]);
+		//write(sockfd, buff, sizeof(int));
+		read(sockfd, &val, sizeof(int));
 	}
 	
 	return 0;

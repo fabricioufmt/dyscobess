@@ -17,12 +17,11 @@ int main(int argc, char** argv) {
 	pid_t pid;
 	int heartvalue;
 	socklen_t addr_len;
-	char buff[BUFFSIZE];
 	struct sockaddr_in serv_addr;
 	struct sockaddr_in conn_addr;
 
-	if(argc != 2) {
-		fprintf(stderr, "Usage: %s <port>.\n", argv[0]);
+	if(argc != 3) {
+		fprintf(stderr, "Usage: %s <port> <usec>.\n", argv[0]);
 
 		return EXIT_FAILURE;
 	}
@@ -64,12 +63,14 @@ int main(int argc, char** argv) {
 			close(connfd);
 			continue;
 		} else if (pid == 0) {
-			memset(buff, 0, BUFFSIZE);
+			int val = 1;
 
 			while(1) {
-				read(connfd, buff, BUFFSIZE);
-				(*((int*)buff))++;
-				write(connfd, buff, BUFFSIZE);
+				//read(connfd, buff, BUFFSIZE);
+				//(*((int*)buff))++;
+				write(connfd, &val, sizeof(int));
+				val++;
+				usleep(atoi(argv[2]));
 			}
 
 			close(connfd);
