@@ -408,7 +408,8 @@ bool DyscoAgentIn::set_zero_window(Tcp* tcp) {
 //L.614
 bool DyscoAgentIn::in_two_paths_ack(Tcp* tcp, DyscoHashIn* cb_in) {
 	fprintf(stderr, "in_two_paths_ack method.\n");
-	uint32_t ack_seq = tcp->ack_num.value();
+	//uint32_t ack_seq = tcp->ack_num.value();
+	uint32_t ack_seq = tcp->seq_num.value();
 
 	DyscoHashOut* cb_out = cb_in->dcb_out;
 	if(!cb_out) {
