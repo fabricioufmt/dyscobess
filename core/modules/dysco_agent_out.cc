@@ -664,21 +664,15 @@ bool DyscoAgentOut::replace_cb_leftA(DyscoCbReconfig* rcb, DyscoControlMessage* 
 
 bool DyscoAgentOut::control_output_syn(Ipv4* ip, Tcp* tcp, DyscoControlMessage* cmsg) {
 	DyscoCbReconfig* rcb = dc->lookup_reconfig_by_ss(this->index, &cmsg->super);
-
-	fprintf(stderr, "IP: src=%s dst=%s ?\n", printip2(ip->src.value()), printip2(ip->src.value()));
-	fprintf(stderr, "CMSG: leftA=%s rightA=%s ?\n", printip2(ntohl(cmsg->leftA)), printip2(ntohl(cmsg->rightA)));
 	
 	if(isFromLeftAnchor(ip, cmsg)) {
 #ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[%s][DyscoAgentOut-Control] It's the left anchor.\n", ns.c_str());
+		fprintf(stderr, "It's the left anchor.\n");
 #endif
 		DyscoHashOut* old_dcb;
 		DyscoHashOut* new_dcb;
 
 		if(rcb) {
-#ifdef DEBUG_RECONFIG
-			fprintf(stderr, "[%s][DyscoAgentOut-Control] It's retransmission. rcb isn't NULL.\n", ns.c_str());
-#endif
 			cmsg->leftIseq = htonl(rcb->leftIseq);
 			cmsg->leftIack = htonl(rcb->leftIack);
 
@@ -692,14 +686,10 @@ bool DyscoAgentOut::control_output_syn(Ipv4* ip, Tcp* tcp, DyscoControlMessage* 
 
 			cmsg->sport = rcb->sub_out.sport;
 			cmsg->dport = rcb->sub_out.dport;
-
-			//fix_checksum
-
+			
 			return true;
 		}
-#ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[%s][DyscoAgentOut-Control] rcb is NULL.\n", ns.c_str());
-#endif
+		
 		//TEST //TODO //Ronaldo
 		old_dcb = dc->lookup_output_by_ss(this->index, &cmsg->leftSS);
 		//old_dcb = dc->lookup_output_by_ss(this->index, &cmsg->super);
@@ -714,9 +704,9 @@ bool DyscoAgentOut::control_output_syn(Ipv4* ip, Tcp* tcp, DyscoControlMessage* 
 		//TEST
 		tcp->seq_num = be32_t(old_dcb->out_iseq);
 		tcp->ack_num = be32_t(old_dcb->out_iack);
-		//these 4 it isn't necessary
 		cmsg->leftIseq = htonl(old_dcb->out_iseq);
 		cmsg->leftIack = htonl(old_dcb->out_iack);
+		//these 4 it isn't necessary
 		//cmsg->sport = ntohs(rcb->sub_out.sport);
 		//cmsg->dport = ntohs(rcb->sub_out.dport);
 		//cmsg->leftIseq = htonl(old_dcb->lastSeq_ho);
@@ -745,9 +735,6 @@ bool DyscoAgentOut::control_output_syn(Ipv4* ip, Tcp* tcp, DyscoControlMessage* 
 		
 		rcb = insert_cb_control(ip, tcp, cmsg);
 		if(!rcb) {
-#ifdef DEBUG_RECONFIG
-			fprintf(stderr, "[%s][DyscoAgentOut-Control] Error to insert_cb_control.\n", ns.c_str());
-#endif
 			return false;
 		}
 
@@ -812,7 +799,7 @@ bool DyscoAgentOut::control_output_syn(Ipv4* ip, Tcp* tcp, DyscoControlMessage* 
 		return true;
 	}
 #ifdef DEBUG_RECONFIG
-	fprintf(stderr, "[%s][DyscoAgentOut-Control] It isn't the left anchor.\n", ns.c_str());
+	fprintf(stderr, "It isn't the left anchor.\n");
 #endif
 	if(rcb && rcb->sub_out.sip != 0)
 		return true;
@@ -839,43 +826,6 @@ bool DyscoAgentOut::control_output(Ipv4* ip, Tcp* tcp) {
 	cmsg = reinterpret_cast<DyscoControlMessage*>(payload);
 
 	return control_output_syn(ip, tcp, cmsg);
-}
-
-/*
-
- */
-void DyscoAgentOut::process_arp(bess::Packet* pkt) {
-	Ethernet* eth = pkt->head_data<Ethernet*>();
-	bess::utils::Arp* arp = reinterpret_cast<bess::utils::Arp*>(eth + 1);
-
-	if(arp->opcode.value() == bess::utils::Arp::kRequest ||
-	   arp->opcode.value() == bess::utils::Arp::kReply) {
-		dc->update_mac(arp->sender_hw_addr, arp->sender_ip_addr);
-	}
-}
-
-void DyscoAgentOut::process_ethernet(bess::Packet* pkt) {
-	Ethernet* eth = pkt->head_data<Ethernet*>();
-	Ipv4* ip = reinterpret_cast<Ipv4*>(eth + 1);
-	
-	char* dst_ether = dc->get_mac(ip->dst);
-	if(!dst_ether) {
-#ifdef DEBUG
-		fprintf(stderr, "[DyscoAgentOut]: get_mac returns NULL\n");
-#endif
-		return;
-	}
-
-	for(int i = 0; i < 6; i++) {
-		eth->dst_addr.bytes[i] = dst_ether[i];
-	}
-
-#ifdef DEBUG
-	fprintf(stderr, "[DyscoAgentOut]: DST MAC changed to ");
-	for(int i = 0; i < 5; i++)
-		fprintf(stderr, "%X:", dst_ether[i]);
-	fprintf(stderr, "%X.\n", dst_ether[5]);
-#endif
 }
 
 void DyscoAgentOut::dysco_packet(Ethernet* eth) {

@@ -57,8 +57,6 @@ class DyscoAgentOut final : public Module {
 
 	 */
 	void dysco_packet(Ethernet*);
-	void process_arp(bess::Packet*);
-	void process_ethernet(bess::Packet*);
 	
  private:
 	uint32_t devip;

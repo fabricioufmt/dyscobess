@@ -182,8 +182,6 @@ class DyscoAgentIn final : public Module {
 	/*
 
 	 */
-
-	void process_arp(bess::Packet*);
 	void create_synack(bess::Packet*, Ipv4*, Tcp*);
 	void create_ack(bess::Packet*, Ipv4*, Tcp*);
 };

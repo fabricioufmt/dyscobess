@@ -938,7 +938,7 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 		//cmsg->seqCutoff = htonl(seq_cutoff);
 
 #ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[%s][DyscoAgentIn-Control] TO_GATE_1.\n", ns.c_str());
+		fprintf(stderr, "TO_GATE_1.\n");
 #endif	       
 		
 		return TO_GATE_1;
@@ -946,8 +946,7 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 
 	
 #ifdef DEBUG_RECONFIG
-	fprintf(stderr, "[%s][DyscoAgentIn-Control] Do nothing, follows regular algorithm and forwads it to host.\n",
-		ns.c_str());
+	fprintf(stderr, "Do nothing, follows regular algorithm and forwads it to host.\n");
 #endif
 	//cb_in->sup = rcb->super;
 	cb_in->out_iseq = rcb->leftIseq;
@@ -978,14 +977,14 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 	cb_in->is_reconfiguration = 1;
 	cb_in->dcb_out->is_reconfiguration = 1;
 #ifdef DEBUG_RECONFIG
-	fprintf(stderr, "[%s][DyscoAgentIn-Control]: setting cb_in and cb_out as reconfiguration\n", ns.c_str());
+	fprintf(stderr, "Setting cb_in and cb_out as reconfiguration.\n");
 #endif
 	memcpy(&cb_in->cmsg, cmsg, sizeof(DyscoControlMessage));
 	remove_sc(pkt, ip, tcp);
 	in_hdr_rewrite(ip, tcp, &cb_in->sup);
 
 #ifdef DEBUG_RECONFIG
-	fprintf(stderr, "[%s][DyscoAgentIn-Control] Removes payload, translates session and forwards to GATE 0 (Host).\n", ns.c_str());
+	fprintf(stderr, "Removes payload, translates session and forwards to GATE 0 (Host).\n");
 #endif
 	
 	return TO_GATE_0;
@@ -1097,7 +1096,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 			return TO_GATE_1;
 		} else {
 #ifdef DEBUG_RECONFIG
-			fprintf(stderr, "[%s][DyscoAgentIn-Control]: It isn't left anchor.\n", ns.c_str());
+			fprintf(stderr, "It isn't left anchor.\n");
 #endif		
 			set_ack_number_out(this->index, tcp, cb_in);
 			in_hdr_rewrite_csum(ip, tcp, cb_in);
@@ -1106,7 +1105,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 		}
 	} else if(isTCPACK(tcp, true)) {
 #ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[%s][DyscoAgentIn-Control] DYSCO_ACK message.\n", ns.c_str());
+		fprintf(stderr, "DYSCO_ACK message.\n");
 #endif
 
 		cb_in = dc->lookup_input(this->index, ip, tcp);
@@ -1129,7 +1128,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 		
 		if(isRightAnchor(ip, cmsg)) {
 #ifdef DEBUG_RECONFIG
-			fprintf(stderr, "[%s][DyscoAgentIn-Control] It's the right anchor.\n", ns.c_str());
+			fprintf(stderr, "It's the right anchor.\n");
 #endif
 			//TEST
 			cb_in->is_reconfiguration = 0;
@@ -1170,7 +1169,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 			return END;
 		}
 #ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[%s][DyscoAgentIn-Control] It isn't the right anchor.\n", ns.c_str());
+		fprintf(stderr, "It isn't the right anchor.\n");
 #endif
 		set_ack_number_out(this->index, tcp, cb_in);
 		in_hdr_rewrite_csum(ip, tcp, cb_in);
@@ -1178,7 +1177,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 		return TO_GATE_0;
 	} else {
 #ifdef DYSCO_RECONFIG
-		fprintf(stderr, "[%s][DyscoAgentIn-Control]: It isn't SYN, SYN/ACK or ACK messages.\n", ns.c_str());
+		fprintf(stderr, "It isn't SYN, SYN/ACK or ACK messages.\n");
 #endif
 	}
 
@@ -1206,22 +1205,6 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 	*/
 	//skb modifies???
 	return TO_GATE_0; //TEST should be END;
-}
-
-
-
-/*
-
- */
-
-void DyscoAgentIn::process_arp(bess::Packet* pkt) {
-	Ethernet* eth = pkt->head_data<Ethernet*>();
-	bess::utils::Arp* arp = reinterpret_cast<bess::utils::Arp*>(eth + 1);
-
-	if(arp->opcode.value() == bess::utils::Arp::kRequest ||
-	   arp->opcode.value() == bess::utils::Arp::kReply) {
-		dc->update_mac(arp->sender_hw_addr, arp->sender_ip_addr);
-	}
 }
 
 /*
