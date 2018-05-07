@@ -541,13 +541,13 @@ bool DyscoAgentIn::input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 		if(cb_in->dcb_out && cb_in->dcb_out->other_path)
 			fprintf(stderr, "cb_out->other_path (sub: %s).\n", print_ss1(cb_in->dcb_out->other_path->sub));
 		
-		///*
+		/*
 		if(hasPayload(ip, tcp)) {
 			if(!in_two_paths_data_seg(tcp, cb_in))
 				return false;
 		} else
 			in_two_paths_ack(tcp, cb_in);
-		//*/
+		*/
 	} else
 		fprintf(stderr, "does not have two paths\n");
 	
