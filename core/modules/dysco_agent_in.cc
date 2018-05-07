@@ -423,6 +423,7 @@ bool DyscoAgentIn::in_two_paths_ack(Tcp* tcp, DyscoHashIn* cb_in) {
 				fprintf(stderr, "puting cb_in->two_paths1 = 0 (sub: %s)\n", print_ss1(cb_in->sub));
 			}
 		} else {
+			fprintf(stderr, "dc->after([%X %X])_1.\n", cb_out->seq_cutoff, ack_seq);
 			if(!dc->after(cb_out->seq_cutoff, ack_seq)) {
 				fprintf(stderr, "dc->after(cb_out->seq_cutoff, ack_seq)_1 is FALSE.\n");
 				cb_out->use_np_seq = 1;
@@ -443,8 +444,9 @@ bool DyscoAgentIn::in_two_paths_ack(Tcp* tcp, DyscoHashIn* cb_in) {
 			cb_in->two_paths = 0;
 			fprintf(stderr, "puting cb_in->two_paths3 = 0 (sub: %s)\n", print_ss1(cb_in->sub));
 		} else {
+			fprintf(stderr, "dc->after([%X %X])_2.\n", cb_out->seq_cutoff, ack_seq);
 			if(!dc->after(cb_out->seq_cutoff, ack_seq)) {
-				fprintf(stderr, "dc->after(cb_out->seq_cutoff, ack_seq)_2 is FALSE.\n");
+				fprintf(stderr, "dc->after(cb_out->seq_cutoff, ack_seq)_2 is FALSE [%X %X].\n", cb_out->seq_cutoff, ack_seq);
 				cb_out->use_np_seq = 1;
 				cb_in->two_paths = 0;
 				fprintf(stderr, "puting cb_in->two_paths4 = 0 (sub: %s)\n", print_ss1(cb_in->sub));
