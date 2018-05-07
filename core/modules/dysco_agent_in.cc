@@ -103,15 +103,14 @@ void DyscoAgentIn::ProcessBatch(bess::PacketBatch* batch) {
 #endif
 
 		if(!isReconfigPacket(ip, tcp)) {
-			//if(input(pkt, ip, tcp)) {
-				out_gates[0].add(pkt);
+			input(pkt, ip, tcp);
+			out_gates[0].add(pkt);
 #ifdef DEBUG
-				fprintf(stderr, "[%s][DyscoAgentIn] forwards %s:%u -> %s:%u [%X:%X]\n\n",
-					ns.c_str(),
-					printip1(ip->src.value()), tcp->src_port.value(),
-					printip1(ip->dst.value()), tcp->dst_port.value(),
-					tcp->seq_num.value(), tcp->ack_num.value());
-				//}
+			fprintf(stderr, "[%s][DyscoAgentIn] forwards %s:%u -> %s:%u [%X:%X]\n\n",
+				ns.c_str(),
+				printip1(ip->src.value()), tcp->src_port.value(),
+				printip1(ip->dst.value()), tcp->dst_port.value(),
+				tcp->seq_num.value(), tcp->ack_num.value());
 #endif
 		} else {
 			switch(control_input(pkt, ip, tcp)) {
