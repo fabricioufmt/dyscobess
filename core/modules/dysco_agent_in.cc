@@ -411,8 +411,10 @@ bool DyscoAgentIn::in_two_paths_ack(Tcp* tcp, DyscoHashIn* cb_in) {
 	uint32_t ack_seq = tcp->ack_num.value();
 
 	DyscoHashOut* cb_out = cb_in->dcb_out;
-	if(!cb_out)
+	if(!cb_out) {
+		fprintf(stderr, "cb_in->dcb_out is NULL\n");
 		return false;
+	}
 
 	if(cb_out->old_path) {
 		if(cb_out->state_t) {
@@ -432,8 +434,10 @@ bool DyscoAgentIn::in_two_paths_ack(Tcp* tcp, DyscoHashIn* cb_in) {
 		}
 	} else {
 		cb_out = cb_out->other_path;
-		if(!cb_out)
+		if(!cb_out) {
+			fprintf(stderr, "cb_in->dcb_out->other_path is NULL\n");
 			return false;
+		}
 
 		if(cb_out->state_t && cb_out->state == DYSCO_ESTABLISHED) {
 			cb_in->two_paths = 0;
