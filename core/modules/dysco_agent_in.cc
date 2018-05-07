@@ -531,9 +531,13 @@ bool DyscoAgentIn::input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 	fprintf(stderr, "cb_in->ack_delta: %X.\n", cb_in->ack_delta);
 #endif
 	
-
 	if(cb_in->two_paths) {
 		fprintf(stderr, "does have two paths\n");
+		if(cb_in->dcb_out)
+			fprintf(stderr, "cb_out (sub: %s).\n", print_ss1(cb_in->dcb_out->sub));
+		if(cb_in->dcb_out && cb_in->dcb_out->other_path)
+			fprintf(stderr, "cb_out->other_path (sub: %s).\n", print_ss1(cb_in->dcb_out->other_path->sub));
+		
 		/*
 		if(hasPayload(ip, tcp)) {
 			if(!in_two_paths_data_seg(tcp, cb_in))
@@ -1013,17 +1017,6 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 			//seqCutoff??? SYN/ACK doesn't load cmsg instead Dysco (with UDP)
 			//cb_out->ack_cutoff = ntohl(cmsg->seqCutoff);
 
-			fprintf(stderr, "ACK_CUTOFF values:\n");
-			fprintf(stderr, "cb_in->in_iseq: %X\n", cb_in->in_iseq);
-			fprintf(stderr, "cb_in->in_iack: %X\n", cb_in->in_iack);
-			fprintf(stderr, "cb_in->out_iseq: %X\n", cb_in->out_iseq);
-			fprintf(stderr, "cb_in->out_iack: %X\n", cb_in->out_iack);
-			fprintf(stderr, "cb_out->in_iseq: %X\n", cb_out->in_iseq);
-			fprintf(stderr, "cb_out->in_iack: %X\n", cb_out->in_iack);
-			fprintf(stderr, "cb_out->out_iseq: %X\n", cb_out->out_iseq);
-			fprintf(stderr, "cb_out->out_iack: %X\n", cb_out->out_iack);
-			fprintf(stderr, "cmsg->seqCutoff: %X\n", ntohl(cmsg->seqCutoff));
-			
 			cb_out->valid_ack_cut = 1;
 			cb_out->ack_cutoff = cb_out->out_iack;
 			
