@@ -879,6 +879,7 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 		cb_in->is_reconfiguration = 1;
 		memcpy(&cb_in->cmsg, cmsg, sizeof(DyscoControlMessage));
 		cb_out = build_cb_in_reverse(ip, rcb);
+		
 		if(!cb_out) {
 			delete cb_in;
 			dc->remove_reconfig(this->index, rcb);
@@ -887,6 +888,10 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 			return ERROR;
 		}
 
+		//TEST
+		cb_in->dcb_out = cb_out;
+		cb_out->dcb_in = cb_in;
+		
 		dc->insert_hash_input(this->index, cb_in);
 
 		//TEST //TODO //Ronaldo
