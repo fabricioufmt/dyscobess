@@ -420,14 +420,14 @@ bool DyscoAgentIn::in_two_paths_ack(Tcp* tcp, DyscoHashIn* cb_in) {
 		if(cb_out->state_t) {
 			if(cb_out->state == DYSCO_ESTABLISHED) {
 				cb_in->two_paths = 0;
-				fprintf(stderr, "puting cb_in->two_paths = 0 (sub: %s)\n", print_ss1(cb_in->sub));
+				fprintf(stderr, "puting cb_in->two_paths1 = 0 (sub: %s)\n", print_ss1(cb_in->sub));
 			}
 		} else {
 			if(!dc->after(cb_out->seq_cutoff, ack_seq)) {
-				fprintf(stderr, "dc->after(cb_out->seq_cutoff, ack_seq) is FALSE.\n");
+				fprintf(stderr, "dc->after(cb_out->seq_cutoff, ack_seq)_1 is FALSE.\n");
 				cb_out->use_np_seq = 1;
 				cb_in->two_paths = 0;
-				fprintf(stderr, "puting cb_in->two_paths = 0 (sub: %s)\n", print_ss1(cb_in->sub));
+				fprintf(stderr, "puting cb_in->two_paths2 = 0 (sub: %s)\n", print_ss1(cb_in->sub));
 			} else {
 				fprintf(stderr, "dc->after(cb_out->seq_cutoff, ack_seq) is TRUE.\n");
 			}
@@ -441,12 +441,13 @@ bool DyscoAgentIn::in_two_paths_ack(Tcp* tcp, DyscoHashIn* cb_in) {
 
 		if(cb_out->state_t && cb_out->state == DYSCO_ESTABLISHED) {
 			cb_in->two_paths = 0;
-			fprintf(stderr, "puting cb_in->two_paths = 0 (sub: %s)\n", print_ss1(cb_in->sub));
+			fprintf(stderr, "puting cb_in->two_paths3 = 0 (sub: %s)\n", print_ss1(cb_in->sub));
 		} else {
 			if(!dc->after(cb_out->seq_cutoff, ack_seq)) {
+				fprintf(stderr, "dc->after(cb_out->seq_cutoff, ack_seq)_2 is FALSE.\n");
 				cb_out->use_np_seq = 1;
 				cb_in->two_paths = 0;
-				fprintf(stderr, "puting cb_in->two_paths = 0 (sub: %s)\n", print_ss1(cb_in->sub));
+				fprintf(stderr, "puting cb_in->two_paths4 = 0 (sub: %s)\n", print_ss1(cb_in->sub));
 			} else {
 				fprintf(stderr, "dc->after(cb_out->other_path->seq_cutoff, ack_seq) is TRUE.\n");
 			}
