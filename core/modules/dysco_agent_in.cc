@@ -1025,7 +1025,8 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 			fprintf(stderr, "cmsg->seqCutoff: %X\n", ntohl(cmsg->seqCutoff));
 			
 			cb_out->valid_ack_cut = 1;
-
+			cb_out->ack_cutoff = cb_out->out_iack;
+			
 			/*
 			 *
 			 * OUTPUT SIDE
