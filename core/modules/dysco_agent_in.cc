@@ -416,6 +416,8 @@ bool DyscoAgentIn::in_two_paths_ack(Tcp* tcp, DyscoHashIn* cb_in) {
 		return false;
 	}
 
+	fprintf(stderr, "cb_in->dcb_out (sub: %s).\n", print_ss1(cb_out->sub));
+
 	if(cb_out->old_path) {
 		if(cb_out->state_t && cb_out->state == DYSCO_ESTABLISHED) {
 			cb_in->two_paths = 0;
