@@ -568,8 +568,9 @@ bool DyscoAgentIn::input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 
 	}
 
-	if(!hasPayload(ip, tcp))
-		in_two_paths_ack(tcp, cb_in);
+	if(cb_in->two_paths)
+		if(!hasPayload(ip, tcp))
+			in_two_paths_ack(tcp, cb_in);
 	
 	
 	//TODO
