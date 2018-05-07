@@ -417,11 +417,9 @@ bool DyscoAgentIn::in_two_paths_ack(Tcp* tcp, DyscoHashIn* cb_in) {
 	}
 
 	if(cb_out->old_path) {
-		if(cb_out->state_t) {
-			if(cb_out->state == DYSCO_ESTABLISHED) {
-				cb_in->two_paths = 0;
-				fprintf(stderr, "puting cb_in->two_paths1 = 0 (sub: %s)\n", print_ss1(cb_in->sub));
-			}
+		if(cb_out->state_t && cb_out->state == DYSCO_ESTABLISHED) {
+			cb_in->two_paths = 0;
+			fprintf(stderr, "puting cb_in->two_paths1 = 0 (sub: %s)\n", print_ss1(cb_in->sub));
 		} else {
 			fprintf(stderr, "dc->after([%X %X])_1.\n", cb_out->seq_cutoff, ack_seq);
 			if(!dc->after(cb_out->seq_cutoff, ack_seq)) {
@@ -543,12 +541,11 @@ bool DyscoAgentIn::input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 	fprintf(stderr, "cb_in->seq_delta: %X.\n", cb_in->seq_delta);
 	fprintf(stderr, "cb_in->ack_delta: %X.\n", cb_in->ack_delta);
 #endif
-	
-	if(cb_in->two_paths) {
-		fprintf(stderr, "does have two paths\n");
-		//TEST
-		if(tcp->flags & Tcp::kFin) {
-			fprintf(stderr, "It's FIN segment.\n");
+
+	if(tcp->flags & Tcp::kFin) {
+		fprintf(stderr, "It's FIN segment.\n");
+		if(cb_in->two_paths) {
+			fprintf(stderr, "Does have two paths.\n");
 			if(cb_in->dcb_out) {
 				fprintf(stderr, "cb_in->dcb_out (sub: %s) ", print_ss1(cb_in->dcb_out->sub));
 				if(cb_in->dcb_out->old_path)
@@ -564,25 +561,23 @@ bool DyscoAgentIn::input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 						fprintf(stderr, "isn't OLD_PATH\n");
 				}
 			}
+		} else {
+			fprintf(stderr, "Doesn't have two paths.\n");
+			fprintf(stderr, "Should DyscoAgentIn answer this FIN?\n");
 		}
 
+	}
 
-		
-		//TODO
-		/*
-		if(cb_in->dcb_out)
-			fprintf(stderr, "cb_out (sub: %s).\n", print_ss1(cb_in->dcb_out->sub));
-		if(cb_in->dcb_out && cb_in->dcb_out->other_path)
-			fprintf(stderr, "cb_out->other_path (sub: %s).\n", print_ss1(cb_in->dcb_out->other_path->sub));
-		
+	
+	//TODO
+	/*
+	  if(cb_in->two_paths) 
 		if(hasPayload(ip, tcp)) {
 			if(!in_two_paths_data_seg(tcp, cb_in))
 				return false;
 		} else
 			in_two_paths_ack(tcp, cb_in);
-		*/
-	} else
-		fprintf(stderr, "does not have two paths\n");
+	*/
 	
 	in_hdr_rewrite_csum(ip, tcp, cb_in);
 
