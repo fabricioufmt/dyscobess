@@ -422,9 +422,12 @@ bool DyscoAgentIn::in_two_paths_ack(Tcp* tcp, DyscoHashIn* cb_in) {
 			}
 		} else {
 			if(!dc->after(cb_out->seq_cutoff, ack_seq)) {
+				fprintf(stderr, "dc->after(cb_out->seq_cutoff, ack_seq) is FALSE.\n");
 				cb_out->use_np_seq = 1;
 				cb_in->two_paths = 0;
 				fprintf(stderr, "puting cb_in->two_paths = 0 (sub: %s)\n", print_ss1(cb_in->sub));
+			} else {
+				fprintf(stderr, "dc->after(cb_out->seq_cutoff, ack_seq) is TRUE.\n");
 			}
 		}
 	} else {
@@ -435,12 +438,13 @@ bool DyscoAgentIn::in_two_paths_ack(Tcp* tcp, DyscoHashIn* cb_in) {
 		if(cb_out->state_t && cb_out->state == DYSCO_ESTABLISHED) {
 			cb_in->two_paths = 0;
 			fprintf(stderr, "puting cb_in->two_paths = 0 (sub: %s)\n", print_ss1(cb_in->sub));
-		}
-		else {
+		} else {
 			if(!dc->after(cb_out->seq_cutoff, ack_seq)) {
 				cb_out->use_np_seq = 1;
 				cb_in->two_paths = 0;
 				fprintf(stderr, "puting cb_in->two_paths = 0 (sub: %s)\n", print_ss1(cb_in->sub));
+			} else {
+				fprintf(stderr, "dc->after(cb_out->other_path->seq_cutoff, ack_seq) is TRUE.\n");
 			}
 		}
 	}
@@ -539,7 +543,13 @@ bool DyscoAgentIn::input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 			fprintf(stderr, "cb_out (sub: %s).\n", print_ss1(cb_in->dcb_out->sub));
 		if(cb_in->dcb_out && cb_in->dcb_out->other_path)
 			fprintf(stderr, "cb_out->other_path (sub: %s).\n", print_ss1(cb_in->dcb_out->other_path->sub));
-		
+
+		if(!hasPayload(ip, tcp)) {
+			if(in_two_paths_ack(tcp, cb_in))
+				fprintf(stderr, "in_two_paths_ack return TRUE.\n");
+			else
+				fprintf(stderr, "in_two_paths_ack return FALSE.\n");
+		}
 		/*
 		if(hasPayload(ip, tcp)) {
 			if(!in_two_paths_data_seg(tcp, cb_in))
