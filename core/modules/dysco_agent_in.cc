@@ -562,7 +562,8 @@ bool DyscoAgentIn::input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 			if(cb_in->dcb_out) {
 				fprintf(stderr, "cb_in->dcb_out (sub: %s) ", print_ss1(cb_in->dcb_out->sub));
 				if(cb_in->dcb_out->old_path) {
-					fprintf(stderr, "is OLD_PATH. In this case, doesn't forward to host.\n");
+					fprintf(stderr, "is OLD_PATH. In this case, doesn't forward to host and should DyscoAgentIn answer?\n");
+					return false;
 				} else {
 					fprintf(stderr, "isn't OLD_PATH.\n");
 				}
