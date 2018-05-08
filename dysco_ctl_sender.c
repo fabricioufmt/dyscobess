@@ -102,6 +102,9 @@ int main(int argc, char** argv) {
 	cmsg->super.sport = htons(atoi(argv[2]));
 	cmsg->super.dport = htons(atoi(argv[4]));
 
+	cmsg->leftA = inet_addr("10.0.2.1");
+	cmsg->rightA = inet_addr("10.0.3.1");
+
 	sc = (uint32_t*)(buff + sizeof(struct reconfig_message));
 	for(i = 0; i < sc_len; i++)
 		sc[i] = inet_addr(argv[5 + i]);
