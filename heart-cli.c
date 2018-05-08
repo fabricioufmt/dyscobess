@@ -49,7 +49,7 @@ int main(int argc, char** argv) {
 		return EXIT_FAILURE;
 	}
 
-	printf("%s:%u -> %s:%u Connected.\n", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port), argv[1], argv[2]);
+	printf("%s:%u -> %s:%s Connected.\n", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port), argv[1], argv[2]);
 	
 	//srand(SEED);
 	//heartvalue = rand();
