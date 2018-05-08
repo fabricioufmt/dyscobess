@@ -102,6 +102,8 @@ int main(int argc, char** argv) {
 	cmsg->super.sport = htons(atoi(argv[2]));
 	cmsg->super.dport = htons(atoi(argv[4]));
 
+	cmsg->leftSS = cmsg->rightSS = cmsg->super;
+	
 	cmsg->leftA = inet_addr("10.0.2.1");
 	cmsg->rightA = inet_addr("10.0.3.1");
 
