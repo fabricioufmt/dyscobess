@@ -103,10 +103,12 @@ void DyscoAgentIn::ProcessBatch(bess::PacketBatch* batch) {
 #endif
 
 		if(!isReconfigPacket(ip, tcp)) {
-			input(pkt, ip, tcp);
-			out_gates[0].add(pkt);
+			if(input(pkt, ip, tcp)) {
+				out_gates[0].add(pkt);
 #ifdef DEBUG
-			fprintf(stderr, "[%s][DyscoAgentIn] forwards %s:%u -> %s:%u [%X:%X]\n\n", ns.c_str(), printip1(ip->src.value()), tcp->src_port.value(), printip1(ip->dst.value()), tcp->dst_port.value(),	tcp->seq_num.value(), tcp->ack_num.value());
+				fprintf(stderr, "[%s][DyscoAgentIn] forwards %s:%u -> %s:%u [%X:%X]\n\n", ns.c_str(), printip1(ip->src.value()), tcp->src_port.value(), printip1(ip->dst.value()), tcp->dst_port.value(),	tcp->seq_num.value(), tcp->ack_num.value());
+			} else
+				fprintf(stderr, "input method returns FALSE\n");
 #endif
 		} else {
 			switch(control_input(pkt, ip, tcp)) {
@@ -557,7 +559,14 @@ bool DyscoAgentIn::input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 			}
 		} else {
 			fprintf(stderr, "Doesn't have two paths.\n");
-			fprintf(stderr, "Just forward to host.\n");
+			if(cb_in->dcb_out) {
+				fprintf(stderr, "cb_in->dcb_out (sub: %s) ", print_ss1(cb_in->dcb_out->sub));
+				if(cb_in->dcb_out->old_path) {
+					fprintf(stderr, "is OLD_PATH. In this case, doesn't forward to host.\n");
+				} else {
+					fprintf(stderr, "isn't OLD_PATH.\n");
+				}
+			}
 		}
 
 	}
