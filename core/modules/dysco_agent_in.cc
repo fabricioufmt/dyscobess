@@ -117,7 +117,7 @@ void DyscoAgentIn::ProcessBatch(bess::PacketBatch* batch) {
 #endif
 				break;
 			default:
-				fprintf(stderr, "input method returns FALSE, or ERROR\n");
+				fprintf(stderr, "Neither Gate0 or Gate1\n");
 			}
 		} else {
 			switch(control_input(pkt, ip, tcp)) {
@@ -575,7 +575,7 @@ CONTROL_RETURN DyscoAgentIn::input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 					fprintf(stderr, "is OLD_PATH. In this case, doesn't forward to host and should DyscoAgentIn answer?\n");
 					create_finack(pkt, ip, tcp);
 					fprintf(stderr, "creating FIN/ACK packet\n");
-					//Should DyscoAgentIn wait last ACK?
+					cb_in->dcb_out->state = DYSCO_LAST_ACK;
 					return TO_GATE_1;
 				} else {
 					fprintf(stderr, "isn't OLD_PATH.\n");
@@ -585,9 +585,16 @@ CONTROL_RETURN DyscoAgentIn::input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 
 	}
 
-	if(cb_in->two_paths)
+	if(cb_in->two_paths) {
 		if(!hasPayload(ip, tcp))
 			in_two_paths_ack(tcp, cb_in);
+	} else {
+		if(tcp->flags == Tcp::kAck && cb_in->dcb_out && cb_in->dcb_out->state == DYSCO_LAST_ACK) {
+			fprintf(stderr, "old path was closed.\n");
+			cb_in->dcb_out->state = DYSCO_CLOSED;
+			return END;
+		}
+	}
 	
 	
 	//TODO

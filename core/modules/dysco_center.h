@@ -39,13 +39,16 @@ enum {
 	DYSCO_FINISHING_OLD_PATH,
 	DYSCO_UNLOCKED,
 	DYSCO_LOCK_PENDING,
-	DYSCO_LOCKED
+	DYSCO_LOCKED,
+	//TEST
+	DYSCO_CLOSED_OLD_PATH
 };
 
 #define DYSCO_SYN_SENT			DYSCO_ADDING_NEW_PATH
 #define DYSCO_SYN_RECEIVED		DYSCO_ACCEPTING_NEW_PATH
 #define DYSCO_ESTABLISHED		DYSCO_INITIALIZING_NEW_PATH
-
+#define DYSCO_LAST_ACK                  DYSCO_FINISHING_OLD_PATH
+#define DYSCO_CLOSED                    DYSCO_CLOSED_OLD_PATH
 
 enum {
 	// Locking protocol
@@ -193,7 +196,7 @@ class DyscoHashIn {
 	uint8_t padding;
 	
 	uint32_t skb_iif;
-
+	
 	uint32_t lastSeq_ho;
 	uint32_t lastAck_ho;
 	
