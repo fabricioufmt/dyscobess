@@ -103,13 +103,21 @@ void DyscoAgentIn::ProcessBatch(bess::PacketBatch* batch) {
 #endif
 
 		if(!isReconfigPacket(ip, tcp)) {
-			if(input(pkt, ip, tcp)) {
+			switch(input(pkt, ip, tcp)) {
+			case TO_GATE_0:
 				out_gates[0].add(pkt);
 #ifdef DEBUG
-				fprintf(stderr, "[%s][DyscoAgentIn] forwards %s:%u -> %s:%u [%X:%X]\n\n", ns.c_str(), printip1(ip->src.value()), tcp->src_port.value(), printip1(ip->dst.value()), tcp->dst_port.value(),	tcp->seq_num.value(), tcp->ack_num.value());
-			} else
-				fprintf(stderr, "input method returns FALSE\n");
+				fprintf(stderr, "[%s][DyscoAgentIn] forwards %s:%u -> %s:%u [%X:%X]\n\n", ns.c_str(), printip1(ip->src.value()), tcp->src_port.value(), printip1(ip->dst.value()), tcp->dst_port.value(), tcp->seq_num.value(), tcp->ack_num.value());
 #endif
+				break;
+			case TO_GATE_1:
+				out_gates[1].add(pkt);
+#ifdef DEBUG
+				fprintf(stderr, "[%s][DyscoAgentIn] forwards %s:%u -> %s:%u [%X:%X]\n\n", ns.c_str(), printip1(ip->src.value()), tcp->src_port.value(), printip1(ip->dst.value()), tcp->dst_port.value(), tcp->seq_num.value(), tcp->ack_num.value());
+#endif
+				break;
+			default:
+				fprintf(stderr, "input method returns FALSE, or ERROR\n");
 		} else {
 			switch(control_input(pkt, ip, tcp)) {
 			case TO_GATE_0:
@@ -495,17 +503,18 @@ bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in) {
 }
 
 //L.753
-bool DyscoAgentIn::input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
+CONTROL_RETURN DyscoAgentIn::input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 	DyscoHashIn* cb_in = dc->lookup_input(this->index, ip, tcp);
 	if(!cb_in) {
 		if(isTCPSYN(tcp) && hasPayload(ip, tcp)) {
 #ifdef DEBUG
 			fprintf(stderr, "[%s][DyscoAgentIn] receives a new TCP SYN+PAYLOAD segment\n", ns.c_str());
 #endif
-			return rx_initiation_new(pkt, ip, tcp);
+			if(rx_initiation_new(pkt, ip, tcp))
+				return TO_GATE_0;
 		}
 		
-		return true;
+		return TO_GATE_0;
 	}
 
 	if(isTCPSYN(tcp)) {
@@ -524,7 +533,7 @@ bool DyscoAgentIn::input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 			}
 		}
 		
-		return true;
+		return TO_GATE_0;
 	}
 
 #ifdef DEBUG_RECONFIG
@@ -563,7 +572,10 @@ bool DyscoAgentIn::input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 				fprintf(stderr, "cb_in->dcb_out (sub: %s) ", print_ss1(cb_in->dcb_out->sub));
 				if(cb_in->dcb_out->old_path) {
 					fprintf(stderr, "is OLD_PATH. In this case, doesn't forward to host and should DyscoAgentIn answer?\n");
-					return false;
+					create_finack(pkt, ip, tcp);
+					fprintf(stderr, "creating FIN/ACK packet\n");
+					//Should DyscoAgentIn wait last ACK?
+					return TO_GATE_1;
 				} else {
 					fprintf(stderr, "isn't OLD_PATH.\n");
 				}
@@ -589,7 +601,7 @@ bool DyscoAgentIn::input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 	
 	in_hdr_rewrite_csum(ip, tcp, cb_in);
 
-	return true;
+	return TO_GATE_0;
 }
 
 /************************************************************************/
@@ -1262,6 +1274,27 @@ void DyscoAgentIn::create_ack(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 	tcp->seq_num = be32_t(tcp->ack_num.value());
 	tcp->ack_num = be32_t(seqswap.value() + 1);
 	tcp->flags = Tcp::kAck;
+}
+
+void DyscoAgentIn::create_finack(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
+	Ethernet* eth = pkt->head_data<Ethernet*>();
+	Ethernet::Address macswap = eth->dst_addr;
+	eth->dst_addr = eth->src_addr;
+	eth->src_addr = macswap;
+		
+	be32_t ipswap = ip->dst;
+	ip->dst = ip->src;
+	ip->src = ipswap;
+	ip->ttl = 32;
+	ip->id = be16_t(rand() % 65536);
+
+	be16_t pswap = tcp->src_port;
+	tcp->src_port = tcp->dst_port;
+	tcp->dst_port = pswap;
+	be32_t seqswap = tcp->seq_num;
+	tcp->seq_num = tcp->ack_num;
+	tcp->ack_num = seqswap + be32_t(1);
+	tcp->flags |= Tcp::kAck;
 }
 
 

@@ -159,7 +159,7 @@ class DyscoAgentIn final : public Module {
 	//bool set_zero_window(Tcp*);
 	bool in_two_paths_ack(Tcp*, DyscoHashIn*);
 	bool in_two_paths_data_seg(Tcp*, DyscoHashIn*);
-	bool input(bess::Packet*, Ipv4*, Tcp*);
+	CONTROL_RETURN input(bess::Packet*, Ipv4*, Tcp*);
 
 
 	/*
