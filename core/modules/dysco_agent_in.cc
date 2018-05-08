@@ -118,6 +118,7 @@ void DyscoAgentIn::ProcessBatch(bess::PacketBatch* batch) {
 				break;
 			default:
 				fprintf(stderr, "input method returns FALSE, or ERROR\n");
+			}
 		} else {
 			switch(control_input(pkt, ip, tcp)) {
 			case TO_GATE_0:

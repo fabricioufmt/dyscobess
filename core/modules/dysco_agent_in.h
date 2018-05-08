@@ -184,6 +184,7 @@ class DyscoAgentIn final : public Module {
 	 */
 	void create_synack(bess::Packet*, Ipv4*, Tcp*);
 	void create_ack(bess::Packet*, Ipv4*, Tcp*);
+	void create_finack(bess::Packet*, Ipv4*, Tcp*);
 };
 
 #endif //BESS_MODULES_DYSCOAGENTIN_H_
