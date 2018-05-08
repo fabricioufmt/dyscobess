@@ -300,7 +300,7 @@ DyscoHashOut* DyscoAgentOut::pick_path_seq(DyscoHashOut* cb_out, uint32_t seq) {
 		cb = cb_out->other_path;
 	}
 
-	fprintf(stderr, "seq: %X.\n"seq);
+	fprintf(stderr, "seq: %X.\n", seq);
 	fprintf(stderr, "cb_out->seq_cutoff: %X.\n", cb_out->seq_cutoff);
 	fprintf(stderr, "cb_out->other_path->seq_cutoff: %X.\n", cb_out->other_path->seq_cutoff);
 	fprintf(stderr, "Sequence numbers of cb_out->in_iseq = %X and cb_out->out_iseq = %X.\n", cb_out->in_iseq, cb_out->out_iseq);
@@ -737,7 +737,7 @@ bool DyscoAgentOut::control_output_syn(Ipv4* ip, Tcp* tcp, DyscoControlMessage* 
 		new_dcb->dcb_in = dc->insert_cb_out_reverse(this->index, new_dcb, 1, cmsg);
 
 		if(!new_dcb->dcb_in) {
-			fprintf(stderr, "new_dcb->dcb_in is NULL\n", ns.c_str());
+			fprintf(stderr, "new_dcb->dcb_in is NULL\n");
 		} else {
 			new_dcb->dcb_in->is_reconfiguration = 1;
 		}
@@ -745,7 +745,7 @@ bool DyscoAgentOut::control_output_syn(Ipv4* ip, Tcp* tcp, DyscoControlMessage* 
 		memcpy(&new_dcb->cmsg, cmsg, sizeof(DyscoControlMessage));
 		new_dcb->is_reconfiguration = 1;
 
-		fprintf(stderr, "new_dcb and new_dcb->dcb_in setted as reconfiguration.\n", ns.c_str());
+		fprintf(stderr, "new_dcb and new_dcb->dcb_in setted as reconfiguration.\n");
 		
 		old_dcb->old_path = 1;
 
