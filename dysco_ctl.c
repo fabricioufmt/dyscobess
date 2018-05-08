@@ -234,10 +234,10 @@ int create_message_reconfig(struct reconfig_message* rmsg, uint32_t sc_len, uint
 	iph->ttl = 32;
 	iph->protocol = IPPROTO_TCP;
 	iph->check = 0;
-	//iph->saddr = get_srcip(&rmsg->rightA, &ifindex); //or rmsg->leftA; ?
-	//iph->daddr = rmsg->rightA;
-	iph->saddr = get_srcip(&sc[0], &ifindex); //or rmsg->leftA; ?
-	iph->daddr = sc[0];
+	iph->saddr = get_srcip(&rmsg->rightA, &ifindex); //or rmsg->leftA; ?
+	iph->daddr = rmsg->rightA;
+	//iph->saddr = get_srcip(&sc[0], &ifindex);
+	//iph->daddr = sc[0];
 	iph->check = csum((unsigned short*) sendbuf, sizeof(struct iphdr) + sizeof(struct tcphdr));
 	tx_len += sizeof(struct iphdr); //IP does not have Option field.
 	
