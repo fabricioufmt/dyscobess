@@ -117,7 +117,7 @@ void DyscoAgentIn::ProcessBatch(bess::PacketBatch* batch) {
 #endif
 				break;
 			default:
-				fprintf(stderr, "Neither Gate0 or Gate1\n");
+				fprintf(stderr, "Neither Gate0 or Gate1\n\n");
 			}
 		} else {
 			switch(control_input(pkt, ip, tcp)) {

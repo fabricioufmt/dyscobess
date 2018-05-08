@@ -402,6 +402,13 @@ bool DyscoAgentOut::out_translate(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHa
 
 			} else
 				cb = pick_path_ack(tcp, cb_out);
+		} else if(cb_out->state == DYSCO_CLOSED) {
+			//TEST
+			//Should forward to other_path
+			if(cb_out->other_path)
+				cb = cb_out->other_path;
+			else
+				fprintf(stderr, "ERROR IN OUT_TRANSLATE: cb_out->other_path is NULL\n");
 		}
 	}
 
