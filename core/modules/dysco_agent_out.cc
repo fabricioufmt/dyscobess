@@ -287,34 +287,24 @@ DyscoHashOut* DyscoAgentOut::pick_path_seq(DyscoHashOut* cb_out, uint32_t seq) {
 	DyscoHashOut* cb = cb_out;
 	
 	if(cb_out->state_t) {
-#ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[%s][DyscoAgentOut-Control] cb_out->state_t == 1\n", ns.c_str());
-#endif	
+		fprintf(stderr, "cb_out->state_t == 1\n");
 		if(cb_out->state == DYSCO_ESTABLISHED) {
-#ifdef DEBUG_RECONFIG
-			fprintf(stderr, "[%s][DyscoAgentOut-Control] cb_out->state == DYSCO_ESTABLISHED\n", ns.c_str());
-#endif	
+			fprintf(stderr, "cb_out->state == DYSCO_ESTABLISHED\n");
 			cb = cb_out->other_path;
 		}
 	} else if(cb_out->use_np_seq) {
 		cb = cb_out->other_path;
-#ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[%s][DyscoAgentOut-Control] cb_out->use_np_seq == 1\n", ns.c_str());
-#endif	
+		fprintf(stderr, "cb_out->use_np_seq == 1\n");
 	} else if(!dc->before(seq, cb_out->seq_cutoff)) {
-#ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[%s][DyscoAgentOut-Control] before(seq, cb_out->seq_cutoff)[%X and %X] == false (going to other_path)\n", ns.c_str(), seq, cb_out->seq_cutoff);
-#endif	
+		fprintf(stderr, "before(seq, cb_out->seq_cutoff)[%X and %X] == false (going to other_path)\n", seq, cb_out->seq_cutoff);
 		cb = cb_out->other_path;
 	}
 
-#ifdef DEBUG_RECONFIG
-	fprintf(stderr, "[%s][DyscoAgentOut-Control] seq: %X.\n", ns.c_str(), seq);
-	fprintf(stderr, "[%s][DyscoAgentOut-Control] cb_out->seq_cutoff: %X.\n", ns.c_str(), cb_out->seq_cutoff);
-	fprintf(stderr, "[%s][DyscoAgentOut-Control] cb_out->other_path->seq_cutoff: %X.\n", ns.c_str(), cb_out->other_path->seq_cutoff);
-	fprintf(stderr, "[%s][DyscoAgentOut-Control] Sequence numbers of cb_out->in_iseq = %X and cb_out->out_iseq = %X.\n", ns.c_str(), cb_out->in_iseq, cb_out->out_iseq);
-	fprintf(stderr, "[%s][DyscoAgentOut-Control] Sequence numbers of cb_out->other_path->in_iseq = %X and cb_out->other_path->out_iseq = %X.\n", ns.c_str(), cb_out->other_path->in_iseq, cb_out->other_path->out_iseq);
-#endif	
+	fprintf(stderr, "seq: %X.\n"seq);
+	fprintf(stderr, "cb_out->seq_cutoff: %X.\n", cb_out->seq_cutoff);
+	fprintf(stderr, "cb_out->other_path->seq_cutoff: %X.\n", cb_out->other_path->seq_cutoff);
+	fprintf(stderr, "Sequence numbers of cb_out->in_iseq = %X and cb_out->out_iseq = %X.\n", cb_out->in_iseq, cb_out->out_iseq);
+	fprintf(stderr, "Sequence numbers of cb_out->other_path->in_iseq = %X and cb_out->other_path->out_iseq = %X.\n", cb_out->other_path->in_iseq, cb_out->other_path->out_iseq);
 	
 	return cb;
 }
@@ -376,45 +366,36 @@ bool DyscoAgentOut::out_translate(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHa
 	DyscoHashOut* cb = cb_out;
 	DyscoHashOut* other_path = cb_out->other_path;
 	if(!other_path) {
-#ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[%s][DyscoAgentOut-Control] There isn't other_path\n", ns.c_str());
-		fprintf(stderr, "[%s][DyscoAgentOut-Control] seg_sz: %u\n", ns.c_str(), seg_sz);
-		fprintf(stderr, "[%s][DyscoAgentOut-Control] seq: %X\n", ns.c_str(), seq);
-		fprintf(stderr, "[%s][DyscoAgentOut-Control] cb_out->seq_cutoff: %X\n", ns.c_str(), cb_out->seq_cutoff);
-#endif
+		fprintf(stderr, "There isn't other_path\n");
+		fprintf(stderr, "seg_sz: %u\n", seg_sz);
+		fprintf(stderr, "seq: %X\n", seq);
+		fprintf(stderr, "cb_out->seq_cutoff: %X\n", cb_out->seq_cutoff);
+		
 		//TEST
 		cb_out->seq_cutoff = seq;
 		//if(seg_sz > 0 && dc->after(seq, cb_out->seq_cutoff))
 		//	cb_out->seq_cutoff = seq;
 	} else {
-#ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[%s][DyscoAgentOut-Control] There is other_path\n", ns.c_str());
-		fprintf(stderr, "[%s][DyscoAgentOut-Control] cb_out (sub: %s).\n", ns.c_str(), print_ss2(cb_out->sub));
-		fprintf(stderr, "[%s][DyscoAgentOut-Control] cb_out->seq_cutoff: %X.\n", ns.c_str(), cb_out->seq_cutoff);
-		fprintf(stderr, "[%s][DyscoAgentOut-Control] cb_out->other_path (sub: %s).\n", ns.c_str(), print_ss2(cb_out->other_path->sub));
-		fprintf(stderr, "[%s][DyscoAgentOut-Control] cb_out->other_path->seq_cutoff: %X.\n", ns.c_str(), cb_out->other_path->seq_cutoff);
-#endif
+		fprintf(stderr, "There is other_path\n");
+		fprintf(stderr, "cb_out (sub: %s).\n", print_ss2(cb_out->sub));
+		fprintf(stderr, "cb_out->seq_cutoff: %X.\n", cb_out->seq_cutoff);
+		fprintf(stderr, "cb_out->other_path (sub: %s).\n", print_ss2(cb_out->other_path->sub));
+		fprintf(stderr, "cb_out->other_path->seq_cutoff: %X.\n", cb_out->other_path->seq_cutoff);
 		if(cb_out->state == DYSCO_ESTABLISHED) {
-#ifdef DEBUG_RECONFIG
-			fprintf(stderr, "[%s][DyscoAgentOut-Control] cb_out->state: DYSCO_ESTABLISHED (seg_sz: %u)\n", ns.c_str(), seg_sz);
-#endif
+			fprintf(stderr, "cb_out->state: DYSCO_ESTABLISHED (seg_sz: %u)\n", seg_sz);
 			if(seg_sz > 0)
 				cb = pick_path_seq(cb_out, seq);
 			else
 				cb = pick_path_ack(tcp, cb_out);
 		} else if(cb_out->state == DYSCO_SYN_SENT) {
-#ifdef DEBUG_RECONFIG
-			fprintf(stderr, "[%s][DyscoAgentOut-Control] cb_out->state: DYSCO_SYN_SENT\n", ns.c_str());
-#endif
+			fprintf(stderr, "cb_out->state: DYSCO_SYN_SENT\n");
 			if(seg_sz > 0) {
 				if(dc->after(seq, cb_out->seq_cutoff))
 					cb_out->seq_cutoff = seq;
 			} else
 				cb = pick_path_ack(tcp, cb_out);
 		} else if(cb_out->state == DYSCO_SYN_RECEIVED) {
-#ifdef DEBUG_RECONFIG
-			fprintf(stderr, "[%s][DyscoAgentOut-Control] cb_out->state: DYSCO_SYN_RECEIVED\n", ns.c_str());
-#endif
+			fprintf(stderr, "cb_out->state: DYSCO_SYN_RECEIVED\n");
 			if(seg_sz > 0) {
 				cb = pick_path_seq(cb_out, seq);
 				//if(!cb_out->old_path)
@@ -424,9 +405,7 @@ bool DyscoAgentOut::out_translate(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHa
 		}
 	}
 
-#ifdef DEBUG_RECONFIG
 	fprintf(stderr, "[%s][DyscoAgentOut-Control] after pick_path_seq, cb->seq_delta: %X and cb->ack_delta: %X\n", ns.c_str(), cb->seq_delta, cb->ack_delta);
-#endif
 	
 	out_rewrite_seq(tcp, cb);
 	out_rewrite_ack(tcp, cb);
@@ -512,22 +491,13 @@ bool DyscoAgentOut::update_five_tuple(Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) 
 bool DyscoAgentOut::output(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 	DyscoHashOut* cb_out = dc->lookup_output(this->index, ip, tcp);
 	if(!cb_out) {
-#ifdef DEBUG
-		fprintf(stderr, "[%s][DyscoAgentOut] There isn't the cb_out.\n", ns.c_str());
-#endif
 		cb_out = dc->lookup_output_pending(this->index, ip, tcp);
 		if(cb_out) {
-#ifdef DEBUG
-			fprintf(stderr, "[%s][DyscoAgentOut] There is a pending output.\n", ns.c_str());
-#endif
 			return dc->out_handle_mb(this->index, pkt, ip, tcp, cb_out, devip);
 		}
 
 		cb_out = dc->lookup_pending_tag(this->index, tcp);
 		if(cb_out) {
-#ifdef DEBUG
-			fprintf(stderr, "[%s][DyscoAgentOut] There is a pending_tag output.\n", ns.c_str());
-#endif
 			update_five_tuple(ip, tcp, cb_out);
 			
 			return dc->out_handle_mb(this->index, pkt, ip, tcp, cb_out, devip);
@@ -535,16 +505,10 @@ bool DyscoAgentOut::output(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 	}
 
 	if(isTCPSYN(tcp)) {
-#ifdef DEBUG
-		fprintf(stderr, "[%s][DyscoAgentOut] It's a TCP SYN or SYN/ACK segment.\n", ns.c_str());
-#endif		
 		return dc->out_syn(this->index, pkt, ip, tcp, cb_out, devip) != 0 ? true : false;
 	}
 
 	if(!cb_out) {
-#ifdef DEBUG
-		fprintf(stderr, "[%s][DyscoAgentOut] cb_out is NULL.\n", ns.c_str());
-#endif
 		return false;
 	}
 
@@ -695,9 +659,7 @@ bool DyscoAgentOut::control_output_syn(Ipv4* ip, Tcp* tcp, DyscoControlMessage* 
 		//old_dcb = dc->lookup_output_by_ss(this->index, &cmsg->super);
 
 		if(!old_dcb) {
-#ifdef DEBUG_RECONFIG
 			fprintf(stderr, "[%s][DyscoAgentOut-Control] old_dcb is NULL.\n", ns.c_str());
-#endif
 			return false;
 		}
 
@@ -775,9 +737,7 @@ bool DyscoAgentOut::control_output_syn(Ipv4* ip, Tcp* tcp, DyscoControlMessage* 
 		new_dcb->dcb_in = dc->insert_cb_out_reverse(this->index, new_dcb, 1, cmsg);
 
 		if(!new_dcb->dcb_in) {
-#ifdef DEBUG_RECONFIG
-			fprintf(stderr, "[%s][DyscoAgentOut-Control]: new_dcb->dcb_in is NULL\n", ns.c_str());
-#endif
+			fprintf(stderr, "new_dcb->dcb_in is NULL\n", ns.c_str());
 		} else {
 			new_dcb->dcb_in->is_reconfiguration = 1;
 		}
@@ -785,9 +745,7 @@ bool DyscoAgentOut::control_output_syn(Ipv4* ip, Tcp* tcp, DyscoControlMessage* 
 		memcpy(&new_dcb->cmsg, cmsg, sizeof(DyscoControlMessage));
 		new_dcb->is_reconfiguration = 1;
 
-#ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[%s][DyscoAgentOut-Control]: new_dcb and new_dcb->dcb_in setted as reconfiguration.\n", ns.c_str());
-#endif
+		fprintf(stderr, "new_dcb and new_dcb->dcb_in setted as reconfiguration.\n", ns.c_str());
 		
 		old_dcb->old_path = 1;
 
