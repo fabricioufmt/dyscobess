@@ -16,7 +16,7 @@
 
 #define IFACE "lo"
 #define LISTENQ 50
-#define PORT 50123
+#define PORT 2017
 #define BUFSIZE 1500
 
 struct tcp_session {
@@ -25,6 +25,38 @@ struct tcp_session {
 	uint16_t sport;
 	uint16_t dport;
 };
+
+struct reconfig_message {
+	struct tcp_session	super;
+	struct tcp_session	leftSS;
+	struct tcp_session	rightSS;
+	uint32_t		leftA;
+	uint32_t		rightA;
+	
+        uint16_t		sport;
+	uint16_t		dport;
+	
+	uint32_t		leftIseq;
+	uint32_t		leftIack;
+	
+	uint32_t		rightIseq;
+	uint32_t		rightIack;
+	
+	uint32_t		seqCutoff;
+	
+	uint32_t		leftIts;
+	uint32_t		leftItsr;
+	
+	uint16_t		leftIws;
+	uint16_t		leftIwsr;
+
+	uint16_t		sackOk;
+	
+	uint16_t		semantic;
+	
+	uint32_t		srcMB;
+	uint32_t		dstMB;
+} __attribute__((packed));
 
 int main(int argc, char** argv) {
 	int i;
@@ -39,7 +71,7 @@ int main(int argc, char** argv) {
 	//Dysco
 	int sc_len;
 	uint32_t* sc;
-	struct tcp_session* ss;
+	struct reconfig_message* cmsg;
 
 	if(argc < 5) {
 		fprintf(stderr, "Usage: %s <IPs><Ps><IPd><Pd> <sc1> <sc2> <...>\n", argv[0]);
@@ -60,21 +92,21 @@ int main(int argc, char** argv) {
 	if(connect(sockfd, (struct sockaddr*) &serv_addr, sizeof(serv_addr)) == -1)
 		perror("connect failed");
 
-	tx_len = sizeof(struct tcp_session) + sc_len * sizeof(uint32_t);
+	tx_len = sizeof(struct reconfig_message) + sc_len * sizeof(uint32_t);
 	buff = malloc(tx_len);
 	memset(buff, 0, tx_len);
 
-	ss = (struct tcp_session*)(buff);
-	ss->sip = inet_addr(argv[1]);
-	ss->dip = inet_addr(argv[3]);
-	ss->sport = htons(atoi(argv[2]));
-	ss->dport = htons(atoi(argv[4]));
+	cmsg = (struct reconfig_message*)(buff);
+	cmsg->super.sip = inet_addr(argv[1]);
+	cmsg->super.dip = inet_addr(argv[3]);
+	cmsg->super.sport = htons(atoi(argv[2]));
+	cmsg->super.dport = htons(atoi(argv[4]));
 
-	sc = (uint32_t*)(buff + sizeof(struct tcp_session));
+	sc = (uint32_t*)(buff + sizeof(struct reconfig_message));
 	for(i = 0; i < sc_len; i++)
 		sc[i] = inet_addr(argv[5 + i]);
 
-	fprintf(stdout, "Sending TCP segment with %d service chain elements with ", sc_len);
+	fprintf(stdout, "Sending data (cmsg + sc) with %d service chain elements with ", sc_len);
 	n = write(sockfd, buff, tx_len);
 
 	if(n != -1)
