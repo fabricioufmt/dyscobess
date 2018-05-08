@@ -505,7 +505,7 @@ bool DyscoAgentIn::input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 			return rx_initiation_new(pkt, ip, tcp);
 		}
 		
-		return false;
+		return true;
 	}
 
 	if(isTCPSYN(tcp)) {
@@ -524,7 +524,7 @@ bool DyscoAgentIn::input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 			}
 		}
 		
-		return false;
+		return true;
 	}
 
 #ifdef DEBUG_RECONFIG
