@@ -75,9 +75,14 @@ func spliceConnections(l, r net.Conn) {
 	rightSS := dysco.NewTcpSession(net.ParseIP(c2Local[0]),
 	  	   net.ParseIP(c2Remote[0]), uint16(srcPort), uint16(dstPort))
 
+	/*	   
 	chain := []string{c1Remote[0], c2Remote[0]}
 	sc, _ := dysco.CreateSCUser(2, chain)
-	
+	*/
+
+	chain := []string{c2Remote[0]}
+	sc, _ := dysco.CreateSCUser(1, chain)
+
 	dysco_msg :=  dysco.NewReconfigMessage(leftSS, leftSS, rightSS,		
 		net.ParseIP(c1Remote[0]), net.ParseIP(c2Remote[0]),
 		dysco.NOSTATE_TRANSFER, net.ParseIP("0.0.0.0"),
