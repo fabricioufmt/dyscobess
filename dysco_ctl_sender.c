@@ -74,11 +74,11 @@ int main(int argc, char** argv) {
 	struct reconfig_message* cmsg;
 
 	if(argc < 6) {
-		fprintf(stderr, "Usage: %s <IPs><Ps><IPd><Pd> <leftA> <sc1> <sc2> <...>\n", argv[0]);
+		fprintf(stderr, "Usage: %s <IPs><Ps><IPd><Pd><leftA> <sc1> <sc2> <...>\n", argv[0]);
 		exit(EXIT_FAILURE);
 	}
 
-	sc_len = argc - 5;
+	sc_len = argc - 6;
 	
 	if((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
 		perror("socket failed");
@@ -92,7 +92,7 @@ int main(int argc, char** argv) {
 	if(connect(sockfd, (struct sockaddr*) &serv_addr, sizeof(serv_addr)) == -1)
 		perror("connect failed");
 
-	tx_len = sizeof(struct reconfig_message) + 4 + (sc_len - 1) * sizeof(uint32_t); //+4 for Service Chain length (uint32) -1 for leftA isn't in service chain
+	tx_len = sizeof(struct reconfig_message) + 4 + sc_len * sizeof(uint32_t); //+4 for Service Chain length (uint32)
 	buff = malloc(tx_len);
 	memset(buff, 0, tx_len);
 
