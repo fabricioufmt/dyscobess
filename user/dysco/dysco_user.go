@@ -339,7 +339,7 @@ func (self ServiceChain) Serializer() (out []byte) {
 	sz := 4 + int(self.len)*4;
 	out = make([]byte, sz)
 	// FIXME: Change to big endian
-	binary.LittleEndian.PutUint32(out[0:], self.len) 
+	binary.BigEndian.PutUint32(out[0:], self.len) 
 	j := 4
 	for i := 0; i < int(self.len); i++ {
 		j += copy(out[j:], self.ips[i].To4())
