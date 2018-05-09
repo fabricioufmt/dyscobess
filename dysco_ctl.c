@@ -171,8 +171,9 @@ int main(int argc, char** argv) {
 			n = read(connfd, buff + total_n, BUFSIZE - total_n);
 			total_n += n;
 		}
-		fprintf(stdout, "erro aqui\n");
-		sc_len = ntohl(*((uint32_t*)(buff + sizeof(struct reconfig_message))));
+
+		sc_len = ntohl(*((int*)(buff + sizeof(struct reconfig_message))));
+		fprintf(stdout, "erro aqui sc_len=%d\n", sc_len);
 		sc = (uint32_t*)(buff + sizeof(struct reconfig_message) + sizeof(uint32_t));
 
 		//NOTE: at least one element on sc list
