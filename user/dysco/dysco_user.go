@@ -112,9 +112,8 @@ type NextHop struct {
 }
 
 type ServiceChain struct {
-	len	uint16
-	pos	uint16
-	nh	[]NextHop
+	len	uint32
+	ips	[]net.IP
 }
 
 type UserMessage struct {
@@ -203,9 +202,9 @@ func (m *TcpSession) String() string {
  *
  *********************************************************************/		
 func (m *ServiceChain) String() string {
-	s := fmt.Sprintf("Len=%d Pos=%d", m.len, m.pos)
+	s := fmt.Sprintf("Len=%d", m.len)
 	for i := 0; i < int(m.len); i++ {
-		s = fmt.Sprintf("%s (%s)", s, m.nh[i].ip.String())
+		s = fmt.Sprintf("%s (%s)", s, m.ips[i].String())
 	}
 	return s
 }
@@ -340,11 +339,10 @@ func (self ServiceChain) Serializer() (out []byte) {
 	sz := 4 + int(self.len)*4;
 	out = make([]byte, sz)
 	// FIXME: Change to big endian
-	binary.LittleEndian.PutUint16(out[0:], self.len) 
-	binary.LittleEndian.PutUint16(out[2:], self.pos)
+	binary.LittleEndian.PutUint32(out[0:], self.len) 
 	j := 4
 	for i := 0; i < int(self.len); i++ {
-		j += copy(out[j:], self.nh[i].ip.To4())
+		j += copy(out[j:], self.ips[i].To4())
 		//j += copy(out[j:], self.nh[i].mac)
 	}
 	return
@@ -375,19 +373,10 @@ func (self TcpSession) Serializer() (out []byte) {
  *********************************************************************/		
 func CreateSC(sc_len int, args []string) (*ServiceChain, error) {
 	var sc ServiceChain
-	sc.len = uint16(sc_len)
-	sc.pos = uint16(0)
-	sc.nh  = make([]NextHop, sc_len)
+	sc.len = uint32(sc_len)
+	sc.ips  = make([]net.IP, sc_len)
 	for i := 0; i < sc_len; i++ {
-		sc.nh[i].ip  = net.ParseIP(args[i])
-		
-		/* mac is no longer needed. using arp now in the kernel.
-		mac, err := net.ParseMAC(args[i+1])
-		if err != nil {
-			return nil, err
-		}
-		sc.nh[j].mac =  mac
-		*/
+		sc.ips[i] = net.ParseIP(args[i])
 	}
 	return &sc, nil
 }
@@ -398,7 +387,8 @@ func CreateSC(sc_len int, args []string) (*ServiceChain, error) {
  *
  *	CreateSCUser:
  *
- *********************************************************************/		
+ *********************************************************************/
+ /*
 func CreateSCUser(sc_len int, args []string) (*ServiceChain, error) {
 	var sc ServiceChain
 	sc.len = uint16(sc_len)
@@ -409,5 +399,6 @@ func CreateSCUser(sc_len int, args []string) (*ServiceChain, error) {
 	}
 	return &sc, nil
 }
+*/
 /* CreateSCUSER */
 

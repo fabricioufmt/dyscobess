@@ -81,7 +81,7 @@ func spliceConnections(l, r net.Conn) {
 	*/
 
 	chain := []string{c2Remote[0]}
-	sc, _ := dysco.CreateSCUser(1, chain)
+	sc, _ := dysco.CreateSC(1, chain)
 
 	dysco_msg :=  dysco.NewReconfigMessage(leftSS, leftSS, rightSS,		
 		net.ParseIP(c1Remote[0]), net.ParseIP(c2Remote[0]),

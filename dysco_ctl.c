@@ -147,7 +147,8 @@ int main(int argc, char** argv) {
 		perror("listen failed");
 		return EXIT_FAILURE;
 	}
-		
+
+	uint32_t total_n = 0;
 	srand(SEED);
 	while(1) {
 		memset(&conn_addr, 0, sizeof(struct sockaddr_in));
@@ -165,15 +166,21 @@ int main(int argc, char** argv) {
 			continue;
 		}
 
+		total_n += n;
+		while(total_n < sizeof(struct reconfig_message) + sizeof(uint32_t)) {
+			n = read(connfd, buff + total_n, BUFSIZE - total_n);
+			total_n += n;
+		}
+
+		sc_len = ntohl(*((uint32_t*)(buff + sizeof(struct reconfig_message))));
+		sc = (uint32_t*)(buff + sizeof(struct reconfig_message) + sizeof(uint32_t));
+
 		//NOTE: at least one element on sc list
-		if(n < sizeof(struct reconfig_message) + sizeof(uint32_t)) {
-			fprintf(stderr, "reconfig command failed.\n");
+		if(sc_len < 1) {
+			fprintf(stderr, "sc_len = 0.\n");
 			close(connfd);
 			continue;
 		}
-
-		sc_len = (n - sizeof(struct reconfig_message))/sizeof(uint32_t);
-		sc = (uint32_t*)(buff + sizeof(struct reconfig_message));
 
 		create_message_reconfig((struct reconfig_message*) buff, sc_len, sc);
 		close(connfd);

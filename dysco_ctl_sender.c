@@ -92,7 +92,7 @@ int main(int argc, char** argv) {
 	if(connect(sockfd, (struct sockaddr*) &serv_addr, sizeof(serv_addr)) == -1)
 		perror("connect failed");
 
-	tx_len = sizeof(struct reconfig_message) + sc_len * sizeof(uint32_t);
+	tx_len = sizeof(struct reconfig_message) + 4 + sc_len * sizeof(uint32_t); //4 for Service Chain length (uint32)
 	buff = malloc(tx_len);
 	memset(buff, 0, tx_len);
 
@@ -103,14 +103,16 @@ int main(int argc, char** argv) {
 	cmsg->super.dport = htons(atoi(argv[4]));
 
 	cmsg->leftSS = cmsg->rightSS = cmsg->super;
-	
-	cmsg->leftA = inet_addr("10.0.2.1");
-	cmsg->rightA = inet_addr("10.0.3.1");
 
-	sc = (uint32_t*)(buff + sizeof(struct reconfig_message));
+	uint32_t sclen = htonl(sc_len);
+	memcpy(buff + sizeof(struct reconfig_message), &sclen, sizeof(uint32_t));
+	sc = (uint32_t*)(buff + sizeof(struct reconfig_message) + sizeof(uint32_t));
 	for(i = 0; i < sc_len; i++)
 		sc[i] = inet_addr(argv[5 + i]);
 
+	cmsg->leftA = sc[0];
+	cmsg->rightA = sc[sc_len - 1];
+	
 	fprintf(stdout, "Sending data (cmsg + sc) with %d service chain elements with ", sc_len);
 	n = write(sockfd, buff, tx_len);
 
