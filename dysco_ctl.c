@@ -23,10 +23,7 @@
 #define IFACE "lo"
 #define SEED 1024
 #define LISTENQ 50
-#define LISTENPORT 2017
 #define BUFSIZE 1500
-#define RECONFIG_SPORT 8988
-#define RECONFIG_DPORT 8989
 
 #define BIT_LEN 32
 #define IP_BYTE_LEN 4
@@ -110,9 +107,7 @@ struct reconfig_message {
 
 unsigned short csum(unsigned short*, uint32_t);
 uint32_t get_srcip(uint32_t*, int32_t*);
-int create_message_reconfig(struct reconfig_message*, uint32_t, uint32_t*);
-void tcp_program(uint32_t, unsigned char*, uint32_t, struct sockaddr_ll*);
-
+void create_message_reconfig(struct reconfig_message*, uint32_t, uint32_t*);
 
 int main(int argc, char** argv) {
 	int n;
@@ -126,7 +121,6 @@ int main(int argc, char** argv) {
 	//Dysco
 	int sc_len;
 	uint32_t* sc;
-	struct tcp_session* supss;
 
 	if(argc != 2) {
 		fprintf(stderr, "Usage: %s <port>.\n", argv[0]);
@@ -190,7 +184,7 @@ int main(int argc, char** argv) {
 	return 0;
 }
 
-int create_message_reconfig(struct reconfig_message* rmsg, uint32_t sc_len, uint32_t* sc) {
+void create_message_reconfig(struct reconfig_message* rmsg, uint32_t sc_len, uint32_t* sc) {
 	int on;
 	int32_t ifindex;
 	struct iphdr* iph;
@@ -204,7 +198,7 @@ int create_message_reconfig(struct reconfig_message* rmsg, uint32_t sc_len, uint
 	unsigned char sendbuf[BUFSIZ];
 
 	if((sockfd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) == -1) {
-	    perror("socket");
+		perror("socket");
 	}
 	
 	on = 1;
@@ -220,7 +214,6 @@ int create_message_reconfig(struct reconfig_message* rmsg, uint32_t sc_len, uint
 	cmsg = (struct reconfig_message*) (sendbuf + sizeof(struct iphdr) + sizeof(struct tcphdr));
 	
 	tx_len = 0;
-	//payload_len = sizeof(struct reconfig_message) + sc_len * sizeof(uint32_t);
 	//Last byte for Reconfiguration tag (+1)
 	payload_len = sizeof(struct reconfig_message) + sc_len * sizeof(uint32_t) + 1;
 	
@@ -229,7 +222,7 @@ int create_message_reconfig(struct reconfig_message* rmsg, uint32_t sc_len, uint
 	iph->version = 4;
 	iph->tos = 0;
 	iph->tot_len = htons(sizeof(struct iphdr) + sizeof(struct tcphdr) + payload_len);
-	iph->id = htons(rand() % 65536);
+	iph->id = htons(rand());
 	iph->frag_off = 0;
 	iph->ttl = 32;
 	iph->protocol = IPPROTO_TCP;
@@ -244,8 +237,7 @@ int create_message_reconfig(struct reconfig_message* rmsg, uint32_t sc_len, uint
 	// Construct the TCP segment 
 	tcph->source = htons(40000 + rand() % 1000);
 	tcph->dest = htons(50000 + rand() % 1000);
-	tcph->seq = htonl(rand() % 4294967296);
-	//tcph->seq = htonl(127);
+	tcph->seq = htonl(rand());
 	tcph->ack_seq = 0;
 	tcph->doff = 5;
 	tcph->fin = 0;
@@ -267,7 +259,7 @@ int create_message_reconfig(struct reconfig_message* rmsg, uint32_t sc_len, uint
 
 	// Insert Reconfig Tag
 	sendbuf[tx_len] = 0xFF;
-	tx_len += 1;
+	tx_len++;
 	
 	// Construct the Pseudo Header
 	psh.source_address = iph->saddr;
@@ -288,14 +280,8 @@ int create_message_reconfig(struct reconfig_message* rmsg, uint32_t sc_len, uint
 	tcph->check = csum((unsigned short*) pgram, psize);
 	sock_addr.sll_ifindex = ifindex;
 
-	tcp_program(sockfd, sendbuf, tx_len, &sock_addr);
-}
-
-//TODO: TCP state diagram (ie. retransmission, timer, etc.)
-void tcp_program(uint32_t sockfd, unsigned char* sendbuf, uint32_t len, struct sockaddr_ll* sock_addr) {
-	fprintf(stdout, "with %d bytes... ", len);
-	
-	if(sendto(sockfd, sendbuf, len, 0, (struct sockaddr*) sock_addr, sizeof(struct sockaddr_ll)) < 0)
+	fprintf(stdout, "with %d bytes... ", tx_len);
+	if(sendto(sockfd, sendbuf, tx_len, 0, (struct sockaddr*) &sock_addr, sizeof(struct sockaddr_ll)) < 0)
 		perror("send failed");
 	
 	fprintf(stdout, "OK.\n");
@@ -429,7 +415,7 @@ uint32_t get_srcip(uint32_t* destip, int32_t* ifindex) {
 		
 		}
 		
-		if(hostip) {
+		if(hostip[0]) {
 			freeifaddrs(ifaddr);
 			close(sockfd);
 			fprintf(stdout, "Sending through %s interface with %s as source address ", iface, hostip);
@@ -455,7 +441,7 @@ unsigned short csum(unsigned short* ptr, uint32_t nbytes) {
 	
 	if(nbytes == 1) {
 		oddbyte = 0;
-		*((u_char*) &oddbyte) = *(u_char*)ptr;
+		*((unsigned char*) &oddbyte) = *(unsigned char*)ptr;
 		sum += oddbyte;
 	}
   
