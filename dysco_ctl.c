@@ -173,7 +173,6 @@ int main(int argc, char** argv) {
 		}
 
 		sc_len = ntohl(*((int*)(buff + sizeof(struct reconfig_message))));
-		fprintf(stdout, "erro aqui total_n=%d sc_len=%d\n", total_n, sc_len);
 		sc = (uint32_t*)(buff + sizeof(struct reconfig_message) + sizeof(uint32_t));
 
 		//NOTE: at least one element on sc list
