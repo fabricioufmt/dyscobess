@@ -148,7 +148,7 @@ int main(int argc, char** argv) {
 		return EXIT_FAILURE;
 	}
 
-	uint32_t total_n = 0;
+	int total_n = 0;
 	srand(SEED);
 	while(1) {
 		memset(&conn_addr, 0, sizeof(struct sockaddr_in));
@@ -172,8 +172,8 @@ int main(int argc, char** argv) {
 			total_n += n;
 		}
 
-		sc_len = ntohl(*((int*)(buff + sizeof(struct reconfig_message))));
-		fprintf(stdout, "erro aqui sc_len=%d\n", sc_len);
+		sc_len = (*((int*)(buff + sizeof(struct reconfig_message))));
+		fprintf(stdout, "erro aqui total_n=%d sc_len=%d\n", total_n, sc_len);
 		sc = (uint32_t*)(buff + sizeof(struct reconfig_message) + sizeof(uint32_t));
 
 		//NOTE: at least one element on sc list
