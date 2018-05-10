@@ -47,6 +47,7 @@ const EXIT_FAILURE = 1
 const MAX_BUFFER   = 4000
 
 var spliceTime	int
+var middlebox   string
 	
 /*********************************************************************
  *
@@ -80,12 +81,22 @@ func spliceConnections(l, r net.Conn) {
 	sc, _ := dysco.CreateSCUser(2, chain)
 	*/
 
-	chain := []string{c2Remote[0]}
-	sc, _ := dysco.CreateSC(1, chain)
+	var sc          *dysco.ServiceChain
+	var stateTransf uint16
+	
+	if middlebox == "" {
+		chain := []string{c2Remote[0]}
+		sc, _ = dysco.CreateSC(1, chain)
+		stateTransf = dysco.NOSTATE_TRANSFER
+	} else {
+		chain := []string{middlebox, c2Remote[0]}
+		sc, _ = dysco.CreateSC(2, chain)
+		stateTransf = dysco.STATE_TRANSFER
+	}
 
 	dysco_msg :=  dysco.NewReconfigMessage(leftSS, leftSS, rightSS,		
 		net.ParseIP(c1Remote[0]), net.ParseIP(c2Remote[0]),
-		dysco.NOSTATE_TRANSFER, net.ParseIP("0.0.0.0"),
+		stateTransf, net.ParseIP("0.0.0.0"),
 		net.ParseIP("0.0.0.0"), sc)
 		
 	time.Sleep(time.Duration(spliceTime) * time.Second)	
@@ -154,10 +165,22 @@ func handleRequest(w net.Conn, serverAddr string) {
  *
  *********************************************************************/	
 func usage() {
-	fmt.Println("Usage: tcp_proxy <port-number> <server-addr> <server-port> <splice-time>")
+	fmt.Println("Usage: tcp_proxy <port-number> <server-addr> <server-port> <splice-time> [middlebox]")
 	os.Exit(EXIT_FAILURE)
 }
 /* usage */
+
+
+/*********************************************************************
+ *
+ *	usageError: shows error message and the program usage.
+ *
+ *********************************************************************/	
+func usagePortError() {
+	fmt.Print("Port number must be a positive number! ")
+	usage()
+}
+/* usageError */
 
 
 /*********************************************************************
@@ -181,13 +204,13 @@ func main() {
 	var str []string
 	var serverStr []string
 	
-	if len(os.Args) != 5 {
+	if len(os.Args) != 5 || len(os.Args) != 6 {
 		usage()
 	}
 	
 	port, err := strconv.Atoi(os.Args[1])
 	if err != nil || port < 0 {
-		usageError()
+		usagePortError()
 	}
 
 	str = append(str, ":", os.Args[1])
@@ -205,9 +228,13 @@ func main() {
 	serverStr   = append(serverStr, os.Args[2], ":", os.Args[3])
 	serverAddr := strings.Join(serverStr, "")
 	
-	spliceTime , err = strconv.Atoi(os.Args[4])
+	spliceTime, err = strconv.Atoi(os.Args[4])
 	if err != nil || spliceTime < 0 {
 		usageError()
+	}
+
+	if len(os.Args) == 6 {
+	   	middlebox = os.Args[5]
 	}
 
 	for {
