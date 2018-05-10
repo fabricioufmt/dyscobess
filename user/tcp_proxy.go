@@ -204,7 +204,7 @@ func main() {
 	var str []string
 	var serverStr []string
 	
-	if len(os.Args) != 5 || len(os.Args) != 6 {
+	if len(os.Args) < 5 || len(os.Args) > 6 {
 		usage()
 	}
 	
