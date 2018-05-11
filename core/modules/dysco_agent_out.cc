@@ -108,8 +108,8 @@ void DyscoAgentOut::ProcessBatch(bess::PacketBatch* batch) {
 			printip2(ip->dst.value()), tcp->dst_port.value(),
 			tcp->seq_num.value(), tcp->ack_num.value());
 #endif
-		//DyscoHashOut* cb_out = dc->lookup_output(this->index, ip, tcp);
-		DyscoHashOut* cb_out = 0;
+		DyscoHashOut* cb_out = dc->lookup_output(this->index, ip, tcp);
+
 		if(isReconfigPacket(ip, tcp, cb_out)) {
 #ifdef DEBUG_RECONFIG
 			fprintf(stderr, "[%s][DyscoAgentOut-Control] It's reconfiguration packet.\n", ns.c_str());
@@ -173,9 +173,7 @@ bool DyscoAgentOut::get_port_information() {
 	return true;
 }
 
-bool DyscoAgentOut::isReconfigPacket(Ipv4* ip, Tcp* tcp, DyscoHashOut*) {
-	DyscoHashOut* cb_out = dc->lookup_output(this->index, ip, tcp);
-	
+bool DyscoAgentOut::isReconfigPacket(Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) {
 	if(isTCPSYN(tcp, true)) {
 		if(!cb_out) {
 			uint32_t payload_len = hasPayload(ip, tcp);
@@ -406,8 +404,8 @@ bool DyscoAgentOut::update_five_tuple(Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) 
 }
 
 //L.1395
-bool DyscoAgentOut::output(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut*) {
-	DyscoHashOut* cb_out = dc->lookup_output(this->index, ip, tcp);
+bool DyscoAgentOut::output(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb) {
+	DyscoHashOut* cb_out = cb;
 	if(!cb_out) {
 		cb_out = dc->lookup_output_pending(this->index, ip, tcp);
 		if(cb_out) {
