@@ -1023,9 +1023,9 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 	//STATE_TRANSFER
 	fprintf(stderr, "STATE_TRANSFER.\n");
 
-	fprintf(stderr, "super: %s.\n" print_ss1(cmsg->super));
-	fprintf(stderr, "leftSS: %s.\n" print_ss1(cmsg->leftSS));
-	fprintf(stderr, "rightSS: %s.\n" print_ss1(cmsg->rightSS));
+	fprintf(stderr, "super: %s.\n", print_ss1(cmsg->super));
+	fprintf(stderr, "leftSS: %s.\n", print_ss1(cmsg->leftSS));
+	fprintf(stderr, "rightSS: %s.\n", print_ss1(cmsg->rightSS));
 
 	
 	cb_in->state = DYSCO_SYN_RECEIVED;
