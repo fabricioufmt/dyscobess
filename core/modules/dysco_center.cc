@@ -18,7 +18,6 @@ using bess::utils::Ipv4;
 using bess::utils::Ethernet;
 
 #define DEBUG 1
-#define DEBUG_RECONFIG 1
 
 char* printip0(uint32_t ip) {
 	uint8_t bytes[4];
@@ -444,8 +443,8 @@ DyscoHashOut* DyscoCenter::insert_cb_in_reverse(DyscoTcpSession* ss_payload, Ipv
 }
 
 DyscoHashIn* DyscoCenter::insert_cb_input(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_t* payload, uint32_t payload_sz) {
-#ifdef DEBUG_RECONFIG
-	fprintf(stderr, "[DyscoCenter]: insert_cb_input method.\n");
+#ifdef DEBUG
+	fprintf(stderr, "[DyscoCenter] insert_cb_input method.\n");
 #endif
 
 	DyscoHashes* dh = get_hash(i);
@@ -494,11 +493,11 @@ DyscoHashIn* DyscoCenter::insert_cb_input(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_
 			}
 		}
 	} else {
-#ifdef DEBUG_RECONFIG
+#ifdef DEBUG
 		fprintf(stderr, "[DyscoCenter] inside cb_input\n");
 #endif
 		if(payload_sz > sizeof(DyscoControlMessage) + sizeof(uint32_t)) {
-#ifdef DEBUG_RECONFIG
+#ifdef DEBUG
 			fprintf(stderr, "[DyscoCenter] calling insert_pending_reconfig\n");
 #endif
 			if(!insert_pending_reconfig(dh, payload, payload_sz)) {
@@ -662,7 +661,7 @@ DyscoHashOut* DyscoCenter::out_syn(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp*
 		cb_out->in_iseq = cb_out->out_iseq = tcp->seq_num.value();
 		cb_out->in_iack = cb_out->out_iack = tcp->ack_num.value() - 1;
 
-#ifdef DEBUG_RECONFIG
+#ifdef DEBUG
 		fprintf(stderr, "[DyscoCenter] (%s) cb_out->in_iseq = cb_out->out_iseq = %X.\n", print_ss0(cb_out->sub), cb_out->in_iseq);
 #endif
 		
@@ -1006,12 +1005,12 @@ bool DyscoCenter::out_handle_mb(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp* tc
 	} else
 		fprintf(stderr, "[DyscoCenter] handle_mb_out method, tag_ok is false\n");
 	if(cb_out->is_reconfiguration) {
-#ifdef DEBUG_RECONFIG
+#ifdef DEBUG
 		fprintf(stderr, "[DyscoCenter] cb_out is reconfiguration\n");
 #endif		
 		//remove_tag(pkt, ip, tcp);
 	} else {
-#ifdef DEBUG_RECONFIG
+#ifdef DEBUG
 		fprintf(stderr, "[DyscoCenter] cb_out is not reconfiguration and calling remove_tag\n");
 #endif		
 		remove_tag(pkt, ip, tcp);

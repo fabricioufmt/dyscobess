@@ -4,9 +4,7 @@
 #include "dysco_port_out.h"
 
 #define DEBUG 1
-#define DEBUG_RECONFIG 1
 
-//debug
 char* printip1(uint32_t ip) {
 	uint8_t bytes[4];
         char* buf = (char*) malloc(17);
@@ -603,22 +601,22 @@ bool DyscoAgentIn::compute_deltas_in(DyscoHashIn* cb_in, DyscoHashOut* old_out, 
 	cb_in->out_iseq = old_out->in_iack;
 	cb_in->out_iack = old_out->in_iseq;
 	
-#ifdef DEBUG_RECONFIG
-	fprintf(stderr, "[%s][DyscoAgentIn-Control] compute_deltas_in.\n", ns.c_str());
-	fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->in_iseq: %X.\n", ns.c_str(), cb_in->in_iseq);
-	fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->in_iack: %X.\n", ns.c_str(), cb_in->in_iack);
-	fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->out_iseq: %X.\n", ns.c_str(), cb_in->out_iseq);
-	fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_in->out_iack: %X.\n", ns.c_str(), cb_in->out_iack);	
+#ifdef DEBUG
+	fprintf(stderr, "compute_deltas_in.\n");
+	fprintf(stderr, "cb_in->in_iseq: %X.\n", cb_in->in_iseq);
+	fprintf(stderr, "cb_in->in_iack: %X.\n", cb_in->in_iack);
+	fprintf(stderr, "cb_in->out_iseq: %X.\n", cb_in->out_iseq);
+	fprintf(stderr, "cb_in->out_iack: %X.\n", cb_in->out_iack);	
 #endif
 	if(cb_in->in_iseq < cb_in->out_iseq) {
 		cb_in->seq_delta = cb_in->out_iseq - cb_in->in_iseq;
-#ifdef DEBUG_RECONFIG
+#ifdef DEBUG
 		fprintf(stderr, "cb_in->seq_delta1 = %X (%X - %X).\n", cb_in->seq_delta, cb_in->out_iseq, cb_in->in_iseq);
 #endif
 		cb_in->seq_add = 1;
 	} else {
 		cb_in->seq_delta = cb_in->in_iseq - cb_in->out_iseq;
-#ifdef DEBUG_RECONFIG
+#ifdef DEBUG
 		fprintf(stderr, "cb_in->seq_delta2 = %X (%X - %X).\n", cb_in->seq_delta, cb_in->in_iseq, cb_in->out_iseq);
 #endif
 		cb_in->seq_add = 0;
@@ -626,13 +624,13 @@ bool DyscoAgentIn::compute_deltas_in(DyscoHashIn* cb_in, DyscoHashOut* old_out, 
 	
 	if(cb_in->in_iack < cb_in->out_iack) {
 		cb_in->ack_delta = cb_in->out_iack - cb_in->in_iack;
-#ifdef DEBUG_RECONFIG
+#ifdef DEBUG
 		fprintf(stderr, "cb_in->ack_delta1 = %X (%X - %X).\n", cb_in->ack_delta, cb_in->out_iack, cb_in->in_iack);
 #endif
 		cb_in->ack_add = 1;
 	} else {
 		cb_in->ack_delta = cb_in->in_iack - cb_in->out_iack;
-#ifdef DEBUG_RECONFIG
+#ifdef DEBUG
 		fprintf(stderr, "cb_in->ack_delta2 = %X (%X - %X).\n", cb_in->ack_delta, cb_in->in_iack, cb_in->out_iack);
 #endif
 		cb_in->ack_add = 0;
@@ -685,23 +683,23 @@ bool DyscoAgentIn::compute_deltas_out(DyscoHashOut* cb_out, DyscoHashOut* old_ou
 	cb_out->in_iseq = old_out->in_iseq;
 	cb_out->in_iack = old_out->in_iack;
 
-#ifdef DEBUG_RECONFIG
-	fprintf(stderr, "[%s][DyscoAgentIn-Control] compute_deltas_out.\n", ns.c_str());
-	fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_out->in_iseq: %X.\n", ns.c_str(), cb_out->in_iseq);
-	fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_out->in_iack: %X.\n", ns.c_str(), cb_out->in_iack);
-	fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_out->out_iseq: %X.\n", ns.c_str(), cb_out->out_iseq);
-	fprintf(stderr, "[%s][DyscoAgentIn-Control] cb_out->out_iack: %X.\n", ns.c_str(), cb_out->out_iack);
+#ifdef DEBUG
+	fprintf(stderr, "compute_deltas_out.\n");
+	fprintf(stderr, "cb_out->in_iseq: %X.\n", cb_out->in_iseq);
+	fprintf(stderr, "cb_out->in_iack: %X.\n", cb_out->in_iack);
+	fprintf(stderr, "cb_out->out_iseq: %X.\n", cb_out->out_iseq);
+	fprintf(stderr, "cb_out->out_iack: %X.\n", cb_out->out_iack);
 #endif
 	
 	if(cb_out->in_iseq < cb_out->out_iseq) {
 		cb_out->seq_delta = cb_out->out_iseq - cb_out->in_iseq;
-#ifdef DEBUG_RECONFIG
+#ifdef DEBUG
 		fprintf(stderr, "cb_out->seq_delta1 = %X (%X - %X).\n", cb_out->seq_delta, cb_out->out_iseq, cb_out->in_iseq);
 #endif
 		cb_out->seq_add = 1;
 	} else {
 		cb_out->seq_delta = cb_out->in_iseq - cb_out->out_iseq;
-#ifdef DEBUG_RECONFIG
+#ifdef DEBUG
 		fprintf(stderr, "cb_out->seq_delta2 = %X (%X - %X).\n", cb_out->seq_delta, cb_out->in_iseq, cb_out->out_iseq);
 #endif
 		cb_out->seq_add = 0;
@@ -709,13 +707,13 @@ bool DyscoAgentIn::compute_deltas_out(DyscoHashOut* cb_out, DyscoHashOut* old_ou
 
 	if(cb_out->in_iack < cb_out->out_iack) {
 		cb_out->ack_delta = cb_out->out_iack - cb_out->in_iack;
-#ifdef DEBUG_RECONFIG
+#ifdef DEBUG
 		fprintf(stderr, "cb_out->ack_delta1 = %X (%X - %X).\n", cb_out->ack_delta, cb_out->out_iack, cb_out->in_iack);
 #endif		
 		cb_out->ack_add = 1;
 	} else {
 		cb_out->ack_delta = cb_out->in_iack - cb_out->out_iack;
-#ifdef DEBUG_RECONFIG
+#ifdef DEBUG
 		fprintf(stderr, "cb_out->ack_delta2 = %X (%X - %X).\n", cb_out->ack_delta, cb_out->in_iack, cb_out->out_iack);
 #endif	
 		cb_out->ack_add = 0;
@@ -806,7 +804,7 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 	uint32_t payload_sz = ip->length.value() - (ip->header_length << 2) - tcp_hlen;
 		
 	if(isRightAnchor(ip, cmsg)) {
-#ifdef DEBUG_RECONFIG
+#ifdef DEBUG
 		fprintf(stderr, "It's the right anchor.\n");
 #endif	
 		cb_in = new DyscoHashIn();
@@ -860,7 +858,7 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 		return TO_GATE_1;
 	}
 
-#ifdef DEBUG_RECONFIG		
+#ifdef DEBUG
 	fprintf(stderr, "It isn't the right anchor.\n");
 #endif
 
@@ -1130,7 +1128,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 	/*
 	  TODO: verify
 	case DYSCO_STATE_TRANSFERRED:
-#ifdef DEBUG_RECONFIG
+#ifdef DEBUG
 		fprintf(stderr, "[DyscoAgentIn]: DYSCO_STATE_TRANSFERRED message.\n");
 #endif
 		rcb = dc->lookup_reconfig_by_ss(this->index, &cmsg->super);

@@ -6,7 +6,6 @@
 #include "dysco_port_inc.h"
 
 #define DEBUG 1
-#define DEBUG_RECONFIG 1
 
 //debug
 char* printip2(uint32_t ip) {
@@ -111,13 +110,13 @@ void DyscoAgentOut::ProcessBatch(bess::PacketBatch* batch) {
 		DyscoHashOut* cb_out = dc->lookup_output(this->index, ip, tcp);
 
 		if(isReconfigPacket(ip, tcp, cb_out)) {
-#ifdef DEBUG_RECONFIG
-			fprintf(stderr, "[%s][DyscoAgentOut-Control] It's reconfiguration packet.\n", ns.c_str());
+#ifdef DEBUG
+			fprintf(stderr, "It's reconfiguration packet.\n");
 #endif
 			if(control_output(ip, tcp))
 				dysco_packet(eth);
 
-#ifdef DEBUG_RECONFIG
+#ifdef DEBUG
 			fprintf(stderr, "[%s][DyscoAgentOut-Control] forwards %s:%u -> %s:%u [%X:%X]\n\n",
 				ns.c_str(),
 				printip2(ip->src.value()), tcp->src_port.value(),
@@ -526,7 +525,7 @@ bool DyscoAgentOut::control_output_syn(Ipv4* ip, Tcp* tcp, DyscoControlMessage* 
 	DyscoCbReconfig* rcb = dc->lookup_reconfig_by_ss(this->index, &cmsg->super);
 	
 	if(isFromLeftAnchor(ip, cmsg)) {
-#ifdef DEBUG_RECONFIG
+#ifdef DEBUG
 		fprintf(stderr, "It's the left anchor.\n");
 #endif
 		DyscoHashOut* old_dcb;
@@ -617,7 +616,7 @@ bool DyscoAgentOut::control_output_syn(Ipv4* ip, Tcp* tcp, DyscoControlMessage* 
 
 		return true;
 	}
-#ifdef DEBUG_RECONFIG
+#ifdef DEBUG
 	fprintf(stderr, "It isn't the left anchor.\n");
 #endif
 	if(rcb && rcb->sub_out.sip != 0)
