@@ -1028,7 +1028,7 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 			pkt->trim(sizeof(uint32_t));
 			
 			ip->src = ip->dst;
-			ip->dst = be32_t(sc[1]);
+			ip->dst = be32_t(htonl(sc[1]));
 
 			ip->checksum = 0;
 			tcp->checksum = 0;
