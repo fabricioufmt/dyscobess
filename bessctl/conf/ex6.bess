@@ -210,4 +210,3 @@ os.system('ip netns exec m4 tcpdump -i m4-0 arp or icmp or tcp -n -XX -w /home/f
 os.system('ip netns exec m4 ./srv 5001 10000 & 2>/dev/null')
 os.system('ip netns exec m1 ./dysco_ctl 2017 & 2>/dev/null')
 os.system('ip netns exec m2 ./user/tcp_proxy 5001 10.0.3.1 5001 15 & 2>/dev/null')
-os.system('ip netns exec m1 ./cli 10.0.2.2 5001 & 2>/dev/null')
