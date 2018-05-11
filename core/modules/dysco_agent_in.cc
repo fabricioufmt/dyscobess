@@ -183,22 +183,23 @@ bool DyscoAgentIn::get_port_information() {
 }
 
 bool DyscoAgentIn::isReconfigPacket(Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
-	if(!cb_in)
-		return false;
-	
 	if(isTCPSYN(tcp, true)) {
-		uint32_t payload_len = hasPayload(ip, tcp);
-		if(payload_len) {
-			uint32_t tcp_hlen = tcp->offset << 2;
-			
-			if(((uint8_t*)tcp + tcp_hlen)[payload_len - 1] == 0xFF)
-				return true;
-		}
+		if(!cb_in) {
+			uint32_t payload_len = hasPayload(ip, tcp);
+			if(payload_len) {
+				uint32_t tcp_hlen = tcp->offset << 2;
 				
+				if(((uint8_t*)tcp + tcp_hlen)[payload_len - 1] == 0xFF)
+					return true;
+			}
+		}
+		
 		return false;
 	}
 
-		
+	if(!cb_in)
+		return false;
+	
 	if((isTCPSYN(tcp) && isTCPACK(tcp)) || isTCPACK(tcp, true)) {
 		if(cb_in->is_reconfiguration) {
 			return true;
