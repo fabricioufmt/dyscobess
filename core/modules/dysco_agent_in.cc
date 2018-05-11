@@ -1025,7 +1025,11 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 	if(isTCPSYN(tcp, true)) {
 		ip->length = ip->length - be16_t(sizeof(uint32_t));
 		pkt->trim(sizeof(uint32_t));
-			
+		//TEST
+		DyscoHashIn* cbin = dc->insert_cb_input(this->index, ip, tcp, payload, payload_sz);
+		if(!cbin) {
+			fprintf(stderr, "dc->insert_cb_input returns false in STATE_TRANSFER\n");
+		}	
 		ip->src = ip->dst;
 		ip->dst = be32_t(ntohl(sc[1]));
 
@@ -1038,11 +1042,7 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 		tcp->checksum = bess::utils::CalculateIpv4TcpChecksum(*ip, *tcp);
 
 
-		//TEST
-		DyscoHashIn* cbin = dc->insert_cb_input(this->index, ip, tcp, payload, payload_sz);
-		if(!cbin) {
-			fprintf(stderr, "dc->insert_cb_input returns false in STATE_TRANSFER\n");
-		}
+		
 
 
 		
