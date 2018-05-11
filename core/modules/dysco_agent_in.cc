@@ -1033,10 +1033,9 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 			tcp->checksum = 0;
 			ip->checksum = bess::utils::CalculateIpv4Checksum(*ip);
 			tcp->checksum = bess::utils::CalculateIpv4TcpChecksum(*ip, *tcp);
-			
+
+			return TO_GATE_1;
 		}
-		fprintf(stderr, "First IP: %X.\n", *((uint32_t*)(cmsg + 1)));
-		
 	}
 	
 	remove_sc(pkt, ip, tcp);
