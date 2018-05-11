@@ -109,7 +109,7 @@ void DyscoAgentOut::ProcessBatch(bess::PacketBatch* batch) {
 			tcp->seq_num.value(), tcp->ack_num.value());
 #endif
 		//DyscoHashOut* cb_out = dc->lookup_output(this->index, ip, tcp);
-		
+		DyscoHashOut* cb_out;
 		if(isReconfigPacket(ip, tcp, cb_out)) {
 #ifdef DEBUG_RECONFIG
 			fprintf(stderr, "[%s][DyscoAgentOut-Control] It's reconfiguration packet.\n", ns.c_str());
