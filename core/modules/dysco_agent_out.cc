@@ -108,7 +108,9 @@ void DyscoAgentOut::ProcessBatch(bess::PacketBatch* batch) {
 			printip2(ip->dst.value()), tcp->dst_port.value(),
 			tcp->seq_num.value(), tcp->ack_num.value());
 #endif
-		if(isReconfigPacket(ip, tcp)) {
+		DyscoHashOut* cb_out = dc->lookup_output(this->index, ip, tcp);
+		
+		if(isReconfigPacket(ip, tcp, cb_out)) {
 #ifdef DEBUG_RECONFIG
 			fprintf(stderr, "[%s][DyscoAgentOut-Control] It's reconfiguration packet.\n", ns.c_str());
 #endif
@@ -126,7 +128,7 @@ void DyscoAgentOut::ProcessBatch(bess::PacketBatch* batch) {
 			continue;
 		}
 			
-		if(output(pkt, ip, tcp))
+		if(output(pkt, ip, tcp, cb_out))
 			dysco_packet(eth);
 
 #ifdef DEBUG
@@ -169,6 +171,30 @@ bool DyscoAgentOut::get_port_information() {
 	port = dysco_vport;
 	
 	return true;
+}
+
+bool DyscoAgentOut::isReconfigPacket(Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) {
+	if(isTCPSYN(tcp, true)) {
+		if(!cb_out) {
+			uint32_t payload_len = hasPayload(ip, tcp);
+			if(payload_len) {
+				uint32_t tcp_hlen = tcp->offset << 2;
+				
+				if(((uint8_t*)tcp + tcp_hlen)[payload_len - 1] == 0xFF)
+					return true;
+			}
+
+			return false;
+		}
+
+		if(!cb_out->dcb_in)
+			return false;
+			
+		if(cb_out->dcb_in->is_reconfiguration)
+			return true;
+	}
+		
+	return false;
 }
 
 /************************************************************************/
@@ -378,19 +404,18 @@ bool DyscoAgentOut::update_five_tuple(Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) 
 }
 
 //L.1395
-bool DyscoAgentOut::output(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
-	DyscoHashOut* cb_out = dc->lookup_output(this->index, ip, tcp);
+bool DyscoAgentOut::output(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) {
 	if(!cb_out) {
-		cb_out = dc->lookup_output_pending(this->index, ip, tcp);
-		if(cb_out) {
-			return dc->out_handle_mb(this->index, pkt, ip, tcp, cb_out, devip);
+		DyscoHashOut* cb = dc->lookup_output_pending(this->index, ip, tcp);
+		if(cb) {
+			return dc->out_handle_mb(this->index, pkt, ip, tcp, cb, devip);
 		}
 
-		cb_out = dc->lookup_pending_tag(this->index, tcp);
-		if(cb_out) {
-			update_five_tuple(ip, tcp, cb_out);
+		cb = dc->lookup_pending_tag(this->index, tcp);
+		if(cb) {
+			update_five_tuple(ip, tcp, cb);
 			
-			return dc->out_handle_mb(this->index, pkt, ip, tcp, cb_out, devip);
+			return dc->out_handle_mb(this->index, pkt, ip, tcp, cb, devip);
 		}
 	}
 
@@ -605,20 +630,11 @@ bool DyscoAgentOut::control_output_syn(Ipv4* ip, Tcp* tcp, DyscoControlMessage* 
 
 	return true;
 }
-/*
-  NOTE: This method uses my_tp.
-bool DyscoAgentOut::ctl_save_rcv_window(DyscoControlMessage* cmsg) {
-
-}
-*/
 
 bool DyscoAgentOut::control_output(Ipv4* ip, Tcp* tcp) {
-	DyscoControlMessage* cmsg;
-
 	uint8_t* payload = reinterpret_cast<uint8_t*>(tcp) + (tcp->offset << 2);
-	cmsg = reinterpret_cast<DyscoControlMessage*>(payload);
 
-	return control_output_syn(ip, tcp, cmsg);
+	return control_output_syn(ip, tcp, reinterpret_cast<DyscoControlMessage*>(payload));
 }
 
 void DyscoAgentOut::dysco_packet(Ethernet* eth) {

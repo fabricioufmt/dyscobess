@@ -110,30 +110,7 @@ class DyscoAgentOut final : public Module {
 		return ip->dst.value() == ntohl(cmsg->rightA);
 	}
 	
-	inline bool isReconfigPacket(Ipv4* ip, Tcp* tcp) {
-		if(isTCPSYN(tcp, true)) {
-			DyscoHashOut* cb_out = dc->lookup_output(this->index, ip, tcp);
-			if(!cb_out) {
-				uint32_t payload_len = hasPayload(ip, tcp);
-				if(payload_len) {
-					//Only LeftAnchor
-					uint32_t tcp_hlen = tcp->offset << 2;
-					if(((uint8_t*)tcp + tcp_hlen)[payload_len - 1] == 0xFF)
-						return true;
-				}
-
-				return false;
-			}
-
-			if(!cb_out->dcb_in)
-				return false;
-			
-			if(cb_out->dcb_in->is_reconfiguration)
-				return true;
-		}
-		
-		return false;
-	}
+	bool isReconfigPacket(Ipv4*, Tcp*, DyscoHashOut*);
 
 	bool out_rewrite_seq(Tcp*, DyscoHashOut*);
 	bool out_rewrite_ack(Tcp*, DyscoHashOut*);
@@ -143,7 +120,7 @@ class DyscoAgentOut final : public Module {
 	DyscoHashOut* pick_path_ack(Tcp*, DyscoHashOut*);
 	bool out_translate(bess::Packet*, Ipv4*, Tcp*, DyscoHashOut*);
 	bool update_five_tuple(Ipv4*, Tcp*, DyscoHashOut*);
-	bool output(bess::Packet*, Ipv4*, Tcp*);
+	bool output(bess::Packet*, Ipv4*, Tcp*, DyscoHashOut*);
 	/*
 	  CONTROL
 	 */
