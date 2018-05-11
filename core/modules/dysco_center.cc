@@ -176,7 +176,7 @@ DyscoHashIn* DyscoCenter::lookup_input_by_ss(uint32_t i, DyscoTcpSession* ss) {
 		it++;
 	}
 	
-#endif DEBUG
+#ifdef DEBUG
 	fprintf(stderr, "not found.\n");
 #endif
 	

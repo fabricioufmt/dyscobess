@@ -349,7 +349,7 @@ class DyscoCenter final : public Module {
 	DyscoHashOut* lookup_pending_tag_by_tag(uint32_t, uint32_t);
 	bool insert_pending_reconfig(DyscoHashes*, uint8_t*, uint32_t);
 	DyscoHashOut* insert_cb_in_reverse(DyscoTcpSession*, Ipv4*, Tcp*);
-	DyscoHashOut* create_cb_out(uint32_t, Ipv4*, Tcp*, DyscoPolicies::Filter*, uint32_t)
+	DyscoHashOut* create_cb_out(uint32_t, Ipv4*, Tcp*, DyscoPolicies::Filter*, uint32_t);
 
 	inline bool isTCPSYN(Tcp* tcp, bool exclusive = false) {
 		return exclusive ? tcp->flags == Tcp::Flag::kSyn : tcp->flags & Tcp::Flag::kSyn;
