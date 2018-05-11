@@ -102,8 +102,10 @@ void DyscoAgentIn::ProcessBatch(bess::PacketBatch* batch) {
 			tcp->seq_num.value(), tcp->ack_num.value());
 #endif
 
-		if(!isReconfigPacket(ip, tcp)) {
-			switch(input(pkt, ip, tcp)) {
+		DyscoHashIn* cb_in = dc->lookup_input(this->index, ip, tcp);
+		
+		if(!isReconfigPacket(ip, tcp, cb_in)) {
+			switch(input(pkt, ip, tcp, cb_in)) {
 			case TO_GATE_0:
 				out_gates[0].add(pkt);
 #ifdef DEBUG
@@ -120,7 +122,7 @@ void DyscoAgentIn::ProcessBatch(bess::PacketBatch* batch) {
 				fprintf(stderr, "Neither Gate0 or Gate1\n\n");
 			}
 		} else {
-			switch(control_input(pkt, ip, tcp)) {
+			switch(control_input(pkt, ip, tcp, cb_in)) {
 			case TO_GATE_0:
 				out_gates[0].add(pkt);
 #ifdef DEBUG
@@ -177,6 +179,34 @@ bool DyscoAgentIn::get_port_information() {
 	port = dysco_vport;
 	
 	return true;
+}
+
+bool DyscoAgentIn::isReconfigPacket(Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
+	if(!cb_in)
+		return false;
+	
+	if(isTCPSYN(tcp, true)) {
+		uint32_t payload_len = hasPayload(ip, tcp);
+		if(payload_len) {
+			uint32_t tcp_hlen = tcp->offset << 2;
+			
+			if(((uint8_t*)tcp + tcp_hlen)[payload_len - 1] == 0xFF)
+				return true;
+		}
+				
+		return false;
+	}
+
+		
+	if((isTCPSYN(tcp) && isTCPACK(tcp)) || isTCPACK(tcp, true)) {
+		if(cb_in->is_reconfiguration) {
+			return true;
+		}
+		
+		//Should consider state
+	}
+
+	return false;
 }
 
 /************************************************************************/
@@ -445,8 +475,7 @@ bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in) {
 }
 
 //L.753
-CONTROL_RETURN DyscoAgentIn::input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
-	DyscoHashIn* cb_in = dc->lookup_input(this->index, ip, tcp);
+CONTROL_RETURN DyscoAgentIn::input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
 	if(!cb_in) {
 		if(isTCPSYN(tcp) && hasPayload(ip, tcp)) {
 			if(rx_initiation_new(pkt, ip, tcp))
@@ -928,14 +957,13 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 	return TO_GATE_1;
 }
 
-CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
-	DyscoHashIn* cb_in;
+CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
 	DyscoCbReconfig* rcb;
 	DyscoControlMessage* cmsg = 0;
 	size_t tcp_hlen = tcp->offset << 2;
 	
 	if(isTCPSYN(tcp, true)) {
-#ifdef DEBUG_RECONFIG
+#ifdef DEBUG
 		fprintf(stderr, "DYSCO_SYN message.\n");
 #endif
 		uint8_t* payload = reinterpret_cast<uint8_t*>(tcp) + tcp_hlen;
@@ -956,11 +984,10 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 		return control_reconfig_in(pkt, ip, tcp, payload, rcb, cmsg);
 		
 	} else if(isTCPSYN(tcp) && isTCPACK(tcp)) {
-#ifdef DEBUG_RECONFIG
+#ifdef DEBUG
 		fprintf(stderr, "DYSCO_SYN_ACK message.\n");
 #endif
 
-		cb_in = dc->lookup_input(this->index, ip, tcp);
 		if(!cb_in) {
 			return ERROR;
 		}
@@ -971,7 +998,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 		}
 
 		if(ip->dst.value() == ntohl(cmsg->leftA)) {
-#ifdef DEBUG_RECONFIG
+#ifdef DEBUG
 			fprintf(stderr, "It's the left anchor.\n");
 #endif
 			DyscoHashOut* cb_out = dc->lookup_output_by_ss(this->index, &cmsg->leftSS);
@@ -1020,7 +1047,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 			
 			return TO_GATE_1;
 		} else {
-#ifdef DEBUG_RECONFIG
+#ifdef DEBUG
 			fprintf(stderr, "It isn't left anchor.\n");
 #endif		
 			dc->set_ack_number_out(this->index, tcp, cb_in);
@@ -1029,11 +1056,10 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 			return TO_GATE_0;
 		}
 	} else if(isTCPACK(tcp, true)) {
-#ifdef DEBUG_RECONFIG
+#ifdef DEBUG
 		fprintf(stderr, "DYSCO_ACK message.\n");
 #endif
 
-		cb_in = dc->lookup_input(this->index, ip, tcp);
 		if(!cb_in) {
 			return ERROR;
 		}
@@ -1049,7 +1075,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 		}
 		
 		if(isRightAnchor(ip, cmsg)) {
-#ifdef DEBUG_RECONFIG
+#ifdef DEBUG
 			fprintf(stderr, "It's the right anchor.\n");
 #endif
 
@@ -1090,7 +1116,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 
 			return END;
 		}
-#ifdef DEBUG_RECONFIG
+#ifdef DEBUG
 		fprintf(stderr, "It isn't the right anchor.\n");
 #endif
 		dc->set_ack_number_out(this->index, tcp, cb_in);
