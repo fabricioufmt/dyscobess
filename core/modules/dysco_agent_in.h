@@ -155,8 +155,6 @@ class DyscoAgentIn final : public Module {
 	bool in_rewrite_rcv_wnd(Tcp*, DyscoHashIn*);
 	bool in_hdr_rewrite_csum(Ipv4*, Tcp*, DyscoHashIn*);
 	bool rx_initiation_new(bess::Packet*, Ipv4*, Tcp*);
-	bool set_ack_number_out(uint32_t, Tcp*, DyscoHashIn*);
-	//bool set_zero_window(Tcp*);
 	bool in_two_paths_ack(Tcp*, DyscoHashIn*);
 	bool in_two_paths_data_seg(Tcp*, DyscoHashIn*);
 	CONTROL_RETURN input(bess::Packet*, Ipv4*, Tcp*);

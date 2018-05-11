@@ -1196,32 +1196,7 @@ bool DyscoCenter::replace_cb_leftA(DyscoCbReconfig* rcb, DyscoControlMessage* cm
 
 	cmsg->seqCutoff = old_dcb->seq_cutoff;
 
-	//Ronaldo:
-	//rec_done??
-
 	return true;
-}
-
-void DyscoCenter::update_mac(Ethernet::Address mac_addr, be32_t ip_addr) {
-	arp_entry entry;
-
-	entry.mac_addr = mac_addr;
-	entry.ip_addr = ip_addr;
-
-	auto search = entries.find(ip_addr);
-	if(search == entries.end()) {
-		entries[ip_addr] = entry;
-		fprintf(stderr, "Adding an ARP entry (%s->%s). TOTAL: %lu.\n",
-			printip0(ip_addr.value()), mac_addr.ToString().c_str(),
-			entries.size());
-	}
-}
-
-char* DyscoCenter::get_mac(be32_t ip_addr) {
-	auto search = entries.find(ip_addr);
-	if(search == entries.end())
-		return 0;
-	return entries[ip_addr].mac_addr.bytes;
 }
 
 ADD_MODULE(DyscoCenter, "dysco_center", "Dysco center")

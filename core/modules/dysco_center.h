@@ -357,12 +357,6 @@ class DyscoCenter final : public Module {
 	bool out_hdr_rewrite(bess::Packet*, Ipv4*, Tcp*, DyscoTcpSession*);
 	bool insert_cb_out(uint32_t, DyscoHashOut*, uint8_t);
 
-	/*
-
-	 */
-	void update_mac(Ethernet::Address, be32_t);
-	char* get_mac(be32_t);
-	
  private:
 	std::map<be32_t, struct arp_entry> entries;
 	unordered_map<uint32_t, DyscoHashes*> hashes;

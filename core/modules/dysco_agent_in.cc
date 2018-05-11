@@ -182,9 +182,8 @@ bool DyscoAgentIn::get_port_information() {
 /************************************************************************/
 /************************************************************************/
 /*
-  Dysco codes below. Some methods are just wrapper for DyscoCenter method.
+  Dysco codes below.
 */
-
 bool DyscoAgentIn::remove_sc(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 	size_t ip_hlen = ip->header_length << 2;
 	size_t tcp_hlen = tcp->offset << 2;
@@ -196,19 +195,6 @@ bool DyscoAgentIn::remove_sc(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 	return true;
 }
 
-//L.82
-//insert_pending method -- in DyscoCenter
-
-//L.133
-//insert_cb_in_reverse method -- in DyscoCenter
-
-//L.191
-//insert_cb_input method -- in DyscoCenter
-
-//L.258
-//lookup_input method -- in DyscoCenter
-
-//Ronaldo: Simple Checksum computation?
 //L.282
 bool DyscoAgentIn::in_hdr_rewrite(Ipv4* ip, Tcp* tcp, DyscoTcpSession* sup) {
 	if(!sup)
@@ -242,10 +228,6 @@ bool DyscoAgentIn::in_rewrite_seq(Tcp* tcp, DyscoHashIn* cb_in) {
 		else
 			new_seq = seq - cb_in->seq_delta;
 
-#ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[%s][DyscoAgentIn-Control] old seq: %X, new seq: %X, seq_delta: %X.\n", ns.c_str(), seq, new_seq, cb_in->seq_delta);
-#endif
-		
 		tcp->seq_num = be32_t(new_seq);
 		
 		return true;
@@ -273,10 +255,6 @@ bool DyscoAgentIn::in_rewrite_ack(Tcp* tcp, DyscoHashIn* cb_in) {
 		//if(cb_in->sack_ok)
 		//	dc->tcp_sack(tcp, cb_in);
 
-#ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[%s][DyscoAgentIn-Control] old ack: %X, new ack: %X, ack_delta: %X.\n", ns.c_str(), ack, new_ack, cb_in->ack_delta);
-#endif
-		
 		tcp->ack_num = be32_t(new_ack);
 
 		return true;
@@ -303,8 +281,6 @@ bool DyscoAgentIn::in_rewrite_ts(Tcp* tcp, DyscoHashIn* cb_in) {
 
 		new_ts = htonl(new_ts);
 		ts->ts = new_ts;
-		//Ronaldo: is it just statistic?
-		//tcp_ts_rewrites++; L.406 -- dysco_input.c
 	}
 
 	if(cb_in->tsr_delta) {
@@ -315,8 +291,6 @@ bool DyscoAgentIn::in_rewrite_ts(Tcp* tcp, DyscoHashIn* cb_in) {
 
 		new_tsr = htonl(new_tsr);
 		ts->tsr = new_tsr;
-		//Ronaldo: is it just statistic?
-		//tcp_ts_rewrites++; L.420 -- dysco_input.c
 	}
 		
 	return true;
@@ -385,8 +359,6 @@ bool DyscoAgentIn::rx_initiation_new(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 		cb_in->in_iseq = tcp->seq_num.value();
 		cb_in->in_iack = tcp->ack_num.value();
 
-		fprintf(stderr, "sub_ss: %s (cb_in->in_iseq: %X) (cb_in->in_iack: %X)\n", print_ss1(cb_in->sub), cb_in->in_iseq, cb_in->in_iack);
-		
 		remove_sc(pkt, ip, tcp);
 		dc->parse_tcp_syn_opt_r(tcp, cb_in);
 		dc->insert_tag(this->index, pkt, ip, tcp);
@@ -396,65 +368,37 @@ bool DyscoAgentIn::rx_initiation_new(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 	return true;
 }
 
-//L.545
-bool DyscoAgentIn::set_ack_number_out(uint32_t i, Tcp* tcp, DyscoHashIn* cb_in) {
-	return dc->set_ack_number_out(i, tcp, cb_in);
-}
-
-//L.601
-/*
-bool DyscoAgentIn::set_zero_window(Tcp* tcp) {
-	tcp->window = be16_t(0);
-}
-*/
-
 //L.614
 bool DyscoAgentIn::in_two_paths_ack(Tcp* tcp, DyscoHashIn* cb_in) {
-	fprintf(stderr, "in_two_paths_ack method.\n");
 	uint32_t ack_seq = tcp->ack_num.value();
 
 	DyscoHashOut* cb_out = cb_in->dcb_out;
 	if(!cb_out) {
-		fprintf(stderr, "cb_in->dcb_out is NULL\n");
 		return false;
 	}
-
-	fprintf(stderr, "cb_in->dcb_out (sub: %s).\n", print_ss1(cb_out->sub));
-
+	
 	if(cb_out->old_path) {
 		if(cb_out->state_t && cb_out->state == DYSCO_ESTABLISHED) {
 			cb_in->two_paths = 0;
-			fprintf(stderr, "puting cb_in->two_paths1 = 0 (sub: %s)\n", print_ss1(cb_in->sub));
 		} else {
-			fprintf(stderr, "dc->after([%X %X])_1.\n", cb_out->seq_cutoff, ack_seq);
 			if(!dc->after(cb_out->seq_cutoff, ack_seq)) {
-				fprintf(stderr, "dc->after(cb_out->seq_cutoff, ack_seq)_1 is FALSE.\n");
 				cb_out->use_np_seq = 1;
 				cb_in->two_paths = 0;
-				fprintf(stderr, "puting cb_in->two_paths2 = 0 (sub: %s)\n", print_ss1(cb_in->sub));
-			} else {
-				fprintf(stderr, "dc->after(cb_out->seq_cutoff, ack_seq) is TRUE.\n");
 			}
 		}
 	} else {
 		cb_out = cb_out->other_path;
 		if(!cb_out) {
-			fprintf(stderr, "cb_in->dcb_out->other_path is NULL\n");
 			return false;
 		}
 
 		if(cb_out->state_t && cb_out->state == DYSCO_ESTABLISHED) {
 			cb_in->two_paths = 0;
-			fprintf(stderr, "puting cb_in->two_paths3 = 0 (sub: %s)\n", print_ss1(cb_in->sub));
 		} else {
-			fprintf(stderr, "dc->after([%X %X])_2.\n", cb_out->seq_cutoff, ack_seq);
 			if(!dc->after(cb_out->seq_cutoff, ack_seq)) {
-				fprintf(stderr, "dc->after(cb_out->seq_cutoff, ack_seq)_2 is FALSE [%X %X].\n", cb_out->seq_cutoff, ack_seq);
 				cb_out->use_np_seq = 1;
 				cb_in->two_paths = 0;
-				fprintf(stderr, "puting cb_in->two_paths4 = 0 (sub: %s)\n", print_ss1(cb_in->sub));
-			} else {
-				fprintf(stderr, "dc->after(cb_out->other_path->seq_cutoff, ack_seq) is TRUE.\n");
+				
 			}
 		}
 	}
@@ -487,16 +431,13 @@ bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in) {
 				seq += delta;
 			}
 
-			fprintf(stderr, "[BEFORE]old_out->ack_cutoff: %X\n", old_out->ack_cutoff);
 			if(old_out->valid_ack_cut) {
 				if(dc->before(seq, old_out->ack_cutoff))
 					old_out->ack_cutoff = seq;
 			} else {
 				old_out->ack_cutoff = seq;
 				old_out->valid_ack_cut = 1;
-				fprintf(stderr, "[AFTER]old_out->valid_ack_cut: 1\n");
 			}
-			fprintf(stderr, "[AFTER]old_out->ack_cutoff: %X\n", old_out->ack_cutoff);
 		}
 	}
 
@@ -508,9 +449,6 @@ CONTROL_RETURN DyscoAgentIn::input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 	DyscoHashIn* cb_in = dc->lookup_input(this->index, ip, tcp);
 	if(!cb_in) {
 		if(isTCPSYN(tcp) && hasPayload(ip, tcp)) {
-#ifdef DEBUG
-			fprintf(stderr, "[%s][DyscoAgentIn] receives a new TCP SYN+PAYLOAD segment\n", ns.c_str());
-#endif
 			if(rx_initiation_new(pkt, ip, tcp))
 				return TO_GATE_0;
 		}
@@ -520,23 +458,11 @@ CONTROL_RETURN DyscoAgentIn::input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 
 	if(isTCPSYN(tcp)) {
 		if(isTCPACK(tcp)) {
-			if(cb_in->dcb_out) {
-				if(cb_in->dcb_out->state == DYSCO_SYN_SENT) {
-					fprintf(stderr, "receives SYN/ACK in DYSCO_SYN_SENT state.\n");
-				} else {
-					fprintf(stderr, "receives SYN/ACK in not DYSCO_SYN_SENT state.\n");
-				}
-			} else {
-				fprintf(stderr, "!cb_in->dcb_out.\n");
-			}
-			set_ack_number_out(this->index, tcp, cb_in);
+			dc->set_ack_number_out(this->index, tcp, cb_in);
 			in_hdr_rewrite_csum(ip, tcp, cb_in);
 		} else {
 			//It is retransmission packet, just remove sc (if there is) and insert Dysco Tag
 			if(hasPayload(ip, tcp)) {
-#ifdef DEBUG
-				fprintf(stderr, "[%s][DyscoAgentIn] receives a TCP SYN+PAYLOAD retransmission segment.\n", ns.c_str());
-#endif
 				remove_sc(pkt, ip, tcp);
 				dc->insert_tag(this->index, pkt, ip, tcp);
 				in_hdr_rewrite(ip, tcp, &cb_in->sup);
@@ -546,49 +472,13 @@ CONTROL_RETURN DyscoAgentIn::input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 		return TO_GATE_0;
 	}
 
-#ifdef DEBUG_RECONFIG
-	fprintf(stderr, "cb_in->sub: %s.\n", print_ss1(cb_in->sub));
-	fprintf(stderr, "cb_in->sup: %s.\n", print_ss1(cb_in->sup));
-	fprintf(stderr, "cb_in->in_iseq: %X.\n", cb_in->in_iseq);
-	fprintf(stderr, "cb_in->in_iack: %X.\n", cb_in->in_iack);
-	fprintf(stderr, "cb_in->out_iseq: %X.\n", cb_in->out_iseq);
-	fprintf(stderr, "cb_in->out_iack: %X.\n", cb_in->out_iack);
-	fprintf(stderr, "cb_in->seq_delta: %X.\n", cb_in->seq_delta);
-	fprintf(stderr, "cb_in->ack_delta: %X.\n", cb_in->ack_delta);
-#endif
-
 	if(tcp->flags & Tcp::kFin) {
-		fprintf(stderr, "It's FIN segment.\n");
-		if(cb_in->two_paths) {
-			fprintf(stderr, "Does have two paths.\n");
-			if(cb_in->dcb_out) {
-				fprintf(stderr, "cb_in->dcb_out (sub: %s) ", print_ss1(cb_in->dcb_out->sub));
-				if(cb_in->dcb_out->old_path)
-					fprintf(stderr, "is OLD_PATH. In this case, should DyscoAgentIn answer this FIN?\n");
-				else {
-					fprintf(stderr, "isn't OLD_PATH. In this case, just forward to host.\n");
-				}
-				if(cb_in->dcb_out->other_path) {
-					fprintf(stderr, "cb_in->dcb_out->other_path (sub: %s) ", print_ss1(cb_in->dcb_out->other_path->sub));
-					if(cb_in->dcb_out->other_path->old_path)
-						fprintf(stderr, "is OLD_PATH\n");
-					else
-						fprintf(stderr, "isn't OLD_PATH\n");
-				}
-			}
-		} else {
-			fprintf(stderr, "Doesn't have two paths.\n");
-			if(cb_in->dcb_out) {
-				fprintf(stderr, "cb_in->dcb_out (sub: %s) ", print_ss1(cb_in->dcb_out->sub));
-				if(cb_in->dcb_out->old_path) {
-					fprintf(stderr, "is OLD_PATH. In this case, doesn't forward to host and should DyscoAgentIn answer?\n");
-					create_finack(pkt, ip, tcp);
-					fprintf(stderr, "creating FIN/ACK packet\n");
-					cb_in->dcb_out->state = DYSCO_LAST_ACK;
-					return TO_GATE_1;
-				} else {
-					fprintf(stderr, "isn't OLD_PATH.\n");
-				}
+		if(!cb_in->two_paths) {
+			if(cb_in->dcb_out && cb_in->dcb_out->old_path) {
+				create_finack(pkt, ip, tcp);
+				cb_in->dcb_out->state = DYSCO_LAST_ACK;
+				
+				return TO_GATE_1;
 			}
 		}
 
@@ -633,8 +523,6 @@ CONTROL_RETURN DyscoAgentIn::input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 DyscoCbReconfig* DyscoAgentIn::insert_rcb_control_input(Ipv4* ip, Tcp* tcp, DyscoControlMessage* cmsg) {
 	DyscoCbReconfig* rcb = new DyscoCbReconfig();
 
-	//TEST
-	//rcb->super = cmsg->super;
 	rcb->super = cmsg->rightSS;
 	rcb->leftSS = cmsg->leftSS;
 	rcb->rightSS = cmsg->rightSS;
@@ -662,22 +550,13 @@ DyscoCbReconfig* DyscoAgentIn::insert_rcb_control_input(Ipv4* ip, Tcp* tcp, Dysc
 
 DyscoHashOut* DyscoAgentIn::build_cb_in_reverse(Ipv4*, DyscoCbReconfig* rcb) {
 	DyscoHashOut* cb_out = new DyscoHashOut();
-
-	/*
-	cb_out->sup.sip = rcb->super.dip;
-	cb_out->sup.dip = rcb->super.sip;
-	cb_out->sup.sport = rcb->super.dport;
-	cb_out->sup.dport = rcb->super.sport;
-	*/
-
+	
 	//Ronaldo: Again, RightA doesn't know about leftSS.
 	cb_out->sup.sip = rcb->rightSS.dip;
 	cb_out->sup.dip = rcb->rightSS.sip;
 	cb_out->sup.sport = rcb->rightSS.dport;
 	cb_out->sup.dport = rcb->rightSS.sport;
 
-	//cb_out->sub.sip = htonl(ip->dst.value());
-	//cb_out->sub.dip = htonl(ip->src.value());
 	cb_out->sub.sip = rcb->sub_in.dip;
 	cb_out->sub.dip = rcb->sub_in.sip;
 	cb_out->sub.sport = rcb->sub_in.dport;
@@ -861,13 +740,6 @@ bool DyscoAgentIn::control_config_rightA(DyscoCbReconfig* rcb, DyscoControlMessa
 	local_ss.sport = cmsg->rightSS.dport;
 	local_ss.dport = cmsg->rightSS.sport;
 	
-	//TEST
-	/*
-	local_ss.sip = cmsg->super.dip;
-	local_ss.dip = cmsg->super.sip;
-	local_ss.sport = cmsg->super.dport;
-	local_ss.dport = cmsg->super.sport;
-	*/
 	DyscoHashOut* old_out = dc->lookup_output_by_ss(this->index, &local_ss);
 	if(!old_out) {
 		delete cb_in;
@@ -929,20 +801,14 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 			return ERROR;
 		}
 
-		//TEST
 		cb_in->dcb_out = cb_out;
 		cb_out->dcb_in = cb_in;
 		
 		dc->insert_hash_input(this->index, cb_in);
 
-		//TEST //TODO //Ronaldo
 		create_synack(pkt, ip, tcp);
-#ifdef DEBUG_RECONFIG
-		fprintf(stderr, "Creating SYN/ACK segment.\n");
-#endif
 		
 		if(!control_config_rightA(rcb, cmsg, cb_in, cb_out)) {
-			fprintf(stderr, "error in control_config_rightA\n");
 			return ERROR;
 		}
 		
@@ -954,19 +820,12 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 		old_out->old_path = 1;
 		old_out->state = DYSCO_SYN_RECEIVED;
 		old_out->other_path = new_out;
-		fprintf(stderr, "new_seq_cutoff: %X +/- %X\n", seq_cutoff, new_out->seq_delta);
+		
 		if(new_out->seq_add)
 			seq_cutoff += new_out->seq_delta;
 		else
 			seq_cutoff -= new_out->seq_delta;
 
-		//Not necessary because cmsg doesn't forward in SYN/ACK segments.
-		//cmsg->seqCutoff = htonl(seq_cutoff);
-
-#ifdef DEBUG_RECONFIG
-		fprintf(stderr, "TO_GATE_1.\n");
-#endif	       
-		
 		return TO_GATE_1;
 	}
 
@@ -1004,9 +863,7 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 
 	cb_in->is_reconfiguration = 1;
 	cb_in->dcb_out->is_reconfiguration = 1;
-#ifdef DEBUG_RECONFIG
-	fprintf(stderr, "Setting cb_in and cb_out as reconfiguration.\n");
-#endif
+	
 	memcpy(&cb_in->cmsg, cmsg, sizeof(DyscoControlMessage));
 
 	uint32_t sc_len = (payload_sz - sizeof(DyscoControlMessage) - 1)/sizeof(uint32_t); //-1 for 0xFF tag
@@ -1085,7 +942,8 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 		cmsg = reinterpret_cast<DyscoControlMessage*>(payload);
 		
 		//rcb = dc->lookup_reconfig_by_ss(this->index, &cmsg->super);
-		rcb = dc->lookup_reconfig_by_ss(this->index, &cmsg->rightSS); //Ronaldo: RightA doesn't know about supss (or leftSS)
+		//Ronaldo: RightA doesn't know about supss (or leftSS)
+		rcb = dc->lookup_reconfig_by_ss(this->index, &cmsg->rightSS); 
 		if(rcb) {
 			return IS_RETRANSMISSION;
 		}
@@ -1117,15 +975,11 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 			fprintf(stderr, "It's the left anchor.\n");
 #endif
 			DyscoHashOut* cb_out = dc->lookup_output_by_ss(this->index, &cmsg->leftSS);
-			//DyscoHashOut* cb_out = dc->lookup_output(this->index, ip, tcp);
-			//DyscoHashOut* cb_out = cb_in->dcb_out;
-			
 			if(!cb_out) {
 				return ERROR;
 			}
 
 			if(cb_out->state == DYSCO_ESTABLISHED) {
-				// It is a retransmission
 				return IS_RETRANSMISSION;
 			}
 
@@ -1141,12 +995,8 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 			 *
 			 */
 
-			
-			//SEND ACK MESSAGE
-			fprintf(stderr, "Creating ACK message\n");
 			create_ack(pkt, ip, tcp);
 			
-			//rcb = dc->lookup_reconfig_by_ss(this->index, &cb_in->sup);
 			rcb = dc->lookup_reconfig_by_ss(this->index, &cb_out->sup);
 			if(!rcb) {
 				return ERROR;
@@ -1156,10 +1006,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 				return ERROR;
 			}
 
-			//TEST
 			cb_in->is_reconfiguration = 0;
-			//rcb->old_dcb->ack_cutoff = rcb->old_dcb->in_iack;//should be + delta (but, which delta value?)
-			//rcb->old_dcb->valid_ack_cut = 1;
 			
 			if(!rcb->old_dcb->state_t) {
 				DyscoHashOut* old_dcb = rcb->old_dcb;
@@ -1169,8 +1016,6 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 
 				if(old_dcb->state == DYSCO_SYN_SENT)
 					old_dcb->state = DYSCO_ESTABLISHED;
-
-				//cmsg->seqCutoff = old_dcb->seq_cutoff;
 			}
 			
 			return TO_GATE_1;
@@ -1178,7 +1023,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 #ifdef DEBUG_RECONFIG
 			fprintf(stderr, "It isn't left anchor.\n");
 #endif		
-			set_ack_number_out(this->index, tcp, cb_in);
+			dc->set_ack_number_out(this->index, tcp, cb_in);
 			in_hdr_rewrite_csum(ip, tcp, cb_in);
 
 			return TO_GATE_0;
@@ -1190,19 +1035,16 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 
 		cb_in = dc->lookup_input(this->index, ip, tcp);
 		if(!cb_in) {
-			fprintf(stderr, "error1\n");
 			return ERROR;
 		}
 
 		cmsg = &cb_in->cmsg;
 		if(!cmsg) {
-			fprintf(stderr, "error2\n");
 			return ERROR;
 		}
 
 		rcb = dc->lookup_reconfig_by_ss(this->index, &cb_in->sup);
 		if(!rcb) {
-			fprintf(stderr, "error3\n");
 			return ERROR;
 		}
 		
@@ -1210,7 +1052,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 #ifdef DEBUG_RECONFIG
 			fprintf(stderr, "It's the right anchor.\n");
 #endif
-			//TEST
+
 			cb_in->is_reconfiguration = 0;
 			
 			DyscoHashOut* old_out;
@@ -1251,14 +1093,10 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 #ifdef DEBUG_RECONFIG
 		fprintf(stderr, "It isn't the right anchor.\n");
 #endif
-		set_ack_number_out(this->index, tcp, cb_in);
+		dc->set_ack_number_out(this->index, tcp, cb_in);
 		in_hdr_rewrite_csum(ip, tcp, cb_in);
 		
 		return TO_GATE_0;
-	} else {
-#ifdef DYSCO_RECONFIG
-		fprintf(stderr, "It isn't SYN, SYN/ACK or ACK messages.\n");
-#endif
 	}
 
 	/*
@@ -1283,13 +1121,10 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 		break;
 	}
 	*/
-	//skb modifies???
-	return TO_GATE_0; //TEST should be END;
+	
+	return END;
 }
 
-/*
-  Only payload > 0
- */
 void DyscoAgentIn::create_synack(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 	Ethernet* eth = pkt->head_data<Ethernet*>();
 	Ethernet::Address macswap = eth->dst_addr;
@@ -1307,6 +1142,7 @@ void DyscoAgentIn::create_synack(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 	be16_t pswap = tcp->src_port;
 	tcp->src_port = tcp->dst_port;
 	tcp->dst_port = pswap;
+	
 	be32_t seqswap = tcp->seq_num;
 	tcp->seq_num = tcp->ack_num;
 	tcp->ack_num = seqswap + be32_t(1);
