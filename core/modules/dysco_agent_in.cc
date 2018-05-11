@@ -912,8 +912,9 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 		cb_in->out_iseq = rcb->leftIseq;
 		cb_in->out_iack = rcb->leftIack;
 		cb_in->seq_delta = cb_in->ack_delta = 0;
-		//TEST
-		cb_in->in_iseq = tcp->seq_num.value(); //When LeftA sends TCP SYN segment, TCP and ACK values are, respectively, ISN values.
+
+		//When LeftA sends TCP SYN segment, TCP and ACK values are, respectively, ISN values of the session.
+		cb_in->in_iseq = tcp->seq_num.value();
 		cb_in->in_iack = tcp->ack_num.value();;
 				
 		cb_in->is_reconfiguration = 1;
@@ -1021,15 +1022,18 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 
 	//STATE_TRANSFER
 	fprintf(stderr, "STATE_TRANSFER.\n");
-	cb_in->dcb_out->state = DYSCO_SYN_SENT; //or be DYSCO_SYN_RECEIVED ?
+
+	fprintf(stderr, "super: %s.\n" print_ss1(cmsg->super));
+	fprintf(stderr, "leftSS: %s.\n" print_ss1(cmsg->leftSS));
+	fprintf(stderr, "rightSS: %s.\n" print_ss1(cmsg->rightSS));
+
+	
+	cb_in->state = DYSCO_SYN_RECEIVED;
+	cb_in->dcb_out->state = DYSCO_SYN_SENT;
 	if(isTCPSYN(tcp, true)) {
 		ip->length = ip->length - be16_t(sizeof(uint32_t));
 		pkt->trim(sizeof(uint32_t));
-		//TEST
-		DyscoHashIn* cbin = dc->insert_cb_input(this->index, ip, tcp, payload, payload_sz);
-		if(!cbin) {
-			fprintf(stderr, "dc->insert_cb_input returns false in STATE_TRANSFER\n");
-		}	
+		
 		ip->src = ip->dst;
 		ip->dst = be32_t(ntohl(sc[1]));
 
@@ -1040,12 +1044,27 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 		tcp->checksum = 0;
 		ip->checksum = bess::utils::CalculateIpv4Checksum(*ip);
 		tcp->checksum = bess::utils::CalculateIpv4TcpChecksum(*ip, *tcp);
+		/*
+		DyscoHashIn* cb_in2 = new DyscoHashIn();
+		DyscoHashOut* cb_out2 = new DyscoHashOut();
+		if(!cb_in2)
+			return ERROR;
 
+		cb_in2->state = DYSCO_SYN_RECEIVED;
+		cb_in2->sub.sip = htonl(ip->dst.value());
+		cb_in2->sub.dip = htonl(ip->src.value());
+		cb_in2->sub.sport = htons(tcp->dst_port.value());
+		cb_in2->sub.dport = htons(tcp->src_port.value());
 
+		cb_in2->sup
 		
 
+		DyscoHashes* dh = get_hash(this->index);
+		if(!dh)
+			return ERROR;
 
-		
+		dh->hash_in.insert(std::pair<DyscoTcpSession, DyscoHashIn*>(cb_in2->sub, cb_in2));
+		*/
 		return TO_GATE_1;
 	}
 

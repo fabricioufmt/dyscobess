@@ -193,14 +193,11 @@ class DyscoHashIn {
 		ts_add:1,
 		tsr_add:1,
 		ws_ok:1;
-	uint8_t padding;
-	
-	uint32_t skb_iif;
-	
-	uint32_t lastSeq_ho;
-	uint32_t lastAck_ho;
-	
-	uint32_t is_reconfiguration; //could be smaller
+
+	//uint8_t padding;
+	uint8_t is_reconfiguration:1,
+		state:7;
+
 	DyscoControlMessage cmsg;
 };
 
@@ -218,7 +215,7 @@ class DyscoHashOut {
 	uint32_t seq_delta;
 	uint32_t seq_cutoff;
 	uint32_t ack_cutoff;
-	//tcp_sock (my_tp, other_tp) ???
+
 	uint32_t* sc;
 	uint32_t sc_len;
 	DyscoHashOut* other_path;
@@ -235,8 +232,10 @@ class DyscoHashOut {
 	uint16_t ws_out;
 	uint16_t ws_delta;
 
-	//nh_mac ???
-	uint8_t state;
+	//uint8_t state;
+	uint8_t is_reconfiguration:1,
+		state:7;
+	
 	uint8_t old_path:1,
 		valid_ack_cut:1,
 		use_np_seq:1,
@@ -255,10 +254,6 @@ class DyscoHashOut {
 	
 	uint32_t ack_ctr;
 
-	uint32_t lastSeq_ho;
-	uint32_t lastAck_ho;
-	
-	uint32_t is_reconfiguration; //could be smaller
 	DyscoControlMessage cmsg;
 };
 
@@ -273,18 +268,12 @@ class DyscoCbReconfig {
 	DyscoHashOut* old_dcb;
 	DyscoHashOut* new_dcb;
 
-	//Ronaldo:
-	//timespec rec_begin, rec_end
-
 	uint32_t leftIseq;
 	uint32_t leftIack;
 	uint32_t leftIts;
 	uint32_t leftItsr;
 	uint16_t leftIws;
 	uint16_t leftIwsr;
-
-	//Ronaldo:
-	//uint_8 nh_mac[6]
 
 	uint8_t sack_ok;
 };
@@ -322,7 +311,6 @@ class DyscoCenter final : public Module {
 	CommandResponse CommandAdd(const bess::pb::DyscoCenterAddArg&);
 	CommandResponse CommandDel(const bess::pb::DyscoCenterDelArg&);
 	CommandResponse CommandList(const bess::pb::DyscoCenterListArg&);
-	//CommandResponse CommandReconfig(const bess::pb::DyscoCenterReconfigArg&);
 
 	/*
 	  TCP methods

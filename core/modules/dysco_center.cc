@@ -1021,9 +1021,6 @@ bool DyscoCenter::out_handle_mb(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp* tc
 	add_sc(pkt, ip, cb_out);
 	fix_tcp_ip_csum(ip, tcp);
 
-	//TEST
-	cb_out->lastSeq_ho = tcp->seq_num.value();
-	cb_out->lastAck_ho = tcp->ack_num.value();
 	return true;
 }
 
