@@ -1,14 +1,6 @@
 import os
 import scapy.all as scapy
 
-def aton(ip):
-    return socket.inet_aton(ip)
-
-os.system('pkill tcp_proxy 2>/dev/null')
-os.system('pkill dysco_ctl 2>/dev/null')
-os.system('pkill srv 2>/dev/null')
-os.system('pkill cli 2>/dev/null')
-
 os.system('ip netns del c1 > /dev/null')
 os.system('ip netns del m1 > /dev/null')
 os.system('ip netns del m2 > /dev/null')
@@ -206,7 +198,3 @@ os.system('ip netns exec m2 tcpdump -i m2-1 arp or icmp or tcp -n -XX -w /home/f
 os.system('ip netns exec m3 tcpdump -i m3-0 arp or icmp or tcp -n -XX -w /home/fabricio/m3_0.pcap & 2> /dev/null')
 os.system('ip netns exec m3 tcpdump -i m3-1 arp or icmp or tcp -n -XX -w /home/fabricio/m3_1.pcap & 2> /dev/null')
 os.system('ip netns exec m4 tcpdump -i m4-0 arp or icmp or tcp -n -XX -w /home/fabricio/m4_0.pcap & 2> /dev/null')
-
-os.system('ip netns exec m4 ./srv 5001 10000 & 2>/dev/null')
-os.system('ip netns exec m1 ./dysco_ctl 2017 & 2>/dev/null')
-os.system('ip netns exec m2 ./user/tcp_proxy 5001 10.0.3.1 5001 15 & 2>/dev/null')
