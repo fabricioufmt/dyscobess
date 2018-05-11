@@ -1134,7 +1134,10 @@ bool DyscoCenter::insert_hash_output(uint32_t i, DyscoHashOut* cb_out) {
 	if(!dh)
 		return false;
 
+#ifdef DEBUG
 	fprintf(stderr, "Inserting (hash_out): %s.\n", print_ss0(cb_out->sup));
+#endif
+	
 	return dh->hash_out.insert(std::pair<DyscoTcpSession, DyscoHashOut*>(cb_out->sup, cb_out)).second;
 }
 
