@@ -20,7 +20,7 @@
 
 #define DYSCO_MAC "00:00:00:00:00:00"
 
-#define DEBUG 1
+//#define DEBUG 1
 
 using bess::utils::Tcp;
 using bess::utils::Ipv4;
