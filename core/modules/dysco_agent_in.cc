@@ -520,6 +520,15 @@ CONTROL_RETURN DyscoAgentIn::input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 
 	if(isTCPSYN(tcp)) {
 		if(isTCPACK(tcp)) {
+			if(cb_in->dcb_out) {
+				if(cb_in->dcb_out->state == DYSCO_SYN_SENT) {
+					fprintf(stderr, "receives SYN/ACK in DYSCO_SYN_SENT state.\n");
+				} else {
+					fprintf(stderr, "receives SYN/ACK in not DYSCO_SYN_SENT state.\n");
+				}
+			} else {
+				fprintf(stderr, "!cb_in->dcb_out.\n");
+			}
 			set_ack_number_out(this->index, tcp, cb_in);
 			in_hdr_rewrite_csum(ip, tcp, cb_in);
 		} else {
@@ -1003,6 +1012,7 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 	uint32_t* sc = (uint32_t*)(payload + sizeof(DyscoControlMessage));
 		
 	if(ntohs(cmsg->semantic) == NOSTATE_TRANSFER || sc_len < 2) {
+		fprintf(stderr, "NOSTATE_TRANSFER.\n");
 		remove_sc(pkt, ip, tcp);
 		in_hdr_rewrite(ip, tcp, &cb_in->sup);
 	
@@ -1010,22 +1020,25 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 	}
 
 	//STATE_TRANSFER
+	fprintf(stderr, "STATE_TRANSFER.\n");
 	cb_in->dcb_out->state = DYSCO_SYN_SENT; //or be DYSCO_SYN_RECEIVED ?
-	ip->length = ip->length - be16_t(sizeof(uint32_t));
-	pkt->trim(sizeof(uint32_t));
+	if(isTCPSYN(tcp, true)) {
+		ip->length = ip->length - be16_t(sizeof(uint32_t));
+		pkt->trim(sizeof(uint32_t));
 			
-	ip->src = ip->dst;
-	ip->dst = be32_t(ntohl(sc[1]));
+		ip->src = ip->dst;
+		ip->dst = be32_t(ntohl(sc[1]));
 
-	memcpy(payload + sizeof(DyscoControlMessage), payload + sizeof(DyscoControlMessage) + 4, (sc_len - 1) * sizeof(uint32_t));
-	payload[sizeof(DyscoControlMessage) + (sc_len - 1) * sizeof(uint32_t)] = 0xFF;
+		memcpy(payload + sizeof(DyscoControlMessage), payload + sizeof(DyscoControlMessage) + 4, (sc_len - 1) * sizeof(uint32_t));
+		payload[sizeof(DyscoControlMessage) + (sc_len - 1) * sizeof(uint32_t)] = 0xFF;
 			
-	ip->checksum = 0;
-	tcp->checksum = 0;
-	ip->checksum = bess::utils::CalculateIpv4Checksum(*ip);
-	tcp->checksum = bess::utils::CalculateIpv4TcpChecksum(*ip, *tcp);
+		ip->checksum = 0;
+		tcp->checksum = 0;
+		ip->checksum = bess::utils::CalculateIpv4Checksum(*ip);
+		tcp->checksum = bess::utils::CalculateIpv4TcpChecksum(*ip, *tcp);
 
-	return TO_GATE_1;
+		return TO_GATE_1;
+	}
 }
 
 CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
