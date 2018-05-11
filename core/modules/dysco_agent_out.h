@@ -4,10 +4,11 @@
 #include <stdio.h>
 #include <arpa/inet.h>
 
+#include "dysco_center.h"
+
 #include "../port.h"
 #include "../module.h"
 #include "../pb/module_msg.pb.h"
-#include "dysco_center.h"
 #include "../drivers/dysco_vport.h"
 
 #include "../utils/ip.h"
@@ -19,24 +20,13 @@
 
 #define DYSCO_MAC "00:00:00:00:00:00"
 
+#define DEBUG 1
+
 using bess::utils::Tcp;
 using bess::utils::Ipv4;
 using bess::utils::Ethernet;
 using bess::utils::be32_t;
 using bess::utils::be16_t;
-
-char* printiptest(uint32_t ip) {
-	uint8_t bytes[4];
-        char* buf = (char*) malloc(17);
-	
-        bytes[0] = ip & 0xFF;
-        bytes[1] = (ip >> 8) & 0xFF;
-        bytes[2] = (ip >> 16) & 0xFF;
-        bytes[3] = (ip >> 24) & 0xFF;
-        sprintf(buf, "%d.%d.%d.%d", bytes[3], bytes[2], bytes[1], bytes[0]);
-
-        return buf;
-}
 
 class DyscoAgentOut final : public Module {
  public:
@@ -50,24 +40,12 @@ class DyscoAgentOut final : public Module {
 	CommandResponse Init(const bess::pb::DyscoAgentOutArg&);
 	CommandResponse CommandInfo(const bess::pb::EmptyArg&);
 	
-	//Dysco
-	bool get_port_information();
-
-	/*
-
-	 */
-	void dysco_packet(Ethernet*);
-	
  private:
 	uint32_t devip;
 	uint32_t index;
-	DyscoCenter* dc;
 	std::string ns;
-	int netns_fd_;
-	bool info_flag;
+	DyscoCenter* dc;
 	DyscoVPort* port;
-	
-	bool insert_metadata(bess::Packet*);
 	
 	inline bool isIP(Ethernet* eth) {
 		return eth->ether_type.value() == Ethernet::Type::kIpv4;
@@ -86,10 +64,7 @@ class DyscoAgentOut final : public Module {
 	}
 
 	inline uint32_t hasPayload(Ipv4* ip, Tcp* tcp) {
-		size_t ip_hlen = ip->header_length << 2;
-		size_t tcp_hlen = tcp->offset << 2;
-
-		return ip->length.value() - ip_hlen - tcp_hlen;
+		return ip->length.value() - (ip->header_length << 2) - (tcp->offset << 2);
 	}
 
 	inline bool isFromLeftAnchor(Ipv4* ip, DyscoControlMessage* cmsg) {
@@ -109,9 +84,11 @@ class DyscoAgentOut final : public Module {
 	inline bool isToRightAnchor(Ipv4* ip, DyscoControlMessage* cmsg) {
 		return ip->dst.value() == ntohl(cmsg->rightA);
 	}
-	
-	bool isReconfigPacket(Ipv4*, Tcp*, DyscoHashOut*);
 
+	/*
+	  Dysco methods
+	 */
+	bool isReconfigPacket(Ipv4*, Tcp*, DyscoHashOut*);
 	bool out_rewrite_seq(Tcp*, DyscoHashOut*);
 	bool out_rewrite_ack(Tcp*, DyscoHashOut*);
 	bool out_rewrite_ts(Tcp*, DyscoHashOut*);
@@ -121,16 +98,22 @@ class DyscoAgentOut final : public Module {
 	bool out_translate(bess::Packet*, Ipv4*, Tcp*, DyscoHashOut*);
 	bool update_five_tuple(Ipv4*, Tcp*, DyscoHashOut*);
 	bool output(bess::Packet*, Ipv4*, Tcp*, DyscoHashOut*);
+	
 	/*
-	  CONTROL
+	  Dysco control methods
 	 */
-
 	DyscoCbReconfig* insert_cb_control(Ipv4*, Tcp*, DyscoControlMessage*);
 	bool control_insert_out(DyscoCbReconfig*);
 	bool replace_cb_rightA(DyscoControlMessage*);
 	bool replace_cb_leftA(DyscoCbReconfig*, DyscoControlMessage*);
 	bool control_output_syn(Ipv4*, Tcp*, DyscoControlMessage*);
 	bool control_output(Ipv4*, Tcp*);
+
+	/*
+	  Auxiliary methods
+	 */
+	bool get_port_information();
+	void dysco_packet(Ethernet*);
 };
 
 #endif //BESS_MODULES_DYSCOAGENTOUT_H_

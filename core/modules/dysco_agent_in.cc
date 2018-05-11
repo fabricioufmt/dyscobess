@@ -3,8 +3,7 @@
 #include "../module_graph.h"
 #include "dysco_port_out.h"
 
-#define DEBUG 1
-
+#ifdef DEBUG
 char* printip1(uint32_t ip) {
 	uint8_t bytes[4];
         char* buf = (char*) malloc(17);
@@ -26,6 +25,7 @@ char* print_ss1(DyscoTcpSession ss) {
 
 	return buf;
 }
+#endif
 
 const Commands DyscoAgentIn::cmds = {
 	{"get_info", "EmptyArg", MODULE_CMD_FUNC(&DyscoAgentIn::CommandInfo), Command::THREAD_UNSAFE}
@@ -35,9 +35,6 @@ DyscoAgentIn::DyscoAgentIn() : Module() {
 	dc = 0;
 	devip = 0;
 	index = 0;
-
-	netns_fd_ = 0;
-	info_flag = false;
 }
 
 CommandResponse DyscoAgentIn::Init(const bess::pb::DyscoAgentInArg& arg) {
@@ -117,10 +114,11 @@ void DyscoAgentIn::ProcessBatch(bess::PacketBatch* batch) {
 #endif
 				break;
 			default:
+#ifdef DEBUG
 				fprintf(stderr, "Neither Gate0 or Gate1\n\n");
+#endif
 			}
 		} else {
-			fprintf(stderr, "It's a reconfiguration packet.\n");
 			switch(control_input(pkt, ip, tcp, cb_in)) {
 			case TO_GATE_0:
 				out_gates[0].add(pkt);
@@ -135,10 +133,14 @@ void DyscoAgentIn::ProcessBatch(bess::PacketBatch* batch) {
 #endif
 				break;
 			case END:
+#ifdef DEBUG
 				fprintf(stderr, "3-way from Reconfiguration Session is DONE.\n\n");
+#endif
 				break;
 			case ERROR:
+#ifdef DEBUG
 				fprintf(stderr, "ERROR on control_input\n");
+#endif
 			default:
 				break;
 			}
@@ -169,10 +171,8 @@ bool DyscoAgentIn::get_port_information() {
 	if(!dysco_vport)
 		return false;
 
-	info_flag = true;
 	ns = dysco_vport->ns;
 	devip = dysco_vport->devip;
-	netns_fd_ = dysco_vport->netns_fd_;
 	index = dc->get_index(ns, devip);
 	
 	port = dysco_vport;
@@ -438,7 +438,6 @@ bool DyscoAgentIn::in_two_paths_ack(Tcp* tcp, DyscoHashIn* cb_in) {
 
 //L.683
 bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in) {
-	fprintf(stderr, "in_two_paths_data_seg method.\n");
 	DyscoHashOut* cb_out = cb_in->dcb_out;
 	if(!cb_out)
 		return false;
@@ -518,8 +517,12 @@ CONTROL_RETURN DyscoAgentIn::input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoH
 			in_two_paths_ack(tcp, cb_in);
 	} else {
 		if(tcp->flags == Tcp::kAck && cb_in->dcb_out && cb_in->dcb_out->state == DYSCO_LAST_ACK) {
+			//Should consider ACK value to close
+#ifdef DEBUG
 			fprintf(stderr, "old path was closed.\n");
+#endif
 			cb_in->dcb_out->state = DYSCO_CLOSED;
+			
 			return END;
 		}
 	}
@@ -803,7 +806,7 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 	uint8_t* payload = reinterpret_cast<uint8_t*>(tcp) + tcp_hlen;
 	uint32_t payload_sz = ip->length.value() - (ip->header_length << 2) - tcp_hlen;
 		
-	if(isRightAnchor(ip, cmsg)) {
+	if(isToRightAnchor(ip, cmsg)) {
 #ifdef DEBUG
 		fprintf(stderr, "It's the right anchor.\n");
 #endif	
@@ -899,7 +902,9 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 	uint32_t* sc = (uint32_t*)(payload + sizeof(DyscoControlMessage));
 		
 	if(ntohs(cmsg->semantic) == NOSTATE_TRANSFER || sc_len < 2) {
+#ifdef DEBUG
 		fprintf(stderr, "NOSTATE_TRANSFER.\n");
+#endif
 		remove_sc(pkt, ip, tcp);
 		in_hdr_rewrite(ip, tcp, &cb_in->sup);
 	
@@ -907,12 +912,12 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 	}
 
 	//STATE_TRANSFER
+#ifdef DEBUG
 	fprintf(stderr, "STATE_TRANSFER.\n");
-
 	fprintf(stderr, "super: %s.\n", print_ss1(cmsg->super));
 	fprintf(stderr, "leftSS: %s.\n", print_ss1(cmsg->leftSS));
 	fprintf(stderr, "rightSS: %s.\n", print_ss1(cmsg->rightSS));
-
+#endif
 	
 	cb_in->state = DYSCO_SYN_RECEIVED;
 	cb_in->dcb_out->state = DYSCO_SYN_SENT;
@@ -1074,7 +1079,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 			return ERROR;
 		}
 		
-		if(isRightAnchor(ip, cmsg)) {
+		if(isToRightAnchor(ip, cmsg)) {
 #ifdef DEBUG
 			fprintf(stderr, "It's the right anchor.\n");
 #endif
@@ -1137,9 +1142,9 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 			return END;
 
 		// verify htonl
-		if(isLeftAnchor(ip, cmsg)) {
+		if(isToLeftAnchor(ip, cmsg)) {
 			dc->replace_cb_leftA(rcb, cmsg);
-		} else if(isRightAnchor(ip, cmsg)) {
+		} else if(isToRightAnchor(ip, cmsg)) {
 			DyscoHashOut* cb_out = rcb->old_dcb;
 			cb_out->state = DYSCO_ESTABLISHED;
 		}

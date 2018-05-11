@@ -12,17 +12,12 @@
 #include "../drivers/dysco_vport.h"
 
 #include "../utils/ip.h"
-#include "../utils/arp.h"
 #include "../utils/tcp.h"
 #include "../utils/ether.h"
 #include "../utils/endian.h"
 #include "../utils/checksum.h"
 
-#define DEBUG 1
-#define DEBUG_RECONFIG 1
-
-#define RECONFIG_SPORT 8988
-#define RECONFIG_DPORT 8989
+//#define DEBUG 1
 
 using bess::utils::Tcp;
 using bess::utils::Ipv4;
@@ -39,19 +34,6 @@ enum CONTROL_RETURN {
 	END
 };
 
-char* printiptest1(uint32_t ip) {
-	uint8_t bytes[4];
-        char* buf = (char*) malloc(17);
-	
-        bytes[0] = ip & 0xFF;
-        bytes[1] = (ip >> 8) & 0xFF;
-        bytes[2] = (ip >> 16) & 0xFF;
-        bytes[3] = (ip >> 24) & 0xFF;
-        sprintf(buf, "%d.%d.%d.%d", bytes[3], bytes[2], bytes[1], bytes[0]);
-
-        return buf;
-}
-
 class DyscoAgentIn final : public Module {
  public:
 	static const Commands cmds;
@@ -63,23 +45,13 @@ class DyscoAgentIn final : public Module {
 	CommandResponse Init(const bess::pb::DyscoAgentInArg&);
 	CommandResponse CommandInfo(const bess::pb::EmptyArg&);
 
-	//Dysco
-	bool get_port_information();
-
  private:
 	uint32_t devip;
 	uint32_t index;
-	DyscoCenter* dc;
-	//char ns[256];
 	std::string ns;
-	int netns_fd_;
-	bool info_flag;
+	DyscoCenter* dc;
 	DyscoVPort* port;
 
-	inline bool isARP(Ethernet* eth) {
-		return eth->ether_type.value() == Ethernet::Type::kArp;
-	}
-	
 	inline bool isIP(Ethernet* eth) {
 		return eth->ether_type.value() == Ethernet::Type::kIpv4;
 	}
@@ -100,21 +72,19 @@ class DyscoAgentIn final : public Module {
 		return ip->length.value() - (ip->header_length << 2) - (tcp->offset << 2);
 	}
 
-	inline bool isLeftAnchor(Ipv4* ip, DyscoControlMessage* cmsg) {
+	inline bool isToLeftAnchor(Ipv4* ip, DyscoControlMessage* cmsg) {
 		return ip->dst.value() == ntohl(cmsg->leftA);
 	}
 
 
-	inline bool isRightAnchor(Ipv4* ip, DyscoControlMessage* cmsg) {
+	inline bool isToRightAnchor(Ipv4* ip, DyscoControlMessage* cmsg) {
 		return ip->dst.value() == ntohl(cmsg->rightA);
 	}
-	
-	bool isReconfigPacket(Ipv4*, Tcp*, DyscoHashIn*);
 	
 	/*
 	  Dysco methods
 	 */
- 
+	bool tcp_sack(Tcp*, DyscoHashIn*); 
 	bool remove_sc(bess::Packet*, Ipv4*, Tcp*);
 	bool in_hdr_rewrite(Ipv4*, Tcp*, DyscoTcpSession*);
 	bool in_rewrite_seq(Tcp*, DyscoHashIn*);
@@ -127,10 +97,10 @@ class DyscoAgentIn final : public Module {
 	bool in_two_paths_data_seg(Tcp*, DyscoHashIn*);
 	CONTROL_RETURN input(bess::Packet*, Ipv4*, Tcp*, DyscoHashIn*);
 
-
 	/*
-	  Control methods
+	  Dysco control methods
 	 */
+	bool isReconfigPacket(Ipv4*, Tcp*, DyscoHashIn*);
 	DyscoCbReconfig* insert_rcb_control_input(Ipv4*, Tcp*, DyscoControlMessage*);
 	DyscoHashOut* build_cb_in_reverse(Ipv4*, DyscoCbReconfig*);
 	bool compute_deltas_in(DyscoHashIn*, DyscoHashOut*, DyscoCbReconfig*);
@@ -139,17 +109,12 @@ class DyscoAgentIn final : public Module {
 	CONTROL_RETURN control_reconfig_in(bess::Packet*, Ipv4*, Tcp*, uint8_t*, DyscoCbReconfig*, DyscoControlMessage*);
 	CONTROL_RETURN control_input(bess::Packet*, Ipv4*, Tcp*, DyscoHashIn*);
 
-
-
-	
-
-	bool tcp_sack(Tcp*, DyscoHashIn*);
-
 	/*
-
+	  Auxiliary methods
 	 */
-	void create_synack(bess::Packet*, Ipv4*, Tcp*);
+	bool get_port_information();
 	void create_ack(bess::Packet*, Ipv4*, Tcp*);
+	void create_synack(bess::Packet*, Ipv4*, Tcp*);
 	void create_finack(bess::Packet*, Ipv4*, Tcp*);
 };
 

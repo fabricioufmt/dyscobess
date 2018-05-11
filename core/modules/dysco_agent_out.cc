@@ -1,13 +1,10 @@
-#include "set_metadata.h"
-
 #include <netinet/tcp.h>
-#include "dysco_agent_out.h"
+
 #include "../module_graph.h"
+#include "dysco_agent_out.h"
 #include "dysco_port_inc.h"
 
-#define DEBUG 1
-
-//debug
+#ifdef DEBUG
 char* printip2(uint32_t ip) {
 	uint8_t bytes[4];
         char* buf = (char*) malloc(17);
@@ -29,13 +26,7 @@ char* print_ss2(DyscoTcpSession ss) {
 
 	return buf;
 }
-
-void print_out2(std::string ns, Ipv4* ip, Tcp* tcp) {
-	fprintf(stderr, "[%s][DyscoAgentOut] forwards %s:%u -> %s:%u\n\n",
-		ns.c_str(),
-		printip2(ip->src.value()), tcp->src_port.value(),
-		printip2(ip->dst.value()), tcp->dst_port.value());
-}
+#endif
 
 const Commands DyscoAgentOut::cmds = {
 	{"get_info", "EmptyArg", MODULE_CMD_FUNC(&DyscoAgentOut::CommandInfo), Command::THREAD_UNSAFE}
@@ -45,16 +36,6 @@ DyscoAgentOut::DyscoAgentOut() : Module() {
 	dc = 0;
 	devip = 0;
 	index = 0;
-
-	netns_fd_ = 0;
-	info_flag = false;
-}
-
-bool DyscoAgentOut::insert_metadata(bess::Packet* pkt) {
-	uint32_t* metadata = (uint32_t*) _ptr_attr_with_offset<uint8_t>(0, pkt);
-	metadata[0] = index;
-	
-	return true;
 }
 
 CommandResponse DyscoAgentOut::Init(const bess::pb::DyscoAgentOutArg& arg) {
@@ -161,13 +142,10 @@ bool DyscoAgentOut::get_port_information() {
 	if(!dysco_vport)
 		return false;
 
-	info_flag = true;
+	port = dysco_vport;
 	ns = dysco_vport->ns;
 	devip = dysco_vport->devip;
-	netns_fd_ = dysco_vport->netns_fd_;
 	index = dc->get_index(ns, devip);
-	
-	port = dysco_vport;
 	
 	return true;
 }

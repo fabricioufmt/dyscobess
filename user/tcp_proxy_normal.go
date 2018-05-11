@@ -48,8 +48,6 @@ const MAX_BUFFER   = 4000
 
 var spliceTime	int
 var middlebox   string
-var listenPort  5555
-
 	
 /*********************************************************************
  *
