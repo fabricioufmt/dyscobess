@@ -1037,6 +1037,15 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 		ip->checksum = bess::utils::CalculateIpv4Checksum(*ip);
 		tcp->checksum = bess::utils::CalculateIpv4TcpChecksum(*ip, *tcp);
 
+
+		//TEST
+		DyscoHashIn* cbin = dc->insert_cb_input(this->index, ip, tcp, payload, payload_sz);
+		if(!cbin) {
+			fprintf(stderr, "dc->insert_cb_input returns false in STATE_TRANSFER\n");
+		}
+
+
+		
 		return TO_GATE_1;
 	}
 
