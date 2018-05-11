@@ -108,7 +108,7 @@ void DyscoAgentOut::ProcessBatch(bess::PacketBatch* batch) {
 			printip2(ip->dst.value()), tcp->dst_port.value(),
 			tcp->seq_num.value(), tcp->ack_num.value());
 #endif
-		DyscoHashOut* cb_out = dc->lookup_output(this->index, ip, tcp);
+		//DyscoHashOut* cb_out = dc->lookup_output(this->index, ip, tcp);
 		
 		if(isReconfigPacket(ip, tcp, cb_out)) {
 #ifdef DEBUG_RECONFIG
@@ -173,7 +173,9 @@ bool DyscoAgentOut::get_port_information() {
 	return true;
 }
 
-bool DyscoAgentOut::isReconfigPacket(Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) {
+bool DyscoAgentOut::isReconfigPacket(Ipv4* ip, Tcp* tcp, DyscoHashOut*) {
+	DyscoHashOut* cb_out = dc->lookup_output(this->index, ip, tcp);
+	
 	if(isTCPSYN(tcp, true)) {
 		if(!cb_out) {
 			uint32_t payload_len = hasPayload(ip, tcp);
@@ -404,18 +406,19 @@ bool DyscoAgentOut::update_five_tuple(Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) 
 }
 
 //L.1395
-bool DyscoAgentOut::output(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) {
+bool DyscoAgentOut::output(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut*) {
+	DyscoHashOut* cb_out = dc->lookup_output(this->index, ip, tcp);
 	if(!cb_out) {
-		DyscoHashOut* cb = dc->lookup_output_pending(this->index, ip, tcp);
-		if(cb) {
-			return dc->out_handle_mb(this->index, pkt, ip, tcp, cb, devip);
+		cb_out = dc->lookup_output_pending(this->index, ip, tcp);
+		if(cb_out) {
+			return dc->out_handle_mb(this->index, pkt, ip, tcp, cb_out, devip);
 		}
 
-		cb = dc->lookup_pending_tag(this->index, tcp);
-		if(cb) {
-			update_five_tuple(ip, tcp, cb);
+		cb_out = dc->lookup_pending_tag(this->index, tcp);
+		if(cb_out) {
+			update_five_tuple(ip, tcp, cb_out);
 			
-			return dc->out_handle_mb(this->index, pkt, ip, tcp, cb, devip);
+			return dc->out_handle_mb(this->index, pkt, ip, tcp, cb_out, devip);
 		}
 	}
 
