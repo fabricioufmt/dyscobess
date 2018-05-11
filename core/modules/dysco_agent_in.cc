@@ -122,6 +122,7 @@ void DyscoAgentIn::ProcessBatch(bess::PacketBatch* batch) {
 				fprintf(stderr, "Neither Gate0 or Gate1\n\n");
 			}
 		} else {
+			fprintf(stderr, "It's a reconfiguration packet.\n");
 			switch(control_input(pkt, ip, tcp, cb_in)) {
 			case TO_GATE_0:
 				out_gates[0].add(pkt);
