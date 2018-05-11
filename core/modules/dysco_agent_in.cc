@@ -1011,8 +1011,30 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 
 	if(ntohs(cmsg->semantic) == STATE_TRANSFER) {
 		//In this case, Agent doesn't forward to App/host, just forward to RightA though service chain
-		uint32_t sc_len = payload_sz - sizeof(DyscoControlMessage);
+		uint32_t sc_len = (payload_sz - sizeof(DyscoControlMessage) - 1)/sizeof(uint32_t);
 		fprintf(stderr, "When STATE_TRANSFER, sc_len=%u.\n", sc_len);
+		if(sc_len > 1) {
+			//should forward
+			fprintf(stderr, "First IP: %X.\n", *((uint32_t*)(cmsg + 1)));
+			fprintf(stderr, "Second IP: %X.\n", *((uint32_t*)(cmsg + 5)));
+
+			memcpy(payload + sizeof(DyscoControlMessage),
+			       payload + sizeof(DyscoControlMessage) + 4,
+			       (sc_len - 1) * sizeof(uint32_t));
+			payload[(sc_len - 1) * sizeof(uint32_t)] = 0xFF;
+			
+			ip->length = ip->length - be16_t(sizeof(uint32_t));
+			pkt->trim(sizeof(uint32_t));
+			
+			ip->src = ip->dst;
+			ip->dst = be32_t(ntohl(*((uint32_t*)(cmsg + 5))));
+
+			ip->checksum = 0;
+			tcp->checksum = 0;
+			ip->checksum = bess::utils::CalculateIpv4Checksum(*ip);
+			tcp->checksum = bess::utils::CalculateIpv4TcpChecksum(*ip, *tcp);
+			
+		}
 		fprintf(stderr, "First IP: %X.\n", *((uint32_t*)(cmsg + 1)));
 		
 	}
