@@ -518,15 +518,6 @@ bool DyscoAgentOut::output(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 	if(!cb_out) {
 		return false;
 	}
-
-	//Ronaldo: is it really necessary?
-	//if(cb_out->my_tp && isTCPACK(tcp))
-	//	if(!cb_out->state_t)
-	//		fix_rcv_window(cb_out);
-	//L.1462 -- dysco_output.c ???
-
-	//cb_out->lastSeq_ho = tcp->seq_num.value();
-	//cb_out->lastAck_ho = tcp->ack_num.value();
 	
 	out_translate(pkt, ip, tcp, cb_out);
 
@@ -541,9 +532,6 @@ bool DyscoAgentOut::output(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 
 DyscoCbReconfig* DyscoAgentOut::insert_cb_control(Ipv4* ip, Tcp* tcp, DyscoControlMessage* cmsg) {
 	DyscoCbReconfig* rcb = new DyscoCbReconfig();
-
-	//Ronaldo:
-	//rec_done
 
 	rcb->super = cmsg->leftSS;
 	rcb->sub_out.sip = htonl(ip->src.value());
@@ -581,9 +569,6 @@ bool DyscoAgentOut::control_insert_out(DyscoCbReconfig* rcb) {
 
 	cb_out->sack_ok = rcb->sack_ok;
 
-	//Ronaldo:
-	//dysco_arp
-
 	dc->insert_cb_out(this->index, cb_out, 0);
 
 	DyscoHashIn* cb_in = cb_out->dcb_in;
@@ -613,7 +598,6 @@ bool DyscoAgentOut::replace_cb_rightA(DyscoControlMessage* cmsg) {
 		seq_cutoff -= new_out->seq_delta;
 
 	cmsg->seqCutoff = htonl(seq_cutoff);
-	//TODO: fix_checksum?
 
 	return true;
 }
@@ -625,10 +609,6 @@ bool DyscoAgentOut::replace_cb_leftA(DyscoCbReconfig* rcb, DyscoControlMessage* 
 		old_dcb->state = DYSCO_ESTABLISHED;
 
 	cmsg->seqCutoff = htonl(old_dcb->seq_cutoff);
-	//TODO: fix_checksum?
-
-	//Ronaldo:
-	//rec_done?
 
 	return true;
 }
@@ -685,13 +665,9 @@ bool DyscoAgentOut::control_output_syn(Ipv4* ip, Tcp* tcp, DyscoControlMessage* 
 		fprintf(stderr, "[%s][DyscoAgentOut-Control] FILL CMSG TO SEND\n", ns.c_str());
 		fprintf(stderr, "[%s][DyscoAgentOut-Control] old_dcb->sub: %s\n", ns.c_str(), print_ss2(old_dcb->sub));
 		fprintf(stderr, "[%s][DyscoAgentOut-Control] old_dcb->sup: %s\n", ns.c_str(), print_ss2(old_dcb->sup));
-		fprintf(stderr, "[%s][DyscoAgentOut-Control] old_dcb->lastSeq_ho = %X\n", ns.c_str(), old_dcb->lastSeq_ho);
-		fprintf(stderr, "[%s][DyscoAgentOut-Control] old_dcb->lastAck_ho = %X\n", ns.c_str(), old_dcb->lastAck_ho);
 		fprintf(stderr, "[%s][DyscoAgentOut-Control] cmsg->leftIseq (old_dcb->out_iseq) = %X\n", ns.c_str(), old_dcb->out_iseq);
 		fprintf(stderr, "[%s][DyscoAgentOut-Control] cmsg->leftIack (old_dcb->out_iack) = %X\n", ns.c_str(), old_dcb->out_iack);
 #endif
-
-		//cmsg->seqCutoff = htonl(old_dcb->lastSeq_ho);
 
 		cmsg->leftIts = htonl(old_dcb->ts_in);
 		cmsg->leftItsr = htonl(old_dcb->tsr_in);

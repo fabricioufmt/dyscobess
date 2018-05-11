@@ -888,15 +888,16 @@ bool DyscoAgentIn::control_config_rightA(DyscoCbReconfig* rcb, DyscoControlMessa
 CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, uint8_t*, DyscoCbReconfig* rcb, DyscoControlMessage* cmsg) {
 	DyscoHashIn* cb_in;
 	DyscoHashOut* cb_out;
+
+	size_t tcp_hlen = tcp->offset << 2;
+	uint8_t* payload = reinterpret_cast<uint8_t*>(tcp) + tcp_hlen;
+	uint32_t payload_sz = ip->length.value() - (ip->header_length << 2) - tcp_hlen;
+		
+	
 	if(!isRightAnchor(ip, cmsg)) {
 #ifdef DEBUG_RECONFIG		
 		fprintf(stderr, "It isn't the right anchor.\n");
 #endif
-		size_t tcp_hlen = tcp->offset << 2;
-		uint8_t* payload = reinterpret_cast<uint8_t*>(tcp) + tcp_hlen;
-
-		uint32_t payload_sz = ip->length.value() - (ip->header_length << 2) - tcp_hlen;
-
 		cb_in = dc->insert_cb_input(this->index, ip, tcp, payload, payload_sz);
 		if(!cb_in)
 			return ERROR;
@@ -904,7 +905,6 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 		cb_in->in_iseq = rcb->leftIseq;
 		cb_in->in_iack = rcb->leftIack;
 		cb_in->two_paths = 0;
-		fprintf(stderr, "not right anchor puting cb_in->two_paths = 0 (sub: %s)\n", print_ss1(cb_in->sub));
 	} else {
 #ifdef DEBUG_RECONFIG
 		fprintf(stderr, "It's the right anchor.\n");
@@ -997,7 +997,7 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 
 	cb_in->dcb_out->sack_ok = cb_in->sack_ok = rcb->sack_ok;
 
-	dc->insert_hash_output(this->index, cb_in->dcb_out);
+	//dc->insert_hash_output(this->index, cb_in->dcb_out);
 
 	//TODO: should remove payload and forwards to app
 	//RECONFIG
@@ -1008,6 +1008,14 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 	fprintf(stderr, "Setting cb_in and cb_out as reconfiguration.\n");
 #endif
 	memcpy(&cb_in->cmsg, cmsg, sizeof(DyscoControlMessage));
+
+	if(ntohs(cmsg->semantic) == STATE_TRANSFER) {
+		//In this case, Agent doesn't forward to App/host, just forward to RightA though service chain
+		uint32_t sc_len = *((uint32_t*)(cmsg + 1));
+		fprintf(stderr, "When STATE_TRANSFER, sc_len=%u or %u\n", sc_len, ntohl(sc_len));
+		
+	}
+	
 	remove_sc(pkt, ip, tcp);
 	in_hdr_rewrite(ip, tcp, &cb_in->sup);
 
