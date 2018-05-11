@@ -893,19 +893,7 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 	uint8_t* payload = reinterpret_cast<uint8_t*>(tcp) + tcp_hlen;
 	uint32_t payload_sz = ip->length.value() - (ip->header_length << 2) - tcp_hlen;
 		
-	
-	if(!isRightAnchor(ip, cmsg)) {
-#ifdef DEBUG_RECONFIG		
-		fprintf(stderr, "It isn't the right anchor.\n");
-#endif
-		cb_in = dc->insert_cb_input(this->index, ip, tcp, payload, payload_sz);
-		if(!cb_in)
-			return ERROR;
-		
-		cb_in->in_iseq = rcb->leftIseq;
-		cb_in->in_iack = rcb->leftIack;
-		cb_in->two_paths = 0;
-	} else {
+	if(isRightAnchor(ip, cmsg)) {
 #ifdef DEBUG_RECONFIG
 		fprintf(stderr, "It's the right anchor.\n");
 #endif	
@@ -972,81 +960,75 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 		return TO_GATE_1;
 	}
 
-	
-#ifdef DEBUG_RECONFIG
-	fprintf(stderr, "Do nothing, follows regular algorithm and forwads it to host.\n");
+#ifdef DEBUG_RECONFIG		
+	fprintf(stderr, "It isn't the right anchor.\n");
 #endif
-	//cb_in->sup = rcb->super;
-	cb_in->out_iseq = rcb->leftIseq;
-	cb_in->out_iack = rcb->leftIack;
-	cb_in->seq_delta = cb_in->ack_delta = 0;
 
-	if(rcb->leftIts) {
-		cb_in->ts_in = cb_in->ts_out = rcb->leftIts;
-		cb_in->ts_delta = 0;
-		cb_in->ts_ok = 1;
-	} else
-		cb_in->ts_ok = 0;
+	if(ntohs(cmsg->semantic) == NOSTATE_TRANSFER) {
+		fprintf(stderr, "NOSTATE_TRANSFER.\n");
+		cb_in = dc->insert_cb_input(this->index, ip, tcp, payload, payload_sz);
+		if(!cb_in)
+			return ERROR;
+		
+		cb_in->in_iseq = rcb->leftIseq;
+		cb_in->in_iack = rcb->leftIack;
+		cb_in->two_paths = 0;
 
-	if(rcb->leftIws) {
-		cb_in->ws_in = cb_in->ws_out = rcb->leftIws;
-		cb_in->ws_delta = 0;
-		cb_in->ws_ok = 1;
-	} else
-		cb_in->ws_ok = 0;
+		cb_in->out_iseq = rcb->leftIseq;
+		cb_in->out_iack = rcb->leftIack;
+		cb_in->seq_delta = cb_in->ack_delta = 0;
 
-	cb_in->dcb_out->sack_ok = cb_in->sack_ok = rcb->sack_ok;
+		if(rcb->leftIts) {
+			cb_in->ts_in = cb_in->ts_out = rcb->leftIts;
+			cb_in->ts_delta = 0;
+			cb_in->ts_ok = 1;
+		} else
+			cb_in->ts_ok = 0;
 
-	//dc->insert_hash_output(this->index, cb_in->dcb_out);
+		if(rcb->leftIws) {
+			cb_in->ws_in = cb_in->ws_out = rcb->leftIws;
+			cb_in->ws_delta = 0;
+			cb_in->ws_ok = 1;
+		} else
+			cb_in->ws_ok = 0;
 
-	//TODO: should remove payload and forwards to app
-	//RECONFIG
-	
-	cb_in->is_reconfiguration = 1;
-	cb_in->dcb_out->is_reconfiguration = 1;
+		cb_in->dcb_out->sack_ok = cb_in->sack_ok = rcb->sack_ok;
+
+		cb_in->is_reconfiguration = 1;
+		cb_in->dcb_out->is_reconfiguration = 1;
 #ifdef DEBUG_RECONFIG
-	fprintf(stderr, "Setting cb_in and cb_out as reconfiguration.\n");
+		fprintf(stderr, "Setting cb_in and cb_out as reconfiguration.\n");
 #endif
-	memcpy(&cb_in->cmsg, cmsg, sizeof(DyscoControlMessage));
+		memcpy(&cb_in->cmsg, cmsg, sizeof(DyscoControlMessage));
 
-	if(ntohs(cmsg->semantic) == STATE_TRANSFER) {
-		//In this case, Agent doesn't forward to App/host, just forward to RightA though service chain
-		uint32_t sc_len = (payload_sz - sizeof(DyscoControlMessage) - 1)/sizeof(uint32_t);
+		uint32_t sc_len = (payload_sz - sizeof(DyscoControlMessage) - 1)/sizeof(uint32_t); //-1 for 0xFF tag
 		uint32_t* sc = (uint32_t*)(payload + sizeof(DyscoControlMessage));
-		fprintf(stderr, "When STATE_TRANSFER, sc_len=%u.\n", sc_len);
-		if(sc_len > 1) {
-			//should forward
-			fprintf(stderr, "First IP: %X.\n", sc[0]);
-			fprintf(stderr, "Second IP: %X.\n", sc[1]);
-			
-			ip->length = ip->length - be16_t(sizeof(uint32_t));
-			pkt->trim(sizeof(uint32_t));
-			
-			ip->src = ip->dst;
-			ip->dst = be32_t(ntohl(sc[1]));
-
-			memcpy(payload + sizeof(DyscoControlMessage),
-			       payload + sizeof(DyscoControlMessage) + 4,
-			       (sc_len - 1) * sizeof(uint32_t));
-			payload[sizeof(DyscoControlMessage) + (sc_len - 1) * sizeof(uint32_t)] = 0xFF;
-			
-			ip->checksum = 0;
-			tcp->checksum = 0;
-			ip->checksum = bess::utils::CalculateIpv4Checksum(*ip);
-			tcp->checksum = bess::utils::CalculateIpv4TcpChecksum(*ip, *tcp);
-
-			return TO_GATE_1;
+		
+		if(ntohs(cmsg->semantic) == NOSTATE_TRANSFER || sc_len < 2) {
+			remove_sc(pkt, ip, tcp);
+			in_hdr_rewrite(ip, tcp, &cb_in->sup);
+	
+			return TO_GATE_0;
 		}
-	}
-	
-	remove_sc(pkt, ip, tcp);
-	in_hdr_rewrite(ip, tcp, &cb_in->sup);
 
-#ifdef DEBUG_RECONFIG
-	fprintf(stderr, "Removes payload, translates session and forwards to GATE 0 (Host).\n");
-#endif
-	
-	return TO_GATE_0;
+		//STATE_TRANSFER
+		cb_in->dcb_out->state = DYSCO_SYN_SENT; //or be DYSCO_SYN_RECEIVED ?
+		ip->length = ip->length - be16_t(sizeof(uint32_t));
+		pkt->trim(sizeof(uint32_t));
+			
+		ip->src = ip->dst;
+		ip->dst = be32_t(ntohl(sc[1]));
+
+		memcpy(payload + sizeof(DyscoControlMessage), payload + sizeof(DyscoControlMessage) + 4, (sc_len - 1) * sizeof(uint32_t));
+		payload[sizeof(DyscoControlMessage) + (sc_len - 1) * sizeof(uint32_t)] = 0xFF;
+			
+		ip->checksum = 0;
+		tcp->checksum = 0;
+		ip->checksum = bess::utils::CalculateIpv4Checksum(*ip);
+		tcp->checksum = bess::utils::CalculateIpv4TcpChecksum(*ip, *tcp);
+
+		return TO_GATE_1;
+	}	
 }
 
 CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
