@@ -1011,8 +1011,9 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 
 	if(ntohs(cmsg->semantic) == STATE_TRANSFER) {
 		//In this case, Agent doesn't forward to App/host, just forward to RightA though service chain
-		uint32_t sc_len = *((uint32_t*)(cmsg + 1));
-		fprintf(stderr, "When STATE_TRANSFER, sc_len=%u or %u\n", sc_len, ntohl(sc_len));
+		uint32_t sc_len = payload_sz - sizeof(DyscoControlMessage);
+		fprintf(stderr, "When STATE_TRANSFER, sc_len=%u.\n", sc_len);
+		fprintf(stderr, "First IP: %X.\n", *((uint32_t*)(cmsg + 1)));
 		
 	}
 	

@@ -641,25 +641,17 @@ bool DyscoAgentOut::control_output_syn(Ipv4* ip, Tcp* tcp, DyscoControlMessage* 
 			return true;
 		}
 		
-		//TEST //TODO //Ronaldo
 		old_dcb = dc->lookup_output_by_ss(this->index, &cmsg->leftSS);
-		//old_dcb = dc->lookup_output_by_ss(this->index, &cmsg->super);
 
 		if(!old_dcb) {
 			fprintf(stderr, "[%s][DyscoAgentOut-Control] old_dcb is NULL.\n", ns.c_str());
 			return false;
 		}
 
-		//TEST
 		tcp->seq_num = be32_t(old_dcb->out_iseq);
 		tcp->ack_num = be32_t(old_dcb->out_iack);
 		cmsg->leftIseq = htonl(old_dcb->out_iseq);
 		cmsg->leftIack = htonl(old_dcb->out_iack);
-		//these 4 it isn't necessary
-		//cmsg->sport = ntohs(rcb->sub_out.sport);
-		//cmsg->dport = ntohs(rcb->sub_out.dport);
-		//cmsg->leftIseq = htonl(old_dcb->lastSeq_ho);
-		//cmsg->leftIack = htonl(old_dcb->lastAck_ho);
 
 #ifdef DEBUG_RECONFIG
 		fprintf(stderr, "[%s][DyscoAgentOut-Control] FILL CMSG TO SEND\n", ns.c_str());
@@ -691,13 +683,6 @@ bool DyscoAgentOut::control_output_syn(Ipv4* ip, Tcp* tcp, DyscoControlMessage* 
 		new_dcb->sup = rcb->super;
 		new_dcb->sub = rcb->sub_out;
 
-		//TEST
-		//new_dcb->in_iseq = old_dcb->lastSeq_ho;
-		//new_dcb->in_iack = old_dcb->lastAck_ho;
-		//new_dcb->out_iseq = tcp->seq_num.value() + 1;
-		//new_dcb->out_iack = tcp->ack_num.value(); //empty value because not received yet.
-
-		new_dcb->in_iseq = old_dcb->in_iseq;
 		new_dcb->in_iack = old_dcb->in_iack;
 		new_dcb->out_iseq = old_dcb->out_iseq;
 		new_dcb->out_iack = old_dcb->out_iack;
@@ -711,9 +696,6 @@ bool DyscoAgentOut::control_output_syn(Ipv4* ip, Tcp* tcp, DyscoControlMessage* 
 		new_dcb->ws_ok = rcb->leftIws? 1 : 0;
 
 		new_dcb->sack_ok = rcb->sack_ok;
-
-		//Ronaldo:
-		//dysco_arp
 
 		old_dcb->other_path = new_dcb;
 		new_dcb->other_path = old_dcb;
@@ -732,7 +714,7 @@ bool DyscoAgentOut::control_output_syn(Ipv4* ip, Tcp* tcp, DyscoControlMessage* 
 		
 		old_dcb->old_path = 1;
 
-		if(cmsg->semantic == STATE_TRANSFER)
+		if(ntohs(cmsg->semantic) == STATE_TRANSFER)
 			old_dcb->state_t = 1;
 
 		old_dcb->state = DYSCO_SYN_SENT;
