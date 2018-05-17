@@ -43,7 +43,7 @@ void retransmission(DyscoAgentOut* agent) {
 		if(list.empty())
 			continue;
 
-		for(int i = 0; i < list.size(); i++) {
+		for(uint32_t i = 0; i < list.size(); i++) {
 			batch = &list[i].batch;
 			pkts = batch->pkts();
 			for(int j = 0; j < batch->cnt(); j++) {
@@ -675,7 +675,7 @@ void DyscoAgentOut::enqueueRetransmission(std::chrono::system_clock::time_point 
 	listRetransmission.push_back(node);
 }
 
-bool DyscoAgentOut::didReceive(bess::Packet* pkt) {
+bool DyscoAgentOut::didReceive(bess::Packet*) {
 	return true;
 }
 
