@@ -58,6 +58,10 @@ class DyscoAgentOut final : public Module {
 	/*
 	  Retransmission fields
 	 */
+	
+	bool didReceive(bess::Packet*);
+	void retransmit(bess::PacketBatch*);
+	
 	inline uint32_t getTimeout() {
 		return usec;
 	}
@@ -149,8 +153,6 @@ class DyscoAgentOut final : public Module {
 	 */
 
 	void enqueueRetransmission(std::chrono::system_clock::time_point, bess::PacketBatch);
-	bool didReceive(bess::Packet*);
-	void retransmit(bess::PacketBatch*);
 };
 
 #endif //BESS_MODULES_DYSCOAGENTOUT_H_
