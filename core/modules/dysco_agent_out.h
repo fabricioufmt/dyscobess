@@ -36,6 +36,11 @@ class NodeRetransmission {
  public:
 	std::chrono::system_clock::time_point ts;
 	bess::PacketBatch batch;
+
+	NodeRetransmission(std::chrono::system_clock::time_point ts, bess::PacketBatch batch) {
+		this->ts = ts;
+		this->batch = batch;
+	}
 };
 
 class DyscoAgentOut final : public Module {
