@@ -37,9 +37,9 @@ class NodeRetransmission {
 	std::chrono::system_clock::time_point ts;
 	bess::PacketBatch batch;
 
-	NodeRetransmission(std::chrono::system_clock::time_point ts, bess::PacketBatch batch) {
-		this->ts = ts;
-		this->batch = batch;
+	NodeRetransmission(std::chrono::system_clock::time_point ts1, bess::PacketBatch batch1) {
+		ts = ts1;
+		batch = batch1;
 	}
 };
 
