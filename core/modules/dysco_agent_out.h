@@ -143,7 +143,7 @@ class DyscoAgentOut final : public Module {
 	  Retransmission methods
 	 */
 
-	void enqueueRetransmission(std::system_clock::time_point, bess::PacketBatch);
+	void enqueueRetransmission(std::chrono::system_clock::time_point, bess::PacketBatch);
 };
 
 #endif //BESS_MODULES_DYSCOAGENTOUT_H_

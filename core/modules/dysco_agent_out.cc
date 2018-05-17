@@ -642,7 +642,7 @@ void DyscoAgentOut::dysco_packet(Ethernet* eth) {
   Retransmission methods
  */
 
-void DyscoAgentOut::enqueueRetransmission(std::system_clock::time_point ts, bess::PacketBatch batch) {
+void DyscoAgentOut::enqueueRetransmission(std::chrono::system_clock::time_point ts, bess::PacketBatch batch) {
 	NodeRetransmission node(ts, batch);
 
 	listRetransmission.push_back(node);
