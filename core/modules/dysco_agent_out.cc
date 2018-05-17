@@ -29,12 +29,39 @@ char* print_ss2(DyscoTcpSession ss) {
 #endif
 
 void retransmission(DyscoAgentOut* agent) {
-	uint32_t usec = agent->getTimeout();
+	bess::Packet* pkt;
+	bess::Packet** pkts;
+	bess::PacketBatch* batch;
+	bess::PacketBatch batchToSend;
+	std::vector<NodeRetransmission> list;
 	
 	while(1) {
-		usleep(usec);
-		
-		fprintf(stderr, "Retransmission thread sleep for %d microseconds...\n", usec);
+		batchToSend.clear();
+		usleep(agent->getTimeout());
+		list = agent->getList();
+
+		if(list.empty())
+			continue;
+
+		for(int i = 0; i < list.size(); i++) {
+			batch = &list[i].batch;
+			pkts = batch->pkts();
+			for(int j = 0; j < batch->cnt(); j++) {
+				pkt = pkts[j];
+				if(agent->didReceive(pkt)) {
+					pkts[j] = pkts[batch->cnt() - 1];
+					batch->set_cnt(batch->cnt() - 1);
+					
+				} else
+					batchToSend.add(pkt);
+			}
+
+			if(batch->empty()) {
+				//should remove from list
+			}
+		}
+
+		agent->retransmit(&batchToSend);
 	}
 }
 
@@ -647,6 +674,15 @@ void DyscoAgentOut::enqueueRetransmission(std::chrono::system_clock::time_point 
 
 	listRetransmission.push_back(node);
 }
+
+bool DyscoAgentOut::didReceive(bess::Packet* pkt) {
+	return true;
+}
+
+void DyscoAgentOut::retransmit(bess::PacketBatch* batch) {
+	RunChooseModule(0, batch);
+}
+
 ADD_MODULE(DyscoAgentOut, "dysco_agent_out", "processes packets outcoming from host")
 
 

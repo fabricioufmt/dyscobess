@@ -149,6 +149,8 @@ class DyscoAgentOut final : public Module {
 	 */
 
 	void enqueueRetransmission(std::chrono::system_clock::time_point, bess::PacketBatch);
+	bool didReceive(bess::Packet*);
+	void retransmit(bess::PacketBatch*);
 };
 
 #endif //BESS_MODULES_DYSCOAGENTOUT_H_
