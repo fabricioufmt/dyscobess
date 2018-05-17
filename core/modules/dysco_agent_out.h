@@ -1,9 +1,9 @@
 #ifndef BESS_MODULES_DYSCOAGENTOUT_H_
 #define BESS_MODULES_DYSCOAGENTOUT_H_
 
+#include <timer>
 #include <thread>
 #include <vector>
-#include <timer.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <arpa/inet.h>
