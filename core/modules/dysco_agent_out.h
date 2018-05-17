@@ -1,7 +1,7 @@
 #ifndef BESS_MODULES_DYSCOAGENTOUT_H_
 #define BESS_MODULES_DYSCOAGENTOUT_H_
 
-#include <time>
+#include <chrono>
 #include <thread>
 #include <vector>
 #include <stdio.h>
