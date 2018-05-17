@@ -34,7 +34,7 @@ using bess::utils::be16_t;
 
 class NodeRetransmission {
  public:
-	std::chrono::time_point ts;
+	std::chrono::system_clock::time_point ts;
 	bess::PacketBatch batch;
 };
 
