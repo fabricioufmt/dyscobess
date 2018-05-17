@@ -28,6 +28,15 @@ char* print_ss2(DyscoTcpSession ss) {
 }
 #endif
 
+void* retransmission(void*) {
+	while(1) {
+		sleep(5);
+		fprintf(stderr, "Retransmission thread sleep for 5 seconds...\n");
+	}
+
+	return 0;
+}
+
 const Commands DyscoAgentOut::cmds = {
 	{"get_info", "EmptyArg", MODULE_CMD_FUNC(&DyscoAgentOut::CommandInfo), Command::THREAD_UNSAFE}
 };
@@ -36,6 +45,8 @@ DyscoAgentOut::DyscoAgentOut() : Module() {
 	dc = 0;
 	devip = 0;
 	index = 0;
+
+	timer = std::thread(retransmission);
 }
 
 CommandResponse DyscoAgentOut::Init(const bess::pb::DyscoAgentOutArg& arg) {

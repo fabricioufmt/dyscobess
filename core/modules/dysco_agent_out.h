@@ -3,6 +3,8 @@
 
 #include <stdio.h>
 #include <arpa/inet.h>
+#include <unistd.h>
+#include <thread>
 
 #include "dysco_center.h"
 
@@ -41,6 +43,7 @@ class DyscoAgentOut final : public Module {
 	CommandResponse CommandInfo(const bess::pb::EmptyArg&);
 	
  private:
+	std::thread timer;
 	uint32_t devip;
 	uint32_t index;
 	std::string ns;
