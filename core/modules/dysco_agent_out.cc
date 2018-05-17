@@ -28,10 +28,13 @@ char* print_ss2(DyscoTcpSession ss) {
 }
 #endif
 
-void retransmission() {
+void retransmission(DyscoAgentOut* agent) {
+	uint32_t usec = agent->getTimeout();
+	
 	while(1) {
-		sleep(5);
-		fprintf(stderr, "Retransmission thread sleep for 5 seconds...\n");
+		usleep(usec);
+		
+		fprintf(stderr, "Retransmission thread sleep for %d microseconds...\n", usec);
 	}
 }
 
@@ -43,8 +46,7 @@ DyscoAgentOut::DyscoAgentOut() : Module() {
 	dc = 0;
 	devip = 0;
 	index = 0;
-
-	timer = std::thread(retransmission);
+	usec = 10000; //default value = 10ms;
 }
 
 CommandResponse DyscoAgentOut::Init(const bess::pb::DyscoAgentOutArg& arg) {
@@ -77,6 +79,8 @@ void DyscoAgentOut::ProcessBatch(bess::PacketBatch* batch) {
 	
 	Ethernet* eth;
 	bess::Packet* pkt;
+	bess::PacketBatch retransmission;
+	retransmission.clear();
 	for(int i = 0; i < batch->cnt(); i++) {
 		pkt = batch->pkts()[i];
 		eth = pkt->head_data<Ethernet*>();
@@ -106,6 +110,7 @@ void DyscoAgentOut::ProcessBatch(bess::PacketBatch* batch) {
 			if(control_output(ip, tcp))
 				dysco_packet(eth);
 
+			
 #ifdef DEBUG
 			fprintf(stderr, "[%s][DyscoAgentOut-Control] forwards %s:%u -> %s:%u [%X:%X]\n\n",
 				ns.c_str(),
@@ -113,7 +118,8 @@ void DyscoAgentOut::ProcessBatch(bess::PacketBatch* batch) {
 				printip2(ip->dst.value()), tcp->dst_port.value(),
 				tcp->seq_num.value(), tcp->ack_num.value());
 #endif
-				
+
+			retransmission.add(pkt);
 			continue;
 		}
 			
@@ -128,7 +134,9 @@ void DyscoAgentOut::ProcessBatch(bess::PacketBatch* batch) {
 			tcp->seq_num.value(), tcp->ack_num.value());
 #endif
 	}
-	
+
+	//We assume that the timestamp of send is when RunChooseModule is called
+	enqueueRetransmission(std::chrono::system_clock::now(), retransmission);
 	RunChooseModule(0, batch);
 }
 
@@ -155,6 +163,8 @@ bool DyscoAgentOut::get_port_information() {
 	ns = dysco_vport->ns;
 	devip = dysco_vport->devip;
 	index = dc->get_index(ns, devip);
+
+	timer = std::thread(retransmission, this);
 	
 	return true;
 }
@@ -628,6 +638,15 @@ void DyscoAgentOut::dysco_packet(Ethernet* eth) {
 	eth->dst_addr.FromString(DYSCO_MAC);
 }
 
+/*
+  Retransmission methods
+ */
+
+void DyscoAgentOut::enqueueRetransmission(std::system_clock::time_point ts, bess::PacketBatch batch) {
+	NodeRetransmission node(ts, batch);
+
+	listRetransmission.push_back(node);
+}
 ADD_MODULE(DyscoAgentOut, "dysco_agent_out", "processes packets outcoming from host")
 
 
