@@ -28,13 +28,11 @@ char* print_ss2(DyscoTcpSession ss) {
 }
 #endif
 
-void* retransmission(void*) {
+void retransmission() {
 	while(1) {
 		sleep(5);
 		fprintf(stderr, "Retransmission thread sleep for 5 seconds...\n");
 	}
-
-	return 0;
 }
 
 const Commands DyscoAgentOut::cmds = {
