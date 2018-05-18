@@ -50,10 +50,10 @@ void worker(DyscoAgentIn* agent) {
 
 			if(didIReceive(pkt)) {
 				list->erase(it);
-			} else {
+			} else {/*
 				if(ts == 0)
 					batch.add(pkt);
-				else if(std::chrono::system_clock::now() - ts > agent->getTimeout())
+					else if(std::chrono::system_clock::now() - ts > agent->getTimeout())*/
 					batch.add(pkt);
 			}
 			
