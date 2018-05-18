@@ -74,13 +74,19 @@ void DyscoAgentOut::ProcessBatch(bess::PacketBatch* batch) {
 		pkt = batch->pkts()[i];
 		eth = pkt->head_data<Ethernet*>();
 			
-		if(!isIP(eth))
+		if(!isIP(eth)) {
+			//continue;
+			toSend.add(pkt);
 			continue;
+		}
 			
 		Ipv4* ip = reinterpret_cast<Ipv4*>(eth + 1);
 		size_t ip_hlen = ip->header_length << 2;
-		if(!isTCP(ip))
+		if(!isTCP(ip)) {
+			//continue;
+			toSend.add(pkt);
 			continue;
+		}
 			
 		Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
 #ifdef DEBUG
