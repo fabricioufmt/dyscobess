@@ -34,6 +34,7 @@ void worker(DyscoAgentIn* agent) {
 	std::chrono::system_clock::time_point ts;
 	
 	while(1) {
+		fprintf(stderr, "I'm going to sleep for %d usec\n", SLEEPTIME);
 		batch.clear();
 		usleep(SLEEPTIME); //1000 usec = 1ms
 		list = agent->getRetransmissionList();
@@ -61,7 +62,7 @@ void worker(DyscoAgentIn* agent) {
 			}
 			
 		}
-
+		fprintf(stderr, "calling agent->runRetransmission with %d elements\n", batch.cnt());
 		agent->runRetransmission(&batch);	
 	}
 }
