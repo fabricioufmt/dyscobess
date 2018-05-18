@@ -21,9 +21,10 @@
 #include "../utils/endian.h"
 #include "../utils/checksum.h"
 
-//#define DEBUG 1
+#define DEBUG 1
 
-#define SLEEPTIME 100000
+//in ms
+#define SLEEPTIME 100
 
 using bess::utils::Tcp;
 using bess::utils::Ipv4;

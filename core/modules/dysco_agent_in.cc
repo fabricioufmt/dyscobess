@@ -34,9 +34,9 @@ void worker(DyscoAgentIn* agent) {
 	std::chrono::system_clock::time_point ts;
 	
 	while(1) {
-		fprintf(stderr, "I'm going to sleep for %d usec\n", SLEEPTIME);
+		fprintf(stderr, "I'm going to sleep for %d ms.\n", SLEEPTIME);
 		batch.clear();
-		usleep(SLEEPTIME); //1000 usec = 1ms
+		usleep(SLEEPTIME * 1000);
 		list = agent->getRetransmissionList();
 
 		if(!list)
@@ -77,7 +77,7 @@ DyscoAgentIn::DyscoAgentIn() : Module() {
 	index = 0;
 	timeout = 10000; //Default value
 
-	//timer = std::thread(worker, this);
+	timer = std::thread(worker, this);
 }
 
 CommandResponse DyscoAgentIn::Init(const bess::pb::DyscoAgentInArg& arg) {
