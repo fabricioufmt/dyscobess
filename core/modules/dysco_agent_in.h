@@ -24,7 +24,7 @@
 #define DEBUG 1
 
 //in ms
-#define SLEEPTIME 1000
+#define SLEEPTIME 1000000
 
 using bess::utils::Tcp;
 using bess::utils::Ipv4;
