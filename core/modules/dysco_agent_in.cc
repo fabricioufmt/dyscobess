@@ -39,11 +39,15 @@ void worker(DyscoAgentIn* agent) {
 		usleep(SLEEPTIME * 1000);
 		list = agent->getRetransmissionList();
 
-		if(!list)
+		if(!list) {
+			fprintf(stderr, "list is null\n");
 			continue;
+		}
 		
-		if(list->empty())
+		if(list->empty()) {
+			fprintf(stderr, "list is empty\n");
 			continue;
+		}
 
 		for(std::vector<NodeRetransmission>::iterator it = list->begin(); it != list->end(); it++) {
 			ts = it->ts;
