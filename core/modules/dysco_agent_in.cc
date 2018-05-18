@@ -158,7 +158,7 @@ void DyscoAgentIn::ProcessBatch(bess::PacketBatch* batch) {
 			}
 		} else {
 			//should update received list
-			receivedList.push_back(tcp);
+			receivedList.push_back(*tcp);
 			switch(control_input(pkt, ip, tcp, cb_in)) {
 			case TO_GATE_0:
 				out_gates[0].add(pkt);
