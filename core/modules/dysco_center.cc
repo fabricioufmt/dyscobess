@@ -1192,17 +1192,6 @@ bool DyscoCenter::toRetransmit(uint32_t i, uint32_t devip, bess::Packet* pkt) {
 	return true;
 }
 
-bool DyscoCenter::addRetransmissionList(uint32_t i, std::chrono::system_clock::time_point ts, bess::Packet* pkt) {
-	DyscoHashes* dh = get_hash(i);
-	if(!dh)
-		return false;
-
-	NodeRetransmission node(ts, pkt);
-	dh->retransmission.push_back(node);
-
-	return true;
-}
-
 std::vector<NodeRetransmission>* DyscoCenter::getRetransmissionList(uint32_t i, uint32_t devip) {
 	DyscoHashes* dh = get_hash(i);
 	if(!dh)

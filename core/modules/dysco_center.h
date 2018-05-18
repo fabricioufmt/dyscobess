@@ -318,8 +318,8 @@ class DyscoCenter final : public Module {
 	/*
 	  TCP Retransmission method
 	 */
-	bool addRetransmissionList(uint32_t, std::chrono::system_clock::time_point, bess::Packet*);
-	std::vector<NodeRetransmission>* getRetransmissionList(uint32_t);
+	bool toRetransmit(uint32_t, uint32_t, bess::Packet*);
+	std::vector<NodeRetransmission>* getRetransmissionList(uint32_t, uint32_t);
 	
 	/*
 	  TCP methods
