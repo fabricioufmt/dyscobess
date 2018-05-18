@@ -51,6 +51,8 @@ class DyscoAgentIn final : public Module {
 	CommandResponse Init(const bess::pb::DyscoAgentInArg&);
 	CommandResponse CommandInfo(const bess::pb::EmptyArg&);
 
+	void runRetransmission(bess::PacketBatch*);
+
  private:
 	uint32_t devip;
 	uint32_t index;

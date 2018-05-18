@@ -59,7 +59,7 @@ void worker(DyscoAgentIn* agent) {
 			
 		}
 
-		RunChooseModule(1, batch);	
+		agent->runRetransmission(&batch);	
 	}
 }
 
@@ -1289,6 +1289,10 @@ bool DyscoAgentIn::didIReceive(Ipv4* ip, Tcp* tcp) {
 	}
 	
 	return false;
+}
+
+void DyscoAgentIn::runRetransmission(bess::Packetbatch* batch) {
+	RunChooseModule(1, batch);
 }
 
 ADD_MODULE(DyscoAgentIn, "dysco_agent_in", "processes packets incoming to host")
