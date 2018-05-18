@@ -53,13 +53,7 @@ class DyscoAgentIn final : public Module {
 
 	bool didIReceive(Ipv4*, Tcp*);
 	void runRetransmission(bess::PacketBatch*);
-
-	std::vector<NodeRetransmission>* getRetransmissionList() {
-		if(!dc)
-			return 0;
-
-		return dc->getRetransmissionList(this->index, devip);
-	}
+	std::vector<NodeRetransmission>* getRetransmissionList();
 
  private:
 	uint32_t devip;

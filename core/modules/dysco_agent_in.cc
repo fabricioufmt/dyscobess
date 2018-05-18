@@ -1285,7 +1285,7 @@ bool DyscoAgentIn::didIReceive(Ipv4* ip, Tcp* tcp) {
 	be32_t shouldReceived = tcp->seq_num + be32_t(hasPayload(ip, tcp));
 	
 	for(std::vector<Tcp>::iterator it = receivedList.begin(); it != receivedList.end(); it++) {
-		received = it;
+		received = &*it;
 
 		if(received->ack_num == shouldReceived)
 			return true;
