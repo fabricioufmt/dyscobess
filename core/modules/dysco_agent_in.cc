@@ -28,8 +28,8 @@ char* print_ss1(DyscoTcpSession ss) {
 #endif
 
 void worker(DyscoAgentIn* agent) {
-	std::Packet* pkt;
-	std::PacketBatch batch;
+	bess::Packet* pkt;
+	bess::PacketBatch batch;
 	std::vector<NodeRetransmission>* list;
 	std::chrono::system_clock::time_point ts;
 	
@@ -1291,7 +1291,7 @@ bool DyscoAgentIn::didIReceive(Ipv4* ip, Tcp* tcp) {
 	return false;
 }
 
-void DyscoAgentIn::runRetransmission(bess::Packetbatch* batch) {
+void DyscoAgentIn::runRetransmission(bess::PacketBatch* batch) {
 	RunChooseModule(1, batch);
 }
 
