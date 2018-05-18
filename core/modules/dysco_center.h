@@ -2,6 +2,7 @@
 #define BESS_MODULES_DYSCOCENTER_H_
 
 #include <map>
+#include <chrono>
 #include <vector>
 #include <arpa/inet.h>
 #include <unordered_map>
@@ -122,6 +123,16 @@ class DyscoTcpTs {
 	uint32_t tsr;
 };
 
+class NodeRetransmission {
+ public:
+	std::chrono::system_clock::time_point ts;
+	bess::Packet* pkt;
+
+	NodeRetransmission(std::chrono::system_clock::time_point t, bess::Packet* p) {
+		ts = t;
+		pkt = p;
+	}
+};
 
 class DyscoControlMessage {
  public:
@@ -288,6 +299,8 @@ class DyscoHashes {
 	unordered_map<DyscoTcpSession, DyscoHashOut*, DyscoTcpSessionHash> hash_out;
 	unordered_map<DyscoTcpSession, DyscoHashOut*, DyscoTcpSessionHash> hash_pen;
 	unordered_map<DyscoTcpSession, DyscoCbReconfig*, DyscoTcpSessionHash> hash_reconfig;
+
+	unordered_map<uint32_t, std::vector<NodeRetransmission>> retransmissionList;
 };
 
 class DyscoCenter final : public Module {
@@ -302,6 +315,12 @@ class DyscoCenter final : public Module {
 	CommandResponse CommandDel(const bess::pb::DyscoCenterDelArg&);
 	CommandResponse CommandList(const bess::pb::DyscoCenterListArg&);
 
+	/*
+	  TCP Retransmission method
+	 */
+	bool addRetransmissionList(uint32_t, std::chrono::system_clock::time_point, bess::Packet*);
+	std::vector<NodeRetransmission>* getRetransmissionList(uint32_t);
+	
 	/*
 	  TCP methods
 	*/

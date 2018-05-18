@@ -1,7 +1,11 @@
 #ifndef BESS_MODULES_DYSCOAGENTIN_H_
 #define BESS_MODULES_DYSCOAGENTIN_H_
 
+#include <chrono>
+#include <thread>
+#include <vector>
 #include <stdio.h>
+#include <unistd.h>
 #include <arpa/inet.h>
 
 #include "dysco_center.h"
@@ -18,6 +22,8 @@
 #include "../utils/checksum.h"
 
 //#define DEBUG 1
+
+#define SLEEPTIME 1000
 
 using bess::utils::Tcp;
 using bess::utils::Ipv4;
@@ -50,7 +56,10 @@ class DyscoAgentIn final : public Module {
 	uint32_t index;
 	std::string ns;
 	DyscoCenter* dc;
+	uint32_t timeout;
 	DyscoVPort* port;
+	std::thread timer;
+	std::vector<Tcp> receivedList;
 
 	inline bool isIP(Ethernet* eth) {
 		return eth->ether_type.value() == Ethernet::Type::kIpv4;
@@ -79,6 +88,10 @@ class DyscoAgentIn final : public Module {
 
 	inline bool isToRightAnchor(Ipv4* ip, DyscoControlMessage* cmsg) {
 		return ip->dst.value() == ntohl(cmsg->rightA);
+	}
+
+	inline uint32_t getTimeout() {
+		return timeout;
 	}
 	
 	/*

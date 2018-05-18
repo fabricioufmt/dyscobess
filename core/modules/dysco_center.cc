@@ -1173,4 +1173,42 @@ bool DyscoCenter::replace_cb_leftA(DyscoCbReconfig* rcb, DyscoControlMessage* cm
 	return true;
 }
 
+
+/*
+  Retransmission methods
+ */
+bool DyscoCenter::toRetransmit(uint32_t i, uint32_t devip, bess::Packet* pkt) {
+	DyscoHashes* dh = get_hash(i);
+	if(!dh)
+		return false;
+
+	std::vector<NodeRetransmission>* list = &dh->retransmissionList[devip];
+	if(!list)
+		return false;
+	
+	NodeRetransmission node(0, pkt);
+	list->push_back(node);
+
+	return true;
+}
+
+bool DyscoCenter::addRetransmissionList(uint32_t i, std::chrono::system_clock::time_point ts, bess::Packet* pkt) {
+	DyscoHashes* dh = get_hash(i);
+	if(!dh)
+		return false;
+
+	NodeRetransmission node(ts, pkt);
+	dh->retransmission.push_back(node);
+
+	return true;
+}
+
+std::vector<NodeRetransmission>* DyscoCenter::getRetransmissionList(uint32_t i, uint32_t devip) {
+	DyscoHashes* dh = get_hash(i);
+	if(!dh)
+		return 0;
+
+	return &dh->retransmissionList[devip];
+}
+
 ADD_MODULE(DyscoCenter, "dysco_center", "Dysco center")

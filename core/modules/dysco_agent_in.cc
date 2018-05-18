@@ -27,6 +27,42 @@ char* print_ss1(DyscoTcpSession ss) {
 }
 #endif
 
+void worker(DyscoAgentIn* agent) {
+	std::Packet* pkt;
+	std::PacketBatch batch;
+	std::vector<NodeRetransmission>* list;
+	std::chrono::system_clock::time_point ts;
+	
+	while(1) {
+		batch.clear();
+		usleep(SLEEPTIME); //1000 usec = 1ms
+		list = agent->getRetransmissionList();
+
+		if(!list)
+			continue;
+		
+		if(list->empty())
+			continue;
+
+		for(std::vector<NodeRetransmission>::iterator it = list->begin(); it != list->end(); it++) {
+			ts = it->ts;
+			pkt = it->pkt;
+
+			if(didIReceive(pkt)) {
+				list->erase(it);
+			} else {
+				if(ts == 0)
+					batch.add(pkt);
+				else if(std::chrono::system_clock::now() - ts > agent->getTimeout())
+					batch.add(pkt);
+			}
+			
+		}
+
+		RunChooseModule(1, batch);	
+	}
+}
+
 const Commands DyscoAgentIn::cmds = {
 	{"get_info", "EmptyArg", MODULE_CMD_FUNC(&DyscoAgentIn::CommandInfo), Command::THREAD_UNSAFE}
 };
@@ -35,6 +71,7 @@ DyscoAgentIn::DyscoAgentIn() : Module() {
 	dc = 0;
 	devip = 0;
 	index = 0;
+	timeout = 10000; //Default value
 }
 
 CommandResponse DyscoAgentIn::Init(const bess::pb::DyscoAgentInArg& arg) {
@@ -120,6 +157,8 @@ void DyscoAgentIn::ProcessBatch(bess::PacketBatch* batch) {
 				break;
 			}
 		} else {
+			//should update received list
+			receivedList.push_back(tcp);
 			switch(control_input(pkt, ip, tcp, cb_in)) {
 			case TO_GATE_0:
 				out_gates[0].add(pkt);
@@ -128,10 +167,13 @@ void DyscoAgentIn::ProcessBatch(bess::PacketBatch* batch) {
 #endif
 				break;
 			case TO_GATE_1:
+				/*
 				out_gates[1].add(pkt);
 #ifdef DEBUG
 				fprintf(stderr, "[%s][DyscoAgentIn-Control] forwards %s:%u -> %s:%u [%X:%X]\n\n", ns.c_str(), printip1(ip->src.value()), tcp->src_port.value(), printip1(ip->dst.value()), tcp->dst_port.value(), tcp->seq_num.value(), tcp->ack_num.value());
 #endif
+				*/
+				dc->toRetransmit(this->index, devip, pkt);
 				break;
 			case END:
 #ifdef DEBUG
@@ -1225,5 +1267,28 @@ void DyscoAgentIn::create_finack(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 	tcp->flags |= Tcp::kAck;
 }
 
+/*
+  TCP Retransmission methods
+ */
+std::vector<NodeRetransmission>* DyscoAgentIn::getRetransmissionList() {
+	if(!dc)
+		return 0;
+
+	return dc->getRetransmissionList(this->index, devip);
+}
+
+bool DyscoAgentIn::didIReceive(Ipv4* ip, Tcp* tcp) {
+	Tcp* received;
+	be32_t shouldReceived = tcp->seq_num + be32_t(hasPayload(ip, tcp));
+	
+	for(std::vector<Tcp>::iterator it = receivedList.begin(); it != receivedList.end(); it++) {
+		received = it;
+
+		if(received->ack_num == shouldReceived)
+			return true;
+	}
+	
+	return false;
+}
 
 ADD_MODULE(DyscoAgentIn, "dysco_agent_in", "processes packets incoming to host")

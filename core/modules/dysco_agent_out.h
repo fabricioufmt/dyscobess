@@ -1,9 +1,6 @@
 #ifndef BESS_MODULES_DYSCOAGENTOUT_H_
 #define BESS_MODULES_DYSCOAGENTOUT_H_
 
-#include <chrono>
-#include <thread>
-#include <vector>
 #include <stdio.h>
 #include <unistd.h>
 #include <arpa/inet.h>
@@ -32,17 +29,6 @@ using bess::utils::Ethernet;
 using bess::utils::be32_t;
 using bess::utils::be16_t;
 
-class NodeRetransmission {
- public:
-	std::chrono::system_clock::time_point ts;
-	bess::PacketBatch batch;
-
-	NodeRetransmission(std::chrono::system_clock::time_point ts1, bess::PacketBatch batch1) {
-		ts = ts1;
-		batch = batch1;
-	}
-};
-
 class DyscoAgentOut final : public Module {
  public:
 	static const Commands cmds;
@@ -55,30 +41,12 @@ class DyscoAgentOut final : public Module {
 	CommandResponse Init(const bess::pb::DyscoAgentOutArg&);
 	CommandResponse CommandInfo(const bess::pb::EmptyArg&);
 
-	/*
-	  Retransmission fields
-	 */
-	
-	bool didReceive(bess::Packet*);
-	void retransmit(bess::PacketBatch*);
-	
-	inline uint32_t getTimeout() {
-		return usec;
-	}
-
-	std::vector<NodeRetransmission> getList() {
-		return listRetransmission;
-	}
-
  private:
-	uint32_t usec;
 	uint32_t devip;
 	uint32_t index;
 	std::string ns;
 	DyscoCenter* dc;
 	DyscoVPort* port;
-	std::thread timer;
-	std::vector<NodeRetransmission> listRetransmission;
 	
 	inline bool isIP(Ethernet* eth) {
 		return eth->ether_type.value() == Ethernet::Type::kIpv4;
@@ -147,12 +115,6 @@ class DyscoAgentOut final : public Module {
 	 */
 	bool get_port_information();
 	void dysco_packet(Ethernet*);
-
-	/*
-	  Retransmission methods
-	 */
-
-	void enqueueRetransmission(std::chrono::system_clock::time_point, bess::PacketBatch);
 };
 
 #endif //BESS_MODULES_DYSCOAGENTOUT_H_

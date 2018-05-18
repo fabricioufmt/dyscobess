@@ -28,43 +28,6 @@ char* print_ss2(DyscoTcpSession ss) {
 }
 #endif
 
-void retransmission(DyscoAgentOut* agent) {
-	bess::Packet* pkt;
-	bess::Packet** pkts;
-	bess::PacketBatch* batch;
-	bess::PacketBatch batchToSend;
-	std::vector<NodeRetransmission> list;
-	
-	while(1) {
-		batchToSend.clear();
-		usleep(agent->getTimeout());
-		list = agent->getList();
-
-		if(list.empty())
-			continue;
-
-		for(uint32_t i = 0; i < list.size(); i++) {
-			batch = &list[i].batch;
-			pkts = batch->pkts();
-			for(int j = 0; j < batch->cnt(); j++) {
-				pkt = pkts[j];
-				if(agent->didReceive(pkt)) {
-					pkts[j] = pkts[batch->cnt() - 1];
-					batch->set_cnt(batch->cnt() - 1);
-					
-				} else
-					batchToSend.add(pkt);
-			}
-
-			if(batch->empty()) {
-				//should remove from list
-			}
-		}
-
-		agent->retransmit(&batchToSend);
-	}
-}
-
 const Commands DyscoAgentOut::cmds = {
 	{"get_info", "EmptyArg", MODULE_CMD_FUNC(&DyscoAgentOut::CommandInfo), Command::THREAD_UNSAFE}
 };
@@ -73,7 +36,6 @@ DyscoAgentOut::DyscoAgentOut() : Module() {
 	dc = 0;
 	devip = 0;
 	index = 0;
-	usec = 10000; //default value = 10ms;
 }
 
 CommandResponse DyscoAgentOut::Init(const bess::pb::DyscoAgentOutArg& arg) {
@@ -106,8 +68,8 @@ void DyscoAgentOut::ProcessBatch(bess::PacketBatch* batch) {
 	
 	Ethernet* eth;
 	bess::Packet* pkt;
-	bess::PacketBatch retransmission;
-	retransmission.clear();
+	bess::PacketBatch toSend;
+	toSend.clear();
 	for(int i = 0; i < batch->cnt(); i++) {
 		pkt = batch->pkts()[i];
 		eth = pkt->head_data<Ethernet*>();
@@ -137,6 +99,7 @@ void DyscoAgentOut::ProcessBatch(bess::PacketBatch* batch) {
 			if(control_output(ip, tcp))
 				dysco_packet(eth);
 
+			dc->toRetransmit(this->index, devip, pkt);
 			
 #ifdef DEBUG
 			fprintf(stderr, "[%s][DyscoAgentOut-Control] forwards %s:%u -> %s:%u [%X:%X]\n\n",
@@ -146,7 +109,7 @@ void DyscoAgentOut::ProcessBatch(bess::PacketBatch* batch) {
 				tcp->seq_num.value(), tcp->ack_num.value());
 #endif
 
-			retransmission.add(pkt);
+
 			continue;
 		}
 			
@@ -159,12 +122,15 @@ void DyscoAgentOut::ProcessBatch(bess::PacketBatch* batch) {
 			printip2(ip->src.value()), tcp->src_port.value(),
 			printip2(ip->dst.value()), tcp->dst_port.value(),
 			tcp->seq_num.value(), tcp->ack_num.value());
+
+		toSend.add(pkt);
 #endif
 	}
-
-	//We assume that the timestamp of send is when RunChooseModule is called
-	enqueueRetransmission(std::chrono::system_clock::now(), retransmission);
-	RunChooseModule(0, batch);
+	
+	batch.clear();
+	
+	//RunChooseModule(0, batch);
+	RunChooseModule(0, &toSend);
 }
 
 bool DyscoAgentOut::get_port_information() {
@@ -190,8 +156,6 @@ bool DyscoAgentOut::get_port_information() {
 	ns = dysco_vport->ns;
 	devip = dysco_vport->devip;
 	index = dc->get_index(ns, devip);
-
-	timer = std::thread(retransmission, this);
 	
 	return true;
 }
@@ -663,24 +627,6 @@ bool DyscoAgentOut::control_output(Ipv4* ip, Tcp* tcp) {
 
 void DyscoAgentOut::dysco_packet(Ethernet* eth) {
 	eth->dst_addr.FromString(DYSCO_MAC);
-}
-
-/*
-  Retransmission methods
- */
-
-void DyscoAgentOut::enqueueRetransmission(std::chrono::system_clock::time_point ts, bess::PacketBatch batch) {
-	NodeRetransmission node(ts, batch);
-
-	listRetransmission.push_back(node);
-}
-
-bool DyscoAgentOut::didReceive(bess::Packet*) {
-	return true;
-}
-
-void DyscoAgentOut::retransmit(bess::PacketBatch* batch) {
-	RunChooseModule(0, batch);
 }
 
 ADD_MODULE(DyscoAgentOut, "dysco_agent_out", "processes packets outcoming from host")
