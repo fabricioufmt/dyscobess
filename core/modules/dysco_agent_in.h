@@ -51,7 +51,15 @@ class DyscoAgentIn final : public Module {
 	CommandResponse Init(const bess::pb::DyscoAgentInArg&);
 	CommandResponse CommandInfo(const bess::pb::EmptyArg&);
 
+	bool didIReceive(Ipv4*, Tcp*);
 	void runRetransmission(bess::PacketBatch*);
+
+	std::vector<NodeRetransmission>* getRetransmissionList() {
+		if(!dc)
+			return 0;
+
+		return dc->getRetransmissionList(this->index, devip);
+	}
 
  private:
 	uint32_t devip;

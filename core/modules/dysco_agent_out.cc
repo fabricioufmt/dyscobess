@@ -127,7 +127,7 @@ void DyscoAgentOut::ProcessBatch(bess::PacketBatch* batch) {
 #endif
 	}
 	
-	batch.clear();
+	batch->clear();
 	
 	//RunChooseModule(0, batch);
 	RunChooseModule(0, &toSend);
