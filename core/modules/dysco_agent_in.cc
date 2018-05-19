@@ -82,7 +82,6 @@ DyscoAgentIn::DyscoAgentIn() : Module() {
 	timeout = 10000; //Default value
 
 	timer = std::thread(worker, this);
-	timer.detach();
 }
 
 CommandResponse DyscoAgentIn::Init(const bess::pb::DyscoAgentInArg& arg) {
