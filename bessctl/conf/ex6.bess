@@ -17,7 +17,6 @@ os.system('echo 1 > /proc/sys/net/ipv4/ip_forward')
 
 bess.add_worker(0, 0)
 bess.add_worker(1, 0)
-bess.add_worker(1, 1)
 
 c1::DyscoVPort(ifname='c1-0', netns='/var/run/netns/c1', mac_addr='00:00:00:00:00:11', ip_addrs=['10.0.1.1/24'])
 m1_0::DyscoVPort(ifname='m1-0', netns='/var/run/netns/m1', mac_addr='00:00:00:00:00:12', ip_addrs=['10.0.1.2/24'])
