@@ -32,8 +32,10 @@ void worker(DyscoAgentIn* agent) {
 	bess::PacketBatch batch;
 	std::vector<NodeRetransmission>* list;
 	std::chrono::system_clock::time_point ts;
-	
+
+	int i;
 	while(1) {
+		i = 1;
 		fprintf(stderr, "[%s (thread timer)] I'm going to sleep for %d ms.\n", agent->get_ns().c_str(), SLEEPTIME);
 		usleep(SLEEPTIME * 1000);
 		batch.clear();
@@ -57,7 +59,7 @@ void worker(DyscoAgentIn* agent) {
 				fprintf(stderr, "[%s (thread timer)] pkt is NULL.\n", agent->get_ns().c_str());
 				continue;
 			}
-			fprintf(stderr, "[%s (thread timer)] trying to access pkt\n", agent->get_ns().c_str());
+			fprintf(stderr, "[%s (thread timer)] trying to access pkt: %d\n", agent->get_ns().c_str(), i++);
 			Ethernet* eth = pkt->head_data<Ethernet*>();
 			Ipv4* ip = reinterpret_cast<Ipv4*>(eth + 1);
 			Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + (ip->header_length << 2));
