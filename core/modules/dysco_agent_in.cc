@@ -35,8 +35,8 @@ void worker(DyscoAgentIn* agent) {
 	
 	while(1) {
 		fprintf(stderr, "I'm going to sleep for %d ms.\n", SLEEPTIME);
-		batch.clear();
 		usleep(SLEEPTIME * 1000);
+		batch.clear();
 		list = agent->getRetransmissionList();
 
 		if(!list) {
