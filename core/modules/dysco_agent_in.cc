@@ -60,11 +60,11 @@ void worker(DyscoAgentIn* agent) {
 			Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + (ip->header_length << 2));
 			
 			if(agent->didIReceive(ip, tcp)) {
-				fprintf(stderr, "I already received\n");
+				fprintf(stderr, "[%s (thread timer)] I already received\n", agent->get_ns().c_str());
 				list->erase(it++);
 				//it++;
 			} else {
-				fprintf(stderr, "I didn't receive\n");
+				fprintf(stderr, "[%s (thread timer)] I didn't receive\n", agent->get_ns().c_str());
 				batch.add(pkt);
 				it++;
 			}
