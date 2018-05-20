@@ -73,7 +73,7 @@ dout3.get_info()
 dout0 -> bpf1
 dout1 -> bpf1
 dout2 -> bpf2
-dout2 -> bpf2
+dout3 -> bpf2
 
 bpf1:0 -> l2_1
 bpf1:1 -> dp1::DyscoPacket()
