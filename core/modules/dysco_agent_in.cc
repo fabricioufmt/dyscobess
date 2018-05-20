@@ -66,7 +66,7 @@ void worker(DyscoAgentIn* agent) {
 			
 			if(agent->didIReceive(ip, tcp)) {
 				fprintf(stderr, "I received\n");
-				list->erase(it);
+				//list->erase(it);
 			} else {
 				fprintf(stderr, "I didn't receive\n");
 				/*
