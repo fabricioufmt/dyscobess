@@ -65,9 +65,12 @@ void worker(DyscoAgentIn* agent) {
 			Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + (ip->header_length << 2));
 			
 			if(agent->didIReceive(ip, tcp)) {
+				fprintf(stderr, "I received\n");
 				list->erase(it);
-			} else {/*
-				if(ts == 0)
+			} else {
+				fprintf(stderr, "I didn't receive\n");
+				/*
+				  if(ts == 0)
 					batch.add(pkt);
 					else if(std::chrono::system_clock::now() - ts > agent->getTimeout())*/
 					batch.add(pkt);
