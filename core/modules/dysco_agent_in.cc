@@ -52,6 +52,11 @@ void worker(DyscoAgentIn* agent) {
 		for(std::vector<NodeRetransmission>::iterator it = list->begin(); it != list->end(); it++) {
 			ts = it->ts;
 			pkt = it->pkt;
+			//its wrong... because never pkt should be null
+			if(!pkt) {
+				fprintf(stderr, "pkt is NULL.\n");
+				continue;
+			}
 			Ethernet* eth = pkt->head_data<Ethernet*>();
 			Ipv4* ip = reinterpret_cast<Ipv4*>(eth + 1);
 			Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + (ip->header_length << 2));
