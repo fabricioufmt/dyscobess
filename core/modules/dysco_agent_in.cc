@@ -40,12 +40,12 @@ void worker(DyscoAgentIn* agent) {
 		list = agent->getRetransmissionList();
 
 		if(!list) {
-			fprintf(stderr, "list is null\n");
+			fprintf(stderr, "[%s (thread timer)] list is null\n", agent->get_ns().c_str());
 			continue;
 		}
 		
 		if(list->empty()) {
-			fprintf(stderr, "list is empty\n");
+			fprintf(stderr, "[%s (thread timer)] list is empty\n", agent->get_ns().c_str());
 			continue;
 		}
 
@@ -54,7 +54,7 @@ void worker(DyscoAgentIn* agent) {
 			pkt = it->pkt;
 			//its wrong... because never pkt should be null
 			if(!pkt) {
-				fprintf(stderr, "pkt is NULL.\n");
+				fprintf(stderr, "[%s (thread timer)] pkt is NULL.\n", agent->get_ns().c_str());
 				continue;
 			}
 			Ethernet* eth = pkt->head_data<Ethernet*>();
@@ -71,7 +71,7 @@ void worker(DyscoAgentIn* agent) {
 			}
 			
 		}
-		fprintf(stderr, "calling agent->runRetransmission with %d elements\n", batch.cnt());
+		fprintf(stderr, "[%s (thread timer)] calling agent->runRetransmission with %d elements\n", agent->get_ns().c_str(), batch.cnt());
 		agent->runRetransmission(&batch);	
 	}
 }
