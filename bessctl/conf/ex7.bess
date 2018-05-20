@@ -2,6 +2,8 @@ import os
 import scapy.all as scapy
 
 os.system('ip netns del c1 > /dev/null')
+os.system('ip netns del s1 > /dev/null')
+os.system('ip netns add c1 > /dev/null')
 os.system('ip netns add s1 > /dev/null')
 os.system('echo 1 > /proc/sys/net/ipv4/ip_forward')
 
