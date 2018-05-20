@@ -51,7 +51,7 @@ void worker(DyscoAgentIn* agent) {
 
 		for(std::vector<NodeRetransmission>::iterator it = list->begin(); it != list->end(); it++) {
 			ts = it->ts;
-			pkt = it->pkt;
+			pkt = &it->pkt;
 			//its wrong... because never pkt should be null
 			if(!pkt) {
 				fprintf(stderr, "[%s (thread timer)] pkt is NULL.\n", agent->get_ns().c_str());
