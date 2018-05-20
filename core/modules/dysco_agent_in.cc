@@ -36,18 +36,18 @@ void worker(DyscoAgentIn* agent) {
 	int i;
 	while(1) {
 		i = 1;
-		fprintf(stderr, "[%s (thread timer)] I'm going to sleep for %d ms.\n", agent->get_ns().c_str(), SLEEPTIME);
+		fprintf(stderr, "[%s (thread timer)] I'm going to sleep for %d ms.\n", agent->get_ns().c_str(), std::this_thread::get_id(), SLEEPTIME);
 		usleep(SLEEPTIME * 1000);
 		batch.clear();
 		list = agent->getRetransmissionList();
 
 		if(!list) {
-			fprintf(stderr, "[%s (thread timer)] list is null\n", agent->get_ns().c_str());
+			fprintf(stderr, "[%s (thread %X)] list is null\n", agent->get_ns().c_str(), std::this_thread::get_id());
 			continue;
 		}
 		
 		if(list->empty()) {
-			fprintf(stderr, "[%s (thread timer)] list is empty\n", agent->get_ns().c_str());
+			fprintf(stderr, "[%s (thread %X)] list is empty\n", agent->get_ns().c_str(), std::this_thread::get_id());
 			continue;
 		}
 
@@ -56,10 +56,10 @@ void worker(DyscoAgentIn* agent) {
 			pkt = it->pkt;
 			//its wrong... because never pkt should be null
 			if(!pkt) {
-				fprintf(stderr, "[%s (thread timer)] pkt is NULL.\n", agent->get_ns().c_str());
+				fprintf(stderr, "[%s (thread %X)] pkt is NULL.\n", agent->get_ns().c_str(), std::this_thread::get_id());
 				continue;
 			}
-			fprintf(stderr, "[%s (thread timer)] trying to access pkt: %d\n", agent->get_ns().c_str(), i++);
+			fprintf(stderr, "[%s (thread %X)] trying to access pkt: %d\n", agent->get_ns().c_str(), std::this_thread::get_id(), i++);
 			Ethernet* eth = pkt->head_data<Ethernet*>();
 			Ipv4* ip = reinterpret_cast<Ipv4*>(eth + 1);
 			Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + (ip->header_length << 2));
@@ -74,7 +74,7 @@ void worker(DyscoAgentIn* agent) {
 			}
 			
 		}
-		fprintf(stderr, "[%s (thread timer)] calling agent->runRetransmission with %d elements\n", agent->get_ns().c_str(), batch.cnt());
+		fprintf(stderr, "[%s (thread %X)] calling agent->runRetransmission with %d elements\n", agent->get_ns().c_str(), std::this_thread::get_id(), batch.cnt());
 		agent->runRetransmission(&batch);	
 	}
 }
@@ -89,7 +89,7 @@ DyscoAgentIn::DyscoAgentIn() : Module() {
 	index = 0;
 	timeout = 10000; //Default value
 
-	timer = std::thread(worker, this);
+	timer = new std::thread(worker, this);
 }
 
 CommandResponse DyscoAgentIn::Init(const bess::pb::DyscoAgentInArg& arg) {

@@ -67,7 +67,7 @@ class DyscoAgentIn final : public Module {
 	DyscoCenter* dc;
 	uint32_t timeout;
 	DyscoVPort* port;
-	std::thread timer;
+	std::thread* timer;
 	std::vector<Tcp> receivedList;
 
 	inline bool isIP(Ethernet* eth) {
