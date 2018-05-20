@@ -1259,6 +1259,8 @@ std::vector<NodeRetransmission>* DyscoAgentIn::getRetransmissionList() {
 bool DyscoAgentIn::didIReceive(Ipv4* ip, Tcp* tcp) {
 	Tcp* received;
 	be32_t shouldReceived = tcp->seq_num + be32_t(hasPayload(ip, tcp));
+
+	fprintf(stderr, "ReceivedList with %lu elements.\n", receivedList.size());
 	
 	for(std::vector<Tcp>::iterator it = receivedList.begin(); it != receivedList.end(); it++) {
 		received = &*it;
