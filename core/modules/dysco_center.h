@@ -25,7 +25,7 @@ using bess::utils::Ethernet;
 using bess::utils::be32_t;
 using bess::utils::be16_t;
 
-//#define DEBUG 1
+#define DEBUG 1
 
 #define DYSCO_TCP_OPTION 253
 #define DYSCO_TCP_OPTION_LEN 8
