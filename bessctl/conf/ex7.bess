@@ -7,8 +7,8 @@ os.system('ip netns add c1 > /dev/null')
 os.system('ip netns add s1 > /dev/null')
 os.system('echo 1 > /proc/sys/net/ipv4/ip_forward')
 
-bess.add_worker(0, 0)
-bess.add_worker(1, 0)
+#bess.add_worker(0, 0)
+#bess.add_worker(1, 0)
 
 c1::DyscoVPort(ifname='c1-0', netns='/var/run/netns/c1', mac_addr='00:00:00:00:00:11', ip_addrs=['10.0.1.1/24'])
 s1::DyscoVPort(ifname='s1-0', netns='/var/run/netns/s1', mac_addr='00:00:00:00:00:12', ip_addrs=['10.0.1.2/24'])
