@@ -61,8 +61,8 @@ void worker(DyscoAgentIn* agent) {
 			
 			if(agent->didIReceive(ip, tcp)) {
 				fprintf(stderr, "I already received\n");
-				//list->erase(it++);
-				it++;
+				list->erase(it++);
+				//it++;
 			} else {
 				fprintf(stderr, "I didn't receive\n");
 				batch.add(pkt);
