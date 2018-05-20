@@ -1,0 +1,67 @@
+import os
+import scapy.all as scapy
+
+os.system('ip netns del c1 > /dev/null')
+os.system('ip netns add s1 > /dev/null')
+os.system('echo 1 > /proc/sys/net/ipv4/ip_forward')
+
+bess.add_worker(0, 0)
+bess.add_worker(1, 0)
+
+c1::DyscoVPort(ifname='c1-0', netns='/var/run/netns/c1', mac_addr='00:00:00:00:00:11', ip_addrs=['10.0.1.1/24'])
+s1::DyscoVPort(ifname='s1-0', netns='/var/run/netns/s1', mac_addr='00:00:00:00:00:12', ip_addrs=['10.0.1.2/24'])
+
+os.system('ip netns exec c1 ifconfig lo up > /dev/null')
+os.system('ip netns exec s1 ifconfig lo up > /dev/null')
+
+os.system('ip netns exec c1 route add default gw 10.0.1.2 > /dev/null')
+os.system('ip netns exec s1 route add default gw 10.0.1.1 > /dev/null')
+
+dc::DyscoCenter()
+
+bpf1::BPF()
+bpf1.add(filters=[{'priority': -20, 'filter':'arp', 'gate': 0}])
+bpf1.add(filters=[{'priority': -18, 'filter': 'ip', 'gate': 1}])
+
+l2_1::L2FWD()
+l2_1.add(mac_addr='00:00:00:00:00:11', gate=0)
+l2_1.add(mac_addr='00:00:00:00:00:12', gate=1)
+
+l3_1::IPLookup()
+l3_1.add(prefix='10.0.1.1', prefix_len=32, gate=0)
+l3_1.add(prefix='10.0.1.2', prefix_len=32, gate=1)
+
+din0::DyscoAgentIn(dc=dc) -> DyscoPortOut(port=c1)
+din1::DyscoAgentIn(dc=dc) -> DyscoPortOut(port=s1)
+DyscoPortInc(port=c1) -> dout0::DyscoAgentOut(dc=dc)
+DyscoPortInc(port=s1) -> dout1::DyscoAgentOut(dc=dc)
+
+din0.attach_task(wid=1)
+din1.attach_task(wid=1)
+
+din0.get_info()
+din1.get_info()
+dout0.get_info()
+dout1.get_info()
+
+dout0 -> bpf1
+dout1 -> bpf1
+
+bpf1:0 -> l2_1
+bpf1:1 -> dp1::DyscoPacket()
+
+dp1:0 -> l3_1
+
+dp1:1 -> l2_1
+
+l3_1:0 -> UpdateMac(mac_addr='00:00:00:00:00:11') -> l2_1
+l3_1:1 -> UpdateMac(mac_addr='00:00:00:00:00:12') -> l2_1
+
+l2_1:0 -> din0
+l2_1:1 -> din1
+
+din0:1 -> l3_1
+din1:1 -> l3_1
+
+#os.system('ip netns exec c1 tcpdump -i c1-0 arp or icmp or tcp -n -XX -w /home/fabricio/c1.pcap & 2> /dev/null')
+#os.system('ip netns exec s1 tcpdump -i s1-0 arp or icmp or tcp -n -XX -w /home/fabricio/s1.pcap & 2> /dev/null')
