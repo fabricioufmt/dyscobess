@@ -65,5 +65,5 @@ l2_1:1 -> din1
 din0:1 -> l3_1
 din1:1 -> l3_1
 
-#os.system('ip netns exec c1 tcpdump -i c1-0 arp or icmp or tcp -n -XX -w /home/fabricio/c1.pcap & 2> /dev/null')
-#os.system('ip netns exec s1 tcpdump -i s1-0 arp or icmp or tcp -n -XX -w /home/fabricio/s1.pcap & 2> /dev/null')
+os.system('ip netns exec c1 tcpdump -i c1-0 arp or icmp or tcp -n -XX -w /home/fabricio/c1.pcap & 2> /dev/null')
+os.system('ip netns exec s1 tcpdump -i s1-0 arp or icmp or tcp -n -XX -w /home/fabricio/s1.pcap & 2> /dev/null')
