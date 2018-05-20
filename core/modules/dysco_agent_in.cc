@@ -36,9 +36,10 @@ void worker(DyscoAgentIn* agent) {
 	while(1) {
 		fprintf(stderr, "[%s (thread timer)] I'm going to sleep for %d ms.\n", agent->get_ns().c_str(), SLEEPTIME);
 		usleep(SLEEPTIME * 1000);
+		std::cerr << "Thread " << std::this_thread::get_id() << "waked up" << std::endl;
 		batch.clear();
 		list = agent->getRetransmissionList();
-
+		std::cerr << "Thread " << std::this_thread::get_id() << "list: " << list << std::endl;
 		if(!list) {
 			fprintf(stderr, "[%s (thread timer)] list is null\n", agent->get_ns().c_str());
 			continue;
