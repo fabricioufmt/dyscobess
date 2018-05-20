@@ -33,9 +33,7 @@ void worker(DyscoAgentIn* agent) {
 	std::vector<NodeRetransmission>* list;
 	std::chrono::system_clock::time_point ts;
 
-	int i;
 	while(1) {
-		i = 1;
 		fprintf(stderr, "[%s (thread timer)] I'm going to sleep for %d ms.\n", agent->get_ns().c_str(), SLEEPTIME);
 		usleep(SLEEPTIME * 1000);
 		batch.clear();
