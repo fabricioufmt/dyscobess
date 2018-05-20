@@ -34,7 +34,7 @@ void worker(DyscoAgentIn* agent) {
 	std::chrono::system_clock::time_point ts;
 	
 	while(1) {
-		fprintf(stderr, "I'm going to sleep for %d ms.\n", SLEEPTIME);
+		fprintf(stderr, "[%s (thread timer)] I'm going to sleep for %d ms.\n", agent->get_ns().c_str(), SLEEPTIME);
 		usleep(SLEEPTIME * 1000);
 		batch.clear();
 		list = agent->getRetransmissionList();
@@ -662,38 +662,19 @@ bool DyscoAgentIn::compute_deltas_in(DyscoHashIn* cb_in, DyscoHashOut* old_out, 
 	cb_in->out_iseq = old_out->in_iack;
 	cb_in->out_iack = old_out->in_iseq;
 	
-#ifdef DEBUG
-	fprintf(stderr, "compute_deltas_in.\n");
-	fprintf(stderr, "cb_in->in_iseq: %X.\n", cb_in->in_iseq);
-	fprintf(stderr, "cb_in->in_iack: %X.\n", cb_in->in_iack);
-	fprintf(stderr, "cb_in->out_iseq: %X.\n", cb_in->out_iseq);
-	fprintf(stderr, "cb_in->out_iack: %X.\n", cb_in->out_iack);	
-#endif
 	if(cb_in->in_iseq < cb_in->out_iseq) {
 		cb_in->seq_delta = cb_in->out_iseq - cb_in->in_iseq;
-#ifdef DEBUG
-		fprintf(stderr, "cb_in->seq_delta1 = %X (%X - %X).\n", cb_in->seq_delta, cb_in->out_iseq, cb_in->in_iseq);
-#endif
 		cb_in->seq_add = 1;
 	} else {
 		cb_in->seq_delta = cb_in->in_iseq - cb_in->out_iseq;
-#ifdef DEBUG
-		fprintf(stderr, "cb_in->seq_delta2 = %X (%X - %X).\n", cb_in->seq_delta, cb_in->in_iseq, cb_in->out_iseq);
-#endif
 		cb_in->seq_add = 0;
 	}
 	
 	if(cb_in->in_iack < cb_in->out_iack) {
 		cb_in->ack_delta = cb_in->out_iack - cb_in->in_iack;
-#ifdef DEBUG
-		fprintf(stderr, "cb_in->ack_delta1 = %X (%X - %X).\n", cb_in->ack_delta, cb_in->out_iack, cb_in->in_iack);
-#endif
 		cb_in->ack_add = 1;
 	} else {
 		cb_in->ack_delta = cb_in->in_iack - cb_in->out_iack;
-#ifdef DEBUG
-		fprintf(stderr, "cb_in->ack_delta2 = %X (%X - %X).\n", cb_in->ack_delta, cb_in->in_iack, cb_in->out_iack);
-#endif
 		cb_in->ack_add = 0;
 	}
 
@@ -743,40 +724,20 @@ bool DyscoAgentIn::compute_deltas_in(DyscoHashIn* cb_in, DyscoHashOut* old_out, 
 bool DyscoAgentIn::compute_deltas_out(DyscoHashOut* cb_out, DyscoHashOut* old_out, DyscoCbReconfig* rcb) {
 	cb_out->in_iseq = old_out->in_iseq;
 	cb_out->in_iack = old_out->in_iack;
-
-#ifdef DEBUG
-	fprintf(stderr, "compute_deltas_out.\n");
-	fprintf(stderr, "cb_out->in_iseq: %X.\n", cb_out->in_iseq);
-	fprintf(stderr, "cb_out->in_iack: %X.\n", cb_out->in_iack);
-	fprintf(stderr, "cb_out->out_iseq: %X.\n", cb_out->out_iseq);
-	fprintf(stderr, "cb_out->out_iack: %X.\n", cb_out->out_iack);
-#endif
 	
 	if(cb_out->in_iseq < cb_out->out_iseq) {
 		cb_out->seq_delta = cb_out->out_iseq - cb_out->in_iseq;
-#ifdef DEBUG
-		fprintf(stderr, "cb_out->seq_delta1 = %X (%X - %X).\n", cb_out->seq_delta, cb_out->out_iseq, cb_out->in_iseq);
-#endif
 		cb_out->seq_add = 1;
 	} else {
 		cb_out->seq_delta = cb_out->in_iseq - cb_out->out_iseq;
-#ifdef DEBUG
-		fprintf(stderr, "cb_out->seq_delta2 = %X (%X - %X).\n", cb_out->seq_delta, cb_out->in_iseq, cb_out->out_iseq);
-#endif
 		cb_out->seq_add = 0;
 	}
 
 	if(cb_out->in_iack < cb_out->out_iack) {
 		cb_out->ack_delta = cb_out->out_iack - cb_out->in_iack;
-#ifdef DEBUG
-		fprintf(stderr, "cb_out->ack_delta1 = %X (%X - %X).\n", cb_out->ack_delta, cb_out->out_iack, cb_out->in_iack);
-#endif		
 		cb_out->ack_add = 1;
 	} else {
 		cb_out->ack_delta = cb_out->in_iack - cb_out->out_iack;
-#ifdef DEBUG
-		fprintf(stderr, "cb_out->ack_delta2 = %X (%X - %X).\n", cb_out->ack_delta, cb_out->in_iack, cb_out->out_iack);
-#endif	
 		cb_out->ack_add = 0;
 	}
 

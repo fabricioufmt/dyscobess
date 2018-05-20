@@ -56,6 +56,10 @@ class DyscoAgentIn final : public Module {
 	void runRetransmission(bess::PacketBatch*);
 	std::vector<NodeRetransmission>* getRetransmissionList();
 
+	inline std::string get_ns() {
+		return ns;
+	}
+	
  private:
 	uint32_t devip;
 	uint32_t index;
