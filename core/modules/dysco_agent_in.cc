@@ -36,10 +36,10 @@ void worker(DyscoAgentIn* agent) {
 	while(1) {
 		fprintf(stderr, "[%s (thread timer)] I'm going to sleep for %d ms.\n", agent->get_ns().c_str(), SLEEPTIME);
 		usleep(SLEEPTIME * 1000);
-		std::cerr << "Thread " << std::this_thread::get_id() << "waked up\n";
+		fprintf(stderr, "[%s (thread timer)] Slept for %d ms.\n", agent->get_ns().c_str(), SLEEPTIME);
 		batch.clear();
 		list = agent->getRetransmissionList();
-		std::cerr << "Thread " << std::this_thread::get_id() << "list: " << list << "\n";
+
 		if(!list) {
 			fprintf(stderr, "[%s (thread timer)] list is null\n", agent->get_ns().c_str());
 			continue;
@@ -69,9 +69,10 @@ void worker(DyscoAgentIn* agent) {
 				it++;
 			}
 		}
-		
-		fprintf(stderr, "[%s (thread timer)] calling agent->runRetransmission with %d elements\n", agent->get_ns().c_str(), batch.cnt());
-		agent->runRetransmission(&batch);	
+		if(batch.cnt() > 0) {
+			fprintf(stderr, "[%s (thread timer)] calling agent->runRetransmission with %d elements\n", agent->get_ns().c_str(), batch.cnt());
+			agent->runRetransmission(&batch);
+		}
 	}
 }
 
