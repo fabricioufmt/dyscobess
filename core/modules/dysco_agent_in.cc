@@ -57,6 +57,7 @@ void worker(DyscoAgentIn* agent) {
 				fprintf(stderr, "[%s (thread timer)] pkt is NULL.\n", agent->get_ns().c_str());
 				continue;
 			}
+			fprintf(stderr, "[%s (thread timer)] trying to access pkt\n", agent->get_ns().c_str());
 			Ethernet* eth = pkt->head_data<Ethernet*>();
 			Ipv4* ip = reinterpret_cast<Ipv4*>(eth + 1);
 			Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + (ip->header_length << 2));
