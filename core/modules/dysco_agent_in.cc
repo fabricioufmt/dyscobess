@@ -50,33 +50,26 @@ void worker(DyscoAgentIn* agent) {
 			fprintf(stderr, "[%s (thread timer)] list is empty\n", agent->get_ns().c_str());
 			continue;
 		}
-
-		for(std::vector<NodeRetransmission>::iterator it = list->begin(); it != list->end(); it++) {
+		
+		std::vector<NodeRetransmission>::iterator it = list->begin();
+		while(it != list->end()) {
 			ts = it->ts;
 			pkt = it->pkt;
-			//its wrong... because never pkt should be null
-			if(!pkt) {
-				fprintf(stderr, "[%s (thread timer)] pkt is NULL.\n", agent->get_ns().c_str());
-				continue;
-			}
-			fprintf(stderr, "[%s (thread timer)] trying to access pkt: %d\n", agent->get_ns().c_str(), i++);
+
 			Ethernet* eth = pkt->head_data<Ethernet*>();
 			Ipv4* ip = reinterpret_cast<Ipv4*>(eth + 1);
 			Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + (ip->header_length << 2));
 			
 			if(agent->didIReceive(ip, tcp)) {
-				fprintf(stderr, "I received\n");
-				//list->erase(it);
+				fprintf(stderr, "I already received\n");
+				list->erase(it++);
 			} else {
 				fprintf(stderr, "I didn't receive\n");
-				/*
-				  if(ts == 0)
-					batch.add(pkt);
-					else if(std::chrono::system_clock::now() - ts > agent->getTimeout())*/
-					batch.add(pkt);
+				batch.add(pkt);
+				it++;
 			}
-			
 		}
+		
 		fprintf(stderr, "[%s (thread timer)] calling agent->runRetransmission with %d elements\n", agent->get_ns().c_str(), batch.cnt());
 		agent->runRetransmission(&batch);	
 	}
