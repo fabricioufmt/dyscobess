@@ -38,8 +38,8 @@ din1::DyscoAgentIn(dc=dc) -> DyscoPortOut(port=s1)
 DyscoPortInc(port=c1) -> dout0::DyscoAgentOut(dc=dc)
 DyscoPortInc(port=s1) -> dout1::DyscoAgentOut(dc=dc)
 
-din0.attach_task(wid=1)
-din1.attach_task(wid=1)
+#din0.attach_task(wid=1)
+#din1.attach_task(wid=1)
 
 din0.get_info()
 din1.get_info()
