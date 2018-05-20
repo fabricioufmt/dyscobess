@@ -125,12 +125,18 @@ class DyscoTcpTs {
 
 class NodeRetransmission {
  public:
-	std::chrono::system_clock::time_point ts;
+	uint32_t cnt;
 	bess::Packet* pkt;
+	std::chrono::system_clock::time_point ts;
 
 	NodeRetransmission(std::chrono::system_clock::time_point t, bess::Packet* p) {
 		ts = t;
+		cnt = 0;
 		pkt = bess::Packet::copy(p);
+	}
+
+	void add_cnt() {
+		cnt++;
 	}
 };
 

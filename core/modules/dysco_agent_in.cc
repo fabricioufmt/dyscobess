@@ -28,6 +28,7 @@ char* print_ss1(DyscoTcpSession ss) {
 #endif
 
 void worker(DyscoAgentIn* agent) {
+	uint32_t cnt;
 	bess::Packet* pkt;
 	bess::PacketBatch batch;
 	std::vector<NodeRetransmission>* list;
@@ -55,22 +56,31 @@ void worker(DyscoAgentIn* agent) {
 		std::vector<NodeRetransmission>::iterator it = list->begin();
 		while(it != list->end()) {
 			ts = it->ts;
+			cnt = it->cnt;
 			pkt = it->pkt;
 
 			Ethernet* eth = pkt->head_data<Ethernet*>();
 			Ipv4* ip = reinterpret_cast<Ipv4*>(eth + 1);
 			Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + (ip->header_length << 2));
-			
-			if(agent->didIReceive(ip, tcp)) {
-				fprintf(stderr, "[%s (thread timer)] I already received\n", agent->get_ns().c_str());
-				list->erase(it++);
-				//it++;
-			} else {
-				fprintf(stderr, "[%s (thread timer)] I didn't receive\n", agent->get_ns().c_str());
+
+			if(cnt == 0) {
+				it->add_cnt();
 				batch.add(pkt);
-				it++;
+			} else {
+				if(cnt == 4 || agent->didIReceive(ip, tcp)) {
+					fprintf(stderr, "[%s (thread timer)] I already received\n", agent->get_ns().c_str());
+					list->erase(it++);
+					continue;
+				}
+				fprintf(stderr, "[%s (thread timer)] I didn't receive\n", agent->get_ns().c_str());
+				//should verify the timeout
+				batch.add(pkt);
+				
 			}
+
+			it++;
 		}
+		
 		if(batch.cnt() > 0) {
 			fprintf(stderr, "[%s (thread timer)] calling agent->runRetransmission with %d elements\n", agent->get_ns().c_str(), batch.cnt());
 			agent->runRetransmission(&batch);
