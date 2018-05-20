@@ -24,7 +24,7 @@ os.system('ip netns exec m1 ifconfig lo up > /dev/null')
 os.system('ip netns exec c1 route add default gw 10.0.1.2 > /dev/null')
 os.system('ip netns exec s1 route add default gw 10.0.2.2 > /dev/null')
 os.system('ip netns exec m1 route add default gw 10.0.2.1 > /dev/null')
-os.system('ip netns exec m1 route add -net 10.0.1.0/24 gw 10.0.2.1 > /dev/null')
+os.system('ip netns exec m1 route add -net 10.0.1.0/24 gw 10.0.1.1 > /dev/null')
 
 dc::DyscoCenter()
 
