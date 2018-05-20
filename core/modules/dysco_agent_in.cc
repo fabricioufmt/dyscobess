@@ -50,7 +50,7 @@ void worker(DyscoAgentIn* agent) {
 			continue;
 		}
 
-		fprintf(stderr, "[%s (thread timer)] list with %d elements.\n", agent->get_ns().c_str(), list->size());
+		fprintf(stderr, "[%s (thread timer)] list with %lu elements.\n", agent->get_ns().c_str(), list->size());
 		
 		std::vector<NodeRetransmission>::iterator it = list->begin();
 		while(it != list->end()) {
