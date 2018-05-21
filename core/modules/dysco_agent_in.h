@@ -21,7 +21,7 @@
 #include "../utils/endian.h"
 #include "../utils/checksum.h"
 
-//#define DEBUG 1
+#define DEBUG 1
 
 //in ms
 #define SLEEPTIME 100
