@@ -48,8 +48,9 @@ void worker(DyscoAgentIn* agent) {
 			continue;
 		}
 
+#ifdef DEBUG
 		fprintf(stderr, "[%s (thread timer)] list with %lu elements.\n", agent->get_ns().c_str(), list->size());
-
+#endif
 		now_ts = tsc_to_ns(rdtsc());
 		std::vector<NodeRetransmission>::iterator it = list->begin();
 		while(it != list->end()) {
@@ -67,19 +68,25 @@ void worker(DyscoAgentIn* agent) {
 				it->update_ts(tsc_to_ns(rdtsc()));
 			} else {
 				if(cnt == 3) {
+#ifdef DEBUG
 					fprintf(stderr, "[%s (thread timer)] 3 times, so I'm removing from the list\n", agent->get_ns().c_str());
+#endif
 					it = list->erase(it);
 					continue;	
 				}
 				
 				if(agent->didIReceive(ip, tcp)) {
+#ifdef DEBUG
 					fprintf(stderr, "[%s (thread timer)] I already received, so I'm removing from the list\n", agent->get_ns().c_str());
+#endif
 					it = list->erase(it);
 					continue;
 				}
 				
 				if(now_ts - ts > agent->getTimeout()) {
+#ifdef DEBUG
 					fprintf(stderr, "[%s (thread timer)] I didn't receive, going to retransmit\n", agent->get_ns().c_str());
+#endif
 					it->add_cnt();
 					it->update_ts(now_ts);
 					batch.add(pkt);
@@ -90,7 +97,9 @@ void worker(DyscoAgentIn* agent) {
 		}
 		
 		if(batch.cnt() > 0) {
+#ifdef DEBUG
 			fprintf(stderr, "[%s (thread timer)] calling agent->runRetransmission with %d elements\n", agent->get_ns().c_str(), batch.cnt());
+#endif
 			agent->runRetransmission(&batch);
 		}
 	}
