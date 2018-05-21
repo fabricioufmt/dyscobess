@@ -36,19 +36,15 @@ void worker(DyscoAgentIn* agent) {
 	std::vector<NodeRetransmission>* list;
 
 	while(1) {
-		fprintf(stderr, "[%s (thread timer)] I'm going to sleep for %d ms.\n", agent->get_ns().c_str(), SLEEPTIME);
 		usleep(SLEEPTIME * 1000);
-		fprintf(stderr, "[%s (thread timer)] Slept for %d ms.\n", agent->get_ns().c_str(), SLEEPTIME);
 		batch.clear();
 		list = agent->getRetransmissionList();
 
 		if(!list) {
-			fprintf(stderr, "[%s (thread timer)] list is null\n", agent->get_ns().c_str());
 			continue;
 		}
 		
 		if(list->empty()) {
-			fprintf(stderr, "[%s (thread timer)] list is empty\n", agent->get_ns().c_str());
 			continue;
 		}
 
