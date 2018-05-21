@@ -1186,7 +1186,7 @@ bool DyscoCenter::toRetransmit(uint32_t i, uint32_t devip, bess::Packet* pkt) {
 	if(!list)
 		return false;
 	
-	NodeRetransmission node(std::chrono::system_clock::now(), pkt);
+	NodeRetransmission node(tsc_to_ns(rdtsc()), pkt);
 	list->push_back(node);
 
 	return true;

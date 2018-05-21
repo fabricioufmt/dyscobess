@@ -75,7 +75,7 @@ void worker(DyscoAgentIn* agent) {
 					it = list->erase(it);
 					continue;
 				}
-				fprintf(stderr, "[%s (thread timer)] I didn't receive... elapsed: %lf\n", agent->get_ns().c_str(), now_ts - ts);
+				fprintf(stderr, "[%s (thread timer)] I didn't receive... elapsed: %lu\n", agent->get_ns().c_str(), now_ts - ts);
 
 				if(now_ts - ts > agent->getTimeout()) {
 					it->update_ts(now_ts);
