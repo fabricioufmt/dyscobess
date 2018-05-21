@@ -68,8 +68,8 @@ void worker(DyscoAgentIn* agent) {
 				batch.add(pkt);
 			} else {
 				if(cnt == 4 || agent->didIReceive(ip, tcp)) {
-					fprintf(stderr, "[%s (thread timer)] I already received\n", agent->get_ns().c_str());
-					list->erase(it++);
+					fprintf(stderr, "[%s (thread timer)] I already received or 4 time for retransmission\n", agent->get_ns().c_str());
+					it = list->erase(it);
 					continue;
 				}
 				fprintf(stderr, "[%s (thread timer)] I didn't receive\n", agent->get_ns().c_str());
