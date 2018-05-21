@@ -22,7 +22,7 @@
 #include "../utils/checksum.h"
 
 //in ms
-#define SLEEPTIME 100
+#define SLEEPTIME 1
 
 using bess::utils::Tcp;
 using bess::utils::Ipv4;
