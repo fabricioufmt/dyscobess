@@ -70,14 +70,21 @@ void worker(DyscoAgentIn* agent) {
 				batch.add(pkt);
 				it->update_ts(tsc_to_ns(rdtsc()));
 			} else {
-				if(cnt == 4 || agent->didIReceive(ip, tcp)) {
-					fprintf(stderr, "[%s (thread timer)] I already received or 4 time for retransmission, so I'm removing from the list\n", agent->get_ns().c_str());
+				if(cnt == 3) {
+					fprintf(stderr, "[%s (thread timer)] 3 times, so I'm removing from the list\n", agent->get_ns().c_str());
+					it = list->erase(it);
+					continue;	
+				}
+				
+				if(agent->didIReceive(ip, tcp)) {
+					fprintf(stderr, "[%s (thread timer)] I already received, so I'm removing from the list\n", agent->get_ns().c_str());
 					it = list->erase(it);
 					continue;
 				}
-				fprintf(stderr, "[%s (thread timer)] I didn't receive... elapsed: %lu\n", agent->get_ns().c_str(), now_ts - ts);
-
+				
 				if(now_ts - ts > agent->getTimeout()) {
+					fprintf(stderr, "[%s (thread timer)] I didn't receive, going to retransmit\n", agent->get_ns().c_str());
+					it->add_cnt();
 					it->update_ts(now_ts);
 					batch.add(pkt);
 				}
