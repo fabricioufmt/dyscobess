@@ -28,11 +28,12 @@ char* print_ss1(DyscoTcpSession ss) {
 #endif
 
 void worker(DyscoAgentIn* agent) {
+	uint64_t ts;
 	uint32_t cnt;
+	uint64_t now_ts;
 	bess::Packet* pkt;
 	bess::PacketBatch batch;
 	std::vector<NodeRetransmission>* list;
-	std::chrono::system_clock::time_point ts;
 
 	while(1) {
 		fprintf(stderr, "[%s (thread timer)] I'm going to sleep for %d ms.\n", agent->get_ns().c_str(), SLEEPTIME);
@@ -52,7 +53,8 @@ void worker(DyscoAgentIn* agent) {
 		}
 
 		fprintf(stderr, "[%s (thread timer)] list with %lu elements.\n", agent->get_ns().c_str(), list->size());
-		
+
+		now_ts = tsc_to_ns(rdtsc());
 		std::vector<NodeRetransmission>::iterator it = list->begin();
 		while(it != list->end()) {
 			ts = it->ts;
@@ -66,16 +68,19 @@ void worker(DyscoAgentIn* agent) {
 			if(cnt == 0) {
 				it->add_cnt();
 				batch.add(pkt);
+				it->update_ts(tsc_to_ns(rdtsc()));
 			} else {
 				if(cnt == 4 || agent->didIReceive(ip, tcp)) {
 					fprintf(stderr, "[%s (thread timer)] I already received or 4 time for retransmission, so I'm removing from the list\n", agent->get_ns().c_str());
 					it = list->erase(it);
 					continue;
 				}
-				fprintf(stderr, "[%s (thread timer)] I didn't receive\n", agent->get_ns().c_str());
-				//should verify the timeout
-				batch.add(pkt);
-				
+				fprintf(stderr, "[%s (thread timer)] I didn't receive... elapsed: %lf\n", agent->get_ns().c_str(), now_ts - ts);
+
+				if(now_ts - ts > agent->getTimeout()) {
+					it->update_ts(now_ts);
+					batch.add(pkt);
+				}
 			}
 
 			it++;
@@ -96,7 +101,7 @@ DyscoAgentIn::DyscoAgentIn() : Module() {
 	dc = 0;
 	devip = 0;
 	index = 0;
-	timeout = 10000; //Default value
+	timeout = 1000000; //Default value
 
 	timer = new std::thread(worker, this);
 }
@@ -1266,7 +1271,8 @@ std::vector<NodeRetransmission>* DyscoAgentIn::getRetransmissionList() {
 	return dc->getRetransmissionList(this->index, devip);
 }
 
-bool DyscoAgentIn::didIReceive(Ipv4* ip, Tcp* tcp) {
+bool DyscoAgentIn::didIReceive(Ipv4*, Tcp* tcp) {
+	/*
 	Tcp* received;
 	be32_t shouldReceived = tcp->seq_num + be32_t(hasPayload(ip, tcp));
 
@@ -1280,6 +1286,15 @@ bool DyscoAgentIn::didIReceive(Ipv4* ip, Tcp* tcp) {
 	}
 	
 	return false;
+	*/
+	for(std::vector<Tcp>::iterator it = receivedList.begin(); it != receivedList.end(); it++) {
+		if(it->seq_num == tcp->ack_num)
+			return true;
+
+	}
+
+	return false;
+	
 }
 
 void DyscoAgentIn::runRetransmission(bess::PacketBatch* batch) {

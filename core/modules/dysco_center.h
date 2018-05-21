@@ -11,6 +11,7 @@
 #include "../module.h"
 #include "../utils/ip.h"
 #include "../utils/tcp.h"
+#include "../utils/time.h"
 #include "../utils/ether.h"
 #include "../utils/endian.h"
 #include "../utils/checksum.h"
@@ -125,11 +126,11 @@ class DyscoTcpTs {
 
 class NodeRetransmission {
  public:
+	uint64_t ts;
 	uint32_t cnt;
 	bess::Packet* pkt;
-	std::chrono::system_clock::time_point ts;
 
-	NodeRetransmission(std::chrono::system_clock::time_point t, bess::Packet* p) {
+	NodeRetransmission(uint64_t t, bess::Packet* p) {
 		ts = t;
 		cnt = 0;
 		pkt = bess::Packet::copy(p);
@@ -137,6 +138,10 @@ class NodeRetransmission {
 
 	void add_cnt() {
 		cnt++;
+	}
+
+	void update_ts(uint64_t t) {
+		ts = t;
 	}
 };
 
