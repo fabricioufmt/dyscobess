@@ -121,8 +121,8 @@ class DyscoAgentIn final : public Module {
 	  Dysco control methods
 	 */
 	bool isReconfigPacket(Ipv4*, Tcp*, DyscoHashIn*);
-	DyscoCbReconfig* insert_rcb_control_input(Ipv4*, Tcp*, DyscoControlMessage*);
 	DyscoHashOut* build_cb_in_reverse(Ipv4*, DyscoCbReconfig*);
+	DyscoCbReconfig* insert_rcb_control_input(Ipv4*, Tcp*, DyscoControlMessage*);
 	bool compute_deltas_in(DyscoHashIn*, DyscoHashOut*, DyscoCbReconfig*);
 	bool compute_deltas_out(DyscoHashOut*, DyscoHashOut*, DyscoCbReconfig*);
 	bool control_config_rightA(DyscoCbReconfig*, DyscoControlMessage*, DyscoHashIn*, DyscoHashOut*);
