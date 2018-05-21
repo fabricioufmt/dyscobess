@@ -89,10 +89,8 @@ dp3:1 -> l2_3
 
 l3_1:2 -> UpdateMac(mac_addr='00:00:00:00:00:21') -> l2_2
 l3_1:3 -> UpdateMac(mac_addr='00:00:00:00:00:22') -> l2_2
-l3_1:4 -> UpdateMac(mac_addr='00:00:00:00:00:23') -> l2_2
 l3_1:5 -> UpdateMac(mac_addr='00:00:00:00:00:31') -> l2_3
 l3_1:6 -> UpdateMac(mac_addr='00:00:00:00:00:32') -> l2_3
-l3_1:7 -> UpdateMac(mac_addr='00:00:00:00:00:33') -> l2_3
 
 l2_2:0 -> din2
 l2_2:1 -> din3
