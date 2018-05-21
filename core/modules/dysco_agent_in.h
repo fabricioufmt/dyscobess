@@ -59,6 +59,10 @@ class DyscoAgentIn final : public Module {
 	inline std::string get_ns() {
 		return ns;
 	}
+
+	inline uint32_t getTimeout() {
+		return timeout;
+	}
 	
  private:
 	uint32_t devip;
@@ -97,10 +101,6 @@ class DyscoAgentIn final : public Module {
 
 	inline bool isToRightAnchor(Ipv4* ip, DyscoControlMessage* cmsg) {
 		return ip->dst.value() == ntohl(cmsg->rightA);
-	}
-
-	inline uint32_t getTimeout() {
-		return timeout;
 	}
 	
 	/*
