@@ -31,6 +31,7 @@
 import scapy.all as scapy
 
 dpdk_ports = int($BESS_PORTS!'1')
+dpdk_ports = 2
 print('Using %d DPDK ports... (envvar "BESS_PORTS")' % dpdk_ports)
 
 pkt_size = int($BESS_PKT_SIZE!'60')
