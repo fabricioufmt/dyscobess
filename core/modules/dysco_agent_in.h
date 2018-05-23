@@ -34,6 +34,10 @@ class DyscoAgentIn final : public Module {
 	void ProcessBatch(bess::PacketBatch*) override;
 	CommandResponse Init(const bess::pb::DyscoAgentInArg&);
 	CommandResponse CommandInfo(const bess::pb::EmptyArg&);
+
+	static void callHandlers(int) {
+		std::for_each(instances.begin(), instances.end(), std::mem_fun(&DyscoAgentIn::retransmissionHandler));
+	}
 	
  private:
 	uint32_t devip;
@@ -94,10 +98,6 @@ class DyscoAgentIn final : public Module {
 	 */
 	void retransmissionHandler();
 	bool processReceivedPackets(Ipv4*, Tcp*);
-
-	static void callHandlers(int) {
-		std::for_each(instances.begin(), instances.end(), std::mem_fun(&DyscoAgentIn::retransmissionHandler));
-	}
 };
 
 #endif //BESS_MODULES_DYSCOAGENTIN_H_
