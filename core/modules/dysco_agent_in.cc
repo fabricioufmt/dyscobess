@@ -33,7 +33,7 @@ const Commands DyscoAgentIn::cmds = {
 	{"get_info", "EmptyArg", MODULE_CMD_FUNC(&DyscoAgentIn::CommandInfo), Command::THREAD_UNSAFE}
 };
 
-void timer_worker(DyscoAgentIn* agent) {
+void timer_worker(DyscoAgentIn*) {
 	while(1) {
 		usleep(SLEEPTIME);
 		//sleep(10);
