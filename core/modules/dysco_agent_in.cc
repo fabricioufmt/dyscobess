@@ -1244,14 +1244,14 @@ void DyscoAgentIn::retransmissionHandler() {
 		return;
 	
 	mtx->lock();
-	/*
+	
 	LinkedList<Packet>* list = dc->getRetransmissionList(this->index, devip);
 	if(!list) {
 		mtx->unlock();
 		
 		return;
 	}
-
+	/*
 	uint64_t now_ts = tsc_to_ns(rdtsc());
 	LNode<bess::Packet>* aux;
 	LNode<bess::Packet>* node = list->getHead();
