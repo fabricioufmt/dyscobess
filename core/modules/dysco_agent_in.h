@@ -26,7 +26,7 @@ class DyscoAgentIn final : public Module {
 	static const Commands cmds;
 	static const gate_idx_t kNumIGates = 1;
 	static const gate_idx_t kNumOGates = 2;
-	static timeout = 1000000; //Default value
+	static uint64_t timeout = 1000000; //Default value
 	DyscoAgentIn();
 	void ProcessBatch(bess::PacketBatch*) override;
 	CommandResponse Init(const bess::pb::DyscoAgentInArg&);
@@ -49,7 +49,6 @@ class DyscoAgentIn final : public Module {
 	uint32_t index;
 	std::string ns;
 	DyscoCenter* dc;
-	uint32_t timeout;
 	DyscoVPort* port;
 	//static std::vector<DyscoAgentIn*> instances;
 
