@@ -37,7 +37,7 @@ void timer_worker(DyscoAgentIn* agent) {
 	while(1) {
 		usleep(SLEEPTIME);
 		//sleep(10);
-		agent->retransmissionHandler();
+		//agent->retransmissionHandler();
 	}
 }
 
