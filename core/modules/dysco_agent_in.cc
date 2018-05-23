@@ -946,14 +946,15 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 	DyscoCbReconfig* rcb;
 	DyscoControlMessage* cmsg = 0;
 	size_t tcp_hlen = tcp->offset << 2;
+
+	//Test for realiable
+	if(cnt == 0) {
+		fprintf(stderr, "I'm going to drop first SYN segment for test.\n");
+		cnt++;
+		return ERROR;
+	}
 	
 	if(isTCPSYN(tcp, true)) {
-		//Test for realiable
-		if(cnt == 0) {
-			fprintf(stderr, "I'm going to drop first SYN segment for test.\n");
-			cnt++;
-			return ERROR;
-		}
 #ifdef DEBUG
 		fprintf(stderr, "DYSCO_SYN message.\n");
 #endif
