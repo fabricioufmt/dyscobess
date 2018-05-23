@@ -35,9 +35,9 @@ const Commands DyscoAgentIn::cmds = {
 
 void timer_worker(DyscoAgentIn* agent) {
 	while(1) {
-		//usleep(SLEEPTIME);
-		sleep(10);
-		agent->retransmissionHandler();
+		usleep(SLEEPTIME);
+		//sleep(10);
+		//agent->retransmissionHandler();
 	}
 }
 
