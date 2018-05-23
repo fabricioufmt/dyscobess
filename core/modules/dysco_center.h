@@ -2,7 +2,8 @@
 #define BESS_MODULES_DYSCOCENTER_H_
 
 #include "dysco_util.h"
-#include "dysco_agent_in.h"
+
+class DyscoAgentIn;
 
 class DyscoCenter final : public Module {
  public:
