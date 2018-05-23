@@ -54,7 +54,7 @@ DyscoAgentIn::DyscoAgentIn() : Module() {
 	sigaction(SIGPROF, &act, 0);
 	*/
 
-	timer = new thread(timer_worker, std::ref(this));
+	timer = new thread(timer_worker, std::ref(*this));
 }
 
 CommandResponse DyscoAgentIn::Init(const bess::pb::DyscoAgentInArg& arg) {
