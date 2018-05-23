@@ -1233,8 +1233,8 @@ void DyscoAgentIn::createFinAck(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
   TCP Retransmission methods
  */
 void DyscoAgentIn::retransmissionHandler() {
-	PacketBatch batch;
-	batch.clear();
+	PacketBatch* batch = new PacketBatch();
+	batch->clear();
 	
 	if(!dc)
 		return;
@@ -1268,7 +1268,7 @@ void DyscoAgentIn::retransmissionHandler() {
 		
 		if(node->cnt == 0 || now_ts - node->ts > this->timeout) {
 			node->cnt++;
-			batch.add(&node->element);
+			batch->add(&node->element);
 			node->ts = now_ts;
 		}
 
@@ -1277,7 +1277,7 @@ void DyscoAgentIn::retransmissionHandler() {
 
 	mtx->unlock();
 
-	RunChooseModule(1, &batch);
+	RunChooseModule(1, batch);
 }
 
 bool DyscoAgentIn::processReceivedPackets(Ipv4* ip, Tcp* tcp) {
