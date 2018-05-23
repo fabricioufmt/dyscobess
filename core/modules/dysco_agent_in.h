@@ -128,9 +128,12 @@ class DyscoAgentIn final : public Module {
 	  TCP Retransmission methods
 	 */
 	void retransmissionHandler();
-	static void callHandlers(int);
 	bool addToRetransmission(bess::Packet*);
 	bool processReceivedPackets(Ipv4*, Tcp*);
+
+	static void callHandlers(int) {
+		std::for_each(instances.begin(), instances.end(), std::mem_fun(&DyscoAgentIn::retransmissionHandler));
+	}
 };
 
 #endif //BESS_MODULES_DYSCOAGENTIN_H_

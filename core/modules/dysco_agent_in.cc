@@ -56,7 +56,7 @@ CommandResponse DyscoAgentIn::Init(const bess::pb::DyscoAgentInArg& arg) {
 }
 
 CommandResponse DyscoAgentIn::CommandInfo(const bess::pb::EmptyArg&) {
-	if(get_port_information())
+	if(setup())
 		return CommandSuccess();
 	
 	return CommandFailure(EINVAL, "ERROR: Port information.");
@@ -123,8 +123,6 @@ void DyscoAgentIn::ProcessBatch(bess::PacketBatch* batch) {
 				break;
 			}
 		} else {
-			//should update received list
-			receivedList.push_back(*tcp);
 			switch(control_input(pkt, ip, tcp, cb_in)) {
 			case TO_GATE_0:
 				out_gates[0].add(pkt);
@@ -142,7 +140,7 @@ void DyscoAgentIn::ProcessBatch(bess::PacketBatch* batch) {
 #ifdef DEBUG
 				fprintf(stderr, "[%s][DyscoAgentIn-Control] forwarding to toRetransmit %s:%u -> %s:%u [%X:%X]\n\n", ns.c_str(), printip1(ip->src.value()), tcp->src_port.value(), printip1(ip->dst.value()), tcp->dst_port.value(), tcp->seq_num.value(), tcp->ack_num.value());
 #endif
-				dc->toRetransmit(this->index, devip, pkt);
+				dc->addToRetransmission(this->index, devip, pkt);
 				break;
 			case END:
 #ifdef DEBUG
@@ -487,7 +485,7 @@ CONTROL_RETURN DyscoAgentIn::input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoH
 	if(tcp->flags & Tcp::kFin) {
 		if(!cb_in->two_paths) {
 			if(cb_in->dcb_out && cb_in->dcb_out->old_path) {
-				create_finack(pkt, ip, tcp);
+				createFinAck(pkt, ip, tcp);
 				cb_in->dcb_out->state = DYSCO_LAST_ACK;
 				
 				return TO_GATE_1;
@@ -783,7 +781,7 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 		
 		dc->insert_hash_input(this->index, cb_in);
 
-		create_synack(pkt, ip, tcp);
+		createSynAck(pkt, ip, tcp);
 		
 		if(!control_config_rightA(rcb, cmsg, cb_in, cb_out)) {
 			return ERROR;
@@ -972,7 +970,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 			 *
 			 */
 
-			create_ack(pkt, ip, tcp);
+			createAck(pkt, ip, tcp);
 			
 			rcb = dc->lookup_reconfig_by_ss(this->index, &cb_out->sup);
 			if(!rcb) {
@@ -1243,10 +1241,6 @@ void DyscoAgentIn::retransmissionHandler() {
 	mtx->unlock();
 
 	RunChooseModule(1, &batch);
-}
-
-static void DyscoAgentIn::callHandlers(int) {
-	std::for_each(instances.begin(), instances.end(), std::mem_fun(&DyscoAgentIn::retransmissionHandler));
 }
 
 bool DyscoAgentIn::addToRetransmission(bess::Packet* pkt) {
