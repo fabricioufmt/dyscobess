@@ -6,7 +6,7 @@
 std::vector<DyscoAgentIn*> DyscoAgentIn::instances;
 
 struct sigaction act;
-act.sa_handler = DyscoAgentIn::callHandlers;
+act.sa_handler = &DyscoAgentIn::callHandlers;
 sigaction(SIGALRM, &act, 0);
 
 #ifdef DEBUG
