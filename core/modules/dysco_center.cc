@@ -1216,7 +1216,7 @@ bool DyscoCenter::addToRetransmission(uint32_t i, uint32_t devip, bess::Packet* 
 		return false;
 	}
 
-	LNode<Packet>* node = list_r->insertTail(*pkt);
+	LNode<Packet>* node = list_r->insertTail(*pkt, tsc_to_ns(rdtsc()));
 	uint32_t index = getValueToAck(pkt);
 	hash_r->operator[](index) = node;
 	

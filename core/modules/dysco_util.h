@@ -218,6 +218,10 @@ public:
 		if(next)
 			next->prev = prev;
 	}
+
+	void setTs(uint64_t t) {
+		ts = t;
+	}
 };
 
 template <typename T>
@@ -268,7 +272,7 @@ public:
 		return true;
 	}
 
-	LNode<T>* insertHead(T& element) {
+	LNode<T>* insertHead(T& element, uint64_t ts = 0) {
 		LNode<T>* node = new LNode<T>(element);
 
 		head->next->prev = node;
@@ -276,16 +280,20 @@ public:
 		node->prev = head;
 		head->next = node;
 
+		node->setTs(ts);
+		
 		return node;
 	}
 
-	LNode<T>* insertTail(T& element) {
+	LNode<T>* insertTail(T& element, uint64_t ts = 0) {
 		LNode<T>* node = new LNode<T>(element);
 
 		tail->prev->next = node;
 		node->prev = tail->prev;
 		node->next = tail;
 		tail->prev = node;
+
+		node->setTs(ts);
 		
 		return node;
 	}
