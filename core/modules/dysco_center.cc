@@ -113,7 +113,7 @@ CommandResponse DyscoCenter::CommandList(const bess::pb::DyscoCenterListArg& arg
   Control methods (internal use)
  */
 
-uint32_t DyscoCenter::get_index(std::string ns, uint32_t ip) {
+uint32_t DyscoCenter::get_index(std::string ns, uint32_t) {
 	uint32_t index = std::hash<std::string>()(ns);
 
 	DyscoHashes* dh = get_hashes(index);
