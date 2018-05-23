@@ -103,7 +103,7 @@ CommandResponse DyscoCenter::CommandList(const bess::pb::DyscoCenterListArg& arg
 CommandResponse DyscoCenter::CommandAlarm(const bess::pb::EmptyArg&) {
 	struct itimerval val;
 
-	val.it_interval.tv_sec = 0;
+	val.it_interval.tv_sec = 10;
 	val.it_interval.tv_usec = SLEEPTIME;
 	val.it_value = val.it_interval;
 
