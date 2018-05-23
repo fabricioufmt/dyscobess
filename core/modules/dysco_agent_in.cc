@@ -4,6 +4,7 @@
 #include "dysco_port_out.h"
 
 //std::vector<DyscoAgentIn*> DyscoAgentIn::instances;
+uint64_t DyscoAgentIn::timeout;
 
 #ifdef DEBUG
 char* printip1(uint32_t ip) {
@@ -45,7 +46,7 @@ DyscoAgentIn::DyscoAgentIn() : Module() {
 	dc = 0;
 	devip = 0;
 	index = 0;
-
+	timeout = 1000000;
 	/*
 	instances.push_back(this);
 
