@@ -1253,8 +1253,7 @@ void DyscoAgentIn::retransmissionHandler() {
 		return;
 	}
 
-	uint64_t test = 1000000;
-	uint64_t now_ts = tsc_to_ns(rdtsc());
+	//uint64_t now_ts = tsc_to_ns(rdtsc());
 	LNode<bess::Packet>* aux;
 	LNode<bess::Packet>* node = list->getHead();
 	LNode<bess::Packet>* tail = list->getTail();
