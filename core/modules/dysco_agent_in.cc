@@ -45,7 +45,7 @@ DyscoAgentIn::DyscoAgentIn() : Module() {
 	dc = 0;
 	devip = 0;
 	index = 0;
-	timeout = 1000000; //Default value
+
 	/*
 	instances.push_back(this);
 
@@ -1266,7 +1266,7 @@ void DyscoAgentIn::retransmissionHandler() {
 			continue;
 		}
 		
-		if(node->cnt == 0 || now_ts - node->ts > timeout) {
+		if(node->cnt == 0 || now_ts - node->ts > DyscoAgentIn::timeout) {
 			node->cnt++;
 			//batch->add(&node->element);
 			node->ts = now_ts;

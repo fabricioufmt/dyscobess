@@ -26,7 +26,7 @@ class DyscoAgentIn final : public Module {
 	static const Commands cmds;
 	static const gate_idx_t kNumIGates = 1;
 	static const gate_idx_t kNumOGates = 2;
-	
+	static timeout = 1000000; //Default value
 	DyscoAgentIn();
 	void ProcessBatch(bess::PacketBatch*) override;
 	CommandResponse Init(const bess::pb::DyscoAgentInArg&);
@@ -44,13 +44,13 @@ class DyscoAgentIn final : public Module {
 	bool processReceivedPackets(Ipv4*, Tcp*);
 	
  private:
+	thread* timer;
 	uint32_t devip;
 	uint32_t index;
 	std::string ns;
 	DyscoCenter* dc;
 	uint32_t timeout;
 	DyscoVPort* port;
-	thread* timer;
 	//static std::vector<DyscoAgentIn*> instances;
 
 	inline bool isToLeftAnchor(Ipv4* ip, DyscoControlMessage* cmsg) {
