@@ -201,7 +201,9 @@ public:
 	uint32_t cnt;
 	
  LNode(const T& e = T(), LNode* n = 0, LNode* p = 0)
-	 : element(e), next(n), prev(p), cnt(0), ts(0) {
+	 : element(e), next(n), prev(p) {
+		ts = 0;
+		cnt = 0;
 	}
 	
 	~LNode() {
