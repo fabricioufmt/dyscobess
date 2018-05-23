@@ -1245,8 +1245,11 @@ void DyscoAgentIn::retransmissionHandler() {
 	mtx->lock();
 	
 	LinkedList<Packet>* list = dc->getRetransmissionList(this->index, devip);
-	if(!list)
+	if(!list) {
+		mtx->unlock();
+		
 		return;
+	}
 
 	uint64_t now_ts = tsc_to_ns(rdtsc());
 	LNode<bess::Packet>* aux;
@@ -1291,6 +1294,11 @@ bool DyscoAgentIn::processReceivedPackets(Ipv4* ip, Tcp* tcp) {
 	mtx->lock();
 	
 	unordered_map<uint32_t, LNode<Packet>*>* hash_received = dc->getHashReceived(this->index, devip);
+	if(!hash_received) {
+		mtx->unlock();
+		
+		return false;
+	}
 
 	LNode<bess::Packet>* node = hash_received->operator[](key);
 	if(node) {
