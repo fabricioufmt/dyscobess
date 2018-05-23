@@ -1269,7 +1269,7 @@ void DyscoAgentIn::retransmissionHandler() {
 		}
 		
 		//if(node->cnt == 0 || now_ts - node->ts > DyscoAgentIn::timeout) {
-		if(node->cnt == 0 || (now_ts - node->ts) > test) {
+		if(node->cnt == 0) {
 			node->cnt++;
 			//batch->add(&node->element);
 			node->ts = now_ts;
