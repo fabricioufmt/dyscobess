@@ -33,11 +33,11 @@ const Commands DyscoAgentIn::cmds = {
 	{"get_info", "EmptyArg", MODULE_CMD_FUNC(&DyscoAgentIn::CommandInfo), Command::THREAD_UNSAFE}
 };
 
-void timer_worker(DyscoAgentIn*) {
+void timer_worker(DyscoAgentIn* agent) {
 	while(1) {
 		usleep(SLEEPTIME);
 		//sleep(10);
-		//agent->retransmissionHandler();
+		agent->retransmissionHandler();
 	}
 }
 
@@ -1235,7 +1235,7 @@ void DyscoAgentIn::createFinAck(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 void DyscoAgentIn::retransmissionHandler() {
 	PacketBatch* batch = new PacketBatch();
 	batch->clear();
-	
+	/*
 	if(!dc)
 		return;
 
@@ -1276,7 +1276,7 @@ void DyscoAgentIn::retransmissionHandler() {
 	}
 
 	mtx->unlock();
-
+	*/
 	RunChooseModule(1, batch);
 }
 
