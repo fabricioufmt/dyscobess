@@ -1252,7 +1252,8 @@ void DyscoAgentIn::retransmissionHandler() {
 		
 		return;
 	}
-	
+
+	uint64_t test = 1000000;
 	uint64_t now_ts = tsc_to_ns(rdtsc());
 	LNode<bess::Packet>* aux;
 	LNode<bess::Packet>* node = list->getHead();
@@ -1268,7 +1269,7 @@ void DyscoAgentIn::retransmissionHandler() {
 		}
 		
 		//if(node->cnt == 0 || now_ts - node->ts > DyscoAgentIn::timeout) {
-		if(node->cnt == 0 || now_ts - node->ts > 1000000) {
+		if(node->cnt == 0 || (now_ts - node->ts) > test) {
 			node->cnt++;
 			//batch->add(&node->element);
 			node->ts = now_ts;
