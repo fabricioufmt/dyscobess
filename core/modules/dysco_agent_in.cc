@@ -40,10 +40,11 @@ DyscoAgentIn::DyscoAgentIn() : Module() {
 	timeout = 1000000; //Default value
 
 	instances.push_back(this);
-	
+	/*
 	struct sigaction act;
 	act.sa_handler = DyscoAgentIn::callHandlers;
 	sigaction(SIGALRM, &act, 0);
+	*/
 }
 
 CommandResponse DyscoAgentIn::Init(const bess::pb::DyscoAgentInArg& arg) {
