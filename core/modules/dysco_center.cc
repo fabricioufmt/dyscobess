@@ -6,15 +6,7 @@
 #include "dysco_center.h"
 #include "dysco_policies.h"
 #include "../module.h"
-#include "../utils/ip.h"
-#include "../utils/tcp.h"
-#include "../utils/ether.h"
-#include "../utils/endian.h"
 #include "../utils/format.h"
-
-using bess::utils::Tcp;
-using bess::utils::Ipv4;
-using bess::utils::Ethernet;
 
 #ifdef DEBUG
 char* printip0(uint32_t ip) {
@@ -47,10 +39,6 @@ const Commands DyscoCenter::cmds = {
 };
 
 DyscoCenter::DyscoCenter() : Module() {
-	struct sigaction act;
-	act.sa_handler = DyscoAgentIn::callHandlers;
-	sigaction(SIGALRM, &act, 0);
-
 	ualarm(SLEEPTIME, 0);
 }
 

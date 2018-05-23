@@ -5,6 +5,10 @@
 
 std::vector<DyscoAgentIn*> DyscoAgentIn::instances;
 
+struct sigaction act;
+act.sa_handler = DyscoAgentIn::callHandlers;
+sigaction(SIGALRM, &act, 0);
+
 #ifdef DEBUG
 char* printip1(uint32_t ip) {
 	uint8_t bytes[4];

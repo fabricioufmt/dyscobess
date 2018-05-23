@@ -3,8 +3,6 @@
 
 #include "dysco_util.h"
 
-class DyscoAgentIn;
-
 class DyscoCenter final : public Module {
  public:
 	static const Commands cmds;

@@ -1,12 +1,9 @@
 #ifndef BESS_MODULES_DYSCOAGENTIN_H_
 #define BESS_MODULES_DYSCOAGENTIN_H_
 
-#include <chrono>
-#include <thread>
-#include <vector>
 #include <stdio.h>
 #include <unistd.h>
-#include <arpa/inet.h>
+#include <signal.h>
 
 #include "dysco_center.h"
 
