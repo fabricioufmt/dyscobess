@@ -54,7 +54,8 @@ DyscoAgentIn::DyscoAgentIn() : Module() {
 	act.sa_handler = DyscoAgentIn::callHandlers;
 	sigaction(SIGPROF, &act, 0);
 	*/
-
+	//TEST
+	cnt = 0;
 	timer = new thread(timer_worker, this);
 }
 
@@ -943,6 +944,12 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 	size_t tcp_hlen = tcp->offset << 2;
 	
 	if(isTCPSYN(tcp, true)) {
+		//Test for realiable
+		if(cnt == 0) {
+			fprintf(stderr, "I'm going to drop first SYN segment for test.\n");
+			cnt++;
+			return ERROR;
+		}
 #ifdef DEBUG
 		fprintf(stderr, "DYSCO_SYN message.\n");
 #endif

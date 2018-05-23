@@ -45,6 +45,10 @@ class DyscoAgentIn final : public Module {
 	bool processReceivedPackets(Ipv4*, Tcp*);
 	
  private:
+
+	//Test for realiable
+	uint32_t cnt;
+	
 	thread* timer;
 	uint32_t devip;
 	uint32_t index;
