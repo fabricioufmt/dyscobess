@@ -1144,15 +1144,6 @@ message DyscoCenterDelArg {
 	string filter = 3;
 }
 
-message DyscoCenterReconfigArg {
-	string ns = 1;
-	string sssource = 2;
-	string ssdest = 3;
-	uint32 sc_len = 4;
-	repeated string chain = 5;
-	///string filter = 6;
-}
-
 message DyscoCenterListArg {
 	string ns = 1;
 	string msg = 2;

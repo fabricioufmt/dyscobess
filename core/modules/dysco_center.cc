@@ -35,11 +35,11 @@ char* print_ss0(DyscoTcpSession ss) {
 const Commands DyscoCenter::cmds = {
 	{"add", "DyscoCenterAddArg", MODULE_CMD_FUNC(&DyscoCenter::CommandAdd), Command::THREAD_UNSAFE},
 	{"del", "DyscoCenterDelArg", MODULE_CMD_FUNC(&DyscoCenter::CommandDel), Command::THREAD_UNSAFE},
-	{"list", "DyscoCenterListArg", MODULE_CMD_FUNC(&DyscoCenter::CommandList), Command::THREAD_UNSAFE}
+	{"list", "DyscoCenterListArg", MODULE_CMD_FUNC(&DyscoCenter::CommandList), Command::THREAD_UNSAFE},
+	{"alarm", "EmptyArg", MODULE_CMD_FUNC(&DyscoCenter::CommandAlarm), Command::THREAD_UNSAFE}
 };
 
 DyscoCenter::DyscoCenter() : Module() {
-	//ualarm(SLEEPTIME, 0);
 }
 
 CommandResponse DyscoCenter::CommandAdd(const bess::pb::DyscoCenterAddArg& arg) {
@@ -98,6 +98,12 @@ CommandResponse DyscoCenter::CommandList(const bess::pb::DyscoCenterListArg& arg
 
 	l.set_msg(s);
 	return CommandSuccess(l);
+}
+
+CommandResponse DyscoCenter::CommandAlarm(const bess::pb::EmptyArg&) {
+	ualarm(SLEEPTIME, 0);
+	
+	return CommandSuccess();
 }
 
 /************************************************************************/
