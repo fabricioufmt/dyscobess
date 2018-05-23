@@ -61,7 +61,7 @@ class DyscoCenter final : public Module {
  private:
 	unordered_map<uint32_t, DyscoHashes*> hashes;
 	
-	DyscoHashes* get_hash(uint32_t);
+	DyscoHashes* get_hashes(uint32_t);
 	uint32_t get_dysco_tag(uint32_t);
 	bool remove_tag(Packet*, Ipv4*, Tcp*);
 	bool add_sc(Packet*, Ipv4*, DyscoHashOut*);

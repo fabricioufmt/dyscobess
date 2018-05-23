@@ -15,21 +15,6 @@
 #include "../pb/module_msg.pb.h"
 #include "../drivers/dysco_vport.h"
 
-#include "../utils/ip.h"
-#include "../utils/tcp.h"
-#include "../utils/ether.h"
-#include "../utils/endian.h"
-#include "../utils/checksum.h"
-
-//in ms
-#define SLEEPTIME 1
-
-using bess::utils::Tcp;
-using bess::utils::Ipv4;
-using bess::utils::Ethernet;
-using bess::utils::be32_t;
-using bess::utils::be16_t;
-
 enum CONTROL_RETURN {
 	TO_GATE_0,
 	TO_GATE_1,

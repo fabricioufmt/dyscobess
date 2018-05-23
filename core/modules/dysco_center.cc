@@ -61,7 +61,7 @@ CommandResponse DyscoCenter::CommandAdd(const bess::pb::DyscoCenterAddArg& arg) 
 		i++;
 	}
 
-	DyscoHashes* dh = get_hash(index);
+	DyscoHashes* dh = get_hashes(index);
 	if(!dh) {
 		dh = new DyscoHashes();
 		dh->ns = arg.ns();
@@ -90,7 +90,7 @@ CommandResponse DyscoCenter::CommandList(const bess::pb::DyscoCenterListArg& arg
 	std::string ns = arg.ns();
 	bess::pb::DyscoCenterListArg l;
 
-	DyscoHashes* dh = get_hash(get_index(ns, 0));
+	DyscoHashes* dh = get_hashes(get_index(ns, 0));
 	if(!dh) {
 		l.set_msg("Hash not found.");
 		return CommandSuccess(l);
@@ -116,7 +116,7 @@ CommandResponse DyscoCenter::CommandList(const bess::pb::DyscoCenterListArg& arg
 uint32_t DyscoCenter::get_index(std::string ns, uint32_t ip) {
 	uint32_t index = std::hash<std::string>()(ns);
 
-	DyscoHashes* dh = get_hash(index);
+	DyscoHashes* dh = get_hashes(index);
 	if(!dh) {
 		dh = new DyscoHashes();
 		dh->ns = ns;
@@ -130,7 +130,7 @@ uint32_t DyscoCenter::get_index(std::string ns, uint32_t ip) {
 	return index;
 }
 
-DyscoHashes* DyscoCenter::get_hash(uint32_t i) {
+DyscoHashes* DyscoCenter::get_hashes(uint32_t i) {
 	unordered_map<uint32_t, DyscoHashes*>::iterator it = hashes.find(i);
 	if(it != hashes.end())
 		return (*it).second;
@@ -139,7 +139,7 @@ DyscoHashes* DyscoCenter::get_hash(uint32_t i) {
 }
 
 uint32_t DyscoCenter::get_dysco_tag(uint32_t i) {
-	DyscoHashes* dh = get_hash(i);
+	DyscoHashes* dh = get_hashes(i);
 	if(!dh)
 		return 0;
 	
@@ -157,7 +157,7 @@ uint16_t DyscoCenter::allocate_neighbor_port(uint32_t) {
 }
 
 DyscoHashIn* DyscoCenter::lookup_input_by_ss(uint32_t i, DyscoTcpSession* ss) {
-	DyscoHashes* dh = get_hash(i);
+	DyscoHashes* dh = get_hashes(i);
 	if(!dh)
 		return 0;
 #ifdef DEBUG
@@ -184,7 +184,7 @@ DyscoHashIn* DyscoCenter::lookup_input_by_ss(uint32_t i, DyscoTcpSession* ss) {
 }
 
 DyscoHashIn* DyscoCenter::lookup_input(uint32_t i, Ipv4* ip, Tcp* tcp) {
-	DyscoHashes* dh = get_hash(i);
+	DyscoHashes* dh = get_hashes(i);
 	if(!dh)
 		return 0;
 
@@ -198,7 +198,7 @@ DyscoHashIn* DyscoCenter::lookup_input(uint32_t i, Ipv4* ip, Tcp* tcp) {
 }
 
 DyscoHashOut* DyscoCenter::lookup_output_by_ss(uint32_t i, DyscoTcpSession* ss) {
-	DyscoHashes* dh = get_hash(i);
+	DyscoHashes* dh = get_hashes(i);
 	if(!dh)
 		return 0;
 #ifdef DEBUG
@@ -225,7 +225,7 @@ DyscoHashOut* DyscoCenter::lookup_output_by_ss(uint32_t i, DyscoTcpSession* ss) 
 }
 
 DyscoHashOut* DyscoCenter::lookup_output(uint32_t i, Ipv4* ip, Tcp* tcp) {
-	DyscoHashes* dh = get_hash(i);
+	DyscoHashes* dh = get_hashes(i);
 	if(!dh)
 		return 0;
 
@@ -239,7 +239,7 @@ DyscoHashOut* DyscoCenter::lookup_output(uint32_t i, Ipv4* ip, Tcp* tcp) {
 }
 
 DyscoHashOut* DyscoCenter::lookup_output_pending(uint32_t i, Ipv4* ip, Tcp* tcp) {
-	DyscoHashes* dh = get_hash(i);
+	DyscoHashes* dh = get_hashes(i);
 	if(!dh)
 		return 0;
 
@@ -261,7 +261,7 @@ DyscoHashOut* DyscoCenter::lookup_output_pending(uint32_t i, Ipv4* ip, Tcp* tcp)
 }
 
 DyscoCbReconfig* DyscoCenter::lookup_reconfig_by_ss(uint32_t i, DyscoTcpSession* ss) {
-	DyscoHashes* dh = get_hash(i);
+	DyscoHashes* dh = get_hashes(i);
 	if(!dh)
 		return 0;
 #ifdef DEBUG
@@ -288,7 +288,7 @@ DyscoCbReconfig* DyscoCenter::lookup_reconfig_by_ss(uint32_t i, DyscoTcpSession*
 }
 
 DyscoHashOut* DyscoCenter::lookup_pending_tag_by_tag(uint32_t i, uint32_t tag) {
-	DyscoHashes* dh = get_hash(i);
+	DyscoHashes* dh = get_hashes(i);
 	if(!dh)
 		return 0;
 
@@ -303,7 +303,7 @@ DyscoHashOut* DyscoCenter::lookup_pending_tag_by_tag(uint32_t i, uint32_t tag) {
 }
 
 DyscoHashOut* DyscoCenter::lookup_pending_tag(uint32_t i, Tcp* tcp) {
-	DyscoHashes* dh = get_hash(i);
+	DyscoHashes* dh = get_hashes(i);
 	if(!dh)
 		return 0;
 
@@ -459,7 +459,7 @@ DyscoHashOut* DyscoCenter::insert_cb_in_reverse(DyscoTcpSession* ss_payload, Ipv
 }
 
 DyscoHashIn* DyscoCenter::insert_cb_input(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_t* payload, uint32_t payload_sz) {
-	DyscoHashes* dh = get_hash(i);
+	DyscoHashes* dh = get_hashes(i);
 	if(!dh)
 		return 0;
 	
@@ -567,7 +567,7 @@ bool DyscoCenter::set_ack_number_out(uint32_t i, Tcp* tcp, DyscoHashIn* cb_in) {
 */
 
 DyscoHashOut* DyscoCenter::create_cb_out(uint32_t i, Ipv4* ip, Tcp* tcp, DyscoPolicies::Filter* filter, uint32_t devip) {
-	DyscoHashes* dh = get_hash(i);
+	DyscoHashes* dh = get_hashes(i);
 	if(!dh)
 		return 0;
 	
@@ -604,7 +604,7 @@ bool DyscoCenter::out_tx_init(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOu
 }
 
 DyscoHashOut* DyscoCenter::out_syn(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out, uint32_t devip) {
-	DyscoHashes* dh = get_hash(i);
+	DyscoHashes* dh = get_hashes(i);
 	if(!dh)
 		return 0;
 	
@@ -939,7 +939,7 @@ bool DyscoCenter::fix_tcp_ip_csum(Ipv4* ip, Tcp* tcp) {
   Dysco methods
  */
 bool DyscoCenter::out_handle_mb(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out, uint32_t devip) {
-	DyscoHashes* dh = get_hash(i);
+	DyscoHashes* dh = get_hashes(i);
 	if(!dh)
 		return false;
 
@@ -1003,7 +1003,7 @@ bool DyscoCenter::insert_tag(uint32_t index, bess::Packet* pkt, Ipv4* ip, Tcp* t
 }
 
 bool DyscoCenter::insert_cb_out(uint32_t i, DyscoHashOut* cb_out, uint8_t two_paths) {
-	DyscoHashes* dh = get_hash(i);
+	DyscoHashes* dh = get_hashes(i);
 	if(!dh)
 		return false;
 
@@ -1018,7 +1018,7 @@ bool DyscoCenter::insert_cb_out(uint32_t i, DyscoHashOut* cb_out, uint8_t two_pa
 }
 
 DyscoHashIn* DyscoCenter::insert_cb_out_reverse(uint32_t i, DyscoHashOut* cb_out, uint8_t two_paths, DyscoControlMessage* cmsg) {
-	DyscoHashes* dh = get_hash(i);
+	DyscoHashes* dh = get_hashes(i);
 	if(!dh)
 		return 0;
 	
@@ -1119,7 +1119,7 @@ bool DyscoCenter::add_sc(bess::Packet* pkt, Ipv4* ip, DyscoHashOut* cb_out) {
   Dysco methods (CONTROL INPUT)
 */
 bool DyscoCenter::insert_hash_input(uint32_t i, DyscoHashIn* cb_in) {
-	DyscoHashes* dh = get_hash(i);
+	DyscoHashes* dh = get_hashes(i);
 	if(!dh)
 		return false;
 #ifdef DEBUG
@@ -1130,7 +1130,7 @@ bool DyscoCenter::insert_hash_input(uint32_t i, DyscoHashIn* cb_in) {
 }
 
 bool DyscoCenter::insert_hash_output(uint32_t i, DyscoHashOut* cb_out) {
-	DyscoHashes* dh = get_hash(i);
+	DyscoHashes* dh = get_hashes(i);
 	if(!dh)
 		return false;
 
@@ -1142,7 +1142,7 @@ bool DyscoCenter::insert_hash_output(uint32_t i, DyscoHashOut* cb_out) {
 }
 
 bool DyscoCenter::insert_hash_reconfig(uint32_t i, DyscoCbReconfig* rcb) {
-	DyscoHashes* dh = get_hash(i);
+	DyscoHashes* dh = get_hashes(i);
 	if(!dh)
 		return false;
 #ifdef DEBUG
@@ -1153,7 +1153,7 @@ bool DyscoCenter::insert_hash_reconfig(uint32_t i, DyscoCbReconfig* rcb) {
 }
 
 bool DyscoCenter::remove_reconfig(uint32_t i, DyscoCbReconfig* rcb) {
-	DyscoHashes* dh = get_hash(i);
+	DyscoHashes* dh = get_hashes(i);
 	if(!dh)
 		return false;
 
