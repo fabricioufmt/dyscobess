@@ -1266,8 +1266,7 @@ void DyscoAgentIn::retransmissionHandler() {
 			continue;
 		}
 		
-		//if(node->cnt == 0 || now_ts - node->ts > this->timeout) {
-		if(node->cnt == 0) {
+		if(node->cnt == 0 || now_ts - node->ts > timeout) {
 			node->cnt++;
 			//batch->add(&node->element);
 			node->ts = now_ts;
