@@ -103,7 +103,7 @@ enum {
 
 #define TTL                             32
 #define PORT_RANGE                      65536
-#define CNTLIMIT                        3
+#define CNTLIMIT                        2
 #define SLEEPTIME                       10000 /* usec */
 
 /*********************************************************************

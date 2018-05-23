@@ -965,6 +965,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 		//Ronaldo: RightA doesn't know about supss (or leftSS)
 		rcb = dc->lookup_reconfig_by_ss(this->index, &cmsg->rightSS); 
 		if(rcb) {
+			fprintf(stderr, "IS_RETRANSMISSION\n");
 			return IS_RETRANSMISSION;
 		}
 
