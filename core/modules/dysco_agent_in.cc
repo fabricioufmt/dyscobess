@@ -33,11 +33,11 @@ const Commands DyscoAgentIn::cmds = {
 	{"get_info", "EmptyArg", MODULE_CMD_FUNC(&DyscoAgentIn::CommandInfo), Command::THREAD_UNSAFE}
 };
 
-void timer_worker(DyscoAgentIn*) {
+void timer_worker(DyscoAgentIn* agent) {
 	while(1) {
 		usleep(SLEEPTIME);
 		//sleep(10);
-		//agent->retransmissionHandler();
+		agent->retransmissionHandler();
 	}
 }
 
@@ -54,7 +54,7 @@ DyscoAgentIn::DyscoAgentIn() : Module() {
 	sigaction(SIGPROF, &act, 0);
 	*/
 
-	timer = new thread(timer_worker, this);
+	timer = new thread(timer_worker, std::ref(this));
 }
 
 CommandResponse DyscoAgentIn::Init(const bess::pb::DyscoAgentInArg& arg) {
