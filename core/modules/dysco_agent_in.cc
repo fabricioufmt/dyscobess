@@ -1243,13 +1243,6 @@ void DyscoAgentIn::retransmissionHandler() {
 	RunChooseModule(1, &batch);
 }
 
-bool DyscoAgentIn::addToRetransmission(Packet* pkt) {
-	if(!dc)
-		return false;
-
-	return dc->addToRetransmission(this->index, devip, pkt);
-}
-
 bool DyscoAgentIn::processReceivedPackets(Ipv4* ip, Tcp* tcp) {
 	if(!dc)
 		return false;

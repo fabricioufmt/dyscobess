@@ -105,7 +105,7 @@ void DyscoAgentOut::ProcessBatch(bess::PacketBatch* batch) {
 			if(control_output(ip, tcp))
 				dysco_packet(eth);
 
-			dc->toRetransmit(this->index, devip, pkt);
+			dc->addToRetransmission(this->index, devip, pkt);
 			
 #ifdef DEBUG
 			fprintf(stderr, "[%s][DyscoAgentOut-Control] forwards %s:%u -> %s:%u [%X:%X]\n\n",
