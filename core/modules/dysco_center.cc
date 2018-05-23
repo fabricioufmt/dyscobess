@@ -125,7 +125,7 @@ uint32_t DyscoCenter::get_index(std::string ns, uint32_t ip) {
 		hashes.insert(std::make_pair(index, dh));
 	}
 	
-	dh->devip = ip;
+	//dh->devip = ip;
 	
 	return index;
 }

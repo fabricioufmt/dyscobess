@@ -126,8 +126,6 @@ inline uint32_t hasPayload(Ipv4* ip, Tcp* tcp) {
 	return ip->length.value() - (ip->header_length << 2) - (tcp->offset << 2);
 }
 
-
-
 /*********************************************************************
  *
  *	TCP classes
@@ -449,9 +447,9 @@ class DyscoHashes {
 	unordered_map<DyscoTcpSession, DyscoCbReconfig*, DyscoTcpSessionHash> hash_reconfig;
 
 	//by devip
-	unordered_map<uint32_t, mutex> mutexes;
-	unordered_map<uint32_t, LinkedList<Packet> > retransmission_list;
-	unordered_map<uint32_t, unordered_map<uint32_t, LNode<Packet>* > > received_hash;
+	unordered_map<uint32_t, mutex*> mutexes;
+	unordered_map<uint32_t, LinkedList<Packet>* > retransmission_list;
+	unordered_map<uint32_t, unordered_map<uint32_t, LNode<Packet>* >* > received_hash;
 };
 
 #endif //BESS_MODULES_DYSCOUTIL_H_
