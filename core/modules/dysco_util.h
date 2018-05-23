@@ -17,6 +17,7 @@
 
 #include "dysco_policies.h"
 
+using std::mutex;
 using std::string;
 using std::size_t;
 using std::unordered_map;
@@ -174,11 +175,11 @@ public:
 	}
 	
 	~Node() {
-		if(node->prev)
-			node->prev->next = node->next;
+		if(prev)
+			prev->next = next;
 
-		if(node->next)
-			node->next->prev = node->prev;
+		if(next)
+			next->prev = prev;
 	}
 };
 
