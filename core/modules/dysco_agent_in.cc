@@ -43,7 +43,7 @@ DyscoAgentIn::DyscoAgentIn() : Module() {
 
 	struct sigaction act;
 	act.sa_handler = DyscoAgentIn::callHandlers;
-	sigaction(SIGALRM, &act, 0);
+	sigaction(SIGPROF, &act, 0);
 }
 
 CommandResponse DyscoAgentIn::Init(const bess::pb::DyscoAgentInArg& arg) {
