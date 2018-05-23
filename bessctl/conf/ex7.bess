@@ -3,7 +3,7 @@ import signal
 import scapy.all as scapy
 
 def handler(signum, frame):
-	print 'Signal handler called with signal', signum
+	print 'Signal handled'
 
 signal.signal(signal.SIGPROF, handler)
 
