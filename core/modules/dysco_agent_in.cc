@@ -1263,10 +1263,10 @@ void DyscoAgentIn::retransmissionHandler() {
 
 	uint64_t now_ts = tsc_to_ns(rdtsc());
 	LNode<bess::Packet>* aux;
-	LNode<bess::Packet>* node = list->getHead();
+	LNode<bess::Packet>* node = (list->getHead())->next;
 	LNode<bess::Packet>* tail = list->getTail();
 	
-	while(node != tail->prev) {
+	while(node != tail) {
 		if(node->cnt > CNTLIMIT) {
 			aux = node->next;
 			list->remove(node);
