@@ -102,6 +102,20 @@ void DyscoAgentIn::ProcessBatch(bess::PacketBatch* batch) {
 			tcp->seq_num.value(), tcp->ack_num.value());
 #endif
 
+		mutex* mtx = dc->getMutex(this->index, devip);
+		if(mtx) {
+			mtx->lock();
+
+			unordered_map<uint32_t, LNode<Packet>*>* hash_r = dc->getHashReceived(this->index, devip);
+			if(hash_r) {
+				LNode<Packet>* node = hash_r->operator[](tcp->ack_num.value());
+				if(node)
+					delete node;
+			}
+			
+			mtx->unlock();
+		}
+		
 		DyscoHashIn* cb_in = dc->lookup_input(this->index, ip, tcp);
 		
 		if(!isReconfigPacket(ip, tcp, cb_in)) {
