@@ -3,7 +3,7 @@
 #include "../module_graph.h"
 #include "dysco_port_out.h"
 
-std::vector<DyscoAgentIn*> DyscoAgentIn::instances;
+//std::vector<DyscoAgentIn*> DyscoAgentIn::instances;
 
 #ifdef DEBUG
 char* printip1(uint32_t ip) {
