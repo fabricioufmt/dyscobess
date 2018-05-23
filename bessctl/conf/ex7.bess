@@ -5,7 +5,7 @@ import scapy.all as scapy
 def handler(signum, frame):
 	print("Signal handled")
 
-signal.signal(signal.SIGPROF, handler)
+signal.signal(signal.SIGPROF, signal.SIG_IGN)
 
 os.system('ip netns del m1 > /dev/null')
 os.system('ip netns del m2 > /dev/null')
