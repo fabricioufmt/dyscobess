@@ -209,7 +209,12 @@ bool DyscoAgentIn::isReconfigPacket(Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
 				if(((uint8_t*)tcp + tcp_hlen)[payload_len - 1] == 0xFF)
 					return true;
 			}
+
+			return true;
 		}
+
+		if(cb_in->state == DYSCO_SYN_RECEIVED && hasPayload(ip, tcp))
+			return true; //should be retransmission
 		
 		return false;
 	}
