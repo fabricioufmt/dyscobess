@@ -106,23 +106,23 @@ enum {
  *	Auxiliary methods
  *
  *********************************************************************/
-bool isIP(Ethernet* eth) {
+inline bool isIP(Ethernet* eth) {
 	return eth->ether_type.value() == Ethernet::Type::kIpv4;
 }
 
-bool isTCP(Ipv4* ip) {
+inline bool isTCP(Ipv4* ip) {
 	return ip->protocol == Ipv4::Proto::kTcp;
 }
 
-bool isTCPSYN(Tcp* tcp, bool exclusive = false) {
+inline bool isTCPSYN(Tcp* tcp, bool exclusive = false) {
 	return exclusive ? tcp->flags == Tcp::Flag::kSyn : tcp->flags & Tcp::Flag::kSyn;
 }
 	
-bool isTCPACK(Tcp* tcp, bool exclusive = false) {
+inline bool isTCPACK(Tcp* tcp, bool exclusive = false) {
 	return exclusive ? tcp->flags == Tcp::Flag::kAck : tcp->flags & Tcp::Flag::kAck;
 }
 
-uint32_t hasPayload(Ipv4* ip, Tcp* tcp) {
+inline uint32_t hasPayload(Ipv4* ip, Tcp* tcp) {
 	return ip->length.value() - (ip->header_length << 2) - (tcp->offset << 2);
 }
 
