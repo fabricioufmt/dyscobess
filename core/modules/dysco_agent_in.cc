@@ -36,8 +36,9 @@ const Commands DyscoAgentIn::cmds = {
 
 void timer_worker(DyscoAgentIn* agent) {
 	while(1) {
+		//fprintf(stderr, "sleeping...\n");
 		usleep(SLEEPTIME);
-		//sleep(10);
+		//fprintf(stderr, "calling agent->retransmissionHandler()\n");
 		agent->retransmissionHandler();
 	}
 }
@@ -1275,11 +1276,11 @@ void DyscoAgentIn::retransmissionHandler() {
 		}
 		
 		//if(node->cnt == 0 || now_ts - node->ts > DyscoAgentIn::timeout) {
-		if(node->cnt == 0) {
+		//if(node->cnt == 0) {
 			node->cnt++;
 			batch->add(&node->element);
 			node->ts = now_ts;
-		}
+			//}
 		
 		node = node->next;
 	}
