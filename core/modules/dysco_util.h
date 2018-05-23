@@ -2,7 +2,9 @@
 #define BESS_MODULES_DYSCOUTIL_H_
 
 #include <string>
+#include <signal.h>
 #include <stdint.h>
+#include <unistd.h>
 //#include <arpa/inet.h>
 #include <unordered_map>
 #include <rte_hash_crc.h>
@@ -100,6 +102,7 @@ enum {
 #define TTL                             32
 #define PORT_RANGE                      65536
 #define CNTLIMIT                        3
+#define SLEEPTIME                       10000 /* usec */
 
 /*********************************************************************
  *

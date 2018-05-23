@@ -1155,8 +1155,8 @@ void DyscoAgentIn::createAck(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 	be32_t ipswap = ip->dst;
 	ip->dst = ip->src;
 	ip->src = ipswap;
-	ip->ttl = 32;
-	ip->id = be16_t(rand() % 65536);
+	ip->ttl = TTL;
+	ip->id = be16_t(rand() % PORT_RANGE);
 	
 	be16_t pswap = tcp->src_port;
 	tcp->src_port = tcp->dst_port;
@@ -1177,8 +1177,8 @@ void DyscoAgentIn::createSynAck(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 	be32_t ipswap = ip->dst;
 	ip->dst = ip->src;
 	ip->src = ipswap;
-	ip->ttl = 32;
-	ip->id = be16_t(rand() % 65536);
+	ip->ttl = TTL;
+	ip->id = be16_t(rand() % PORT_RANGE);
 	uint32_t payload_len = ip->length.value() - (ip->header_length << 2) - (tcp->offset << 2);
 	ip->length = ip->length - be16_t(payload_len);
 
@@ -1202,8 +1202,8 @@ void DyscoAgentIn::createFinAck(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 	be32_t ipswap = ip->dst;
 	ip->dst = ip->src;
 	ip->src = ipswap;
-	ip->ttl = 32;
-	ip->id = be16_t(rand() % 65536);
+	ip->ttl = TTL;
+	ip->id = be16_t(rand() % PORT_RANGE);
 
 	be16_t pswap = tcp->src_port;
 	tcp->src_port = tcp->dst_port;

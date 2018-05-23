@@ -47,6 +47,11 @@ const Commands DyscoCenter::cmds = {
 };
 
 DyscoCenter::DyscoCenter() : Module() {
+	struct sigaction act;
+	act.sa_handler = DyscoAgentIn::callHandlers;
+	sigaction(SIGALRM, &act, 0);
+
+	ualarm(SLEEPTIME, 0);
 }
 
 CommandResponse DyscoCenter::CommandAdd(const bess::pb::DyscoCenterAddArg& arg) {
