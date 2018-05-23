@@ -49,6 +49,7 @@ class DyscoAgentIn final : public Module {
 	void ProcessBatch(bess::PacketBatch*) override;
 	CommandResponse Init(const bess::pb::DyscoAgentInArg&);
 	CommandResponse CommandInfo(const bess::pb::EmptyArg&);
+	static std::vector<DyscoAgentIn*> instances;
 	
  private:
 	uint32_t devip;
@@ -57,7 +58,6 @@ class DyscoAgentIn final : public Module {
 	DyscoCenter* dc;
 	uint32_t timeout;
 	DyscoVPort* port;
-	static std::vector<DyscoAgentIn*> instances;
 
 	inline bool isIP(Ethernet* eth) {
 		return eth->ether_type.value() == Ethernet::Type::kIpv4;
