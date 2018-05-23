@@ -49,18 +49,6 @@ class DyscoAgentIn final : public Module {
 	void ProcessBatch(bess::PacketBatch*) override;
 	CommandResponse Init(const bess::pb::DyscoAgentInArg&);
 	CommandResponse CommandInfo(const bess::pb::EmptyArg&);
-
-	bool didIReceive(Ipv4*, Tcp*);
-	void runRetransmission(bess::PacketBatch*);
-	std::vector<NodeRetransmission>* getRetransmissionList();
-
-	inline std::string get_ns() {
-		return ns;
-	}
-
-	inline uint32_t getTimeout() {
-		return timeout;
-	}
 	
  private:
 	uint32_t devip;
@@ -69,8 +57,7 @@ class DyscoAgentIn final : public Module {
 	DyscoCenter* dc;
 	uint32_t timeout;
 	DyscoVPort* port;
-	std::thread* timer;
-	std::vector<Tcp> receivedList;
+	static std::vector<DyscoAgentIn*> instances;
 
 	inline bool isIP(Ethernet* eth) {
 		return eth->ether_type.value() == Ethernet::Type::kIpv4;
@@ -132,10 +119,18 @@ class DyscoAgentIn final : public Module {
 	/*
 	  Auxiliary methods
 	 */
-	bool get_port_information();
-	void create_ack(bess::Packet*, Ipv4*, Tcp*);
-	void create_synack(bess::Packet*, Ipv4*, Tcp*);
-	void create_finack(bess::Packet*, Ipv4*, Tcp*);
+	bool setup();
+	void createAck(bess::Packet*, Ipv4*, Tcp*);
+	void createSynAck(bess::Packet*, Ipv4*, Tcp*);
+	void createFinAck(bess::Packet*, Ipv4*, Tcp*);
+
+	/*
+	  TCP Retransmission methods
+	 */
+	void retransmissionHandler();
+	static void callHandlers(int);
+	bool addToRetransmission(bess::Packet*);
+	bool processReceivedPackets(Ipv4*, Tcp*);
 };
 
 #endif //BESS_MODULES_DYSCOAGENTIN_H_

@@ -27,84 +27,6 @@ char* print_ss1(DyscoTcpSession ss) {
 }
 #endif
 
-void worker(DyscoAgentIn* agent) {
-	uint64_t ts;
-	uint32_t cnt;
-	uint64_t now_ts;
-	bess::Packet* pkt;
-	bess::PacketBatch batch;
-	std::vector<NodeRetransmission>* list;
-
-	while(1) {
-		usleep(SLEEPTIME * 1000);
-		batch.clear();
-		list = agent->getRetransmissionList();
-
-		if(!list) {
-			continue;
-		}
-		
-		if(list->empty()) {
-			continue;
-		}
-
-#ifdef DEBUG
-		fprintf(stderr, "[%s (thread timer)] list with %lu elements.\n", agent->get_ns().c_str(), list->size());
-#endif
-		now_ts = tsc_to_ns(rdtsc());
-		std::vector<NodeRetransmission>::iterator it = list->begin();
-		while(it != list->end()) {
-			ts = it->ts;
-			cnt = it->cnt;
-			pkt = it->pkt;
-
-			Ethernet* eth = pkt->head_data<Ethernet*>();
-			Ipv4* ip = reinterpret_cast<Ipv4*>(eth + 1);
-			Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + (ip->header_length << 2));
-
-			if(cnt == 0) {
-				it->add_cnt();
-				batch.add(pkt);
-				it->update_ts(tsc_to_ns(rdtsc()));
-			} else {
-				if(cnt == 3) {
-#ifdef DEBUG
-					fprintf(stderr, "[%s (thread timer)] 3 times, so I'm removing from the list\n", agent->get_ns().c_str());
-#endif
-					it = list->erase(it);
-					continue;	
-				}
-				
-				if(agent->didIReceive(ip, tcp)) {
-#ifdef DEBUG
-					fprintf(stderr, "[%s (thread timer)] I already received, so I'm removing from the list\n", agent->get_ns().c_str());
-#endif
-					it = list->erase(it);
-					continue;
-				}
-				
-				if(now_ts - ts > agent->getTimeout()) {
-#ifdef DEBUG
-					fprintf(stderr, "[%s (thread timer)] I didn't receive, going to retransmit\n", agent->get_ns().c_str());
-#endif
-					it->add_cnt();
-					it->update_ts(now_ts);
-					batch.add(pkt);
-				}
-			}
-
-			it++;
-		}
-		
-		if(batch.cnt() > 0) {
-#ifdef DEBUG
-			fprintf(stderr, "[%s (thread timer)] calling agent->runRetransmission with %d elements\n", agent->get_ns().c_str(), batch.cnt());
-#endif
-			agent->runRetransmission(&batch);
-		}
-	}
-}
-
 const Commands DyscoAgentIn::cmds = {
 	{"get_info", "EmptyArg", MODULE_CMD_FUNC(&DyscoAgentIn::CommandInfo), Command::THREAD_UNSAFE}
 };
@@ -115,7 +37,7 @@ DyscoAgentIn::DyscoAgentIn() : Module() {
 	index = 0;
 	timeout = 1000000; //Default value
 
-	//timer = new std::thread(worker, this);
+	instances.push_back(this);
 }
 
 CommandResponse DyscoAgentIn::Init(const bess::pb::DyscoAgentInArg& arg) {
@@ -240,34 +162,6 @@ void DyscoAgentIn::ProcessBatch(bess::PacketBatch* batch) {
 	batch->clear();
 	RunChooseModule(0, &(out_gates[0]));
 	RunChooseModule(1, &(out_gates[1]));
-}
-
-bool DyscoAgentIn::get_port_information() {
-	gate_idx_t ogate_idx = 0;
-
-	if(!is_active_gate<bess::OGate>(ogates(), ogate_idx))
-		return false;
-
-	bess::OGate* ogate = ogates()[ogate_idx];
-	if(!ogate)
-		return false;
-
-	Module* m_next = ogate->next();
-	DyscoPortOut* dysco_port_out = reinterpret_cast<DyscoPortOut*>(m_next);
-	if(!dysco_port_out)
-		return false;
-	
-	DyscoVPort* dysco_vport = reinterpret_cast<DyscoVPort*>(dysco_port_out->port_);
-	if(!dysco_vport)
-		return false;
-
-	ns = dysco_vport->ns;
-	devip = dysco_vport->devip;
-	index = dc->get_index(ns, devip);
-	
-	port = dysco_vport;
-	
-	return true;
 }
 
 bool DyscoAgentIn::isReconfigPacket(Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
@@ -1207,7 +1101,60 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 	return END;
 }
 
-void DyscoAgentIn::create_synack(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
+/*
+  Auxiliary methods
+ */
+bool DyscoAgentIn::setup() {
+	gate_idx_t ogate_idx = 0;
+
+	if(!is_active_gate<bess::OGate>(ogates(), ogate_idx))
+		return false;
+
+	bess::OGate* ogate = ogates()[ogate_idx];
+	if(!ogate)
+		return false;
+
+	Module* m_next = ogate->next();
+	DyscoPortOut* dysco_port_out = reinterpret_cast<DyscoPortOut*>(m_next);
+	if(!dysco_port_out)
+		return false;
+	
+	DyscoVPort* dysco_vport = reinterpret_cast<DyscoVPort*>(dysco_port_out->port_);
+	if(!dysco_vport)
+		return false;
+
+	ns = dysco_vport->ns;
+	devip = dysco_vport->devip;
+	index = dc->get_index(ns, devip);
+	
+	port = dysco_vport;
+	
+	return true;
+}
+
+void DyscoAgentIn::createAck(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
+	Ethernet* eth = pkt->head_data<Ethernet*>();
+	Ethernet::Address macswap = eth->dst_addr;
+	eth->dst_addr = eth->src_addr;
+	eth->src_addr = macswap;
+		
+	be32_t ipswap = ip->dst;
+	ip->dst = ip->src;
+	ip->src = ipswap;
+	ip->ttl = 32;
+	ip->id = be16_t(rand() % 65536);
+	
+	be16_t pswap = tcp->src_port;
+	tcp->src_port = tcp->dst_port;
+	tcp->dst_port = pswap;
+
+	be32_t seqswap = tcp->seq_num;
+	tcp->seq_num = be32_t(tcp->ack_num.value());
+	tcp->ack_num = be32_t(seqswap.value() + 1);
+	tcp->flags = Tcp::kAck;
+}
+
+void DyscoAgentIn::createSynAck(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 	Ethernet* eth = pkt->head_data<Ethernet*>();
 	Ethernet::Address macswap = eth->dst_addr;
 	eth->dst_addr = eth->src_addr;
@@ -1232,29 +1179,7 @@ void DyscoAgentIn::create_synack(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 	pkt->trim(payload_len);
 }
 
-void DyscoAgentIn::create_ack(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
-	Ethernet* eth = pkt->head_data<Ethernet*>();
-	Ethernet::Address macswap = eth->dst_addr;
-	eth->dst_addr = eth->src_addr;
-	eth->src_addr = macswap;
-		
-	be32_t ipswap = ip->dst;
-	ip->dst = ip->src;
-	ip->src = ipswap;
-	ip->ttl = 32;
-	ip->id = be16_t(rand() % 65536);
-	
-	be16_t pswap = tcp->src_port;
-	tcp->src_port = tcp->dst_port;
-	tcp->dst_port = pswap;
-
-	be32_t seqswap = tcp->seq_num;
-	tcp->seq_num = be32_t(tcp->ack_num.value());
-	tcp->ack_num = be32_t(seqswap.value() + 1);
-	tcp->flags = Tcp::kAck;
-}
-
-void DyscoAgentIn::create_finack(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
+void DyscoAgentIn::createFinAck(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 	Ethernet* eth = pkt->head_data<Ethernet*>();
 	Ethernet::Address macswap = eth->dst_addr;
 	eth->dst_addr = eth->src_addr;
@@ -1278,41 +1203,85 @@ void DyscoAgentIn::create_finack(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 /*
   TCP Retransmission methods
  */
-std::vector<NodeRetransmission>* DyscoAgentIn::getRetransmissionList() {
+void DyscoAgentIn::retransmissionHandler() {
+	bess::PacketBatch batch;
+	batch.clear();
+	
 	if(!dc)
-		return 0;
+		return;
 
-	return dc->getRetransmissionList(this->index, devip);
+	std::mutex* mtx = dc->getMutex(this->index, devip);
+	mtx->lock();
+	
+	LinkedList<bess::Packet>* list = dc->getRetransmissionList(this->index, devip);
+	if(!list)
+		return;
+
+	uint64_t now_ts = tsc_to_ns(rdtsc());
+	Node<bess::Packet>* aux;
+	Node<bess::Packet>* node = list->getHead();
+	Node<bess::Packet>* tail = list->getTail();
+	
+	while(node != tail) {
+		if(node->cnt > CNTLIMIT) {
+			aux = node->next;
+			list->remove(node);
+			node = aux;
+			
+			continue;
+		}
+		
+		if(node->cnt == 0 || now_ts - node->ts > this->timeout) {
+			node->cnt++;
+			batch.add(&node->element);
+			node->ts = now_ts;
+		}
+
+		node = node->next;
+	}
+
+	mtx->unlock();
+
+	RunChooseModule(1, &batch);
 }
 
-bool DyscoAgentIn::didIReceive(Ipv4*, Tcp* tcp) {
-	/*
-	Tcp* received;
-	be32_t shouldReceived = tcp->seq_num + be32_t(hasPayload(ip, tcp));
-
-	fprintf(stderr, "ReceivedList with %lu elements.\n", receivedList.size());
-	
-	for(std::vector<Tcp>::iterator it = receivedList.begin(); it != receivedList.end(); it++) {
-		received = &*it;
-
-		if(received->ack_num == shouldReceived)
-			return true;
-	}
-	
-	return false;
-	*/
-	for(std::vector<Tcp>::iterator it = receivedList.begin(); it != receivedList.end(); it++) {
-		if(it->seq_num == tcp->ack_num)
-			return true;
-
-	}
-
-	return false;
-	
+static void DyscoAgentIn::callHandlers(int) {
+	std::for_each(instances.begin(), instances.end(), std::mem_fun(&DyscoAgentIn::retransmissionHandler));
 }
 
-void DyscoAgentIn::runRetransmission(bess::PacketBatch* batch) {
-	RunChooseModule(1, batch);
+bool DyscoAgentIn::addToRetransmission(bess::Packet* pkt) {
+	if(!dc)
+		return false;
+
+	return dc->addToRetransmission(this->index, devip, pkt);
+}
+
+bool DyscoAgentIn::processReceivedPackets(Ipv4* ip, Tcp* tcp) {
+	if(!dc)
+		return false;
+	
+	uint32_t key = tcp->seq_num.value() + hasPayload(ip, tcp);
+	if(isTCPSYN(tcp))
+		key++;
+
+	std::mutex* mtx = dc->getMutex(this->index, devip);
+	mtx->lock();
+	
+	std::unordered_map<uint32_t, Node<bess::Packet>*>* hash_received = dc->getHashReceived(this->index, devip);
+
+	Node<bess::Packet>* node = hash_received->operator[](key);
+	if(node) {
+		delete node;
+
+		hash_received->erase(key);
+		mtx->unlock();
+		
+		return true;
+	}
+
+	mtx->unlock();
+	
+	return false;
 }
 
 ADD_MODULE(DyscoAgentIn, "dysco_agent_in", "processes packets incoming to host")

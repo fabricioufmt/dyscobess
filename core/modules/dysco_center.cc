@@ -1175,29 +1175,33 @@ bool DyscoCenter::replace_cb_leftA(DyscoCbReconfig* rcb, DyscoControlMessage* cm
 
 
 /*
-  Retransmission methods
+  TCP Retransmission methods
  */
-bool DyscoCenter::toRetransmit(uint32_t i, uint32_t devip, bess::Packet* pkt) {
-	DyscoHashes* dh = get_hash(i);
-	if(!dh)
-		return false;
-
-	std::vector<NodeRetransmission>* list = &dh->retransmissionList[devip];
-	if(!list)
-		return false;
-	
-	NodeRetransmission node(tsc_to_ns(rdtsc()), pkt);
-	list->push_back(node);
-
-	return true;
+//std::mutex* DyscoCenter::getMutex(uint32_t i, uint32_t devip) {
+std::mutex* DyscoCenter::getMutex(uint32_t, uint32_t) {
+	//TODO
+	return nullptr;
 }
 
-std::vector<NodeRetransmission>* DyscoCenter::getRetransmissionList(uint32_t i, uint32_t devip) {
-	DyscoHashes* dh = get_hash(i);
-	if(!dh)
-		return 0;
+//bool DyscoCenter::addToRetransmission(uint32_t i, uint32_t devip, bess::Packet* pkt) {
+bool DyscoCenter::addToRetransmission(uint32_t, uint32_t, bess::Packet*) {
+	//TODO
 
-	return &dh->retransmissionList[devip];
+	return false;
+}
+
+//LinkedList<bess::Packet>* DyscoCenter::getRetransmissionList(uint32_t i, uint32_t devip) {
+LinkedList<bess::Packet>* DyscoCenter::getRetransmissionList(uint32_t, uint32_t) {
+	//TODO
+
+	return nullptr;
+}
+
+//std::unordered_map<uint32_t, Node<bess::Packet*>>* DyscoCenter::getHashReceived(uint32_t i, uint32 devip) {
+std::unordered_map<uint32_t, Node<bess::Packet*>>* DyscoCenter::getHashReceived(uint32_t, uint32) {
+	//TODO
+
+	return nullptr;
 }
 
 ADD_MODULE(DyscoCenter, "dysco_center", "Dysco center")
