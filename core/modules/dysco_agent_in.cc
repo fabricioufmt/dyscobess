@@ -949,7 +949,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 
 	//Test for realiable
 	if(cnt == 0) {
-		fprintf(stderr, "I'm going to drop first SYN segment for test.\n");
+		fprintf(stderr, "I'm going to drop first Reconfiguration segment for test.\n");
 		cnt++;
 		return ERROR;
 	}
