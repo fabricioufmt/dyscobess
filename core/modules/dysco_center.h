@@ -56,7 +56,7 @@ class DyscoCenter final : public Module {
 	mutex* getMutex(uint32_t, uint32_t);
 	bool addToRetransmission(uint32_t, uint32_t, Packet*);
 	LinkedList<Packet>* getRetransmissionList(uint32_t, uint32_t);
-	unordered_map<uint32_t, LNode<Packet*>>* getHashReceived(uint32_t, uint32_t);
+	unordered_map<uint32_t, LNode<Packet>*>* getHashReceived(uint32_t, uint32_t);
 	
  private:
 	unordered_map<uint32_t, DyscoHashes*> hashes;
