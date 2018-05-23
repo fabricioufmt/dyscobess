@@ -57,7 +57,7 @@ DyscoAgentIn::DyscoAgentIn() : Module() {
 	*/
 	//TEST
 	cnt = 0;
-	timer = new thread(timer_worker, this);
+	//timer = new thread(timer_worker, this);
 }
 
 CommandResponse DyscoAgentIn::Init(const bess::pb::DyscoAgentInArg& arg) {
