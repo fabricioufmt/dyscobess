@@ -17,6 +17,7 @@
 #include "../utils/endian.h"
 #include "../utils/checksum.h"
 
+#include "dysco_agent_in.h"
 #include "dysco_policies.h"
 
 using std::mutex;
