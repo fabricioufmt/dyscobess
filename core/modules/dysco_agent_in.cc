@@ -127,8 +127,11 @@ void DyscoAgentIn::ProcessBatch(bess::PacketBatch* batch) {
 			unordered_map<uint32_t, LNode<Packet>*>* hash_r = dc->getHashReceived(this->index, devip);
 			if(hash_r) {
 				LNode<Packet>* node = hash_r->operator[](tcp->ack_num.value());
-				if(node)
+				if(node) {
 					delete node;
+
+					hash_r->operator[](tcp->ack_num.value()) = nullptr;
+				}
 			}
 			
 			mtx->unlock();
