@@ -127,9 +127,9 @@ uint32_t DyscoCenter::get_index(std::string ns, uint32_t devip) {
 
 	if(devip) {
 		if(!dh->mutexes[devip]) {
-			dh->mutexes[ip] = new mutex();
-			dh->retransmission_list = new LinkedList<Packet>();
-			dh->received_hash = new unordered_map<uint32_t, LNode<Packet>*>();
+			dh->mutexes[devip] = new mutex();
+			dh->retransmission_list[devip] = new LinkedList<Packet>();
+			dh->received_hash[devip] = new unordered_map<uint32_t, LNode<Packet>*>();
 		}
 	}
 	
@@ -1184,7 +1184,7 @@ bool DyscoCenter::replace_cb_leftA(DyscoCbReconfig* rcb, DyscoControlMessage* cm
   TCP Retransmission methods
  */
 mutex* DyscoCenter::getMutex(uint32_t i, uint32_t devip) {
-	DyscoHashes* dh = get_hash(i);
+	DyscoHashes* dh = get_hashes(i);
 	if(!dh)
 		return nullptr;
 
@@ -1192,7 +1192,7 @@ mutex* DyscoCenter::getMutex(uint32_t i, uint32_t devip) {
 }
 
 bool DyscoCenter::addToRetransmission(uint32_t i, uint32_t devip, bess::Packet* pkt) {
-	DyscoHashes* dh = get_hash(i);
+	DyscoHashes* dh = get_hashes(i);
 	if(!dh)
 		return false;
 
@@ -1210,7 +1210,7 @@ bool DyscoCenter::addToRetransmission(uint32_t i, uint32_t devip, bess::Packet* 
 		return false;
 	}
 
-	LNode<Packet>* node = list_r->insertTail(pkt);
+	LNode<Packet>* node = list_r->insertTail(*pkt);
 	uint32_t index = getValueToAck(pkt);
 	hash_r[index] = node;
 	
@@ -1220,7 +1220,7 @@ bool DyscoCenter::addToRetransmission(uint32_t i, uint32_t devip, bess::Packet* 
 }
 
 LinkedList<Packet>* DyscoCenter::getRetransmissionList(uint32_t i, uint32_t devip) {
-	DyscoHashes* dh = get_hash(i);
+	DyscoHashes* dh = get_hashes(i);
 	if(!dh)
 		return nullptr;
 
@@ -1228,7 +1228,7 @@ LinkedList<Packet>* DyscoCenter::getRetransmissionList(uint32_t i, uint32_t devi
 }
 
 unordered_map<uint32_t, LNode<Packet>*>* DyscoCenter::getHashReceived(uint32_t i, uint32_t devip) {
-	DyscoHashes* dh = get_hash(i);
+	DyscoHashes* dh = get_hashes(i);
 	if(!dh)
 		return nullptr;
 
