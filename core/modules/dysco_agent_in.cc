@@ -5,10 +5,6 @@
 
 std::vector<DyscoAgentIn*> DyscoAgentIn::instances;
 
-struct sigaction act;
-act.sa_handler = &DyscoAgentIn::callHandlers;
-sigaction(SIGALRM, &act, 0);
-
 #ifdef DEBUG
 char* printip1(uint32_t ip) {
 	uint8_t bytes[4];
@@ -44,6 +40,10 @@ DyscoAgentIn::DyscoAgentIn() : Module() {
 	timeout = 1000000; //Default value
 
 	instances.push_back(this);
+	
+	struct sigaction act;
+	act.sa_handler = DyscoAgentIn::callHandlers;
+	sigaction(SIGALRM, &act, 0);
 }
 
 CommandResponse DyscoAgentIn::Init(const bess::pb::DyscoAgentInArg& arg) {
