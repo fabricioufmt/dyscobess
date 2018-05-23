@@ -210,7 +210,7 @@ bool DyscoAgentIn::isReconfigPacket(Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
 					return true;
 			}
 
-			return true;
+			return false;
 		}
 
 		if(cb_in->state == DYSCO_SYN_RECEIVED && hasPayload(ip, tcp)) {
