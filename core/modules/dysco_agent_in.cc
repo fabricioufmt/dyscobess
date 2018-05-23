@@ -1235,7 +1235,7 @@ void DyscoAgentIn::createFinAck(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 void DyscoAgentIn::retransmissionHandler() {
 	PacketBatch* batch = new PacketBatch();
 	batch->clear();
-	/*
+
 	if(!dc)
 		return;
 
@@ -1244,7 +1244,7 @@ void DyscoAgentIn::retransmissionHandler() {
 		return;
 	
 	mtx->lock();
-	
+	/*
 	LinkedList<Packet>* list = dc->getRetransmissionList(this->index, devip);
 	if(!list) {
 		mtx->unlock();
@@ -1274,9 +1274,9 @@ void DyscoAgentIn::retransmissionHandler() {
 
 		node = node->next;
 	}
-
-	mtx->unlock();
 	*/
+	mtx->unlock();
+
 	RunChooseModule(1, batch);
 }
 
