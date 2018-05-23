@@ -25,6 +25,7 @@ using std::unordered_map;
 using bess::Packet;
 using bess::utils::Tcp;
 using bess::utils::Ipv4;
+using bess::PacketBatch;
 using bess::utils::be16_t;
 using bess::utils::be32_t;
 using bess::utils::Ethernet;
@@ -162,19 +163,19 @@ class DyscoTcpTs {
  *
  *********************************************************************/
 template <typename T>
-class Node {
+class LNode {
 public:
 	T element;
-	Node* next;
-	Node* prev;
+	LNode* next;
+	LNode* prev;
 	uint64_t ts;
 	uint32_t cnt;
 	
-	Node(const T& e, Node* n = 0, Node* p = 0)
+	LNode(const T& e, LNode* n = 0, LNode* p = 0)
 		: element(e), next(n), prev(p), cnt(0), ts(0) {
 	}
 	
-	~Node() {
+	~LNode() {
 		if(prev)
 			prev->next = next;
 
@@ -186,13 +187,13 @@ public:
 template <typename T>
 class LinkedList {
 private:
-	Node<T>* head;
-	Node<T>* tail;
+	LNode<T>* head;
+	LNode<T>* tail;
 
 public:
 	LinkedList() {
-		head = new Node<T>();
-		tail = new Node<T>();
+		head = new LNode<T>();
+		tail = new LNode<T>();
 
 		head->next = tail;
 		tail->prev = head;
@@ -205,24 +206,24 @@ public:
 		delete tail;
 	}
 
-	Node<T>* getHead() {
+	LNode<T>* getHead() {
 		return head;
 	}
 
-	Node<T>* getTail() {
+	LNode<T>* getTail() {
 		return tail;
 	}
 	
 	void clear() {
 		while(tail->prev != head) {
-			Node<T>* toRemove = tail->prev;
+			LNode<T>* toRemove = tail->prev;
 			tail->prev = toRemove->prev;
 			
 			delete toRemove;
 		}
 	}
 
-	bool remove(Node<T>* node) {
+	bool remove(LNode<T>* node) {
 		if(!node)
 			return false;
 
@@ -231,8 +232,8 @@ public:
 		return true;
 	}
 
-	Node<T>* insertHead(T& element) {
-		Node<T>* node = new Node<T>(element);
+	LNode<T>* insertHead(T& element) {
+		LNode<T>* node = new LNode<T>(element);
 
 		head->next->prev = node;
 		node->next = head->next;
@@ -242,8 +243,8 @@ public:
 		return node;
 	}
 
-	Node<T>* insertTail(T& element) {
-		Node<T>* node = new Node<T>(element);
+	LNode<T>* insertTail(T& element) {
+		LNode<T>* node = new LNode<T>(element);
 
 		tail->prev->next = node;
 		node->prev = tail->prev;
@@ -430,8 +431,8 @@ class DyscoHashes {
 
 	//by devip
 	unordered_map<uint32_t, mutex> mutexes;
-	unordered_map<uint32_t, LinkedList<bess::Packet> > retransmission_list;
-	unordered_map<uint32_t, unordered_map<uint32_t, Node<bess::Packet>* > > received_hash;
+	unordered_map<uint32_t, LinkedList<Packet> > retransmission_list;
+	unordered_map<uint32_t, unordered_map<uint32_t, LNode<Packet>* > > received_hash;
 };
 
 #endif //BESS_MODULES_DYSCOUTIL_H_

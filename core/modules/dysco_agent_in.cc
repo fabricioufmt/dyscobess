@@ -1202,23 +1202,23 @@ void DyscoAgentIn::createFinAck(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
   TCP Retransmission methods
  */
 void DyscoAgentIn::retransmissionHandler() {
-	bess::PacketBatch batch;
+	PacketBatch batch;
 	batch.clear();
 	
 	if(!dc)
 		return;
 
-	std::mutex* mtx = dc->getMutex(this->index, devip);
+	mutex* mtx = dc->getMutex(this->index, devip);
 	mtx->lock();
 	
-	LinkedList<bess::Packet>* list = dc->getRetransmissionList(this->index, devip);
+	LinkedList<Packet>* list = dc->getRetransmissionList(this->index, devip);
 	if(!list)
 		return;
 
 	uint64_t now_ts = tsc_to_ns(rdtsc());
-	Node<bess::Packet>* aux;
-	Node<bess::Packet>* node = list->getHead();
-	Node<bess::Packet>* tail = list->getTail();
+	LNode<bess::Packet>* aux;
+	LNode<bess::Packet>* node = list->getHead();
+	LNode<bess::Packet>* tail = list->getTail();
 	
 	while(node != tail) {
 		if(node->cnt > CNTLIMIT) {
@@ -1243,7 +1243,7 @@ void DyscoAgentIn::retransmissionHandler() {
 	RunChooseModule(1, &batch);
 }
 
-bool DyscoAgentIn::addToRetransmission(bess::Packet* pkt) {
+bool DyscoAgentIn::addToRetransmission(Packet* pkt) {
 	if(!dc)
 		return false;
 
@@ -1258,12 +1258,12 @@ bool DyscoAgentIn::processReceivedPackets(Ipv4* ip, Tcp* tcp) {
 	if(isTCPSYN(tcp))
 		key++;
 
-	std::mutex* mtx = dc->getMutex(this->index, devip);
+	mutex* mtx = dc->getMutex(this->index, devip);
 	mtx->lock();
 	
-	std::unordered_map<uint32_t, Node<bess::Packet>*>* hash_received = dc->getHashReceived(this->index, devip);
+	unordered_map<uint32_t, LNode<Packet>*>* hash_received = dc->getHashReceived(this->index, devip);
 
-	Node<bess::Packet>* node = hash_received->operator[](key);
+	LNode<bess::Packet>* node = hash_received->operator[](key);
 	if(node) {
 		delete node;
 
