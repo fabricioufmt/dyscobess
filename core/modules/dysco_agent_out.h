@@ -45,26 +45,6 @@ class DyscoAgentOut final : public Module {
 	std::string ns;
 	DyscoCenter* dc;
 	DyscoVPort* port;
-	
-	inline bool isIP(Ethernet* eth) {
-		return eth->ether_type.value() == Ethernet::Type::kIpv4;
-	}
-
-	inline bool isTCP(Ipv4* ip) {
-		return ip->protocol == Ipv4::Proto::kTcp;
-	}
-
-	inline bool isTCPSYN(Tcp* tcp, bool exclusive = false) {
-		return exclusive ? tcp->flags == Tcp::Flag::kSyn : tcp->flags & Tcp::Flag::kSyn;
-	}
-
-	inline bool isTCPACK(Tcp* tcp, bool exclusive = false) {
-		return exclusive ? tcp->flags == Tcp::Flag::kAck : tcp->flags & Tcp::Flag::kAck;
-	}
-
-	inline uint32_t hasPayload(Ipv4* ip, Tcp* tcp) {
-		return ip->length.value() - (ip->header_length << 2) - (tcp->offset << 2);
-	}
 
 	inline bool isFromLeftAnchor(Ipv4* ip, DyscoControlMessage* cmsg) {
 		return ip->src.value() == ntohl(cmsg->leftA);
