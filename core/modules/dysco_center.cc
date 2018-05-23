@@ -39,7 +39,7 @@ const Commands DyscoCenter::cmds = {
 };
 
 DyscoCenter::DyscoCenter() : Module() {
-	ualarm(SLEEPTIME, 0);
+	//ualarm(SLEEPTIME, 0);
 }
 
 CommandResponse DyscoCenter::CommandAdd(const bess::pb::DyscoCenterAddArg& arg) {
