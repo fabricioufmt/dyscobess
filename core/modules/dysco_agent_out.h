@@ -91,7 +91,7 @@ class DyscoAgentOut final : public Module {
 	/*
 	  Auxiliary methods
 	 */
-	bool get_port_information();
+	bool setup();
 	void dysco_packet(Ethernet*);
 };
 

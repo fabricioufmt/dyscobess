@@ -126,6 +126,18 @@ inline uint32_t hasPayload(Ipv4* ip, Tcp* tcp) {
 	return ip->length.value() - (ip->header_length << 2) - (tcp->offset << 2);
 }
 
+inline uint32_t getValueToAck(Packet* pkt) {
+	Ethernet* eth = pkt->head_data<Ethernet*>();
+	Ipv4* ip = reinterpret_cast<Ipv4*>(eth + 1);
+	Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + (ip->header_length << 2));
+
+	uint32_t toAck = tcp->seq_num.value() + hasPayload(ip, tcp);
+	if(isTCPSYN(tcp))
+	   toAck++;
+
+	return toAck;
+}
+
 /*********************************************************************
  *
  *	TCP classes
@@ -436,7 +448,6 @@ class DyscoHashes {
  public:
 	string ns;
 	uint32_t index;
-	uint32_t devip;
 	uint32_t dysco_tag;
 	DyscoPolicies policies;
 

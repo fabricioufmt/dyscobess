@@ -139,7 +139,7 @@ void DyscoAgentOut::ProcessBatch(bess::PacketBatch* batch) {
 	RunChooseModule(0, &toSend);
 }
 
-bool DyscoAgentOut::get_port_information() {
+bool DyscoAgentOut::setup() {
 	gate_idx_t igate_idx = 0; //always 1 input gate (DyscoPortInc)
 
 	if(!is_active_gate<bess::IGate>(igates(), igate_idx))
