@@ -1252,13 +1252,12 @@ void DyscoAgentIn::retransmissionHandler() {
 		return;
 	}
 	
-	//uint64_t now_ts = tsc_to_ns(rdtsc());
-	//LNode<bess::Packet>* aux;
+	uint64_t now_ts = tsc_to_ns(rdtsc());
+	LNode<bess::Packet>* aux;
 	LNode<bess::Packet>* node = list->getHead();
 	LNode<bess::Packet>* tail = list->getTail();
 	
 	while(node != tail) {
-		/*
 		if(node->cnt > CNTLIMIT) {
 			aux = node->next;
 			list->remove(node);
@@ -1266,7 +1265,7 @@ void DyscoAgentIn::retransmissionHandler() {
 			
 			continue;
 		}
-		
+		/*
 		if(node->cnt == 0 || now_ts - node->ts > this->timeout) {
 			node->cnt++;
 			//batch->add(&node->element);
