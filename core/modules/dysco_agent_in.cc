@@ -1239,6 +1239,9 @@ void DyscoAgentIn::retransmissionHandler() {
 		return;
 
 	mutex* mtx = dc->getMutex(this->index, devip);
+	if(!mtx)
+		return;
+	
 	mtx->lock();
 	
 	LinkedList<Packet>* list = dc->getRetransmissionList(this->index, devip);
@@ -1282,6 +1285,9 @@ bool DyscoAgentIn::processReceivedPackets(Ipv4* ip, Tcp* tcp) {
 		key++;
 
 	mutex* mtx = dc->getMutex(this->index, devip);
+	if(!mtx)
+		return false;
+	
 	mtx->lock();
 	
 	unordered_map<uint32_t, LNode<Packet>*>* hash_received = dc->getHashReceived(this->index, devip);
