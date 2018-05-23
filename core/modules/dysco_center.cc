@@ -1198,7 +1198,7 @@ LinkedList<Packet>* DyscoCenter::getRetransmissionList(uint32_t, uint32_t) {
 }
 
 //std::unordered_map<uint32_t, Node<bess::Packet*>>* DyscoCenter::getHashReceived(uint32_t i, uint32 devip) {
-unordered_map<uint32_t, LNode<Packet*>>* DyscoCenter::getHashReceived(uint32_t, uint32) {
+unordered_map<uint32_t, LNode<Packet>*>* DyscoCenter::getHashReceived(uint32_t, uint32_t) {
 	//TODO
 
 	return nullptr;
