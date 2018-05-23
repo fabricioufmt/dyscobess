@@ -2,6 +2,7 @@
 #define BESS_MODULES_DYSCOUTIL_H_
 
 #include <string>
+#include <thread>
 #include <signal.h>
 #include <stdint.h>
 #include <unistd.h>
@@ -22,6 +23,7 @@
 using std::mutex;
 using std::string;
 using std::size_t;
+using std::thread;
 using std::unordered_map;
 
 using bess::Packet;

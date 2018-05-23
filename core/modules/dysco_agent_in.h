@@ -31,10 +31,17 @@ class DyscoAgentIn final : public Module {
 	void ProcessBatch(bess::PacketBatch*) override;
 	CommandResponse Init(const bess::pb::DyscoAgentInArg&);
 	CommandResponse CommandInfo(const bess::pb::EmptyArg&);
-
+	/*
 	static void callHandlers(int) {
 		std::for_each(instances.begin(), instances.end(), std::mem_fun(&DyscoAgentIn::retransmissionHandler));
 	}
+	*/
+
+	/*
+	  TCP Retransmission methods
+	*/
+	void retransmissionHandler();
+	bool processReceivedPackets(Ipv4*, Tcp*);
 	
  private:
 	uint32_t devip;
@@ -43,7 +50,8 @@ class DyscoAgentIn final : public Module {
 	DyscoCenter* dc;
 	uint32_t timeout;
 	DyscoVPort* port;
-	static std::vector<DyscoAgentIn*> instances;
+	thread* timer;
+	//static std::vector<DyscoAgentIn*> instances;
 
 	inline bool isToLeftAnchor(Ipv4* ip, DyscoControlMessage* cmsg) {
 		return ip->dst.value() == ntohl(cmsg->leftA);
@@ -89,12 +97,6 @@ class DyscoAgentIn final : public Module {
 	void createAck(bess::Packet*, Ipv4*, Tcp*);
 	void createSynAck(bess::Packet*, Ipv4*, Tcp*);
 	void createFinAck(bess::Packet*, Ipv4*, Tcp*);
-
-	/*
-	  TCP Retransmission methods
-	 */
-	void retransmissionHandler();
-	bool processReceivedPackets(Ipv4*, Tcp*);
 };
 
 #endif //BESS_MODULES_DYSCOAGENTIN_H_

@@ -32,18 +32,28 @@ char* print_ss1(DyscoTcpSession ss) {
 const Commands DyscoAgentIn::cmds = {
 	{"get_info", "EmptyArg", MODULE_CMD_FUNC(&DyscoAgentIn::CommandInfo), Command::THREAD_UNSAFE}
 };
-	
+
+void timer_worker(DyscoAgentIn* agent) {
+	while(1) {
+		usleep(SLEEPTIME);
+		agent->retransmissionHandler();
+	}
+}
+
 DyscoAgentIn::DyscoAgentIn() : Module() {
 	dc = 0;
 	devip = 0;
 	index = 0;
 	timeout = 1000000; //Default value
-
+	/*
 	instances.push_back(this);
 
 	struct sigaction act;
 	act.sa_handler = DyscoAgentIn::callHandlers;
 	sigaction(SIGPROF, &act, 0);
+	*/
+
+	timer = new thread(timer_worker, this);
 }
 
 CommandResponse DyscoAgentIn::Init(const bess::pb::DyscoAgentInArg& arg) {

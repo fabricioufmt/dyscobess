@@ -101,6 +101,7 @@ CommandResponse DyscoCenter::CommandList(const bess::pb::DyscoCenterListArg& arg
 }
 
 CommandResponse DyscoCenter::CommandAlarm(const bess::pb::EmptyArg&) {
+	/*
 	struct itimerval val;
 
 	val.it_interval.tv_sec = 10;
@@ -108,7 +109,7 @@ CommandResponse DyscoCenter::CommandAlarm(const bess::pb::EmptyArg&) {
 	val.it_value = val.it_interval;
 
 	setitimer(ITIMER_PROF, &val, 0);
-	
+	*/
 	return CommandSuccess();
 }
 
