@@ -1315,7 +1315,7 @@ bool DyscoAgentIn::isEstablished(Packet* pkt) {
 	fprintf(stderr, "cb_in->state != ESTABLISHED\n");
 
 	if(cb_in->dcb_out) {
-		fprintf(stderr, "cb_in->dcb_out->state = %d\n", cb_in->dcb_out);
+		fprintf(stderr, "cb_in->dcb_out->state = %d\n", cb_in->dcb_out->state);
 		if(cb_in->dcb_out->state == DYSCO_ESTABLISHED) {
 			fprintf(stderr, "cb_in->dcb_out->state == ESTABLISHED\n");
 			return true;
