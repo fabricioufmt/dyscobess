@@ -951,7 +951,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 #ifdef DEBUG
 			fprintf(stderr, "It's the left anchor.\n");
 #endif
-			/*
+			
 			DyscoHashOut* cb_out = cb_in->dcb_out;
 			if(!cb_out) {
 				fprintf(stderr, "cb_out is NULL\n");
@@ -964,26 +964,16 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 
 				return IS_RETRANSMISSION;
 			}
-			*/
+			/*
 			DyscoHashOut* cb_out = dc->lookup_output_by_ss(this->index, &cmsg->leftSS);
-
-			if(cb_in->dcb_out) {
-				fprintf(stderr, "cb_in->dcb_out->state: %d\n", cb_in->dcb_out->state);
-			} else {
-				fprintf(stderr, "cb_in->dcb_out is NULL\n");
-			}
 			
-			if(!cb_out) {
-				fprintf(stderr, "cb_out is NULL\n");
+			if(!cb_out)
 				return ERROR;
-			}
 
-			fprintf(stderr, "cb_out->state: %d\n", cb_out->state);
-			
 			if(cb_out->state == DYSCO_ESTABLISHED) {
 				return IS_RETRANSMISSION;
 			}
-			
+			*/
 			//seqCutoff??? SYN/ACK doesn't load cmsg instead Dysco (with UDP)
 			//cb_out->ack_cutoff = ntohl(cmsg->seqCutoff);
 
