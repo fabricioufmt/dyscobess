@@ -47,6 +47,9 @@ class DyscoAgentIn final : public Module {
 	uint32_t index;
 	DyscoCenter* dc;
 	DyscoVPort* port;
+
+	//For Retransmission Test
+	uint32_t cnt;
 	
 	/*
 	  Dysco methods
