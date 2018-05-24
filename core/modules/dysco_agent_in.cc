@@ -1071,16 +1071,10 @@ CONTROL_RETURN DyscoAgentIn::control_input(Packet* pkt, Ipv4* ip, Tcp* tcp, Dysc
 				old_out_ack_cutoff += delta;
 			}
 
-			fprintf(stderr, "old_out->state = %d\n", old_out->state);
-			fprintf(stderr, "new_out->state = %d\n", new_out->state);
-
 			if(old_out->state == DYSCO_SYN_RECEIVED)
 				old_out->state = DYSCO_CLOSED;
 			if(new_out->state == DYSCO_SYN_RECEIVED)
 				new_out->state = DYSCO_ESTABLISHED;
-
-			fprintf(stderr, "changing to CLOSED (old)\n");
-			fprintf(stderr, "changing to ESTABLISHED (new)\n");
 			
 			if(old_out->state == DYSCO_ESTABLISHED)
 				return END;
@@ -1333,22 +1327,15 @@ bool DyscoAgentIn::isEstablished(Packet* pkt) {
 
 	DyscoHashIn* cb_in = dc->lookup_input_by_ss(this->index, &ss);
 	if(!cb_in) {
-		fprintf(stderr, "not found cb_in for retransmission\n");
 		return false;
 	}
 
 	if(cb_in->dcb_out) {
-		fprintf(stderr, "cb_in->dcb_out->state = %d\n", cb_in->dcb_out->state);
 		if(cb_in->dcb_out->state == DYSCO_ESTABLISHED) {
-			fprintf(stderr, "cb_in->dcb_out->state == ESTABLISHED\n");
 			return true;
 		}
-
-		fprintf(stderr, "cb_in->dcb_out->state != ESTABLISHED\n");
 	}
 
-	fprintf(stderr, "isEstablished: cb_in->dcb_out isNULL\n");
-	
 	return false;
 }
 
