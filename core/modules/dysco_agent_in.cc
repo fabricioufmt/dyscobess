@@ -1075,11 +1075,12 @@ CONTROL_RETURN DyscoAgentIn::control_input(Packet* pkt, Ipv4* ip, Tcp* tcp, Dysc
 			fprintf(stderr, "new_out->state = %d\n", new_out->state);
 
 			if(old_out->state == DYSCO_SYN_RECEIVED)
-				old_out->state = DYSCO_ESTABLISHED;
+				old_out->state = DYSCO_CLOSED;
 			if(new_out->state == DYSCO_SYN_RECEIVED)
 				new_out->state = DYSCO_ESTABLISHED;
 
-			fprintf(stderr, "changing to ESTABLISHED (old and new)\n");
+			fprintf(stderr, "changing to CLOSED (old)\n");
+			fprintf(stderr, "changing to ESTABLISHED (new)\n");
 			
 			if(old_out->state == DYSCO_ESTABLISHED)
 				return END;
