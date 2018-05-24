@@ -108,7 +108,7 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 	batch->clear();
 	
 	RunChooseModule(0, &out_gates[0]);
-	RunChooseModule(0, &out_gates[1]);
+	RunChooseModule(1, &out_gates[1]);
 }
 
 bool DyscoAgentOut::setup() {
