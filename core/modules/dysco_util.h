@@ -61,7 +61,7 @@ inline char* printIP(uint32_t ip) {
 
         return buf;
 }
-
+class DyscoTcpSession;
 inline char* printSS(DyscoTcpSession ss) {
 	char* buf = (char*) malloc(64);
 	sprintf(buf, "%s:%u -> %s:%u",
