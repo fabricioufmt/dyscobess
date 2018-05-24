@@ -49,7 +49,7 @@ class DyscoCenter final : public Module {
 	bool out_handle_mb(uint32_t, Packet*, Ipv4*, Tcp*, DyscoHashOut*, uint32_t);
 	DyscoHashOut* out_syn(uint32_t, Packet*, Ipv4*, Tcp*, DyscoHashOut*, uint32_t);
 	DyscoHashIn* insert_cb_out_reverse(uint32_t, DyscoHashOut*, uint8_t, DyscoControlMessage* = 0);
-
+	DyscoHashIn* lookup_input_by_ss(uint32_t, DyscoTcpSession*);
 
 	/*
 	  TCP Retransmission methods
@@ -68,7 +68,6 @@ class DyscoCenter final : public Module {
 	bool add_sc(Packet*, Ipv4*, DyscoHashOut*);
 	bool insert_pending(DyscoHashes*, uint8_t*, uint32_t);
 	bool out_tx_init(Packet*, Ipv4*, Tcp*, DyscoHashOut*);
-	DyscoHashIn* lookup_input_by_ss(uint32_t, DyscoTcpSession*);
 	DyscoHashOut* lookup_pending_tag_by_tag(uint32_t, uint32_t);
 	bool insert_pending_reconfig(DyscoHashes*, uint8_t*, uint32_t);
 	DyscoHashOut* insert_cb_in_reverse(DyscoTcpSession*, Ipv4*, Tcp*);
