@@ -116,12 +116,6 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 #endif
 				break;
 			case TO_GATE_1:
-				/*
-				out_gates[1].add(pkt);
-#ifdef DEBUG
-				fprintf(stderr, "[%s][DyscoAgentIn-Control] forwards %s:%u -> %s:%u [%X:%X]\n\n", ns.c_str(), printip1(ip->src.value()), tcp->src_port.value(), printip1(ip->dst.value()), tcp->dst_port.value(), tcp->seq_num.value(), tcp->ack_num.value());
-#endif
-				*/
 #ifdef DEBUG
 				fprintf(stderr, "[%s][DyscoAgentIn-Control] forwarding to toRetransmit %s [%X:%X]\n\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.value(), tcp->ack_num.value());
 #endif
@@ -906,7 +900,7 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 	return TO_GATE_1;
 }
 
-CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
+CONTROL_RETURN DyscoAgentIn::control_input(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
 	DyscoCbReconfig* rcb;
 	DyscoControlMessage* cmsg = 0;
 	size_t tcp_hlen = tcp->offset << 2;
@@ -999,8 +993,13 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 
 			cb_in->is_reconfiguration = 0;
 
-			if(cb_out->state == DYSCO_SYN_SENT)
+			fprintf(stderr, "cb_out->state: %d\n", cb_out->state);
+			if(cb_out->state == DYSCO_SYN_SENT) {
 				cb_out->state = DYSCO_ESTABLISHED;
+				fprintf(stderr, "changing to ESTABLISHED\n");
+			} else {
+				fprintf(stderr, "not chaning\n");
+			}
 			
 			if(!rcb->old_dcb->state_t) {
 				DyscoHashOut* old_dcb = rcb->old_dcb;
@@ -1253,8 +1252,6 @@ void DyscoAgentIn::retransmissionHandler() {
 	LNode<bess::Packet>* node = (list->getHead())->next;
 	LNode<bess::Packet>* tail = list->getTail();
 
-	fprintf(stderr, "[%s] Starting to retransmission method\n", ns.c_str());
-	
 	while(node != tail) {
 		if(node->cnt == 0) {
 			//First transmission
@@ -1280,7 +1277,7 @@ void DyscoAgentIn::retransmissionHandler() {
 		
 		node = node->next;
 	}
-	fprintf(stderr, "[%s] Ending to retransmission method\n", ns.c_str());
+
 	mtx->unlock();
 
 	RunChooseModule(1, batch);
