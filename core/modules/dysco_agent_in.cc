@@ -178,10 +178,8 @@ bool DyscoAgentIn::isReconfigPacket(Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
 			return false;
 		}
 
-		if(cb_in->state == DYSCO_SYN_RECEIVED && hasPayload(ip, tcp)) {
-			fprintf(stderr, "reachheree\n");
-			return true; //should be retransmission
-		}
+		if(cb_in->state == DYSCO_SYN_RECEIVED && hasPayload(ip, tcp))
+			return true;
 		
 		return false;
 	}
@@ -1239,16 +1237,23 @@ void DyscoAgentIn::retransmissionHandler() {
 	LNode<bess::Packet>* tail = list->getTail();
 	
 	while(node != tail) {
-		if(node->cnt > CNTLIMIT) {
-			aux = node->next;
-			list->remove(node);
-			node = aux;
-			
-			continue;
+		if(node->cnt == 0) {
+			//First transmission
+			node->cnt++;
+			batch->add(&node->element);
+			node->ts = now_ts;
+		} else {
+			if(isEstablished(&node->element) || node->cnt > CNTLIMIT) {
+				//If state is Established then don't need to retransmission
+				aux = node->next;
+				list->remove(node);
+				node = aux;
+				//should remove in hashtable
+				continue;
+			}
 		}
 		
-		if(node->cnt == 0 || now_ts - node->ts > DyscoAgentIn::timeout) {
-		//if(node->cnt < 2) {
+		if(now_ts - node->ts > DyscoAgentIn::timeout) {
 			node->cnt++;
 			batch->add(&node->element);
 			node->ts = now_ts;
@@ -1294,6 +1299,27 @@ bool DyscoAgentIn::processReceivedPackets(Ipv4* ip, Tcp* tcp) {
 	}
 
 	mtx->unlock();
+	
+	return false;
+}
+
+bool DyscoAgentIn::isEstablished(Packet* pkt) {
+	Ethernet* eth = pkt->head_data<Ethernet*>();
+	Ipv4* ip = reinterpret_cast<Ipv4*>(eth + 1);
+	Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + (ip->header_length << 2));
+	
+	DyscoHashOut* cb_out = dc->lookup_output(this->index, ip, tcp);
+	if(!cb_out) {
+		fprintf(stderr, "not found cb_out for retransmission\n");
+		return false;
+	}
+
+	if(cb_out->state == DYSCO_ESTABLISHED) {
+		fprintf(stderr, "cb_out->state == DYSCO_ESTABLISHED\n");
+		return true;
+	}
+	
+	fprintf(stderr, "cb_out->state != DYSCO_ESTABLISHED\n");
 	
 	return false;
 }

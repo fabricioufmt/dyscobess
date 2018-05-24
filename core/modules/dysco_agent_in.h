@@ -41,10 +41,10 @@ class DyscoAgentIn final : public Module {
 	bool processReceivedPackets(Ipv4*, Tcp*);
 	
  private:
+	string ns;
 	thread* timer;
 	uint32_t devip;
 	uint32_t index;
-	std::string ns;
 	DyscoCenter* dc;
 	DyscoVPort* port;
 	
@@ -52,17 +52,17 @@ class DyscoAgentIn final : public Module {
 	  Dysco methods
 	 */
 	bool tcp_sack(Tcp*, DyscoHashIn*); 
-	bool remove_sc(bess::Packet*, Ipv4*, Tcp*);
+	bool remove_sc(Packet*, Ipv4*, Tcp*);
 	bool in_hdr_rewrite(Ipv4*, Tcp*, DyscoTcpSession*);
 	bool in_rewrite_seq(Tcp*, DyscoHashIn*);
 	bool in_rewrite_ack(Tcp*, DyscoHashIn*);
 	bool in_rewrite_ts(Tcp*, DyscoHashIn*);
 	bool in_rewrite_rcv_wnd(Tcp*, DyscoHashIn*);
 	bool in_hdr_rewrite_csum(Ipv4*, Tcp*, DyscoHashIn*);
-	bool rx_initiation_new(bess::Packet*, Ipv4*, Tcp*);
+	bool rx_initiation_new(Packet*, Ipv4*, Tcp*);
 	bool in_two_paths_ack(Tcp*, DyscoHashIn*);
 	bool in_two_paths_data_seg(Tcp*, DyscoHashIn*);
-	CONTROL_RETURN input(bess::Packet*, Ipv4*, Tcp*, DyscoHashIn*);
+	CONTROL_RETURN input(Packet*, Ipv4*, Tcp*, DyscoHashIn*);
 
 	/*
 	  Dysco control methods
@@ -73,16 +73,17 @@ class DyscoAgentIn final : public Module {
 	bool compute_deltas_in(DyscoHashIn*, DyscoHashOut*, DyscoCbReconfig*);
 	bool compute_deltas_out(DyscoHashOut*, DyscoHashOut*, DyscoCbReconfig*);
 	bool control_config_rightA(DyscoCbReconfig*, DyscoControlMessage*, DyscoHashIn*, DyscoHashOut*);
-	CONTROL_RETURN control_reconfig_in(bess::Packet*, Ipv4*, Tcp*, uint8_t*, DyscoCbReconfig*, DyscoControlMessage*);
-	CONTROL_RETURN control_input(bess::Packet*, Ipv4*, Tcp*, DyscoHashIn*);
+	CONTROL_RETURN control_reconfig_in(Packet*, Ipv4*, Tcp*, uint8_t*, DyscoCbReconfig*, DyscoControlMessage*);
+	CONTROL_RETURN control_input(Packet*, Ipv4*, Tcp*, DyscoHashIn*);
 
 	/*
 	  Auxiliary methods
 	 */
 	bool setup();
-	void createAck(bess::Packet*, Ipv4*, Tcp*);
-	void createSynAck(bess::Packet*, Ipv4*, Tcp*);
-	void createFinAck(bess::Packet*, Ipv4*, Tcp*);
+	bool isEstablished(Packet*);
+	void createAck(Packet*, Ipv4*, Tcp*);
+	void createSynAck(Packet*, Ipv4*, Tcp*);
+	void createFinAck(Packet*, Ipv4*, Tcp*);
 };
 
 #endif //BESS_MODULES_DYSCOAGENTIN_H_
