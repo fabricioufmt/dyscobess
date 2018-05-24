@@ -911,7 +911,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(Packet* pkt, Ipv4* ip, Tcp* tcp, Dysc
 	size_t tcp_hlen = tcp->offset << 2;
 
 	//For Retransmission Test
-	if(cnt < 4) {
+	if(cnt < 2) {
 		cnt++;
 		return END;
 	}
