@@ -161,9 +161,16 @@ bool DyscoAgentIn::isReconfigPacket(Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
 			return false;
 		}
 
-		if(cb_in->state == DYSCO_SYN_RECEIVED && hasPayload(ip, tcp))
-			return true;
+		if(!cb_in->dcb_out) {
+			fprintf(stderr, "isReconfigPacket: cb_in->dcb_out is NULL\n");
+			return false;
+		}
 		
+		if(cb_in->dcb_out->state == DYSCO_SYN_RECEIVED && hasPayload(ip, tcp)) {
+			fprintf(stderr, "isReconfigPacket: SYN_RECEIVED and hasPayload == TRUE\n");
+			return true;
+		}
+		fprintf(stderr, "isReconfigPacket: FALSE\n");
 		return false;
 	}
 
@@ -1057,12 +1064,9 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 				old_out_ack_cutoff += delta;
 			}
 
-			fprintf(stderr, "cb_in->state = %d\n", cb_in->state);
 			fprintf(stderr, "old_out->state = %d\n", old_out->state);
 			fprintf(stderr, "new_out->state = %d\n", new_out->state);
 
-			if(cb_in->state == DYSCO_SYN_RECEIVED)
-				cb_in->state = DYSCO_ESTABLISHED;
 			if(old_out->state == DYSCO_SYN_RECEIVED)
 				old_out->state = DYSCO_ESTABLISHED;
 			if(new_out->state == DYSCO_SYN_RECEIVED)
@@ -1326,15 +1330,6 @@ bool DyscoAgentIn::isEstablished(Packet* pkt) {
 		fprintf(stderr, "not found cb_in for retransmission\n");
 		return false;
 	}
-
-	fprintf(stderr, "cb_in->state = %d\n", cb_in->state);
-	if(cb_in->state == DYSCO_ESTABLISHED) {
-		fprintf(stderr, "cb_in->state == ESTABLISHED\n");
-
-		return true;
-	}
-
-	fprintf(stderr, "cb_in->state != ESTABLISHED\n");
 
 	if(cb_in->dcb_out) {
 		fprintf(stderr, "cb_in->dcb_out->state = %d\n", cb_in->dcb_out->state);

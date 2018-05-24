@@ -341,7 +341,6 @@ class DyscoHashIn {
 		tsr_add:1,
 		ws_ok:1;
 
-	//uint8_t padding;
 	uint8_t is_reconfiguration:1,
 		state:7;
 
@@ -379,10 +378,6 @@ class DyscoHashOut {
 	uint16_t ws_out;
 	uint16_t ws_delta;
 
-	//uint8_t state;
-	uint8_t is_reconfiguration:1,
-		state:7;
-	
 	uint8_t old_path:1,
 		valid_ack_cut:1,
 		use_np_seq:1,
@@ -397,7 +392,9 @@ class DyscoHashOut {
 		ws_ok:1,
 		tsr_add:1,
 		tag_ok:1;
-	uint8_t padding;
+	
+	uint8_t is_reconfiguration:1,
+		padding:7;
 	
 	uint32_t ack_ctr;
 
