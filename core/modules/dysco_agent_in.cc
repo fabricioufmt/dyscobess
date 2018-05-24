@@ -83,22 +83,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 			tcp->seq_num.value(), tcp->ack_num.value());
 #endif
 
-		mutex* mtx = dc->getMutex(this->index, devip);
-		if(mtx) {
-			mtx->lock();
-
-			unordered_map<uint32_t, LNode<Packet>*>* hash_r = dc->getHashReceived(this->index, devip);
-			if(hash_r) {
-				LNode<Packet>* node = hash_r->operator[](tcp->ack_num.value());
-				if(node) {
-					delete node;
-
-					hash_r->operator[](tcp->ack_num.value()) = nullptr;
-				}
-			}
-			
-			mtx->unlock();
-		}
+		processReceivedPacket(ip, tcp);
 		
 		DyscoHashIn* cb_in = dc->lookup_input(this->index, ip, tcp);
 		
@@ -1270,10 +1255,8 @@ bool DyscoAgentIn::processReceivedPackets(Ipv4* ip, Tcp* tcp) {
 	if(!dc)
 		return false;
 	
-	uint32_t key = tcp->seq_num.value() + hasPayload(ip, tcp);
-	if(isTCPSYN(tcp))
-		key++;
-
+	uint32_t key = tcp->ack_num.value();
+	
 	mutex* mtx = dc->getMutex(this->index, devip);
 	if(!mtx)
 		return false;
