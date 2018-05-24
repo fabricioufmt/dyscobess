@@ -1292,19 +1292,35 @@ bool DyscoAgentIn::isEstablished(Packet* pkt) {
 	Ethernet* eth = pkt->head_data<Ethernet*>();
 	Ipv4* ip = reinterpret_cast<Ipv4*>(eth + 1);
 	Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + (ip->header_length << 2));
-	
-	DyscoHashOut* cb_out = dc->lookup_output(this->index, ip, tcp);
-	if(!cb_out) {
-		fprintf(stderr, "not found cb_out for retransmission\n");
+
+	DyscoTcpSession ss;
+	ss.sip = htonl(ip->dst.value());
+	ss.dip = htonl(ip->src.value());
+	ss.sport = htons(tcp->dst_port.value());
+	ss.dport = htons(tcp->src_port.value());
+
+	DyscoHashIn* cb_in = dc->lookup_input_by_ss(this->index, &ss);
+	if(!cb_in) {
+		fprintf(stderr, "not found cb_in for retransmission\n");
 		return false;
 	}
 
-	if(cb_out->state == DYSCO_ESTABLISHED) {
-		fprintf(stderr, "cb_out->state == DYSCO_ESTABLISHED\n");
+	if(cb_in->state == DYSCO_ESTABLISHED) {
+		fprintf(stderr, "cb_in->state == ESTABLISHED\n");
+
 		return true;
 	}
-	
-	fprintf(stderr, "cb_out->state != DYSCO_ESTABLISHED\n");
+
+	fprintf(stderr, "cb_in->state != ESTABLISHED\n");
+
+	if(cb_in->dcb_out) {
+		if(cb_in->dcb_out->state == DYSCO_ESTABLISHED) {
+			fprintf(stderr, "cb_in->dcb_out->state == ESTABLISHED\n");
+			return true;
+		}
+
+		fprintf(stderr, "cb_in->dcb_out->state != ESTABLISHED\n");
+	}
 	
 	return false;
 }

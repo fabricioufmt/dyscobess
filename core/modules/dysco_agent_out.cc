@@ -83,7 +83,7 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 				dc->add_retransmission(this->index, devip, pkt);
 			
 #ifdef DEBUG
-				fprintf(stderr, "[%s][DyscoAgentOut-Control] forwards %s [%X:%X]\n\n",
+				fprintf(stderr, "[%s][DyscoAgentOut-Control] forwards to Retransmission %s [%X:%X]\n\n",
 					ns.c_str(), printPacketSS(ip, tcp),
 					tcp->seq_num.value(), tcp->ack_num.value());
 #endif
@@ -522,7 +522,6 @@ bool DyscoAgentOut::control_output(Ipv4* ip, Tcp* tcp) {
 		}
 		
 		old_dcb = dc->lookup_output_by_ss(this->index, &cmsg->leftSS);
-
 		if(!old_dcb)
 			return false;
 		

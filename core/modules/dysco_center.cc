@@ -127,9 +127,6 @@ DyscoHashIn* DyscoCenter::lookup_input_by_ss(uint32_t i, DyscoTcpSession* ss) {
 	DyscoHashes* dh = get_hashes(i);
 	if(!dh)
 		return 0;
-#ifdef DEBUG
-	fprintf(stderr, "Looking (input) for %s... ", printSS(*ss));
-#endif
 
 	unordered_map<DyscoTcpSession, DyscoHashIn*, DyscoTcpSessionHash, DyscoTcpSessionEqualTo>::iterator it = dh->hash_in.find(*ss);
 	if(it != dh->hash_in.end())
@@ -156,9 +153,6 @@ DyscoHashOut* DyscoCenter::lookup_output_by_ss(uint32_t i, DyscoTcpSession* ss) 
 	DyscoHashes* dh = get_hashes(i);
 	if(!dh)
 		return 0;
-#ifdef DEBUG
-	fprintf(stderr, "Looking (output) for %s... ", printSS(*ss));
-#endif
 
 	unordered_map<DyscoTcpSession, DyscoHashOut*, DyscoTcpSessionHash, DyscoTcpSessionEqualTo>::iterator it = dh->hash_out.find(*ss);
 	if(it != dh->hash_out.end())
@@ -203,9 +197,6 @@ DyscoCbReconfig* DyscoCenter::lookup_reconfig_by_ss(uint32_t i, DyscoTcpSession*
 	DyscoHashes* dh = get_hashes(i);
 	if(!dh)
 		return 0;
-#ifdef DEBUG
-	fprintf(stderr, "Looking (reconfig) for %s... ", printSS(*ss));
-#endif
 	
 	unordered_map<DyscoTcpSession, DyscoCbReconfig*, DyscoTcpSessionHash, DyscoTcpSessionEqualTo>::iterator it = dh->hash_reconfig.find(*ss);
 	if(it != dh->hash_reconfig.end())
@@ -295,10 +286,6 @@ bool DyscoCenter::insert_pending_reconfig(DyscoHashes* dh, uint8_t* payload, uin
 	cb_out->sc = sc;
 	cb_out->is_reconfiguration = 1;
 	memcpy(&cb_out->cmsg, cmsg, sizeof(DyscoControlMessage));
-
-#ifdef DEBUG
-	fprintf(stderr, "Inserting (hash_pen): %s.\n", printSS(*sup));
-#endif
 	
 	dh->hash_pen.insert(std::pair<DyscoTcpSession, DyscoHashOut*>(*sup, cb_out));
 	dh->hash_pen_tag.insert(std::pair<uint32_t, DyscoHashOut*>(cb_out->dysco_tag, cb_out));
@@ -334,10 +321,6 @@ bool DyscoCenter::insert_pending(DyscoHashes* dh, uint8_t* payload, uint32_t pay
 	memcpy(sc, payload + sizeof(DyscoTcpSession) + sizeof(uint32_t), (sc_len - 1) * sizeof(uint32_t));
 	cb_out->sc = sc;
 	cb_out->is_reconfiguration = 0;
-
-#ifdef DEBUG
-	fprintf(stderr, "Inserting (hash_pen): %s.\n", printSS(*sup));
-#endif
 	
 	dh->hash_pen.insert(std::pair<DyscoTcpSession, DyscoHashOut*>(*sup, cb_out));
 	dh->hash_pen_tag.insert(std::pair<uint32_t, DyscoHashOut*>(cb_out->dysco_tag, cb_out));
@@ -351,10 +334,6 @@ DyscoHashOut* DyscoCenter::insert_cb_in_reverse(DyscoTcpSession* ss_payload, Ipv
 	if(!cb_out)
 		return 0;
 
-#ifdef DEBUG
-	fprintf(stderr, "[DyscoCenter] insert_cb_in_reverse inserting %s\n",
-		printSS(*ss_payload));
-#endif
 	cb_out->sup.sip = ss_payload->dip;
 	cb_out->sup.dip = ss_payload->sip;
 	cb_out->sup.sport = ss_payload->dport;
@@ -437,11 +416,6 @@ DyscoHashIn* DyscoCenter::insert_cb_input(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_
 	
 	cb_in->dcb_out = cb_out;
 	cb_out->dcb_in = cb_in;
-
-#ifdef DEBUG
-	fprintf(stderr, "[DyscoCenter] Inserting (hash_in): %s\n", printSS(cb_in->sub));
-	fprintf(stderr, "[DyscoCenter] Inserting (hash_out): %s\n", printSS(cb_out->sup));
-#endif
 	
 	dh->hash_in.insert(std::pair<DyscoTcpSession, DyscoHashIn*>(cb_in->sub, cb_in));
 	dh->hash_out.insert(std::pair<DyscoTcpSession, DyscoHashOut*>(cb_out->sup, cb_out));
@@ -930,10 +904,6 @@ bool DyscoCenter::insert_cb_out(uint32_t i, DyscoHashOut* cb_out, uint8_t two_pa
 	if(!dh)
 		return false;
 
-#ifdef DEBUG
-	fprintf(stderr, "Inserting (hash_out): %s.\n", printSS(cb_out->sup));
-#endif
-	
 	dh->hash_out.insert(std::pair<DyscoTcpSession, DyscoHashOut*>(cb_out->sup, cb_out));
 	cb_out->dcb_in = insert_cb_out_reverse(i, cb_out, two_paths);
 
@@ -980,9 +950,6 @@ DyscoHashIn* DyscoCenter::insert_cb_out_reverse(uint32_t i, DyscoHashOut* cb_out
 	cb_in->dcb_out = cb_out;
 	cb_out->dcb_in = cb_in;
 
-#ifdef DEBUG
-	fprintf(stderr, "Inserting (hash_in): %s.\n", printSS(cb_in->sub));
-#endif
 	dh->hash_in.insert(std::pair<DyscoTcpSession, DyscoHashIn*>(cb_in->sub, cb_in));
 	
 	return cb_in;
@@ -1045,9 +1012,6 @@ bool DyscoCenter::insert_hash_input(uint32_t i, DyscoHashIn* cb_in) {
 	DyscoHashes* dh = get_hashes(i);
 	if(!dh)
 		return false;
-#ifdef DEBUG
-	fprintf(stderr, "Inserting (hash_in): %s.\n", printSS(cb_in->sub));
-#endif
 	
 	return dh->hash_in.insert(std::pair<DyscoTcpSession, DyscoHashIn*>(cb_in->sub, cb_in)).second;
 }
@@ -1057,10 +1021,6 @@ bool DyscoCenter::insert_hash_output(uint32_t i, DyscoHashOut* cb_out) {
 	if(!dh)
 		return false;
 
-#ifdef DEBUG
-	fprintf(stderr, "Inserting (hash_out): %s.\n", printSS(cb_out->sup));
-#endif
-	
 	return dh->hash_out.insert(std::pair<DyscoTcpSession, DyscoHashOut*>(cb_out->sup, cb_out)).second;
 }
 
@@ -1068,9 +1028,6 @@ bool DyscoCenter::insert_hash_reconfig(uint32_t i, DyscoCbReconfig* rcb) {
 	DyscoHashes* dh = get_hashes(i);
 	if(!dh)
 		return false;
-#ifdef DEBUG
-	fprintf(stderr, "Inserting (hash_reconfig): %s.\n", printSS(rcb->super));
-#endif
 	
 	return dh->hash_reconfig.insert(std::pair<DyscoTcpSession, DyscoCbReconfig*>(rcb->super, rcb)).second;
 }
@@ -1123,14 +1080,16 @@ bool DyscoCenter::add_retransmission(uint32_t i, uint32_t devip, bess::Packet* p
 	unordered_map<uint32_t, LNode<Packet>*>* hash_r = dh->received_hash[devip];
 	if(!list_r || !hash_r) {
 		mtx->unlock();
-		fprintf(stderr, "DyscoCenter: list_retransmission or hash_received is NULL\n");
+		
 		return false;
 	}
 
 	LNode<Packet>* node = list_r->insertTail(*pkt, tsc_to_ns(rdtsc()));
 	uint32_t index = getValueToAck(pkt);
 	hash_r->operator[](index) = node;
+#ifdef DEBUG
 	fprintf(stderr, "Inserting this packet with %u as key\n", index);
+#endif
 	mtx->unlock();
 	
 	return true;
