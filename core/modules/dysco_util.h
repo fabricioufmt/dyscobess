@@ -21,6 +21,7 @@
 #include "../utils/ether.h"
 #include "../module_graph.h"
 #include "../utils/endian.h"
+#include "../utils/format.h"
 #include "../utils/checksum.h"
 #include "../pb/module_msg.pb.h"
 #include "../drivers/dysco_vport.h"
