@@ -125,10 +125,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 #ifdef DEBUG
 				fprintf(stderr, "[%s][DyscoAgentIn-Control] forwarding to toRetransmit %s [%X:%X]\n\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.value(), tcp->ack_num.value());
 #endif
-				if(isTCPACK(tcp, true))
-					out_gates[1].add(pkt);
-				else
-					dc->add_retransmission(this->index, devip, pkt);
+				dc->add_retransmission(this->index, devip, pkt);
 				break;
 			case END:
 #ifdef DEBUG
