@@ -1240,6 +1240,8 @@ void DyscoAgentIn::retransmissionHandler() {
 	LNode<bess::Packet>* aux;
 	LNode<bess::Packet>* node = (list->getHead())->next;
 	LNode<bess::Packet>* tail = list->getTail();
+
+	fprintf(stderr, "[%s] Starting to retransmission method\n", ns.c_str());
 	
 	while(node != tail) {
 		if(node->cnt == 0) {
@@ -1266,7 +1268,7 @@ void DyscoAgentIn::retransmissionHandler() {
 		
 		node = node->next;
 	}
-
+	fprintf(stderr, "[%s] Ending to retransmission method\n", ns.c_str());
 	mtx->unlock();
 
 	RunChooseModule(1, batch);
