@@ -322,14 +322,12 @@ bool DyscoAgentOut::out_translate(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHa
 			else
 				cb = pick_path_ack(tcp, cb_out);
 		} else if(cb_out->state == DYSCO_SYN_SENT) {
-			fprintf(stderr, "haha\n");
 			if(seg_sz > 0) {
 				if(dc->after(seq, cb_out->seq_cutoff))
 					cb_out->seq_cutoff = seq;
 			} else
 				cb = pick_path_ack(tcp, cb_out);
 		} else if(cb_out->state == DYSCO_SYN_RECEIVED) {
-			fprintf(stderr, "haha2\n");
 			if(seg_sz > 0) {
 				cb = pick_path_seq(cb_out, seq);
 				//if(!cb_out->old_path)
