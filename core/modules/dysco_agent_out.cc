@@ -315,7 +315,7 @@ bool DyscoAgentOut::out_translate(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHa
 		//if(seg_sz > 0 && dc->after(seq, cb_out->seq_cutoff))
 		//	cb_out->seq_cutoff = seq;
 	} else {
-		fprintf(stderr, "cb_out->state: %d\n", cb_out->state);
+
 		if(cb_out->state == DYSCO_ESTABLISHED) {
 			if(seg_sz > 0)
 				cb = pick_path_seq(cb_out, seq);
@@ -393,7 +393,7 @@ bool DyscoAgentOut::output(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb) {
 	if(!cb_out) {
 		return false;
 	}
-	fprintf(stderr, "I'm going to translate\n");
+
 	out_translate(pkt, ip, tcp, cb_out);
 
 	return true;

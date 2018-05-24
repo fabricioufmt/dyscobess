@@ -993,16 +993,8 @@ CONTROL_RETURN DyscoAgentIn::control_input(Packet* pkt, Ipv4* ip, Tcp* tcp, Dysc
 			
 			DyscoHashOut* old_dcb = rcb->old_dcb;
 			old_dcb->state = DYSCO_CLOSED;
-			fprintf(stderr, "chaing old_dcb to CLOSED\n");
-			cb_in->is_reconfiguration = 0;
 
-			fprintf(stderr, "cb_out->state: %d\n", cb_out->state);
-			if(cb_out->state == DYSCO_SYN_SENT) {
-				cb_out->state = DYSCO_ESTABLISHED;
-				fprintf(stderr, "changing to ESTABLISHED\n");
-			} else {
-				fprintf(stderr, "not chaning\n");
-			}
+			cb_in->is_reconfiguration = 0;
 			
 			if(!rcb->old_dcb->state_t) {
 				if(!old_dcb) {
