@@ -101,6 +101,7 @@ enum {
 #define DYSCO_LAST_ACK                  DYSCO_FINISHING_OLD_PATH
 #define DYSCO_CLOSED                    DYSCO_CLOSED_OLD_PATH
 
+#define DEBUG                           1 
 #define TTL                             32
 #define PORT_RANGE                      65536
 #define CNTLIMIT                        2
@@ -500,7 +501,6 @@ inline uint32_t getValueToAck(Packet* pkt) {
  *	DEBUG
  *
  *********************************************************************/
-//#define DEBUG 1
 inline char* printIP(uint32_t ip) {
 	uint8_t bytes[4];
         char* buf = (char*) malloc(17);
