@@ -1282,6 +1282,8 @@ bool DyscoAgentIn::processReceivedPackets(Ipv4* ip, Tcp* tcp) {
 	unordered_map<uint32_t, LNode<Packet>*>* hash_received = dc->getHashReceived(this->index, devip);
 	if(!hash_received) {
 		mtx->unlock();
+
+		fprintf(stderr, "hash_received is NULL\n");
 		
 		return false;
 	}
