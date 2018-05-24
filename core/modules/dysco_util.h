@@ -42,44 +42,6 @@ using bess::utils::be16_t;
 using bess::utils::be32_t;
 using bess::utils::Ethernet;
 
-
-/*********************************************************************
- *
- *	DEBUG
- *
- *********************************************************************/
-//#define DEBUG 1
-inline char* printIP(uint32_t ip) {
-	uint8_t bytes[4];
-        char* buf = (char*) malloc(17);
-	
-        bytes[0] = ip & 0xFF;
-        bytes[1] = (ip >> 8) & 0xFF;
-        bytes[2] = (ip >> 16) & 0xFF;
-        bytes[3] = (ip >> 24) & 0xFF;
-        sprintf(buf, "%d.%d.%d.%d", bytes[3], bytes[2], bytes[1], bytes[0]);
-
-        return buf;
-}
-class DyscoTcpSession;
-inline char* printSS(DyscoTcpSession ss) {
-	char* buf = (char*) malloc(64);
-	sprintf(buf, "%s:%u -> %s:%u",
-		printIP(ntohl(ss.sip)), ntohs(ss.sport),
-		printIP(ntohl(ss.dip)), ntohs(ss.dport));
-
-	return buf;
-}
-
-inline char* printPacketSS(Ipv4* ip, Tcp* tcp) {
-	char* buf = (char*) malloc(64);
-	sprintf(buf, "%s:%u -> %s:%u",
-		printIP(ip->src.value()), tcp->src_port.value(),
-		printIP(ip->dst.value()), tcp->dst_port.value());
-
-	return buf;
-}
-
 /*********************************************************************
  *
  *	Defines and Enums
@@ -143,59 +105,6 @@ enum {
 #define CNTLIMIT                        2
 #define SLEEPTIME                       10000 /* usec */  // 10ms
 #define DEFAULT_TIMEOUT                 100000 /* usec */ // 100ms
-
-/*********************************************************************
- *
- *	Auxiliary methods
- *
- *********************************************************************/
-inline bool isIP(Ethernet* eth) {
-	return eth->ether_type.value() == Ethernet::Type::kIpv4;
-}
-
-inline bool isTCP(Ipv4* ip) {
-	return ip->protocol == Ipv4::Proto::kTcp;
-}
-
-inline bool isTCPSYN(Tcp* tcp, bool exclusive = false) {
-	return exclusive ? tcp->flags == Tcp::Flag::kSyn : tcp->flags & Tcp::Flag::kSyn;
-}
-	
-inline bool isTCPACK(Tcp* tcp, bool exclusive = false) {
-	return exclusive ? tcp->flags == Tcp::Flag::kAck : tcp->flags & Tcp::Flag::kAck;
-}
-
-inline bool isFromLeftAnchor(Ipv4* ip, DyscoControlMessage* cmsg) {
-	return ip->src.value() == ntohl(cmsg->leftA);
-}
-
-inline bool isFromRightAnchor(Ipv4* ip, DyscoControlMessage* cmsg) {
-	return ip->src.value() == ntohl(cmsg->rightA);
-}
-
-inline bool isToLeftAnchor(Ipv4* ip, DyscoControlMessage* cmsg) {
-	return ip->dst.value() == ntohl(cmsg->leftA);
-}
-
-inline bool isToRightAnchor(Ipv4* ip, DyscoControlMessage* cmsg) {
-	return ip->dst.value() == ntohl(cmsg->rightA);
-}
-
-inline uint32_t hasPayload(Ipv4* ip, Tcp* tcp) {
-	return ip->length.value() - (ip->header_length << 2) - (tcp->offset << 2);
-}
-
-inline uint32_t getValueToAck(Packet* pkt) {
-	Ethernet* eth = pkt->head_data<Ethernet*>();
-	Ipv4* ip = reinterpret_cast<Ipv4*>(eth + 1);
-	Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + (ip->header_length << 2));
-
-	uint32_t toAck = tcp->seq_num.value() + hasPayload(ip, tcp);
-	if(isTCPSYN(tcp))
-	   toAck++;
-
-	return toAck;
-}
 
 /*********************************************************************
  *
@@ -531,5 +440,95 @@ class DyscoHashes {
 	unordered_map<uint32_t, LinkedList<Packet>* > retransmission_list;
 	unordered_map<uint32_t, unordered_map<uint32_t, LNode<Packet>* >* > received_hash;
 };
+
+/*********************************************************************
+ *
+ *	Auxiliary methods
+ *
+ *********************************************************************/
+inline bool isIP(Ethernet* eth) {
+	return eth->ether_type.value() == Ethernet::Type::kIpv4;
+}
+
+inline bool isTCP(Ipv4* ip) {
+	return ip->protocol == Ipv4::Proto::kTcp;
+}
+
+inline bool isTCPSYN(Tcp* tcp, bool exclusive = false) {
+	return exclusive ? tcp->flags == Tcp::Flag::kSyn : tcp->flags & Tcp::Flag::kSyn;
+}
+	
+inline bool isTCPACK(Tcp* tcp, bool exclusive = false) {
+	return exclusive ? tcp->flags == Tcp::Flag::kAck : tcp->flags & Tcp::Flag::kAck;
+}
+
+inline bool isFromLeftAnchor(Ipv4* ip, DyscoControlMessage* cmsg) {
+	return ip->src.value() == ntohl(cmsg->leftA);
+}
+
+inline bool isFromRightAnchor(Ipv4* ip, DyscoControlMessage* cmsg) {
+	return ip->src.value() == ntohl(cmsg->rightA);
+}
+
+inline bool isToLeftAnchor(Ipv4* ip, DyscoControlMessage* cmsg) {
+	return ip->dst.value() == ntohl(cmsg->leftA);
+}
+
+inline bool isToRightAnchor(Ipv4* ip, DyscoControlMessage* cmsg) {
+	return ip->dst.value() == ntohl(cmsg->rightA);
+}
+
+inline uint32_t hasPayload(Ipv4* ip, Tcp* tcp) {
+	return ip->length.value() - (ip->header_length << 2) - (tcp->offset << 2);
+}
+
+inline uint32_t getValueToAck(Packet* pkt) {
+	Ethernet* eth = pkt->head_data<Ethernet*>();
+	Ipv4* ip = reinterpret_cast<Ipv4*>(eth + 1);
+	Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + (ip->header_length << 2));
+
+	uint32_t toAck = tcp->seq_num.value() + hasPayload(ip, tcp);
+	if(isTCPSYN(tcp))
+	   toAck++;
+
+	return toAck;
+}
+
+/*********************************************************************
+ *
+ *	DEBUG
+ *
+ *********************************************************************/
+//#define DEBUG 1
+inline char* printIP(uint32_t ip) {
+	uint8_t bytes[4];
+        char* buf = (char*) malloc(17);
+	
+        bytes[0] = ip & 0xFF;
+        bytes[1] = (ip >> 8) & 0xFF;
+        bytes[2] = (ip >> 16) & 0xFF;
+        bytes[3] = (ip >> 24) & 0xFF;
+        sprintf(buf, "%d.%d.%d.%d", bytes[3], bytes[2], bytes[1], bytes[0]);
+
+        return buf;
+}
+
+inline char* printSS(DyscoTcpSession ss) {
+	char* buf = (char*) malloc(64);
+	sprintf(buf, "%s:%u -> %s:%u",
+		printIP(ntohl(ss.sip)), ntohs(ss.sport),
+		printIP(ntohl(ss.dip)), ntohs(ss.dport));
+
+	return buf;
+}
+
+inline char* printPacketSS(Ipv4* ip, Tcp* tcp) {
+	char* buf = (char*) malloc(64);
+	sprintf(buf, "%s:%u -> %s:%u",
+		printIP(ip->src.value()), tcp->src_port.value(),
+		printIP(ip->dst.value()), tcp->dst_port.value());
+
+	return buf;
+}
 
 #endif //BESS_MODULES_DYSCOUTIL_H_
