@@ -78,10 +78,8 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 		Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
 
 #ifdef DEBUG
-		fprintf(stderr, "[%s][DyscoAgentIn] receives %s:%u -> %s:%u [%X:%X]\n",
-			ns.c_str(),
-			printip1(ip->src.value()), tcp->src_port.value(),
-			printip1(ip->dst.value()), tcp->dst_port.value(),
+		fprintf(stderr, "[%s][DyscoAgentIn] receives %s [%X:%X]\n",
+			ns.c_str(), printPacketSS(ip, tcp),
 			tcp->seq_num.value(), tcp->ack_num.value());
 #endif
 
@@ -109,13 +107,13 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 			case TO_GATE_0:
 				out_gates[0].add(pkt);
 #ifdef DEBUG
-				fprintf(stderr, "[%s][DyscoAgentIn] forwards %s:%u -> %s:%u [%X:%X]\n\n", ns.c_str(), printip1(ip->src.value()), tcp->src_port.value(), printip1(ip->dst.value()), tcp->dst_port.value(), tcp->seq_num.value(), tcp->ack_num.value());
+				fprintf(stderr, "[%s][DyscoAgentIn] forwards %s [%X:%X]\n\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.value(), tcp->ack_num.value());
 #endif
 				break;
 			case TO_GATE_1:
 				out_gates[1].add(pkt);
 #ifdef DEBUG
-				fprintf(stderr, "[%s][DyscoAgentIn] forwards %s:%u -> %s:%u [%X:%X]\n\n", ns.c_str(), printip1(ip->src.value()), tcp->src_port.value(), printip1(ip->dst.value()), tcp->dst_port.value(), tcp->seq_num.value(), tcp->ack_num.value());
+				fprintf(stderr, "[%s][DyscoAgentIn] forwards %s [%X:%X]\n\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.value(), tcp->ack_num.value());
 #endif
 				break;
 			default:
@@ -129,7 +127,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 			case TO_GATE_0:
 				out_gates[0].add(pkt);
 #ifdef DEBUG
-				fprintf(stderr, "[%s][DyscoAgentIn-Control] forwards %s:%u -> %s:%u [%X:%X]\n\n", ns.c_str(), printip1(ip->src.value()), tcp->src_port.value(), printip1(ip->dst.value()), tcp->dst_port.value(), tcp->seq_num.value(), tcp->ack_num.value());
+				fprintf(stderr, "[%s][DyscoAgentIn-Control] forwards %s [%X:%X]\n\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.value(), tcp->ack_num.value());
 #endif
 				break;
 			case TO_GATE_1:
@@ -140,7 +138,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 #endif
 				*/
 #ifdef DEBUG
-				fprintf(stderr, "[%s][DyscoAgentIn-Control] forwarding to toRetransmit %s:%u -> %s:%u [%X:%X]\n\n", ns.c_str(), printip1(ip->src.value()), tcp->src_port.value(), printip1(ip->dst.value()), tcp->dst_port.value(), tcp->seq_num.value(), tcp->ack_num.value());
+				fprintf(stderr, "[%s][DyscoAgentIn-Control] forwarding to toRetransmit %s [%X:%X]\n\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.value(), tcp->ack_num.value());
 #endif
 				dc->add_retransmission(this->index, devip, pkt);
 				break;
@@ -866,9 +864,9 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 	//STATE_TRANSFER
 #ifdef DEBUG
 	fprintf(stderr, "STATE_TRANSFER.\n");
-	fprintf(stderr, "super: %s.\n", print_ss1(cmsg->super));
-	fprintf(stderr, "leftSS: %s.\n", print_ss1(cmsg->leftSS));
-	fprintf(stderr, "rightSS: %s.\n", print_ss1(cmsg->rightSS));
+	fprintf(stderr, "super: %s.\n", printSS(cmsg->super));
+	fprintf(stderr, "leftSS: %s.\n", printSS(cmsg->leftSS));
+	fprintf(stderr, "rightSS: %s.\n", printSS(cmsg->rightSS));
 #endif
 	
 	cb_in->state = DYSCO_SYN_RECEIVED;
