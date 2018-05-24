@@ -1266,6 +1266,7 @@ void DyscoAgentIn::retransmissionHandler() {
 }
 
 bool DyscoAgentIn::processReceivedPackets(Ipv4* ip, Tcp* tcp) {
+	fprintf(stderr, "processReceviedPacket\n");
 	if(!dc)
 		return false;
 	
