@@ -1,8 +1,11 @@
 #ifndef BESS_MODULES_DYSCOUTIL_H_
 #define BESS_MODULES_DYSCOUTIL_H_
 
+//#include <netinet/tcp.h>
+
 #include <string>
 #include <thread>
+#include <stdio.h>
 #include <signal.h>
 #include <stdint.h>
 #include <unistd.h>
@@ -10,6 +13,7 @@
 #include <unordered_map>
 #include <rte_hash_crc.h>
 
+#include "../port.h"
 #include "../module.h"
 #include "../utils/ip.h"
 #include "../utils/tcp.h"
@@ -17,8 +21,12 @@
 #include "../utils/ether.h"
 #include "../utils/endian.h"
 #include "../utils/checksum.h"
+#include "../pb/module_msg.pb.h"
+#include "../drivers/dysco_vport.h"
 
 #include "dysco_policies.h"
+#include "dysco_port_inc.h"
+#include "dysco_port_out.h"
 
 using std::mutex;
 using std::string;
@@ -41,7 +49,36 @@ using bess::utils::Ethernet;
  *
  *********************************************************************/
 //#define DEBUG 1
+inline char* printIP(uint32_t ip) {
+	uint8_t bytes[4];
+        char* buf = (char*) malloc(17);
+	
+        bytes[0] = ip & 0xFF;
+        bytes[1] = (ip >> 8) & 0xFF;
+        bytes[2] = (ip >> 16) & 0xFF;
+        bytes[3] = (ip >> 24) & 0xFF;
+        sprintf(buf, "%d.%d.%d.%d", bytes[3], bytes[2], bytes[1], bytes[0]);
 
+        return buf;
+}
+
+inline char* printSS(DyscoTcpSession ss) {
+	char* buf = (char*) malloc(64);
+	sprintf(buf, "%s:%u -> %s:%u",
+		printIP(ntohl(ss.sip)), ntohs(ss.sport),
+		printIP(ntohl(ss.dip)), ntohs(ss.dport));
+
+	return buf;
+}
+
+inline char* printPacketSS(Ipv4* ip, Tcp* tcp) {
+	char* buf = (char*) malloc(64);
+	sprintf(buf, "%s:%u -> %s:%u",
+		printIP(ip->src.value()), tcp->src_port.value(),
+		printIP(ip->dst.value()), tcp->dst_port.value());
+
+	return buf;
+}
 
 /*********************************************************************
  *
@@ -104,7 +141,8 @@ enum {
 #define TTL                             32
 #define PORT_RANGE                      65536
 #define CNTLIMIT                        2
-#define SLEEPTIME                       10000 /* usec */
+#define SLEEPTIME                       10000 /* usec */  // 10ms
+#define DEFAULT_TIMEOUT                 100000 /* usec */ // 100ms
 
 /*********************************************************************
  *
@@ -125,6 +163,22 @@ inline bool isTCPSYN(Tcp* tcp, bool exclusive = false) {
 	
 inline bool isTCPACK(Tcp* tcp, bool exclusive = false) {
 	return exclusive ? tcp->flags == Tcp::Flag::kAck : tcp->flags & Tcp::Flag::kAck;
+}
+
+inline bool isFromLeftAnchor(Ipv4* ip, DyscoControlMessage* cmsg) {
+	return ip->src.value() == ntohl(cmsg->leftA);
+}
+
+inline bool isFromRightAnchor(Ipv4* ip, DyscoControlMessage* cmsg) {
+	return ip->src.value() == ntohl(cmsg->rightA);
+}
+
+inline bool isToLeftAnchor(Ipv4* ip, DyscoControlMessage* cmsg) {
+	return ip->dst.value() == ntohl(cmsg->leftA);
+}
+
+inline bool isToRightAnchor(Ipv4* ip, DyscoControlMessage* cmsg) {
+	return ip->dst.value() == ntohl(cmsg->rightA);
 }
 
 inline uint32_t hasPayload(Ipv4* ip, Tcp* tcp) {

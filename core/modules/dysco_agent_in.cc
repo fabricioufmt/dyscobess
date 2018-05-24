@@ -1,44 +1,17 @@
 #include <netinet/tcp.h>
-#include "dysco_agent_in.h"
-#include "../module_graph.h"
-#include "dysco_port_out.h"
 
-//std::vector<DyscoAgentIn*> DyscoAgentIn::instances;
+#include "dysco_port_out.h"
+#include "dysco_agent_in.h"
+
 uint64_t DyscoAgentIn::timeout;
 
-#ifdef DEBUG
-char* printip1(uint32_t ip) {
-	uint8_t bytes[4];
-        char* buf = (char*) malloc(17);
-	
-        bytes[0] = ip & 0xFF;
-        bytes[1] = (ip >> 8) & 0xFF;
-        bytes[2] = (ip >> 16) & 0xFF;
-        bytes[3] = (ip >> 24) & 0xFF;
-        sprintf(buf, "%d.%d.%d.%d", bytes[3], bytes[2], bytes[1], bytes[0]);
-
-        return buf;
-}
-
-char* print_ss1(DyscoTcpSession ss) {
-	char* buf = (char*) malloc(1024);
-	sprintf(buf, "%s:%u -> %s:%u",
-		printip1(ntohl(ss.sip)), ntohs(ss.sport),
-		printip1(ntohl(ss.dip)), ntohs(ss.dport));
-
-	return buf;
-}
-#endif
-
 const Commands DyscoAgentIn::cmds = {
-	{"get_info", "EmptyArg", MODULE_CMD_FUNC(&DyscoAgentIn::CommandInfo), Command::THREAD_UNSAFE}
+	{"setup", "EmptyArg", MODULE_CMD_FUNC(&DyscoAgentIn::CommandSetup), Command::THREAD_UNSAFE}
 };
 
 void timer_worker(DyscoAgentIn* agent) {
 	while(1) {
-		//fprintf(stderr, "sleeping...\n");
 		usleep(SLEEPTIME);
-		//fprintf(stderr, "calling agent->retransmissionHandler()\n");
 		agent->retransmissionHandler();
 	}
 }
@@ -47,17 +20,8 @@ DyscoAgentIn::DyscoAgentIn() : Module() {
 	dc = 0;
 	devip = 0;
 	index = 0;
-	timeout = 1000000;
-	/*
-	instances.push_back(this);
-
-	struct sigaction act;
-	act.sa_handler = DyscoAgentIn::callHandlers;
-	sigaction(SIGPROF, &act, 0);
-	*/
-	//TEST
-	cnt = 0;
-	//timer = new thread(timer_worker, this);
+	timeout = DEFAULT_TIMEOUT;
+	timer = new thread(timer_worker, this);
 }
 
 CommandResponse DyscoAgentIn::Init(const bess::pb::DyscoAgentInArg& arg) {
@@ -75,25 +39,26 @@ CommandResponse DyscoAgentIn::Init(const bess::pb::DyscoAgentInArg& arg) {
 	return CommandSuccess();
 }
 
-CommandResponse DyscoAgentIn::CommandInfo(const bess::pb::EmptyArg&) {
+CommandResponse DyscoAgentIn::CommandSetup(const bess::pb::EmptyArg&) {
 	if(setup())
 		return CommandSuccess();
 	
 	return CommandFailure(EINVAL, "ERROR: Port information.");
 }
 
-void DyscoAgentIn::ProcessBatch(bess::PacketBatch* batch) {
+void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 	if(!dc) {
 		RunChooseModule(0, batch);
 		return;
 	}
 	
-	bess::PacketBatch out_gates[2];
+	PacketBatch out_gates[2];
 	out_gates[0].clear();
 	out_gates[1].clear();
 
+	Packet* pkt;
 	Ethernet* eth;
-	bess::Packet* pkt;
+	
 	for(int i = 0; i < batch->cnt(); i++) {
 		pkt = batch->pkts()[i];
 		eth = pkt->head_data<Ethernet*>();

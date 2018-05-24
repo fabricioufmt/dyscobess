@@ -1,35 +1,7 @@
-#include <netinet/tcp.h>
-
-#include "../module_graph.h"
 #include "dysco_agent_out.h"
-#include "dysco_port_inc.h"
-
-#ifdef DEBUG
-char* printip2(uint32_t ip) {
-	uint8_t bytes[4];
-        char* buf = (char*) malloc(17);
-	
-        bytes[0] = ip & 0xFF;
-        bytes[1] = (ip >> 8) & 0xFF;
-        bytes[2] = (ip >> 16) & 0xFF;
-        bytes[3] = (ip >> 24) & 0xFF;
-        sprintf(buf, "%d.%d.%d.%d", bytes[3], bytes[2], bytes[1], bytes[0]);
-
-        return buf;
-}
-
-char* print_ss2(DyscoTcpSession ss) {
-	char* buf = (char*) malloc(1024);
-	sprintf(buf, "%s:%u -> %s:%u",
-		printip2(ntohl(ss.sip)), ntohs(ss.sport),
-		printip2(ntohl(ss.dip)), ntohs(ss.dport));
-
-	return buf;
-}
-#endif
 
 const Commands DyscoAgentOut::cmds = {
-	{"get_info", "EmptyArg", MODULE_CMD_FUNC(&DyscoAgentOut::CommandInfo), Command::THREAD_UNSAFE}
+	{"setup", "EmptyArg", MODULE_CMD_FUNC(&DyscoAgentOut::CommandSetup), Command::THREAD_UNSAFE}
 };
 
 DyscoAgentOut::DyscoAgentOut() : Module() {
@@ -53,90 +25,90 @@ CommandResponse DyscoAgentOut::Init(const bess::pb::DyscoAgentOutArg& arg) {
 	return CommandSuccess();
 }
 
-CommandResponse DyscoAgentOut::CommandInfo(const bess::pb::EmptyArg&) {
+CommandResponse DyscoAgentOut::CommandSetup(const bess::pb::EmptyArg&) {
 	if(setup())
 		return CommandSuccess();
 	
 	return CommandFailure(EINVAL, "ERROR: Port information.");
 }
 
-void DyscoAgentOut::ProcessBatch(bess::PacketBatch* batch) {
+void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 	if(!dc) {
 		RunChooseModule(0, batch);
 		return;
 	}
-	
+
+	PacketBatch out_gates[2];
+	out_gates[0].clear();
+	out_gates[1].clear();
+
+	Tcp* tcp;
+	Ipv4* ip;
+	Packet* pkt;
 	Ethernet* eth;
-	bess::Packet* pkt;
-	bess::PacketBatch toSend;
-	toSend.clear();
+	size_t ip_hlen;
+	DyscoHashOut* cb_out;
+
 	for(int i = 0; i < batch->cnt(); i++) {
 		pkt = batch->pkts()[i];
 		eth = pkt->head_data<Ethernet*>();
 			
 		if(!isIP(eth)) {
-			//continue;
-			toSend.add(pkt);
+			out_gates[0].add(pkt);
 			continue;
 		}
 			
-		Ipv4* ip = reinterpret_cast<Ipv4*>(eth + 1);
-		size_t ip_hlen = ip->header_length << 2;
+		ip = reinterpret_cast<Ipv4*>(eth + 1);
 		if(!isTCP(ip)) {
-			//continue;
-			toSend.add(pkt);
+			out_gates[0].add(pkt);
 			continue;
 		}
-			
-		Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
+		
+		ip_hlen = ip->header_length << 2;
+		tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
 #ifdef DEBUG
-		fprintf(stderr, "[%s][DyscoAgentOut] receives %s:%u -> %s:%u [%X:%X]\n",
-			ns.c_str(),
-			printip2(ip->src.value()), tcp->src_port.value(),
-			printip2(ip->dst.value()), tcp->dst_port.value(),
+		fprintf(stderr, "[%s][DyscoAgentOut] receives %s [%X:%X]\n",
+			ns.c_str(), printPacketSS(ip, tcp),
 			tcp->seq_num.value(), tcp->ack_num.value());
 #endif
-		DyscoHashOut* cb_out = dc->lookup_output(this->index, ip, tcp);
+		cb_out = dc->lookup_output(this->index, ip, tcp);
 
-		if(isReconfigPacket(ip, tcp, cb_out)) {
+		if(isReconfigPacketOut(ip, tcp, cb_out)) {
 #ifdef DEBUG
-			fprintf(stderr, "It's reconfiguration packet.\n");
+			fprintf(stderr, "It's reconfiguration packet, should be only SYN.\n");
 #endif
-			if(control_output(ip, tcp))
+			if(outputControl(ip, tcp)) {
 				dysco_packet(eth);
 
-			dc->addToRetransmission(this->index, devip, pkt);
+				dc->add_retransmission(this->index, devip, pkt);
 			
 #ifdef DEBUG
-			fprintf(stderr, "[%s][DyscoAgentOut-Control] forwards %s:%u -> %s:%u [%X:%X]\n\n",
-				ns.c_str(),
-				printip2(ip->src.value()), tcp->src_port.value(),
-				printip2(ip->dst.value()), tcp->dst_port.value(),
-				tcp->seq_num.value(), tcp->ack_num.value());
+				fprintf(stderr, "[%s][DyscoAgentOut-Control] forwards %s [%X:%X]\n\n",
+					ns.c_str(), printPacketSS(ip, tcp),
+					tcp->seq_num.value(), tcp->ack_num.value());
 #endif
-
-
+			}
+			
 			continue;
 		}
 			
-		if(output(pkt, ip, tcp, cb_out))
+		if(output(pkt, ip, tcp, cb_out)) {
 			dysco_packet(eth);
+			out_gates[1].add(pkt);
+		} else
+			out_gates[0].add(pkt);
 
 #ifdef DEBUG
-		fprintf(stderr, "[%s][DyscoAgentOut] forwards %s:%u -> %s:%u [%X:%X]\n\n",
-			ns.c_str(),
-			printip2(ip->src.value()), tcp->src_port.value(),
-			printip2(ip->dst.value()), tcp->dst_port.value(),
+		fprintf(stderr, "[%s][DyscoAgentOut] forwards %s [%X:%X]\n\n",
+			ns.c_str(), printPacketSS(ip, tcp),
 			tcp->seq_num.value(), tcp->ack_num.value());
-
-		toSend.add(pkt);
 #endif
 	}
 	
 	batch->clear();
 	
-	//RunChooseModule(0, batch);
-	RunChooseModule(0, &toSend);
+	RunChooseModule(0, &out_gates[0]);
+	RunChooseModule(0, &out_gates[1]);
 }
 
 bool DyscoAgentOut::setup() {
@@ -166,7 +138,7 @@ bool DyscoAgentOut::setup() {
 	return true;
 }
 
-bool DyscoAgentOut::isReconfigPacket(Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) {
+bool DyscoAgentOut::isReconfigPacketOut(Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) {
 	if(isTCPSYN(tcp, true)) {
 		if(!cb_out) {
 			uint32_t payload_len = hasPayload(ip, tcp);
@@ -515,7 +487,9 @@ bool DyscoAgentOut::replace_cb_leftA(DyscoCbReconfig* rcb, DyscoControlMessage* 
 	return true;
 }
 
-bool DyscoAgentOut::control_output_syn(Ipv4* ip, Tcp* tcp, DyscoControlMessage* cmsg) {
+bool DyscoAgentOut::control_output(Ipv4* ip, Tcp* tcp) {
+	uint8_t* payload = reinterpret_cast<uint8_t*>(tcp) + (tcp->offset << 2);
+	DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>(payload);
 	DyscoCbReconfig* rcb = dc->lookup_reconfig_by_ss(this->index, &cmsg->super);
 	
 	if(isFromLeftAnchor(ip, cmsg)) {
@@ -526,6 +500,7 @@ bool DyscoAgentOut::control_output_syn(Ipv4* ip, Tcp* tcp, DyscoControlMessage* 
 		DyscoHashOut* new_dcb;
 
 		if(rcb) {
+			//Retransmission
 			cmsg->leftIseq = htonl(rcb->leftIseq);
 			cmsg->leftIack = htonl(rcb->leftIack);
 
@@ -537,18 +512,23 @@ bool DyscoAgentOut::control_output_syn(Ipv4* ip, Tcp* tcp, DyscoControlMessage* 
 
 			cmsg->sackOk = htons(rcb->sack_ok);
 
+			/*
+			  TOREMOVE
 			cmsg->sport = rcb->sub_out.sport;
 			cmsg->dport = rcb->sub_out.dport;
+			*/
 			
 			return true;
 		}
 		
 		old_dcb = dc->lookup_output_by_ss(this->index, &cmsg->leftSS);
 
-		if(!old_dcb) {
+		if(!old_dcb)
 			return false;
-		}
-
+		
+		/*
+		  Changing TCP seq/ack values to ISN from old_dcb
+		 */
 		tcp->seq_num = be32_t(old_dcb->out_iseq);
 		tcp->ack_num = be32_t(old_dcb->out_iack);
 		cmsg->leftIseq = htonl(old_dcb->out_iseq);
@@ -564,9 +544,8 @@ bool DyscoAgentOut::control_output_syn(Ipv4* ip, Tcp* tcp, DyscoControlMessage* 
 		cmsg->sackOk = htonl(old_dcb->sack_ok);
 		
 		rcb = insert_cb_control(ip, tcp, cmsg);
-		if(!rcb) {
+		if(!rcb)
 			return false;
-		}
 
 		new_dcb = new DyscoHashOut();
 
@@ -607,6 +586,7 @@ bool DyscoAgentOut::control_output_syn(Ipv4* ip, Tcp* tcp, DyscoControlMessage* 
 			old_dcb->state_t = 1;
 
 		old_dcb->state = DYSCO_SYN_SENT;
+		new_dcb->state = DYSCO_SYN_SENT;
 
 		return true;
 	}
@@ -623,12 +603,6 @@ bool DyscoAgentOut::control_output_syn(Ipv4* ip, Tcp* tcp, DyscoControlMessage* 
 	control_insert_out(rcb);
 
 	return true;
-}
-
-bool DyscoAgentOut::control_output(Ipv4* ip, Tcp* tcp) {
-	uint8_t* payload = reinterpret_cast<uint8_t*>(tcp) + (tcp->offset << 2);
-
-	return control_output_syn(ip, tcp, reinterpret_cast<DyscoControlMessage*>(payload));
 }
 
 void DyscoAgentOut::dysco_packet(Ethernet* eth) {

@@ -29,14 +29,10 @@ class DyscoAgentIn final : public Module {
 	static const gate_idx_t kNumOGates = 2;
 
 	DyscoAgentIn();
+	
 	void ProcessBatch(bess::PacketBatch*) override;
 	CommandResponse Init(const bess::pb::DyscoAgentInArg&);
-	CommandResponse CommandInfo(const bess::pb::EmptyArg&);
-	/*
-	static void callHandlers(int) {
-		std::for_each(instances.begin(), instances.end(), std::mem_fun(&DyscoAgentIn::retransmissionHandler));
-	}
-	*/
+	CommandResponse CommandSetup(const bess::pb::EmptyArg&);
 
 	/*
 	  TCP Retransmission methods
@@ -45,26 +41,12 @@ class DyscoAgentIn final : public Module {
 	bool processReceivedPackets(Ipv4*, Tcp*);
 	
  private:
-
-	//Test for realiable
-	uint32_t cnt;
-	
 	thread* timer;
 	uint32_t devip;
 	uint32_t index;
 	std::string ns;
 	DyscoCenter* dc;
 	DyscoVPort* port;
-	//static std::vector<DyscoAgentIn*> instances;
-
-	inline bool isToLeftAnchor(Ipv4* ip, DyscoControlMessage* cmsg) {
-		return ip->dst.value() == ntohl(cmsg->leftA);
-	}
-
-
-	inline bool isToRightAnchor(Ipv4* ip, DyscoControlMessage* cmsg) {
-		return ip->dst.value() == ntohl(cmsg->rightA);
-	}
 	
 	/*
 	  Dysco methods
