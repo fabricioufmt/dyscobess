@@ -952,10 +952,20 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 			fprintf(stderr, "It's the left anchor.\n");
 #endif
 			DyscoHashOut* cb_out = dc->lookup_output_by_ss(this->index, &cmsg->leftSS);
+
+			if(cb_in->dcb_out) {
+				fprintf(stderr, "cb_in->dcb_out->state: %d\n", cb_in->dcb_out->state);
+			} else {
+				fprintf(stderr, "cb_in->dcb_out is NULL\n");
+			}
+			
 			if(!cb_out) {
+				fprintf(stderr, "cb_out is NULL\n");
 				return ERROR;
 			}
 
+			fprintf(stderr, "cb_out->state: %d\n", cb_out->state);
+			
 			if(cb_out->state == DYSCO_ESTABLISHED) {
 				return IS_RETRANSMISSION;
 			}
@@ -1275,7 +1285,6 @@ void DyscoAgentIn::retransmissionHandler() {
 }
 
 bool DyscoAgentIn::processReceivedPacket(Tcp* tcp) {
-	fprintf(stderr, "processReceviedPacket\n");
 	if(!dc)
 		return false;
 	
@@ -1290,13 +1299,10 @@ bool DyscoAgentIn::processReceivedPacket(Tcp* tcp) {
 	unordered_map<uint32_t, LNode<Packet>*>* hash_received = dc->getHashReceived(this->index, devip);
 	if(!hash_received) {
 		mtx->unlock();
-
-		fprintf(stderr, "hash_received is NULL\n");
 		
 		return false;
 	}
 
-	fprintf(stderr, "Searching packet with %u as key\n", key);
 	LNode<bess::Packet>* node = hash_received->operator[](key);
 	if(node) {
 		delete node;
