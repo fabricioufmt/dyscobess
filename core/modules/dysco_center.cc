@@ -228,7 +228,7 @@ DyscoHashOut* DyscoCenter::lookup_output_by_ss(uint32_t i, DyscoTcpSession* ss) 
 		}
 		it++;
 	}
-	*/
+	
 #ifdef DEBUG
 	fprintf(stderr, "not found.\n");
 #endif
