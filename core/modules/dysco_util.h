@@ -19,6 +19,7 @@
 #include "../utils/tcp.h"
 #include "../utils/time.h"
 #include "../utils/ether.h"
+#include "../module_graph.h"
 #include "../utils/endian.h"
 #include "../utils/checksum.h"
 #include "../pb/module_msg.pb.h"
