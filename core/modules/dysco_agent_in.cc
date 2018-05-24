@@ -792,7 +792,7 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 		uint32_t seq_cutoff = old_out->seq_cutoff;
 
 		old_out->old_path = 1;
-		old_out->state = DYSCO_SYN_SENT;
+		old_out->state = DYSCO_SYN_RECEIVED;
 		old_out->other_path = new_out;
 		
 		if(new_out->seq_add)
@@ -801,7 +801,7 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 			seq_cutoff -= new_out->seq_delta;
 
 		//cb_in->state = DYSCO_SYN_SENT;
-		new_out->state = DYSCO_SYN_SENT;
+		new_out->state = DYSCO_SYN_RECEIVED;
 		
 		return TO_GATE_1;
 	}

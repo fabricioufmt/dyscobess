@@ -584,7 +584,6 @@ bool DyscoAgentOut::control_output(Ipv4* ip, Tcp* tcp) {
 		if(ntohs(cmsg->semantic) == STATE_TRANSFER)
 			old_dcb->state_t = 1;
 
-		old_dcb->state = DYSCO_SYN_SENT;
 		new_dcb->state = DYSCO_SYN_SENT;
 
 		return true;
