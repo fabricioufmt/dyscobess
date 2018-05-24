@@ -340,10 +340,10 @@ class DyscoHashIn {
 		ts_add:1,
 		tsr_add:1,
 		ws_ok:1;
-
+	
 	uint8_t is_reconfiguration:1,
-		state:7;
-
+		padding:7;
+	
 	DyscoControlMessage cmsg;
 };
 
@@ -392,9 +392,10 @@ class DyscoHashOut {
 		ws_ok:1,
 		tsr_add:1,
 		tag_ok:1;
-	
+
+
 	uint8_t is_reconfiguration:1,
-		padding:7;
+		state:7;
 	
 	uint32_t ack_ctr;
 
