@@ -142,7 +142,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 #ifdef DEBUG
 				fprintf(stderr, "[%s][DyscoAgentIn-Control] forwarding to toRetransmit %s:%u -> %s:%u [%X:%X]\n\n", ns.c_str(), printip1(ip->src.value()), tcp->src_port.value(), printip1(ip->dst.value()), tcp->dst_port.value(), tcp->seq_num.value(), tcp->ack_num.value());
 #endif
-				dc->addToRetransmission(this->index, devip, pkt);
+				dc->add_retransmission(this->index, devip, pkt);
 				break;
 			case END:
 #ifdef DEBUG
@@ -920,13 +920,6 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 	DyscoCbReconfig* rcb;
 	DyscoControlMessage* cmsg = 0;
 	size_t tcp_hlen = tcp->offset << 2;
-
-	//Test for realiable
-	if(cnt == 0) {
-		fprintf(stderr, "I'm going to drop first Reconfiguration segment for test.\n");
-		cnt++;
-		return ERROR;
-	}
 	
 	if(isTCPSYN(tcp, true)) {
 #ifdef DEBUG
