@@ -9,9 +9,11 @@
 #include <signal.h>
 #include <stdint.h>
 #include <unistd.h>
-#include <arpa/inet.h>
+//#include <arpa/inet.h>
+#include <netinet/tcp.h>
 #include <unordered_map>
 #include <rte_hash_crc.h>
+
 
 #include "../port.h"
 #include "../module.h"
