@@ -1156,7 +1156,7 @@ void DyscoAgentIn::createSynAck(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 	ip->src = ipswap;
 	ip->ttl = TTL;
 	ip->id = be16_t(rand() % PORT_RANGE);
-	uint32_t payload_len = ip->length.value() - (ip->header_length << 2) - (tcp->offset << 2);
+	uint32_t payload_len = hasPayload(ip, tcp);
 	ip->length = ip->length - be16_t(payload_len);
 
 	be16_t pswap = tcp->src_port;
@@ -1165,7 +1165,7 @@ void DyscoAgentIn::createSynAck(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 	
 	be32_t seqswap = tcp->seq_num;
 	tcp->seq_num = tcp->ack_num;
-	tcp->ack_num = seqswap + be32_t(1) + be32_t(hasPayload(ip, tcp));
+	tcp->ack_num = seqswap + be32_t(1) + be32_t(payload_len);
 	tcp->flags |= Tcp::kAck;
 	pkt->trim(payload_len);
 }
