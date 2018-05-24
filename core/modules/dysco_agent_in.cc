@@ -1286,6 +1286,7 @@ bool DyscoAgentIn::processReceivedPackets(Ipv4* ip, Tcp* tcp) {
 		return false;
 	}
 
+	fprintf(stderr, "Searching packet with %u as key\n", key);
 	LNode<bess::Packet>* node = hash_received->operator[](key);
 	if(node) {
 		delete node;
