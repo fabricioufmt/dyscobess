@@ -522,8 +522,10 @@ bool DyscoAgentOut::control_output(Ipv4* ip, Tcp* tcp) {
 		}
 		
 		old_dcb = dc->lookup_output_by_ss(this->index, &cmsg->leftSS);
-		if(!old_dcb)
+		if(!old_dcb) {
+			fprintf(stderr, "control_output old_dcb is NULL\n");
 			return false;
+		}
 		
 		/*
 		  Changing TCP seq/ack values to ISN from old_dcb
@@ -543,8 +545,10 @@ bool DyscoAgentOut::control_output(Ipv4* ip, Tcp* tcp) {
 		cmsg->sackOk = htonl(old_dcb->sack_ok);
 		
 		rcb = insert_cb_control(ip, tcp, cmsg);
-		if(!rcb)
+		if(!rcb) {
+			fprintf(stderr, "control_output rcb is null\n");
 			return false;
+		}
 
 		new_dcb = new DyscoHashOut();
 
@@ -573,7 +577,10 @@ bool DyscoAgentOut::control_output(Ipv4* ip, Tcp* tcp) {
 		new_dcb->dcb_in = dc->insert_cb_out_reverse(this->index, new_dcb, 1, cmsg);
 
 		if(new_dcb->dcb_in) {
+			fprintf(stderr, "control_output: new_dcb->dcb_in isn't NULL\n");
 			new_dcb->dcb_in->is_reconfiguration = 1;
+		} else {
+			fprintf(stderr, "control_output: new_dcb->dcb_in is NULL\n");
 		}
 		
 		memcpy(&new_dcb->cmsg, cmsg, sizeof(DyscoControlMessage));
