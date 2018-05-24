@@ -162,10 +162,13 @@ DyscoHashIn* DyscoCenter::lookup_input_by_ss(uint32_t i, DyscoTcpSession* ss) {
 	fprintf(stderr, "Looking (input) for %s... ", print_ss0(*ss));
 #endif
 
+	return dh->hash_in[*ss];
+	
+	/*
 	unordered_map<DyscoTcpSession, DyscoHashIn*, DyscoTcpSessionHash, DyscoTcpSessionEqualTo>::iterator it = dh->hash_in.find(*ss);
 	if(it != dh->hash_in.end())
 		return (*it).second;
-	
+	*/
 	/*	
 	DyscoTcpSessionEqualTo equals;
 	unordered_map<DyscoTcpSession, DyscoHashIn*, DyscoTcpSessionHash>::iterator it = dh->hash_in.begin();
@@ -178,12 +181,12 @@ DyscoHashIn* DyscoCenter::lookup_input_by_ss(uint32_t i, DyscoTcpSession* ss) {
 		}
 		it++;
 	}
-	*/
+	
 #ifdef DEBUG
 	fprintf(stderr, "not found.\n");
 #endif
 	
-	return 0;
+	return 0;*/
 }
 
 DyscoHashIn* DyscoCenter::lookup_input(uint32_t i, Ipv4* ip, Tcp* tcp) {
@@ -208,10 +211,12 @@ DyscoHashOut* DyscoCenter::lookup_output_by_ss(uint32_t i, DyscoTcpSession* ss) 
 	fprintf(stderr, "Looking (output) for %s... ", print_ss0(*ss));
 #endif
 
+	return dh->hash_out[*ss];
+	/*
 	unordered_map<DyscoTcpSession, DyscoHashOut*, DyscoTcpSessionHash, DyscoTcpSessionEqualTo>::iterator it = dh->hash_out.find(*ss);
 	if(it != dh->hash_out.end())
 		return (*it).second;
-	/*
+	
 	DyscoTcpSessionEqualTo equals;
 	unordered_map<DyscoTcpSession, DyscoHashOut*, DyscoTcpSessionHash>::iterator it = dh->hash_out.begin();
 	while(it != dh->hash_out.end()) {
@@ -228,7 +233,7 @@ DyscoHashOut* DyscoCenter::lookup_output_by_ss(uint32_t i, DyscoTcpSession* ss) 
 	fprintf(stderr, "not found.\n");
 #endif
 	
-	return 0;
+	return 0;*/
 }
 
 DyscoHashOut* DyscoCenter::lookup_output(uint32_t i, Ipv4* ip, Tcp* tcp) {
@@ -256,11 +261,14 @@ DyscoHashOut* DyscoCenter::lookup_output_pending(uint32_t i, Ipv4* ip, Tcp* tcp)
 	ss.sport = htons(tcp->src_port.value());
 	ss.dport = htons(tcp->dst_port.value());
 
+	return dh->hash_pen[ss];
+	
+	/*
 	unordered_map<DyscoTcpSession, DyscoHashOut*, DyscoTcpSessionHash, DyscoTcpSessionEqualTo>::iterator it = dh->hash_pen.find(ss);
 	if(it != dh->hash_pen.end())
 		return (*it).second;
 
-	/*
+	
 	DyscoTcpSessionEqualTo equals;
 	unordered_map<DyscoTcpSession, DyscoHashOut*, DyscoTcpSessionHash>::iterator it = dh->hash_pen.begin();
 	while(it != dh->hash_pen.end()) {
@@ -268,8 +276,8 @@ DyscoHashOut* DyscoCenter::lookup_output_pending(uint32_t i, Ipv4* ip, Tcp* tcp)
 			return (*it).second;
 		it++;
 	}
-	*/
-	return 0;
+	
+	return 0;*/
 }
 
 DyscoCbReconfig* DyscoCenter::lookup_reconfig_by_ss(uint32_t i, DyscoTcpSession* ss) {
@@ -280,10 +288,13 @@ DyscoCbReconfig* DyscoCenter::lookup_reconfig_by_ss(uint32_t i, DyscoTcpSession*
 	fprintf(stderr, "Looking (reconfig) for %s... ", print_ss0(*ss));
 #endif
 
+	return dh->hash_reconfig[*ss];
+	
+	/*
 	unordered_map<DyscoTcpSession, DyscoCbReconfig*, DyscoTcpSessionHash, DyscoTcpSessionEqualTo>::iterator it = dh->hash_reconfig.find(*ss);
 	if(it != dh->hash_reconfig.end())
 		return (*it).second;
-	/*
+	
 	DyscoTcpSessionEqualTo equals;
 	unordered_map<DyscoTcpSession, DyscoCbReconfig*, DyscoTcpSessionHash>::iterator it = dh->hash_reconfig.begin();
 	while(it != dh->hash_reconfig.end()) {
@@ -295,12 +306,12 @@ DyscoCbReconfig* DyscoCenter::lookup_reconfig_by_ss(uint32_t i, DyscoTcpSession*
 		}
 		it++;
 	}
-	*/
+	
 #ifdef DEBUG
 	fprintf(stderr, "not found.\n");
 #endif
 
-	return 0;
+	return 0;*/
 }
 
 DyscoHashOut* DyscoCenter::lookup_pending_tag_by_tag(uint32_t i, uint32_t tag) {
@@ -308,19 +319,22 @@ DyscoHashOut* DyscoCenter::lookup_pending_tag_by_tag(uint32_t i, uint32_t tag) {
 	if(!dh)
 		return 0;
 
+	return dh->hash_pen_tag[tag];
+	
+	/*
 	unordered_map<uint32_t, DyscoHashOut*>::iterator it = dh->hash_pen_tag.find(tag);
 	if(it != dh->hash_pen_tag.end())
 		return (*it).second;
 
-	/*
+	
 	unordered_map<uint32_t, DyscoHashOut*>::iterator it = dh->hash_pen_tag.begin();
 	while(it != dh->hash_pen_tag.end()) {
 		if((*it).first == tag)
 			return (*it).second;
 		it++;
 	}
-	*/
-	return 0;
+	
+	return 0;*/
 }
 
 DyscoHashOut* DyscoCenter::lookup_pending_tag(uint32_t i, Tcp* tcp) {
