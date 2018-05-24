@@ -121,6 +121,11 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 #endif
 				dc->add_retransmission(this->index, devip, pkt);
 				break;
+
+			case IS_RETRANSMISSION:
+				out_gates[1].add(pkt);
+				break;
+				
 			case END:
 #ifdef DEBUG
 				fprintf(stderr, "3-way from Reconfiguration Session is DONE.\n\n");
@@ -948,14 +953,14 @@ CONTROL_RETURN DyscoAgentIn::control_input(Packet* pkt, Ipv4* ip, Tcp* tcp, Dysc
 			
 			DyscoHashOut* cb_out = cb_in->dcb_out;
 			if(!cb_out) {
-				fprintf(stderr, "cb_out is NULL\n");
 				return ERROR;
 			}
 
 			if(cb_out->state == DYSCO_ESTABLISHED) {
 				fprintf(stderr, "Is a retransmission packet (already ESTABLISHED state\n");
 				//should just answer with ACK
-
+				createAck(pkt, ip, tcp);
+				
 				return IS_RETRANSMISSION;
 			}
 			/*
@@ -993,6 +998,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(Packet* pkt, Ipv4* ip, Tcp* tcp, Dysc
 			
 			DyscoHashOut* old_dcb = rcb->old_dcb;
 			old_dcb->state = DYSCO_CLOSED;
+			cb_out->state = DYSCO_ESTABLISHED;
 
 			cb_in->is_reconfiguration = 0;
 			
