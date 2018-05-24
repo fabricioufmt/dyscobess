@@ -125,7 +125,10 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 #ifdef DEBUG
 				fprintf(stderr, "[%s][DyscoAgentIn-Control] forwarding to toRetransmit %s [%X:%X]\n\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.value(), tcp->ack_num.value());
 #endif
-				dc->add_retransmission(this->index, devip, pkt);
+				if(isTCPACK(tcp, true))
+					out_gates[1].add(pkt);
+				else
+					dc->add_retransmission(this->index, devip, pkt);
 				break;
 			case END:
 #ifdef DEBUG
@@ -951,6 +954,20 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 #ifdef DEBUG
 			fprintf(stderr, "It's the left anchor.\n");
 #endif
+
+			DyscoHashOut* cb_out = cb_in->dcb_out;
+			if(!cb_out) {
+				fprintf(stderr, "cb_out is NULL\n");
+				return ERROR;
+			}
+
+			if(cb_out->state == DYSCO_ESTABLISHED) {
+				fprintf(stderr, "Is a retransmission packet (already ESTABLISHED state\n");
+				//should just answer with ACK
+
+				return IS_RETRANSMISSION;
+			}
+			/*
 			DyscoHashOut* cb_out = dc->lookup_output_by_ss(this->index, &cmsg->leftSS);
 
 			if(cb_in->dcb_out) {
@@ -969,7 +986,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 			if(cb_out->state == DYSCO_ESTABLISHED) {
 				return IS_RETRANSMISSION;
 			}
-
+			*/
 			//seqCutoff??? SYN/ACK doesn't load cmsg instead Dysco (with UDP)
 			//cb_out->ack_cutoff = ntohl(cmsg->seqCutoff);
 
@@ -994,8 +1011,6 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 			}
 
 			cb_in->is_reconfiguration = 0;
-
-			fprintf(stderr, "cb_out->state = %d\n", cb_out->state);
 
 			if(cb_out->state == DYSCO_SYN_SENT)
 				cb_out->state = DYSCO_ESTABLISHED;
