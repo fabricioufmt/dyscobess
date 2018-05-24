@@ -979,8 +979,8 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 
 			cb_in->is_reconfiguration = 0;
 
-			fprintf("cb_in->state = %d\n", cb_in->state);
-			fprintf("cb_out->state = %d\n", cb_out->state);
+			fprintf(stderr, "cb_in->state = %d\n", cb_in->state);
+			fprintf(stderr, "cb_out->state = %d\n", cb_out->state);
 
 			if(cb_in->state == DYSCO_SYN_SENT)
 				cb_in->state = DYSCO_ESTABLISHED;
@@ -1057,9 +1057,9 @@ CONTROL_RETURN DyscoAgentIn::control_input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp
 				old_out_ack_cutoff += delta;
 			}
 
-			fprintf("cb_in->state = %d\n", cb_in->state);
-			fprintf("old_out->state = %d\n", old_out->state);
-			fprintf("new_out->state = %d\n", new_out->state);
+			fprintf(stderr, "cb_in->state = %d\n", cb_in->state);
+			fprintf(stderr, "old_out->state = %d\n", old_out->state);
+			fprintf(stderr, "new_out->state = %d\n", new_out->state);
 
 			if(cb_in->state == DYSCO_SYN_RECEIVED)
 				cb_in->state = DYSCO_ESTABLISHED;
