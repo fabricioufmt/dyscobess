@@ -1,3 +1,4 @@
+#include "dysco_util.h"
 #include "dysco_center.h"
 
 const Commands DyscoCenter::cmds = {
@@ -352,7 +353,7 @@ DyscoHashOut* DyscoCenter::insert_cb_in_reverse(DyscoTcpSession* ss_payload, Ipv
 
 #ifdef DEBUG
 	fprintf(stderr, "[DyscoCenter] insert_cb_in_reverse inserting %s\n",
-		printSS(ss_payload));
+		printSS(*ss_payload));
 #endif
 	cb_out->sup.sip = ss_payload->dip;
 	cb_out->sup.dip = ss_payload->sip;
