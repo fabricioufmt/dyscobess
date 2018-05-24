@@ -1212,14 +1212,14 @@ bool DyscoCenter::add_retransmission(uint32_t i, uint32_t devip, bess::Packet* p
 	unordered_map<uint32_t, LNode<Packet>*>* hash_r = dh->received_hash[devip];
 	if(!list_r || !hash_r) {
 		mtx->unlock();
-		
+		fprintf(stderr, "DyscoCenter: list_retransmission or hash_received is NULL\n");
 		return false;
 	}
 
 	LNode<Packet>* node = list_r->insertTail(*pkt, tsc_to_ns(rdtsc()));
 	uint32_t index = getValueToAck(pkt);
 	hash_r->operator[](index) = node;
-	
+	fprintf(stderr, "Inserting this packet with %u as key\n", index);
 	mtx->unlock();
 	
 	return true;
