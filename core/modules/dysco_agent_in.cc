@@ -83,7 +83,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 			tcp->seq_num.value(), tcp->ack_num.value());
 #endif
 
-		processReceivedPacket(ip, tcp);
+		processReceivedPacket(tcp);
 		
 		DyscoHashIn* cb_in = dc->lookup_input(this->index, ip, tcp);
 		
@@ -1250,7 +1250,7 @@ void DyscoAgentIn::retransmissionHandler() {
 	RunChooseModule(1, batch);
 }
 
-bool DyscoAgentIn::processReceivedPackets(Ipv4* ip, Tcp* tcp) {
+bool DyscoAgentIn::processReceivedPacket(Tcp* tcp) {
 	fprintf(stderr, "processReceviedPacket\n");
 	if(!dc)
 		return false;

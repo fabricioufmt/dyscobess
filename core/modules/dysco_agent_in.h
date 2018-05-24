@@ -38,7 +38,7 @@ class DyscoAgentIn final : public Module {
 	  TCP Retransmission methods
 	*/
 	void retransmissionHandler();
-	bool processReceivedPackets(Ipv4*, Tcp*);
+	bool processReceivedPacket(Tcp*);
 	
  private:
 	string ns;
