@@ -25,13 +25,6 @@ os.system('ip netns exec m4 route add default gw 10.0.3.2 > /dev/null')
 
 dc::DyscoCenter()
 
-bpf2::BPF()
-bpf2.add(filters=[{'priority': -20, 'filter':'arp', 'gate': 0}])
-bpf2.add(filters=[{'priority': -18, 'filter': 'ip', 'gate': 1}])
-bpf3::BPF()
-bpf3.add(filters=[{'priority': -20, 'filter':'arp', 'gate': 0}])
-bpf3.add(filters=[{'priority': -18, 'filter': 'ip', 'gate': 1}])
-
 l2_2::L2FWD()
 l2_2.add(mac_addr='00:00:00:00:00:21', gate=0)
 l2_2.add(mac_addr='00:00:00:00:00:22', gate=1)
@@ -62,30 +55,24 @@ DyscoPortInc(port=m2_0) -> dout3::DyscoAgentOut(dc=dc)
 DyscoPortInc(port=m4_0) -> dout5::DyscoAgentOut(dc=dc)
 DyscoPortInc(port=m2_1) -> dout6::DyscoAgentOut(dc=dc)
 
-din2.get_info()
-din3.get_info()
-din5.get_info()
-din6.get_info()
-dout2.get_info()
-dout3.get_info()
-dout5.get_info()
-dout6.get_info()
+din2.setup()
+din3.setup()
+din5.setup()
+din6.setup()
+dout2.setup()
+dout3.setup()
+dout5.setup()
+dout6.setup()
 
-dout2 -> bpf2
-dout3 -> bpf2
-dout5 -> bpf3
-dout6 -> bpf3
+dout2 -> l2_2
+dout3 -> l2_2
+dout5 -> l2_3
+dout6 -> l2_3
 
-bpf2:0 -> l2_2
-bpf2:1 -> dp2::DyscoPacket()
-bpf3:0 -> l2_3
-bpf3:1 -> dp3::DyscoPacket()
-
-dp2:0 -> l3_1
-dp3:0 -> l3_1
-
-dp2:1 -> l2_2
-dp3:1 -> l2_3
+dout2:1 -> l3_1
+dout3:1 -> l3_1
+dout5:1 -> l3_1
+dout6:1 -> l3_1
 
 l3_1:2 -> UpdateMac(mac_addr='00:00:00:00:00:21') -> l2_2
 l3_1:3 -> UpdateMac(mac_addr='00:00:00:00:00:22') -> l2_2
@@ -104,7 +91,6 @@ din6:1 -> l3_1
 
 dc.add(priority=1, sc_len=2, chain=['10.0.2.2', '10.0.3.1'], filter='dst port 5001', ns='/var/run/netns/m1')
 dc.add(priority=1, sc_len=1, chain=['10.0.3.1'], filter='dst port 5001', ns='/var/run/netns/m2')
-#dc.alarm()
 
 os.system('ip netns exec m1 tcpdump -i m1-1 arp or icmp or tcp -n -XX -w /home/fabricio/m1_1.pcap & 2> /dev/null')
 os.system('ip netns exec m2 tcpdump -i m2-0 arp or icmp or tcp -n -XX -w /home/fabricio/m2_0.pcap & 2> /dev/null')
