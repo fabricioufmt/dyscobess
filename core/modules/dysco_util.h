@@ -107,7 +107,7 @@ enum {
 //#define DEBUG                           1 
 #define TTL                             32
 #define PORT_RANGE                      65536
-#define CNTLIMIT                        2
+#define CNTLIMIT                        4
 #define SLEEPTIME                       10000 /* usec */  // 10ms
 #define DEFAULT_TIMEOUT                 100000 /* usec */ // 100ms
 
