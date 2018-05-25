@@ -897,7 +897,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(Packet* pkt, Ipv4* ip, Tcp* tcp, Dysc
 	//For Retransmission Test
 	if(cnt < 2) {
 		cnt++;
-		return END;
+		return ERROR;
 	}
 	
 	if(isTCPSYN(tcp, true)) {
