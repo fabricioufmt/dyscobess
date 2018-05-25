@@ -567,7 +567,7 @@ inline char* getFlags(Tcp* tcp) {
 	case Tcp::kSyn:
 		sprintf(buf, "SYN");
 		break;
-	case (Tcp::kSyn & Tcp::kAck):
+	case (Tcp::kSyn | Tcp::kAck):
 		sprintf(buf, "SYN/ACK");
 		break;
 	case Tcp::kAck:
@@ -576,13 +576,13 @@ inline char* getFlags(Tcp* tcp) {
 	case Tcp::kPsh:
 		sprintf(buf, "PSH");
 		break;
-	case (Tcp::kPsh & Tcp::kAck):
+	case (Tcp::kPsh | Tcp::kAck):
 		sprintf(buf, "PSH/ACK");
 		break;
 	case Tcp::kFin:
 		sprintf(buf, "FIN");
 		break;
-	case (Tcp::kFin & Tcp::kAck):
+	case (Tcp::kFin | Tcp::kAck):
 		sprintf(buf, "FIN/ACK");
 		break;
 	default:
