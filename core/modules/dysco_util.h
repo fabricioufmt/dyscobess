@@ -559,6 +559,7 @@ inline char* printPacketSS(Ipv4* ip, Tcp* tcp) {
 
 	return buf;
 }
+
 //Just SYN, SYN/ACK, ACK, PSH, PSH/ACK, FIN, FIN/ACK
 inline char* getFlags(Tcp* tcp) {
 	char* buf = (char*) malloc(64);

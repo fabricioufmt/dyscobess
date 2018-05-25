@@ -166,12 +166,12 @@ bool DyscoAgentOut::isReconfigPacketOut(Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out
 uint32_t DyscoAgentOut::out_rewrite_seq(Tcp* tcp, DyscoHashOut* cb_out) {
 	if(cb_out->seq_delta) {
 		uint32_t new_seq;
-		uint32_t seq = tcp->seq_num.raw_value();
+		uint32_t seq = tcp->seq_num.value();
 
 		if(cb_out->seq_add)
-			new_seq = seq + htonl(cb_out->seq_delta);
+			new_seq = seq + (cb_out->seq_delta);
 		else
-			new_seq = seq - htonl(cb_out->seq_delta);
+			new_seq = seq - (cb_out->seq_delta);
 
 		*((uint32_t*)(&tcp->seq_num)) = new_seq;
 		
