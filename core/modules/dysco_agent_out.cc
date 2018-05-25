@@ -169,10 +169,9 @@ uint32_t DyscoAgentOut::out_rewrite_seq(Tcp* tcp, DyscoHashOut* cb_out) {
 		uint32_t seq = tcp->seq_num.raw_value();
 
 		if(cb_out->seq_add)
-			//new_seq = seq + htonl(cb_out->seq_delta);
-			new_seq = seq + cb_out->seq_delta;
+			new_seq = seq + htonl(cb_out->seq_delta);
 		else
-			new_seq = seq - cb_out->seq_delta;
+			new_seq = seq - htonl(cb_out->seq_delta);
 
 		*((uint32_t*)(&tcp->seq_num)) = new_seq;
 		
