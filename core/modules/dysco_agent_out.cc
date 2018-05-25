@@ -338,7 +338,7 @@ bool DyscoAgentOut::out_translate(Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_
 		}
 	}
 	
-	fprintf(stderr, "checksum before: %x\n", tcp->checksum);
+	fprintf(stderr, "checksum before2: %x\n", tcp->checksum);
 	hdr_rewrite_csum(ip, tcp, &cb->sub);
 	
 	uint32_t incremental = 0;
