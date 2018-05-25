@@ -440,6 +440,7 @@ bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in) {
 //L.753
 CONTROL_RETURN DyscoAgentIn::input(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
 	if(!cb_in) {
+		fprintf(stderr, "cb_in is NULL\n");
 		if(isTCPSYN(tcp) && hasPayload(ip, tcp)) {
 			if(rx_initiation_new(pkt, ip, tcp))
 				return TO_GATE_0;
@@ -502,7 +503,7 @@ CONTROL_RETURN DyscoAgentIn::input(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashIn*
 		} else
 			in_two_paths_ack(tcp, cb_in);
 	*/
-	
+	fprintf(stderr, "just calling in_hdr_rewrite_csum\n");
 	in_hdr_rewrite_csum(ip, tcp, cb_in);
 
 	return TO_GATE_0;
