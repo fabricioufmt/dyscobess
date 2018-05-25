@@ -505,6 +505,7 @@ inline void out_hdr_rewrite(Ipv4* ip, Tcp* tcp, DyscoTcpSession* sub) {
 }
 
 inline void out_hdr_rewrite_csum(Ipv4* ip, Tcp* tcp, DyscoTcpSession* ss) {
+	fprintf(stderr, "DEBUG, out_hdr_rewrite_csum\n");
 	uint32_t incremental = 0;
 
 	uint32_t new_src = ss->sip;
