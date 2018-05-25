@@ -81,7 +81,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 		tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
 
 #ifdef DEBUG
-		fprintf(stderr, "[%s][DyscoAgentIn] receives %s [%X:%X]\n", ns.c_str(), printPacketSS(ip, tcp),	tcp->seq_num.value(), tcp->ack_num.value());
+		fprintf(stderr, "[%s][DyscoAgentIn] receives %s [%X:%X] (%s)\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.value(), tcp->ack_num.value(), getFlags(tcp));
 #endif
 
 		processReceivedPacket(tcp);

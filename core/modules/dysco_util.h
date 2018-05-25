@@ -559,5 +559,37 @@ inline char* printPacketSS(Ipv4* ip, Tcp* tcp) {
 
 	return buf;
 }
+//Just SYN, SYN/ACK, ACK, PSH, PSH/ACK, FIN, FIN/ACK
+inline char* getFlags(Tcp* tcp) {
+	char* buf = (char*) malloc(64);
+
+	switch(tcp->flags) {
+	case Tcp::kSyn:
+		sprintf(buf, "SYN");
+		break;
+	case Tcp::kSyn & Tcp::kAck:
+		sprintf(buf, "SYN/ACK");
+		break;
+	case Tcp::Ack:
+		sprintf(buf, "ACK");
+		break;
+	case Tcp::kPsh:
+		sprintf(buf, "PSH");
+		break;
+	case Tcp::kPsh & Tcp::kAck:
+		sprintf(buf, "PSH/ACK");
+		break;
+	case Tcp::kFin:
+		sprintf(buf, "FIN");
+		break;
+	case Tcp::kFin & Tcp::kAck:
+		sprintf(buf, "FIN/ACK");
+		break;
+	default:
+		sprintf(buf, "???\n");
+	}
+
+	return buf;
+}
 
 #endif //BESS_MODULES_DYSCOUTIL_H_
