@@ -176,7 +176,7 @@ uint32_t DyscoAgentOut::out_rewrite_seq(Tcp* tcp, DyscoHashOut* cb_out) {
 		*((uint32_t*)(&tcp->seq_num)) = new_seq;
 		
 		//return new_seq;
-		return ChecksumIncrement32(seq, new_seq);
+		return ChecksumIncrement32(htonl(seq), new_seq);
 	}
 
 	return 0;
