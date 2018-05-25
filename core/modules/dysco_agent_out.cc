@@ -295,7 +295,7 @@ DyscoHashOut* DyscoAgentOut::pick_path_ack(Tcp* tcp, DyscoHashOut* cb_out) {
 }
 
 //L.585
-bool DyscoAgentOut::out_translate(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) {
+bool DyscoAgentOut::out_translate(Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) {
 	size_t ip_hlen = ip->header_length << 2;
 	size_t tcp_hlen = tcp->offset << 2;
 	uint32_t seg_sz = ip->length.value() - ip_hlen - tcp_hlen;
@@ -346,7 +346,7 @@ bool DyscoAgentOut::out_translate(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut*
 		out_rewrite_rcv_wnd(tcp, cb);
 
 	//dc->out_hdr_rewrite(pkt, ip, tcp, &cb->sub);
-	out_hdr_rewrite(ip, tcp, &cb->sub);
+	out_hdr_rewrite_csum(ip, tcp, &cb->sub);
 	
 	return true;
 }
