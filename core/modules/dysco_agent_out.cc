@@ -355,7 +355,7 @@ bool DyscoAgentOut::out_translate(Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_
 
 	tcp->checksum = UpdateChecksumWithIncrement(tcp->checksum, incremental);
 	fprintf(stderr, "checksum after: %x\n", tcp->checksum);
-	
+	fprintf(stderr, "Checksum should be: %x\n", bess::utils::CalculateIpv4TcpChecksum(*ip, *tcp));
 	return true;
 }
 
