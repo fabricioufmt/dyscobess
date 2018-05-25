@@ -1,0 +1,98 @@
+import os
+import scapy.all as scapy
+
+os.system('ip netns del m1 > /dev/null')
+os.system('ip netns del m2 > /dev/null')
+os.system('ip netns del m4 > /dev/null')
+os.system('ip netns add m1 > /dev/null')
+os.system('ip netns add m2 > /dev/null')
+os.system('ip netns add m4 > /dev/null')
+os.system('echo 1 > /proc/sys/net/ipv4/ip_forward')
+
+m1_1::DyscoVPort(ifname='m1-1', netns='/var/run/netns/m1', mac_addr='00:00:00:00:00:21', ip_addrs=['10.0.2.1/24'])
+m2_0::DyscoVPort(ifname='m2-0', netns='/var/run/netns/m2', mac_addr='00:00:00:00:00:22', ip_addrs=['10.0.2.2/24'])
+m2_1::DyscoVPort(ifname='m2-1', netns='/var/run/netns/m2', mac_addr='00:00:00:00:00:32', ip_addrs=['10.0.3.2/24'])
+m4_0::DyscoVPort(ifname='m4-0', netns='/var/run/netns/m4', mac_addr='00:00:00:00:00:31', ip_addrs=['10.0.3.1/24'])
+
+os.system('ip netns exec m1 ifconfig lo up > /dev/null')
+os.system('ip netns exec m2 ifconfig lo up > /dev/null')
+os.system('ip netns exec m4 ifconfig lo up > /dev/null')
+
+os.system('ip netns exec m1 route add default gw 10.0.2.2 > /dev/null')
+os.system('ip netns exec m2 route add -net 10.0.1.0/24 gw 10.0.2.1 > /dev/null')
+os.system('ip netns exec m2 route add default gw 10.0.3.1 > /dev/null')
+os.system('ip netns exec m4 route add default gw 10.0.3.2 > /dev/null')
+
+dc::DyscoCenter()
+
+l2_2::L2FWD()
+l2_2.add(mac_addr='00:00:00:00:00:21', gate=0)
+l2_2.add(mac_addr='00:00:00:00:00:22', gate=1)
+l2_2.add(mac_addr='00:00:00:00:00:23', gate=2)
+l2_3::L2FWD()
+l2_3.add(mac_addr='00:00:00:00:00:31', gate=0)
+l2_3.add(mac_addr='00:00:00:00:00:32', gate=1)
+l2_3.add(mac_addr='00:00:00:00:00:33', gate=2)
+
+l3_1::IPLookup()
+l3_1.add(prefix='10.0.1.1', prefix_len=32, gate=0)
+l3_1.add(prefix='10.0.1.2', prefix_len=32, gate=1)
+l3_1.add(prefix='10.0.2.1', prefix_len=32, gate=2)
+l3_1.add(prefix='10.0.2.2', prefix_len=32, gate=3)
+l3_1.add(prefix='10.0.2.3', prefix_len=32, gate=4)
+l3_1.add(prefix='10.0.3.1', prefix_len=32, gate=5)
+l3_1.add(prefix='10.0.3.2', prefix_len=32, gate=6)
+l3_1.add(prefix='10.0.3.3', prefix_len=32, gate=7)
+l3_1.add(prefix='10.0.4.1', prefix_len=32, gate=8)
+l3_1.add(prefix='10.0.4.2', prefix_len=32, gate=9)
+
+din2::DyscoAgentIn(dc=dc) -> DyscoPortOut(port=m1_1)
+din3::DyscoAgentIn(dc=dc) -> DyscoPortOut(port=m2_0)
+din5::DyscoAgentIn(dc=dc) -> DyscoPortOut(port=m4_0)
+din6::DyscoAgentIn(dc=dc) -> DyscoPortOut(port=m2_1)
+DyscoPortInc(port=m1_1) -> dout2::DyscoAgentOut(dc=dc)
+DyscoPortInc(port=m2_0) -> dout3::DyscoAgentOut(dc=dc)
+DyscoPortInc(port=m4_0) -> dout5::DyscoAgentOut(dc=dc)
+DyscoPortInc(port=m2_1) -> dout6::DyscoAgentOut(dc=dc)
+
+din2.setup()
+din3.setup()
+din5.setup()
+din6.setup()
+dout2.setup()
+dout3.setup()
+dout5.setup()
+dout6.setup()
+
+dout2 -> l2_2
+dout3 -> l2_2
+dout5 -> l2_3
+dout6 -> l2_3
+
+dout2:1 -> l3_1
+dout3:1 -> l3_1
+dout5:1 -> l3_1
+dout6:1 -> l3_1
+
+l3_1:2 -> UpdateMac(mac_addr='00:00:00:00:00:21') -> l2_2
+l3_1:3 -> UpdateMac(mac_addr='00:00:00:00:00:22') -> l2_2
+l3_1:5 -> UpdateMac(mac_addr='00:00:00:00:00:31') -> l2_3
+l3_1:6 -> UpdateMac(mac_addr='00:00:00:00:00:32') -> l2_3
+
+l2_2:0 -> din2
+l2_2:1 -> din3
+l2_3:0 -> din5
+l2_3:1 -> din6
+
+din2:1 -> l3_1
+din3:1 -> l3_1
+din5:1 -> l3_1
+din6:1 -> l3_1
+
+dc.add(priority=1, sc_len=2, chain=['10.0.2.2', '10.0.3.1'], filter='dst port 5001', ns='/var/run/netns/m1')
+#dc.add(priority=1, sc_len=1, chain=['10.0.3.1'], filter='dst port 5001', ns='/var/run/netns/m2')
+
+os.system('ip netns exec m1 tcpdump -i m1-1 arp or icmp or tcp -n -XX -w /home/fabricio/m1_1.pcap & 2> /dev/null')
+os.system('ip netns exec m2 tcpdump -i m2-0 arp or icmp or tcp -n -XX -w /home/fabricio/m2_0.pcap & 2> /dev/null')
+os.system('ip netns exec m2 tcpdump -i m2-1 arp or icmp or tcp -n -XX -w /home/fabricio/m2_1.pcap & 2> /dev/null')
+os.system('ip netns exec m4 tcpdump -i m4-0 arp or icmp or tcp -n -XX -w /home/fabricio/m4_0.pcap & 2> /dev/null')
