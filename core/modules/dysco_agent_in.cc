@@ -441,7 +441,7 @@ bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in) {
 CONTROL_RETURN DyscoAgentIn::input(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
 	if(!cb_in) {
 		if(isTCPSYN(tcp, true) && hasPayload(ip, tcp))
-			rx_initiation_new(pkt, ip, tcp)
+			rx_initiation_new(pkt, ip, tcp);
 		
 		return TO_GATE_0;
 	}
