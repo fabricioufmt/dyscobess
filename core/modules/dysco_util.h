@@ -45,6 +45,9 @@ using bess::PacketBatch;
 using bess::utils::be16_t;
 using bess::utils::be32_t;
 using bess::utils::Ethernet;
+using bess::utils::ChecksumIncrement16;
+using bess::utils::ChecksumIncrement32;
+using bess::utils::UpdateChecksumWithIncrement;
 
 /*********************************************************************
  *
@@ -497,39 +500,28 @@ inline uint32_t getValueToAck(Packet* pkt) {
 	return toAck;
 }
 
-inline void out_hdr_rewrite(Ipv4* ip, Tcp* tcp, DyscoTcpSession* sub) {
-	ip->src = be32_t(ntohl(sub->sip));
-	ip->dst = be32_t(ntohl(sub->dip));
-	tcp->src_port = be16_t(ntohs(sub->sport));
-	tcp->dst_port = be16_t(ntohs(sub->dport));
-
-	
+inline void hdr_rewrite(Ipv4* ip, Tcp* tcp, DyscoTcpSession* ss) {
+	*((uint32_t*)(&ip->src)) = ss->sip;
+	*((uint32_t*)(&ip->dst)) = ss->dip;
+	*((uint16_t*)(&tcp->src_port)) = ss->sport;
+	*((uint16_t*)(&tcp->dst_port)) = ss->dport;
 }
 
-inline void out_hdr_rewrite_csum(Ipv4* ip, Tcp* tcp, DyscoTcpSession* ss) {
+inline void hdr_rewrite_csum(Ipv4* ip, Tcp* tcp, DyscoTcpSession* ss) {
 	uint32_t incremental = 0;
 
-	uint32_t new_src = ss->sip;
-	uint32_t new_dst = ss->dip;
-	uint16_t new_sport = ss->sport;
-	uint16_t new_dport = ss->dport;
-
-	incremental += bess::utils::ChecksumIncrement32(ip->src.raw_value(), new_src);
-	incremental += bess::utils::ChecksumIncrement32(ip->dst.raw_value(), new_dst);
-
-	*((uint32_t*)(&ip->src)) = 0;//new_src;
-	*((uint32_t*)(&ip->dst)) = 0;//new_dst;
+	incremental += ChecksumIncrement32(ip->src.raw_value(), ss->sip);
+	incremental += ChecksumIncrement32(ip->dst.raw_value(), ss->dip);
 	
-	ip->checksum = bess::utils::UpdateChecksumWithIncrement(ip->checksum, incremental);
-	tcp->checksum = bess::utils::UpdateChecksumWithIncrement(tcp->checksum, incremental);
+	ip->checksum = UpdateChecksumWithIncrement(ip->checksum, incremental);
+	tcp->checksum = UpdateChecksumWithIncrement(tcp->checksum, incremental);
 
-	incremental  = bess::utils::ChecksumIncrement16(tcp->src_port.raw_value(), new_src);
-	incremental += bess::utils::ChecksumIncrement16(tcp->dst_port.raw_value(), new_dst);
+	incremental  = ChecksumIncrement16(tcp->src_port.raw_value(), ss->sport);
+	incremental += ChecksumIncrement16(tcp->dst_port.raw_value(), ss->dport);
 
-	*((uint16_t*)(&tcp->src_port)) = new_sport;
-	*((uint16_t*)(&tcp->dst_port)) = new_dport;
-	
-	tcp->checksum = bess::utils::UpdateChecksumWithIncrement(tcp->checksum, incremental);	
+	tcp->checksum = UpdateChecksumWithIncrement(tcp->checksum, incremental);
+
+	hdr_rewrite(ip, tcp, ss);
 }
 
 /*********************************************************************
