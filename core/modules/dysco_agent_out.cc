@@ -163,44 +163,46 @@ bool DyscoAgentOut::isReconfigPacketOut(Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out
  */
 
 //L.365
-bool DyscoAgentOut::out_rewrite_seq(Tcp* tcp, DyscoHashOut* cb_out) {
+uint32_t DyscoAgentOut::out_rewrite_seq(Tcp* tcp, DyscoHashOut* cb_out) {
 	if(cb_out->seq_delta) {
 		uint32_t new_seq;
-		uint32_t seq = tcp->seq_num.value();
+		uint32_t seq = tcp->seq_num.raw_value();
 
 		if(cb_out->seq_add)
-			new_seq = seq + cb_out->seq_delta;
+			new_seq = seq + htonl(cb_out->seq_delta);
 		else
-			new_seq = seq - cb_out->seq_delta;
+			new_seq = seq - htonl(cb_out->seq_delta);
 		
-		tcp->seq_num = be32_t(new_seq);
+		//tcp->seq_num = be32_t(new_seq);
+		*((uint32_t*)(&tcp->seq_num)) = new_seq;
 		
-		return true;
+		return new_ack;
 	}
 
-	return false;
+	return 0;
 }
 
 //L.391
-bool DyscoAgentOut::out_rewrite_ack(Tcp* tcp, DyscoHashOut* cb_out) {
+uint32_t DyscoAgentOut::out_rewrite_ack(Tcp* tcp, DyscoHashOut* cb_out) {
 	if(cb_out->ack_delta) {
 		uint32_t new_ack;
-		uint32_t ack = tcp->ack_num.value();
+		uint32_t ack = tcp->ack_num.raw_value();
 
 		if(cb_out->ack_add)
-			new_ack = ack + cb_out->ack_delta;
+			new_ack = ack + htonl(cb_out->ack_delta);
 		else
-			new_ack = ack - cb_out->ack_delta;
+			new_ack = ack - htonl(cb_out->ack_delta);
 
-		if(cb_out->sack_ok)
-			dc->tcp_sack(tcp, cb_out->ack_delta, cb_out->ack_add);
-		
-		tcp->ack_num = be32_t(new_ack);
+		//if(cb_out->sack_ok)
+		//	dc->tcp_sack(tcp, cb_out->ack_delta, cb_out->ack_add);
 
-		return true;
+		*((uint32_t*)(&tcp->ack_num)) = new_ack;
+		//tcp->ack_num = be32_t(new_ack);
+
+		return new_ack;
 	}
 
-	return false;
+	return 0;
 }
 
 //L.422
