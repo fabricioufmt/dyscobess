@@ -319,6 +319,7 @@ uint32_t DyscoAgentIn::in_rewrite_rcv_wnd(Tcp* tcp, DyscoHashIn* cb_in) {
 
 //L.458
 void DyscoAgentIn::in_hdr_rewrite_csum(Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
+	printf(stderr, "Checksum should be: %x\n", bess::utils::CalculateIpv4TcpChecksum(ip, tcp));
 	fprintf(stderr, "checksum before: %x\n", tcp->checksum);
 	hdr_rewrite_csum(ip, tcp, &cb_in->sup);
 
