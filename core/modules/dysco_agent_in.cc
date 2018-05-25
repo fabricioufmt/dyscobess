@@ -319,6 +319,7 @@ uint32_t DyscoAgentIn::in_rewrite_rcv_wnd(Tcp* tcp, DyscoHashIn* cb_in) {
 
 //L.458
 void DyscoAgentIn::in_hdr_rewrite_csum(Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
+	fprintf(stderr, "checksum before: %x\n", tcp->checksum);
 	hdr_rewrite_csum(ip, tcp, &cb_in->sup);
 
 	uint32_t incremental = 0;
@@ -333,6 +334,7 @@ void DyscoAgentIn::in_hdr_rewrite_csum(Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
 		incremental += in_rewrite_rcv_wnd(tcp, cb_in);
 
 	tcp->checksum = UpdateChecksumWithIncrement(tcp->checksum, incremental);
+	fprintf(stderr, "checksum after: %x\n", tcp->checksum);
 }
 
 //L.505
