@@ -28,8 +28,8 @@ class DyscoAgentOut final : public Module {
 	/*
 	  Dysco methods
 	 */
-	uint32_t out_rewrite_seq(Tcp*, DyscoHashOut*);
-	uint32_t out_rewrite_ack(Tcp*, DyscoHashOut*);
+	bool out_rewrite_seq(Tcp*, DyscoHashOut*);
+	bool out_rewrite_ack(Tcp*, DyscoHashOut*);
 	bool out_rewrite_ts(Tcp*, DyscoHashOut*);
 	bool out_rewrite_rcv_wnd(Tcp*, DyscoHashOut*);
 	DyscoHashOut* pick_path_seq(DyscoHashOut*, uint32_t);

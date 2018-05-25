@@ -45,9 +45,6 @@ using bess::PacketBatch;
 using bess::utils::be16_t;
 using bess::utils::be32_t;
 using bess::utils::Ethernet;
-using bess::utils::ChecksumIncrement16;
-using bess::utils::ChecksumIncrement32;
-using bess::utils::UpdateChecksumWithIncrement;
 
 /*********************************************************************
  *
@@ -107,7 +104,7 @@ enum {
 #define DYSCO_LAST_ACK                  DYSCO_FINISHING_OLD_PATH
 #define DYSCO_CLOSED                    DYSCO_CLOSED_OLD_PATH
 
-#define DEBUG                           1 
+//#define DEBUG                           1 
 #define TTL                             32
 #define PORT_RANGE                      65536
 #define CNTLIMIT                        4
@@ -500,30 +497,6 @@ inline uint32_t getValueToAck(Packet* pkt) {
 	return toAck;
 }
 
-inline void hdr_rewrite(Ipv4* ip, Tcp* tcp, DyscoTcpSession* ss) {
-	*((uint32_t*)(&ip->src)) = ss->sip;
-	*((uint32_t*)(&ip->dst)) = ss->dip;
-	*((uint16_t*)(&tcp->src_port)) = ss->sport;
-	*((uint16_t*)(&tcp->dst_port)) = ss->dport;
-}
-
-inline void hdr_rewrite_csum(Ipv4* ip, Tcp* tcp, DyscoTcpSession* ss) {
-	uint32_t incremental = 0;
-
-	incremental += ChecksumIncrement32(ip->src.raw_value(), ss->sip);
-	incremental += ChecksumIncrement32(ip->dst.raw_value(), ss->dip);
-	
-	ip->checksum  = UpdateChecksumWithIncrement( ip->checksum, incremental);
-	tcp->checksum = UpdateChecksumWithIncrement(tcp->checksum, incremental);
-
-	incremental  = ChecksumIncrement16(tcp->src_port.raw_value(), ss->sport);
-	incremental += ChecksumIncrement16(tcp->dst_port.raw_value(), ss->dport);
-
-	tcp->checksum = UpdateChecksumWithIncrement(tcp->checksum, incremental);
-
-	hdr_rewrite(ip, tcp, ss);
-}
-
 /*********************************************************************
  *
  *	DEBUG
@@ -556,39 +529,6 @@ inline char* printPacketSS(Ipv4* ip, Tcp* tcp) {
 	sprintf(buf, "%s:%u -> %s:%u",
 		printIP(ip->src.value()), tcp->src_port.value(),
 		printIP(ip->dst.value()), tcp->dst_port.value());
-
-	return buf;
-}
-
-//Just SYN, SYN/ACK, ACK, PSH, PSH/ACK, FIN, FIN/ACK
-inline char* getFlags(Tcp* tcp) {
-	char* buf = (char*) malloc(64);
-
-	switch(tcp->flags) {
-	case Tcp::kSyn:
-		sprintf(buf, "SYN");
-		break;
-	case (Tcp::kSyn | Tcp::kAck):
-		sprintf(buf, "SYN/ACK");
-		break;
-	case Tcp::kAck:
-		sprintf(buf, "ACK");
-		break;
-	case Tcp::kPsh:
-		sprintf(buf, "PSH");
-		break;
-	case (Tcp::kPsh | Tcp::kAck):
-		sprintf(buf, "PSH/ACK");
-		break;
-	case Tcp::kFin:
-		sprintf(buf, "FIN");
-		break;
-	case (Tcp::kFin | Tcp::kAck):
-		sprintf(buf, "FIN/ACK");
-		break;
-	default:
-		sprintf(buf, "???\n");
-	}
 
 	return buf;
 }
