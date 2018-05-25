@@ -345,7 +345,8 @@ bool DyscoAgentOut::out_translate(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut*
 	if(cb->ws_ok)
 		out_rewrite_rcv_wnd(tcp, cb);
 
-	dc->out_hdr_rewrite(pkt, ip, tcp, &cb->sub);
+	//dc->out_hdr_rewrite(pkt, ip, tcp, &cb->sub);
+	out_hdr_rewrite(ip, tcp, &cb->sub);
 	
 	return true;
 }
