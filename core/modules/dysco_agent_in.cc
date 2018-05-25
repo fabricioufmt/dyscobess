@@ -320,14 +320,6 @@ uint32_t DyscoAgentIn::in_rewrite_rcv_wnd(Tcp* tcp, DyscoHashIn* cb_in) {
 //L.458
 void DyscoAgentIn::in_hdr_rewrite_csum(Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
 	hdr_rewrite_csum(ip, tcp, &cb_in->sup);
-	/*
-	DyscoTcpSession* sup = &cb_in->sup;
-	
-	ip->src = be32_t(ntohl(sup->sip));
-	ip->dst = be32_t(ntohl(sup->dip));
-	tcp->src_port = be16_t(ntohs(sup->sport));
-	tcp->dst_port = be16_t(ntohs(sup->dport));
-	*/
 
 	uint32_t incremental = 0;
 	
@@ -341,12 +333,6 @@ void DyscoAgentIn::in_hdr_rewrite_csum(Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
 		incremental += in_rewrite_rcv_wnd(tcp, cb_in);
 
 	tcp->checksum = UpdateChecksumWithIncrement(tcp->checksum, incremental);
-	/*
-	ip->checksum = 0;
-	tcp->checksum = 0;
-	ip->checksum = bess::utils::CalculateIpv4Checksum(*ip);
-	tcp->checksum = bess::utils::CalculateIpv4TcpChecksum(*ip, *tcp);
-	*/
 }
 
 //L.505
@@ -464,7 +450,8 @@ CONTROL_RETURN DyscoAgentIn::input(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashIn*
 			dc->set_ack_number_out(this->index, tcp, cb_in);
 			in_hdr_rewrite_csum(ip, tcp, cb_in);
 		} else {
-			//It is retransmission packet, just remove sc (if there is) and insert Dysco Tag
+			//It is retransmission packet,
+			//just remove sc (if there is) and insert Dysco Tag
 			if(hasPayload(ip, tcp)) {
 				remove_sc(pkt, ip, tcp);
 				dc->insert_tag(this->index, pkt, ip, tcp);
