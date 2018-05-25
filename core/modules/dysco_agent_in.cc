@@ -1108,7 +1108,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(Packet* pkt, Ipv4* ip, Tcp* tcp, Dysc
 		break;
 	}
 	*/
-	
+	fprintf(stderr, "I'm going to return END\n");
 	return END;
 }
 
