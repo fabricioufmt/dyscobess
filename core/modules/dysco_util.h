@@ -513,7 +513,7 @@ inline void hdr_rewrite_csum(Ipv4* ip, Tcp* tcp, DyscoTcpSession* ss) {
 	incremental += ChecksumIncrement32(ip->src.raw_value(), ss->sip);
 	incremental += ChecksumIncrement32(ip->dst.raw_value(), ss->dip);
 	
-	ip->checksum = UpdateChecksumWithIncrement(ip->checksum, incremental);
+	ip->checksum  = UpdateChecksumWithIncrement( ip->checksum, incremental);
 	tcp->checksum = UpdateChecksumWithIncrement(tcp->checksum, incremental);
 
 	incremental  = ChecksumIncrement16(tcp->src_port.raw_value(), ss->sport);

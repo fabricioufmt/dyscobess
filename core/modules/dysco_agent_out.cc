@@ -342,8 +342,8 @@ bool DyscoAgentOut::out_translate(Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_
 	hdr_rewrite_csum(ip, tcp, &cb->sub);
 	
 	uint32_t incremental = 0;
-	incremental += out_rewrite_seq(tcp, cb);
-	incremental += out_rewrite_ack(tcp, cb);
+	//incremental += out_rewrite_seq(tcp, cb);
+	//incremental += out_rewrite_ack(tcp, cb);
 
 	//if(cb->ts_ok)
 	//	out_rewrite_ts(tcp, cb);
