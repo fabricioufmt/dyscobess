@@ -56,36 +56,37 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 	out_gates[0].clear();
 	out_gates[1].clear();
 
+	Tcp* tcp;
+	Ipv4* ip;
 	Packet* pkt;
 	Ethernet* eth;
+	size_t ip_hlen;
+	DyscoHashIn* cb_in;
 	
 	for(int i = 0; i < batch->cnt(); i++) {
 		pkt = batch->pkts()[i];
+		
 		eth = pkt->head_data<Ethernet*>();
-
 		if(!isIP(eth)) {
 			out_gates[0].add(pkt);
 			continue;
 		}
 
-		Ipv4* ip = reinterpret_cast<Ipv4*>(eth + 1);
-		size_t ip_hlen = ip->header_length << 2;
+		ip = reinterpret_cast<Ipv4*>(eth + 1);
 		if(!isTCP(ip)) {
 			out_gates[0].add(pkt);
 			continue;
 		}
-
-		Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
+		ip_hlen = ip->header_length << 2;
+		tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
 
 #ifdef DEBUG
-		fprintf(stderr, "[%s][DyscoAgentIn] receives %s [%X:%X]\n",
-			ns.c_str(), printPacketSS(ip, tcp),
-			tcp->seq_num.value(), tcp->ack_num.value());
+		fprintf(stderr, "[%s][DyscoAgentIn] receives %s [%X:%X]\n", ns.c_str(), printPacketSS(ip, tcp),	tcp->seq_num.value(), tcp->ack_num.value());
 #endif
 
 		processReceivedPacket(tcp);
 		
-		DyscoHashIn* cb_in = dc->lookup_input(this->index, ip, tcp);
+		cb_in = dc->lookup_input(this->index, ip, tcp);
 		
 		if(!isReconfigPacket(ip, tcp, cb_in)) {
 			switch(input(pkt, ip, tcp, cb_in)) {
@@ -95,16 +96,15 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 				fprintf(stderr, "[%s][DyscoAgentIn] forwards %s [%X:%X]\n\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.value(), tcp->ack_num.value());
 #endif
 				break;
+				
 			case TO_GATE_1:
 				out_gates[1].add(pkt);
 #ifdef DEBUG
 				fprintf(stderr, "[%s][DyscoAgentIn] forwards %s [%X:%X]\n\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.value(), tcp->ack_num.value());
 #endif
 				break;
+				
 			default:
-#ifdef DEBUG
-				fprintf(stderr, "Neither Gate0 or Gate1\n\n");
-#endif
 				break;
 			}
 		} else {
@@ -452,7 +452,7 @@ bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in) {
 }
 
 //L.753
-CONTROL_RETURN DyscoAgentIn::input(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
+CONTROL_RETURN DyscoAgentIn::input(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
 	if(!cb_in) {
 		if(isTCPSYN(tcp) && hasPayload(ip, tcp)) {
 			if(rx_initiation_new(pkt, ip, tcp))

@@ -51,8 +51,8 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 
 	for(int i = 0; i < batch->cnt(); i++) {
 		pkt = batch->pkts()[i];
+		
 		eth = pkt->head_data<Ethernet*>();
-			
 		if(!isIP(eth)) {
 			out_gates[0].add(pkt);
 			continue;
@@ -67,9 +67,7 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 		ip_hlen = ip->header_length << 2;
 		tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
 #ifdef DEBUG
-		fprintf(stderr, "[%s][DyscoAgentOut] receives %s [%X:%X]\n",
-			ns.c_str(), printPacketSS(ip, tcp),
-			tcp->seq_num.value(), tcp->ack_num.value());
+		fprintf(stderr, "[%s][DyscoAgentOut] receives %s [%X:%X]\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.value(), tcp->ack_num.value());
 #endif
 		cb_out = dc->lookup_output(this->index, ip, tcp);
 
@@ -83,9 +81,7 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 				dc->add_retransmission(this->index, devip, pkt);
 			
 #ifdef DEBUG
-				fprintf(stderr, "[%s][DyscoAgentOut-Control] forwards to Retransmission %s [%X:%X]\n\n",
-					ns.c_str(), printPacketSS(ip, tcp),
-					tcp->seq_num.value(), tcp->ack_num.value());
+				fprintf(stderr, "[%s][DyscoAgentOut-Control] forwards to Retransmission %s [%X:%X]\n\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.value(), tcp->ack_num.value());
 #endif
 			}
 			
@@ -99,9 +95,7 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 			out_gates[0].add(pkt);
 
 #ifdef DEBUG
-		fprintf(stderr, "[%s][DyscoAgentOut] forwards %s [%X:%X]\n\n",
-			ns.c_str(), printPacketSS(ip, tcp),
-			tcp->seq_num.value(), tcp->ack_num.value());
+		fprintf(stderr, "[%s][DyscoAgentOut] forwards %s [%X:%X]\n\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.value(), tcp->ack_num.value());
 #endif
 	}
 	
@@ -301,7 +295,7 @@ DyscoHashOut* DyscoAgentOut::pick_path_ack(Tcp* tcp, DyscoHashOut* cb_out) {
 }
 
 //L.585
-bool DyscoAgentOut::out_translate(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) {
+bool DyscoAgentOut::out_translate(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) {
 	size_t ip_hlen = ip->header_length << 2;
 	size_t tcp_hlen = tcp->offset << 2;
 	uint32_t seg_sz = ip->length.value() - ip_hlen - tcp_hlen;
@@ -390,13 +384,10 @@ bool DyscoAgentOut::output(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb) {
 		return dc->out_syn(this->index, pkt, ip, tcp, cb_out, devip) != 0 ? true : false;
 	}
 
-	if(!cb_out) {
-		return false;
-	}
+	if(cb_out)
+		return out_translate(pkt, ip, tcp, cb_out);
 
-	out_translate(pkt, ip, tcp, cb_out);
-
-	return true;
+	return false;
 }
 
 /************************************************************************/
