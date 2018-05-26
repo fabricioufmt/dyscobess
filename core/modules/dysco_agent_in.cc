@@ -948,6 +948,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(Packet* pkt, Ipv4* ip, Tcp* tcp, Dysc
 			//cb_out->ack_cutoff = ntohl(cmsg->seqCutoff);
 
 			cb_out->valid_ack_cut = 1;
+			fprintf(stderr, "[%s]putting valid_ack_cut = 1\n", ns.c_str());
 			cb_out->ack_cutoff = cb_out->out_iack;
 			
 			/*
