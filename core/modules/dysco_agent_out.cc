@@ -343,15 +343,17 @@ bool DyscoAgentOut::out_translate(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHa
 	incremental += out_rewrite_seq(tcp, cb);
 	incremental += out_rewrite_ack(tcp, cb);
 
-	if(cb->ts_ok)
-		out_rewrite_ts(tcp, cb);
+	//if(cb->ts_ok)
+	//	out_rewrite_ts(tcp, cb);
 
-	if(cb->ws_ok)
-		out_rewrite_rcv_wnd(tcp, cb);
+	//if(cb->ws_ok)
+	//	out_rewrite_rcv_wnd(tcp, cb);
 
-	//tcp->checksum = bess::utils::UpdateChecksumWithIncrement(tcp->checksum, incremental);
+	tcp->checksum = bess::utils::UpdateChecksumWithIncrement(tcp->checksum, incremental);
+
+	hdr_rewrite_csum(ip, tcp, &cb->sub);
 	
-	dc->out_hdr_rewrite(pkt, ip, tcp, &cb->sub);
+	//dc->out_hdr_rewrite(pkt, ip, tcp, &cb->sub);
 	
 	return true;
 }
