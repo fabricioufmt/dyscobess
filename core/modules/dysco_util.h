@@ -532,11 +532,14 @@ inline void hdr_rewrite_csum(Ipv4* ip, Tcp* tcp, DyscoTcpSession* ss) {
 
 inline void hdr_rewrite_full_csum(Ipv4* ip, Tcp* tcp, DyscoTcpSession* ss) {
 	hdr_rewrite(ip, tcp, ss);
-	
+	fix_csum(ip, tcp);
+}
+
+inline void fix_csum(Ipv4* ip, Tcp* tcp) {
 	ip->checksum = 0;
 	tcp->checksum = 0;
 	ip->checksum = CalculateIpv4Checksum(*ip);
-	tcp->checksum = CalculateIpv4TcpChecksum(*ip, *tcp);
+	tcp->checksum = CalculateIpv4TcpChecksum(*ip, *tcp);	
 }
 
 /*********************************************************************

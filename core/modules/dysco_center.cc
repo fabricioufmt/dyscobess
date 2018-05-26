@@ -493,26 +493,19 @@ DyscoHashOut* DyscoCenter::create_cb_out(uint32_t i, Ipv4* ip, Tcp* tcp, DyscoPo
 	return 0;
 }
 
-bool DyscoCenter::out_tx_init(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) {
-	if(!add_sc(pkt, ip, cb_out))
-		return false;
-	
-	return fix_tcp_ip_csum(ip, tcp);
-}
-
-DyscoHashOut* DyscoCenter::out_syn(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out, uint32_t devip) {
+bool DyscoCenter::out_syn(uint32_t i, Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out, uint32_t devip) {
 	DyscoHashes* dh = get_hashes(i);
 	if(!dh)
-		return 0;
+		return false;
 	
 	if(!cb_out) {
 		DyscoPolicies::Filter* filter = dh->policies.match_policy(pkt);
 		if(!filter)
-			return 0;
+			return false;
 		
 		cb_out = create_cb_out(i, ip, tcp, filter, devip);
 		if(!cb_out)
-			return 0;
+			return false;
 
 		insert_cb_out(i, cb_out, 0);
 	}
@@ -521,8 +514,8 @@ DyscoHashOut* DyscoCenter::out_syn(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp*
 
 	parse_tcp_syn_opt_s(tcp, cb_out);
 	if(isTCPACK(tcp)) {
-		DyscoTcpSession local_sub;
 		DyscoHashIn* cb_in_aux;
+		DyscoTcpSession local_sub;
 
 		local_sub.sip = cb_out->sub.dip;
 		local_sub.dip = cb_out->sub.sip;
@@ -531,22 +524,18 @@ DyscoHashOut* DyscoCenter::out_syn(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp*
 
 		cb_in_aux = lookup_input_by_ss(i, &local_sub);
 		if(!cb_in_aux)
-			return 0;
+			return false;
 
 		cb_out->in_iseq = cb_out->out_iseq = tcp->seq_num.value();
 		cb_out->in_iack = cb_out->out_iack = tcp->ack_num.value() - 1;
-
 		cb_in_aux->in_iseq = cb_in_aux->out_iseq = cb_out->out_iack;
 		cb_in_aux->in_iack = cb_in_aux->out_iack = cb_out->out_iseq;
-
 		cb_in_aux->seq_delta = cb_in_aux->ack_delta = 0;
 
 		if(cb_out->ts_ok) {
 			cb_in_aux->ts_ok = 1;
-
 			cb_in_aux->ts_in = cb_in_aux->ts_out = cb_out->tsr_out;
 			cb_in_aux->tsr_in = cb_in_aux->tsr_out = cb_out->ts_out;
-
 			cb_in_aux->ts_delta = cb_in_aux->tsr_delta = 0;
 		} else
 			cb_in_aux->ts_ok = 0;
@@ -554,16 +543,14 @@ DyscoHashOut* DyscoCenter::out_syn(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp*
 		if(!cb_out->sack_ok)
 			cb_in_aux->sack_ok = 0;
 
-		out_hdr_rewrite(pkt, ip, tcp, &cb_out->sub);
-		fix_tcp_ip_csum(ip, tcp);
-
-		return cb_out;
+		hdr_rewrite_csum(ip, tcp, &cb_out->sub);
 	} else {
-		out_hdr_rewrite(pkt, ip, tcp, &cb_out->sub);
-		out_tx_init(pkt, ip, tcp, cb_out);
+		hdr_rewrite(ip, tcp, &cb_out->sub);
+		add_sc(pkt, ip, cb_out);
+		fix_csum(ip, tcp);
 	}
 
-	return cb_out;
+	return true;
 }
 
 /*
@@ -823,15 +810,6 @@ bool DyscoCenter::parse_tcp_syn_opt_r(Tcp* tcp, DyscoHashIn* cb_in) {
 	return true;
 }
 
-bool DyscoCenter::fix_tcp_ip_csum(Ipv4* ip, Tcp* tcp) {
-	ip->checksum = 0;
-	tcp->checksum = 0;
-	ip->checksum = bess::utils::CalculateIpv4Checksum(*ip);
-	tcp->checksum = bess::utils::CalculateIpv4TcpChecksum(*ip, *tcp);
-
-	return true;
-}
-
 /*
   Dysco methods
  */
@@ -880,7 +858,7 @@ bool DyscoCenter::out_handle_mb(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp* tc
 	}
 
 	add_sc(pkt, ip, cb_out);
-	fix_tcp_ip_csum(ip, tcp);
+	fix_csum(ip, tcp);
 
 	return true;
 }
@@ -977,16 +955,13 @@ bool DyscoCenter::remove_tag(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 	return true;
 }
 
-bool DyscoCenter::add_sc(bess::Packet* pkt, Ipv4* ip, DyscoHashOut* cb_out) {
-	if(!cb_out)
-		return false;
-
+void DyscoCenter::add_sc(Packet* pkt, Ipv4* ip, DyscoHashOut* cb_out) {
 	uint32_t payload_sz;
-	if(cb_out->is_reconfiguration == 1)  {
+	
+	if(cb_out->is_reconfiguration == 1)
 		payload_sz = sizeof(DyscoControlMessage) + cb_out->sc_len * sizeof(uint32_t) + 1;
-	} else {
+	else
 		payload_sz = sizeof(DyscoTcpSession) + cb_out->sc_len * sizeof(uint32_t);
-	}
 	
 	uint8_t* payload = reinterpret_cast<uint8_t*>(pkt->append(payload_sz));
 
@@ -999,8 +974,7 @@ bool DyscoCenter::add_sc(bess::Packet* pkt, Ipv4* ip, DyscoHashOut* cb_out) {
 		memcpy(payload + sizeof(DyscoTcpSession), cb_out->sc, payload_sz - sizeof(DyscoTcpSession));
 	}
 
-	ip->length = be16_t(ip->length.value() + payload_sz);
-	return true;
+	ip->length = ip->length + be16_t(payload_sz);
 }
 
 /************************************************************************/

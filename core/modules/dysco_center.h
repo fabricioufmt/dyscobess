@@ -22,7 +22,6 @@ class DyscoCenter final : public Module {
 	bool after(uint32_t, uint32_t);
 	bool before(uint32_t, uint32_t);
 	DyscoTcpTs* get_ts_option(Tcp*);
-	bool fix_tcp_ip_csum(Ipv4*, Tcp*);
 	bool tcp_sack(Tcp*, uint32_t, uint8_t);
 	bool parse_tcp_syn_opt_s(Tcp*, DyscoHashOut*);
 	bool parse_tcp_syn_opt_r(Tcp*, DyscoHashIn*);
@@ -65,9 +64,8 @@ class DyscoCenter final : public Module {
 	DyscoHashes* get_hashes(uint32_t);
 	uint32_t get_dysco_tag(uint32_t);
 	bool remove_tag(Packet*, Ipv4*, Tcp*);
-	bool add_sc(Packet*, Ipv4*, DyscoHashOut*);
+	void add_sc(Packet*, Ipv4*, DyscoHashOut*);
 	bool insert_pending(DyscoHashes*, uint8_t*, uint32_t);
-	bool out_tx_init(Packet*, Ipv4*, Tcp*, DyscoHashOut*);
 	DyscoHashOut* lookup_pending_tag_by_tag(uint32_t, uint32_t);
 	bool insert_pending_reconfig(DyscoHashes*, uint8_t*, uint32_t);
 	DyscoHashOut* insert_cb_in_reverse(DyscoTcpSession*, Ipv4*, Tcp*);
