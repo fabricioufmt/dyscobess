@@ -770,8 +770,8 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 		uint32_t seq_cutoff = old_out->seq_cutoff;
 
 		old_out->old_path = 1;
-		//old_out->state = DYSCO_SYN_RECEIVED;
-		old_out->state = DYSCO_ESTABLISHED;
+		old_out->state = DYSCO_SYN_RECEIVED;
+		//old_out->state = DYSCO_ESTABLISHED;
 		old_out->other_path = new_out;
 		
 		if(new_out->seq_add)
