@@ -497,6 +497,30 @@ inline uint32_t getValueToAck(Packet* pkt) {
 	return toAck;
 }
 
+inline void hdr_rewrite(Ipv4* ip, Tcp* tcp, DyscoTcpSession* ss) {
+	*((uint32_t*)(&ip->src)) = ss->sip;
+	*((uint32_t*)(&ip->dst)) = ss->dip;
+	*((uint16_t*)(&tcp->src_port)) = ss->sport;
+	*((uint16_t*)(&tcp->dst_port)) = ss->dport;
+}
+
+inline void hdr_rewrite_csum(Ipv4* ip, Tcp* tcp, DyscoTcpSession* ss) {
+	uint32_t incremental = 0;
+
+	incremental += ChecksumIncrement32(ip->src.raw_value(), ss->sip);
+	incremental += ChecksumIncrement32(ip->dst.raw_value(), ss->dip);
+	
+	ip->checksum  = UpdateChecksumWithIncrement( ip->checksum, incremental);
+	tcp->checksum = UpdateChecksumWithIncrement(tcp->checksum, incremental);
+
+	incremental  = ChecksumIncrement16(tcp->src_port.raw_value(), ss->sport);
+	incremental += ChecksumIncrement16(tcp->dst_port.raw_value(), ss->dport);
+
+	tcp->checksum = UpdateChecksumWithIncrement(tcp->checksum, incremental);
+
+	hdr_rewrite(ip, tcp, ss);
+}
+
 /*********************************************************************
  *
  *	DEBUG
