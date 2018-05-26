@@ -337,7 +337,7 @@ bool DyscoAgentIn::in_two_paths_ack(Tcp* tcp, DyscoHashIn* cb_in) {
 	if(!cb_out) {
 		return false;
 	}
-
+	/*
 	if(cb_out->old_path) {
 		if(!cb_out->state_t) {
 			if(!dc->after(cb_out->seq_cutoff, ack_seq)) {
@@ -358,8 +358,8 @@ bool DyscoAgentIn::in_two_paths_ack(Tcp* tcp, DyscoHashIn* cb_in) {
 			}
 		}
 	}
-	
-	/*
+	*/
+
 	if(cb_out->old_path) {
 		if(cb_out->state_t && cb_out->state == DYSCO_ESTABLISHED) {
 			cb_in->two_paths = 0;
@@ -385,7 +385,6 @@ bool DyscoAgentIn::in_two_paths_ack(Tcp* tcp, DyscoHashIn* cb_in) {
 			}
 		}
 	}
-	*/
 
 	return true;
 }
@@ -439,6 +438,13 @@ CONTROL_RETURN DyscoAgentIn::input(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashIn*
 	}
 
 	if(isTCPACK(tcp)) {
+		if(cb_in->dcb_out->old_path && cb_in->dcb_out->state == DYSCO_LAST_ACK) {
+			fprintf(stderr, "old_path is in LAST_ACK state\n");
+			cb_in->dcb_out->state = DYSCO_CLOSED;
+
+			return ERROR;
+		}
+		
 		if(cb_in->dcb_out->state == DYSCO_SYN_RECEIVED)
 			cb_in->dcb_out->state = DYSCO_ESTABLISHED;
 	}
@@ -463,17 +469,14 @@ CONTROL_RETURN DyscoAgentIn::input(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashIn*
 		return TO_GATE_0;
 	}
 
-	if(tcp->flags & Tcp::kFin) {
-		if(!cb_in->two_paths) {
-			fprintf(stderr, "!cb_in->two_paths\n");
-			if(cb_in->dcb_out && cb_in->dcb_out->old_path) {
-				createFinAck(pkt, ip, tcp);
-				//cb_in->dcb_out->state = DYSCO_LAST_ACK;
-				fprintf(stderr, "I'm going to answer with FIN/ACK\n");
-				return TO_GATE_1;
-			}
-		} else
-			fprintf(stderr, "cb_in->two_paths\n");
+	if(isTCPFIN(tcp)) {
+		if(cb_in->dcb_out->old_path && cb_in->dcb_out->other_path->state == DYSCO_ESTABLISHED) {
+			createFinAck(pkt, ip, tcp);
+			fprintf(stderr, "I'm going to answer with FIN/ACK\n");
+			cb_in->dcb_out->other_path->state = DYSCO_LAST_ACK;
+
+			return TO_GATE_1;
+		}
 	}
 
 	if(cb_in->two_paths) {
