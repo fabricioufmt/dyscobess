@@ -451,14 +451,20 @@ CONTROL_RETURN DyscoAgentIn::input(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashIn*
 		return TO_GATE_0;
 	}
 
+	//TEST
+	//if(!cb_in->two_paths) {
+		
+		//}
+
+	
 	if(tcp->flags & Tcp::kFin) {
 		if(!cb_in->two_paths) {
-			if(cb_in->dcb_out && cb_in->dcb_out->old_path) {
+			/*if(cb_in->dcb_out && cb_in->dcb_out->old_path) {
 				createFinAck(pkt, ip, tcp);
 				cb_in->dcb_out->state = DYSCO_LAST_ACK;
 				
 				return TO_GATE_1;
-			}
+				}*/
 		}
 
 	}
