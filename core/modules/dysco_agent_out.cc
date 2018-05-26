@@ -348,6 +348,7 @@ bool DyscoAgentOut::out_translate(bess::Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOu
 			} else
 				cb = pick_path_ack(tcp, cb_out);
 		} else if(cb_out->state == DYSCO_CLOSED) {
+			fprintf(stderr, "cb_out state is CLOSED\n");
 			//TEST
 			//Should forward to other_path
 			if(cb_out->other_path)
@@ -405,7 +406,7 @@ bool DyscoAgentOut::output(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb) {
 		}
 	}
 
-	if(isTCPSYN(tcp)) {
+	if(isTCPSYN(tcp, true)) {
 		return dc->out_syn(this->index, pkt, ip, tcp, cb_out, devip) != 0 ? true : false;
 	}
 
