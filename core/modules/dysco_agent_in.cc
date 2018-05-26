@@ -459,8 +459,8 @@ CONTROL_RETURN DyscoAgentIn::input(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashIn*
 
 	if(check1 != check2) {
 		fprintf(stderr, "[%s][DyscoAgentIn] tcp->checksum is: %X\n", ns.c_str(), tcp->checksum);
-		fprintf(stderr, "[%s][DyscoAgentIn] checksum should : %X\n\n", ns.c_str(), bess::utils::CalculateIpv4TcpChecksum(*ip, *tcp));
-		fprintf(stderr, "[%s][DyscoAgentIn] receives %s [%X:%X]\n", ns.c_str(), printPacketSS(ip, tcp),	tcp->seq_num.value(), tcp->ack_num.value());
+		fprintf(stderr, "[%s][DyscoAgentIn] checksum should : %X\n", ns.c_str(), bess::utils::CalculateIpv4TcpChecksum(*ip, *tcp));
+		fprintf(stderr, "[%s][DyscoAgentIn] receives %s [%X:%X]\n\n", ns.c_str(), printPacketSS(ip, tcp),	tcp->seq_num.value(), tcp->ack_num.value());
 	}
 
 	
