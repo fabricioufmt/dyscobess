@@ -284,27 +284,38 @@ DyscoHashOut* DyscoAgentOut::pick_path_ack(Tcp* tcp, DyscoHashOut* cb_out) {
 	uint32_t ack = tcp->ack_num.value();
 	
 	if(cb_out->state_t) {
+		fprintf(stderr, "1\n");
 		if(cb_out->state == DYSCO_ESTABLISHED) {
 			cb = cb_out->other_path;
 		}
 	} else {
+		fprintf(stderr, "2\n");
 		if(cb_out->valid_ack_cut) {
+			fprintf(stderr, "3\n");
 			if(cb_out->use_np_ack) {
+				fprintf(stderr, "4\n");
 				cb = cb_out->other_path;
-			} else if(!dc->after(cb_out->ack_cutoff, ack)) {		
+			} else if(!dc->after(cb_out->ack_cutoff, ack)) {
+				fprintf(stderr, "5\n");
 				if(tcp->flags & Tcp::kFin)
 					cb = cb_out->other_path;
 				else {
+					fprintf(stderr, "6\n");
 					//TEST
 					//tcp->ack_num = be32_t(cb_out->ack_cutoff);
 					cb = cb_out->other_path;
 					cb_out->ack_ctr++;
-					if(cb_out->ack_ctr > 1)
+					if(cb_out->ack_ctr > 1) {
+						fprintf(stderr, "7\n");
 						cb_out->use_np_ack = 1;
+					}
 				}
-			}
-		}
+			} else
+				fprintf(stderr, "8\n");
+		} else
+			fprintf(stderr, "9\n");
 	}
+	
 	return cb;
 }
 
