@@ -57,10 +57,10 @@ class DyscoAgentIn final : public Module {
 	bool tcp_sack(Tcp*, DyscoHashIn*); 
 	void remove_sc(Packet*, Ipv4*, uint32_t);
 	void in_hdr_rewrite(Ipv4*, Tcp*, DyscoTcpSession*);
-	bool in_rewrite_seq(Tcp*, DyscoHashIn*);
-	bool in_rewrite_ack(Tcp*, DyscoHashIn*);
-	bool in_rewrite_ts(Tcp*, DyscoHashIn*);
-	bool in_rewrite_rcv_wnd(Tcp*, DyscoHashIn*);
+	uint32_t in_rewrite_seq(Tcp*, DyscoHashIn*);
+	uint32_t in_rewrite_ack(Tcp*, DyscoHashIn*);
+	uint32_t in_rewrite_ts(Tcp*, DyscoHashIn*);
+	uint32_t in_rewrite_rcv_wnd(Tcp*, DyscoHashIn*);
 	bool in_hdr_rewrite_csum(Ipv4*, Tcp*, DyscoHashIn*);
 	void rx_initiation_new(Packet*, Ipv4*, Tcp*);
 	bool in_two_paths_ack(Tcp*, DyscoHashIn*);
