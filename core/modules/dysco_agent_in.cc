@@ -420,6 +420,7 @@ CONTROL_RETURN DyscoAgentIn::input(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashIn*
 			dc->set_ack_number_out(this->index, tcp, cb_in);
 			in_hdr_rewrite_csum(ip, tcp, cb_in);
 
+			fprintf(stderr, "state; %d\n", cb_in->dcb_out->state);
 			if(cb_in->dcb_out->state == DYSCO_SYN_RECEIVED) {
 				fprintf(stderr, "Changed from SYN_RECEIVED to ESTABLISHED.\n");
 				cb_in->dcb_out->state = DYSCO_ESTABLISHED;

@@ -546,12 +546,14 @@ bool DyscoCenter::out_syn(uint32_t i, Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHash
 		hdr_rewrite_csum(ip, tcp, &cb_out->sub);
 
 		cb_out->state = DYSCO_SYN_RECEIVED;
+		fprintf(stderr, "puting to SYN_RECEIVED.\n");
 	} else {
 		hdr_rewrite(ip, tcp, &cb_out->sub);
 		add_sc(pkt, ip, cb_out);
 		fix_csum(ip, tcp);
 
 		cb_out->state = DYSCO_SYN_SENT;
+		fprintf(stderr, "putting to SYN_SENT\n");
 	}
 
 	return true;
