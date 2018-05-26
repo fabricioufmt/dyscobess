@@ -934,10 +934,14 @@ CONTROL_RETURN DyscoAgentIn::control_input(Packet* pkt, Ipv4* ip, Tcp* tcp, Dysc
 				
 				return IS_RETRANSMISSION;
 			}
-			
+			/*
 			DyscoHashOut* cb_out2 = dc->lookup_output_by_ss(this->index, &cmsg->leftSS);
 			if(cb_out2)
 				cb_out2->valid_ack_cut = 1;
+			*/
+
+
+				
 			/*
 			if(!cb_out)
 				return ERROR;
@@ -949,9 +953,10 @@ CONTROL_RETURN DyscoAgentIn::control_input(Packet* pkt, Ipv4* ip, Tcp* tcp, Dysc
 			//seqCutoff??? SYN/ACK doesn't load cmsg instead Dysco (with UDP)
 			//cb_out->ack_cutoff = ntohl(cmsg->seqCutoff);
 
-			cb_out->valid_ack_cut = 1;
-			fprintf(stderr, "[%s]putting valid_ack_cut = 1\n", ns.c_str());
-			cb_out->ack_cutoff = cb_out->out_iack;
+			//NEW
+			//cb_out->valid_ack_cut = 1;
+			//fprintf(stderr, "[%s]putting valid_ack_cut = 1\n", ns.c_str());
+			//cb_out->ack_cutoff = cb_out->out_iack;
 			
 			/*
 			 *
@@ -971,6 +976,12 @@ CONTROL_RETURN DyscoAgentIn::control_input(Packet* pkt, Ipv4* ip, Tcp* tcp, Dysc
 			}
 			
 			DyscoHashOut* old_dcb = rcb->old_dcb;
+
+			//TEST
+			old_dcb->valid_ack_cut = 1;
+			old_dcb->ack_cutoff = cb_out->out_iack;
+			      
+			
 			//old_dcb->state = DYSCO_CLOSED;
 			cb_out->state = DYSCO_ESTABLISHED;
 
