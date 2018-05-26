@@ -320,13 +320,14 @@ void DyscoAgentIn::in_hdr_rewrite_csum(Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
 
 	incremental += in_rewrite_seq(tcp, cb_in);
 	incremental += in_rewrite_ack(tcp, cb_in);
-	
+
+	/*
 	if(cb_in->ts_ok)
 		incremental += in_rewrite_ts(tcp, cb_in);
 	
 	if(cb_in->ws_ok)
 		incremental += in_rewrite_rcv_wnd(tcp, cb_in);
-
+	*/
 	tcp->checksum = UpdateChecksumWithIncrement(tcp->checksum, incremental);
 }
 
