@@ -25,7 +25,6 @@ class DyscoCenter final : public Module {
 	bool fix_tcp_ip_csum(Ipv4*, Tcp*);
 	bool tcp_sack(Tcp*, uint32_t, uint8_t);
 	bool parse_tcp_syn_opt_s(Tcp*, DyscoHashOut*);
-	bool parse_tcp_syn_opt_r(Tcp*, DyscoHashIn*);
 
 	uint16_t allocate_local_port(uint32_t);
 	uint16_t allocate_neighbor_port(uint32_t);

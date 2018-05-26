@@ -442,7 +442,7 @@ bool DyscoCenter::set_ack_number_out(uint32_t i, Tcp* tcp, DyscoHashIn* cb_in) {
 	cb_out->out_iack = cb_out->in_iack = tcp->seq_num.value();
 	cb_out->out_iseq = cb_out->in_iseq = tcp->ack_num.value() - 1;
 	
-	parse_tcp_syn_opt_r(tcp, cb_in);
+	parse_tcp_syn_opt_r(tcp, (tcp->offset << 2), cb_in);
 	if(cb_in->ts_ok) {
 		cb_out->ts_ok = 1;
 		cb_out->tsr_out = cb_out->tsr_in = cb_in->ts_in;
@@ -745,78 +745,6 @@ bool DyscoCenter::parse_tcp_syn_opt_s(Tcp* tcp, DyscoHashOut* cb_out) {
 
 			ptr += opsize - 2;
 			len -= opsize;
-		}
-	}
-	
-	return true;
-}
-
-bool DyscoCenter::parse_tcp_syn_opt_r(Tcp* tcp, DyscoHashIn* cb_in) {
-	uint32_t len = (tcp->offset << 4) - sizeof(Tcp);
-	uint8_t* ptr = reinterpret_cast<uint8_t*>(tcp + 1);
-
-	cb_in->sack_ok = 0;
-
-	uint32_t opcode, opsize;
-	while(len > 0) {
-		opcode = *ptr++;
-		switch(opcode) {
-		case TCPOPT_EOL:
-			return false;
-			
-		case TCPOPT_NOP:
-			len--;
-			continue;
-
-		default:
-			opsize = *ptr++;
-			if(opsize < 2)
-				return false;
-			
-			if(opsize > len)
-				return false;
-			
-			switch(opsize) {
-			case TCPOPT_WINDOW:
-				if(opsize == TCPOLEN_WINDOW) {
-					uint8_t snd_wscale = *(uint8_t*)ptr;
-					
-					cb_in->ws_ok = 1;
-					cb_in->ws_delta = 0;
-					if (snd_wscale > 14)
-						snd_wscale = 14;
-					
-					cb_in->ws_in = cb_in->ws_out = snd_wscale;
-				}
-				
-				break;
-				
-			case TCPOPT_TIMESTAMP:
-				if(opsize == TCPOLEN_TIMESTAMP) {
-					if(tcp->flags & Tcp::kAck) {
-						uint32_t ts, tsr;
-						
-						cb_in->ts_ok = 1;
-						ts = (uint32_t)(*ptr);
-						tsr = (uint32_t)(*(ptr + 4));
-						cb_in->ts_in = cb_in->ts_out = ts;
-						cb_in->tsr_in = cb_in->tsr_out = tsr;
-						
-						cb_in->ts_delta = cb_in->tsr_delta = 0;
-					}
-				}
-				
-				break;
-				
-			case TCPOPT_SACK_PERMITTED:
-				if(opsize == TCPOLEN_SACK_PERMITTED)
-					cb_in->sack_ok = 1;
-				
-				break;
-
-			ptr += opsize - 2;
-			len -= opsize;
-			}
 		}
 	}
 	

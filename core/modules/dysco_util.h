@@ -47,6 +47,8 @@ using bess::utils::be32_t;
 using bess::utils::Ethernet;
 using bess::utils::ChecksumIncrement16;
 using bess::utils::ChecksumIncrement32;
+using bess::utils::CalculateIpv4Checksum;
+using bess::utils::CalculateIpv4TcpChecksum;
 using bess::utils::UpdateChecksumWithIncrement;
 
 /*********************************************************************
@@ -523,6 +525,86 @@ inline void hdr_rewrite_csum(Ipv4* ip, Tcp* tcp, DyscoTcpSession* ss) {
 
 	hdr_rewrite(ip, tcp, ss);
 }
+
+
+
+
+
+inline void parse_tcp_syn_opt_r(Tcp* tcp, uint32_t tcp_hlen, DyscoHashIn* cb_in) {
+	uint32_t len = tcp_hlen - sizeof(Tcp);
+	uint8_t* ptr = reinterpret_cast<uint8_t*>(tcp + 1);
+
+	cb_in->sack_ok = 0;
+
+	uint32_t opcode, opsize;
+	while(len > 0) {
+		opcode = *ptr++;
+		switch(opcode) {
+		case TCPOPT_EOL:
+			return;
+			
+		case TCPOPT_NOP:
+			len--;
+			continue;
+
+		default:
+			opsize = *ptr++;
+			if(opsize < 2)
+				return;
+			
+			if(opsize > len)
+				return;
+			
+			switch(opsize) {
+			case TCPOPT_WINDOW:
+				if(opsize == TCPOLEN_WINDOW) {
+					uint8_t snd_wscale = *(uint8_t*)ptr;
+					
+					cb_in->ws_ok = 1;
+					cb_in->ws_delta = 0;
+					if (snd_wscale > 14)
+						snd_wscale = 14;
+					
+					cb_in->ws_in = cb_in->ws_out = snd_wscale;
+				}
+				
+				break;
+				
+			case TCPOPT_TIMESTAMP:
+				if(opsize == TCPOLEN_TIMESTAMP) {
+					if(tcp->flags & Tcp::kAck) {
+						uint32_t ts, tsr;
+						
+						cb_in->ts_ok = 1;
+						ts = (uint32_t)(*ptr);
+						tsr = (uint32_t)(*(ptr + 4));
+						cb_in->ts_in = cb_in->ts_out = ts;
+						cb_in->tsr_in = cb_in->tsr_out = tsr;
+						
+						cb_in->ts_delta = cb_in->tsr_delta = 0;
+					}
+				}
+				
+				break;
+				
+			case TCPOPT_SACK_PERMITTED:
+				if(opsize == TCPOLEN_SACK_PERMITTED)
+					cb_in->sack_ok = 1;
+				
+				break;
+
+			ptr += opsize - 2;
+			len -= opsize;
+			
+			}
+		}
+	}
+}
+
+
+
+
+
 
 /*********************************************************************
  *
