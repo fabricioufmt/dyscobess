@@ -94,15 +94,6 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 		} else
 			out_gates[0].add(pkt);
 
-		uint16_t check1 = tcp->checksum;
-		uint16_t check2 = bess::utils::CalculateIpv4TcpChecksum(*ip, *tcp);
-
-		//if(check1 != check2) {
-			fprintf(stderr, "[%s][DyscoAgentOut] tcp->checksum is: %X\n", ns.c_str(), check1);
-			fprintf(stderr, "[%s][DyscoAgentOut] checksum should : %X\n", ns.c_str(), check2);
-			fprintf(stderr, "[%s][DyscoAgentOut] forwarding %s [%X:%X]\n\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.value(), tcp->ack_num.value());
-			//}
-		
 #ifdef DEBUG
 		fprintf(stderr, "[%s][DyscoAgentOut] forwards %s [%X:%X]\n\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.value(), tcp->ack_num.value());
 #endif
@@ -367,19 +358,6 @@ void DyscoAgentOut::out_translate(bess::Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOu
 		incremental += out_rewrite_rcv_wnd(tcp, cb);
 
 	tcp->checksum = UpdateChecksumWithIncrement(tcp->checksum, incremental);
-	
-	/*
-	out_rewrite_seq(tcp, cb);
-	out_rewrite_ack(tcp, cb);
-
-	if(cb->ts_ok)
-		out_rewrite_ts(tcp, cb);
-
-	if(cb->ws_ok)
-		out_rewrite_rcv_wnd(tcp, cb);
-
-	dc->out_hdr_rewrite(pkt, ip, tcp, &cb->sub);
-	*/
 }
 
 //L.1089
