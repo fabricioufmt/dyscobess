@@ -453,6 +453,10 @@ bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in) {
 
 //L.753
 CONTROL_RETURN DyscoAgentIn::input(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
+	fprintf(stderr, "tcp->checksum is: %X\n", tcp->checksum);
+	fprintf(stderr, "checksum should : %X\n", bess::utils::CalculateIpv4TcpChecksum(*ip, *tcp));
+
+	
 	if(!cb_in) {
 		if(isTCPSYN(tcp) && hasPayload(ip, tcp)) {
 			if(rx_initiation_new(pkt, ip, tcp))
