@@ -934,9 +934,11 @@ CONTROL_RETURN DyscoAgentIn::control_input(Packet* pkt, Ipv4* ip, Tcp* tcp, Dysc
 				
 				return IS_RETRANSMISSION;
 			}
-			/*
-			DyscoHashOut* cb_out = dc->lookup_output_by_ss(this->index, &cmsg->leftSS);
 			
+			DyscoHashOut* cb_out2 = dc->lookup_output_by_ss(this->index, &cmsg->leftSS);
+			if(cb_out2)
+				cb_out2->valid_ack_cut = 1;
+			/*
 			if(!cb_out)
 				return ERROR;
 
