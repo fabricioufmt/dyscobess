@@ -45,6 +45,9 @@ using bess::PacketBatch;
 using bess::utils::be16_t;
 using bess::utils::be32_t;
 using bess::utils::Ethernet;
+using bess::utils::ChecksumIncrement16;
+using bess::utils::ChecksumIncrement32;
+using bess::utils::UpdateChecksumWithIncrement;
 
 /*********************************************************************
  *
