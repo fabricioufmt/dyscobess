@@ -416,10 +416,8 @@ CONTROL_RETURN DyscoAgentIn::input(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashIn*
 	}
 
 	if(isTCPACK(tcp)) {
-		if(cb_in->dcb_out->state == DYSCO_SYN_RECEIVED) {
-			fprintf(stderr, "Changed from SYN_RECEIVED to ESTABLISHED.\n");
+		if(cb_in->dcb_out->state == DYSCO_SYN_RECEIVED)
 			cb_in->dcb_out->state = DYSCO_ESTABLISHED;
-		}
 	}
 	
 	if(isTCPSYN(tcp)) {
@@ -427,10 +425,8 @@ CONTROL_RETURN DyscoAgentIn::input(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashIn*
 			dc->set_ack_number_out(this->index, tcp, cb_in);
 			in_hdr_rewrite_csum(ip, tcp, cb_in);
 
-			if(cb_in->dcb_out->state == DYSCO_SYN_SENT) {
-				fprintf(stderr, "Changed from SYN_SENT to ESTABLISHED.\n");
+			if(cb_in->dcb_out->state == DYSCO_SYN_SENT)
 				cb_in->dcb_out->state = DYSCO_ESTABLISHED;
-			}
 		} else {
 			//It is retransmission packet, just remove sc (if there is) and insert Dysco Tag
 			if(payload_sz) {
