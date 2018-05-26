@@ -600,6 +600,9 @@ bool DyscoAgentOut::control_output(Ipv4* ip, Tcp* tcp) {
 		if(!old_dcb) {
 			return false;
 		}
+
+		//TEST
+		old_dcb->state = DYSCO_ESTABLISHED;
 		
 		/*
 		  Changing TCP seq/ack values to ISN from old_dcb
