@@ -435,7 +435,7 @@ CONTROL_RETURN DyscoAgentIn::input(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashIn*
 		if(!cb_in->two_paths) {
 			if(cb_in->dcb_out && cb_in->dcb_out->old_path) {
 				createFinAck(pkt, ip, tcp);
-				cb_in->dcb_out->state = DYSCO_LAST_ACK;
+				//cb_in->dcb_out->state = DYSCO_LAST_ACK;
 				
 				return TO_GATE_1;
 			}
@@ -452,7 +452,7 @@ CONTROL_RETURN DyscoAgentIn::input(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashIn*
 #ifdef DEBUG
 			fprintf(stderr, "old path was closed.\n");
 #endif
-			cb_in->dcb_out->state = DYSCO_CLOSED;
+			//cb_in->dcb_out->state = DYSCO_CLOSED;
 			
 			return END;
 		}
@@ -744,7 +744,7 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 		uint32_t seq_cutoff = old_out->seq_cutoff;
 
 		old_out->old_path = 1;
-		old_out->state = DYSCO_SYN_RECEIVED;
+		//old_out->state = DYSCO_SYN_RECEIVED;
 		old_out->other_path = new_out;
 		
 		if(new_out->seq_add)
@@ -956,7 +956,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(Packet* pkt, Ipv4* ip, Tcp* tcp, Dysc
 			}
 			
 			DyscoHashOut* old_dcb = rcb->old_dcb;
-			old_dcb->state = DYSCO_CLOSED;
+			//old_dcb->state = DYSCO_CLOSED;
 			cb_out->state = DYSCO_ESTABLISHED;
 
 			cb_in->is_reconfiguration = 0;
@@ -966,8 +966,8 @@ CONTROL_RETURN DyscoAgentIn::control_input(Packet* pkt, Ipv4* ip, Tcp* tcp, Dysc
 					return ERROR;
 				}
 
-				if(old_dcb->state == DYSCO_SYN_SENT)
-					old_dcb->state = DYSCO_ESTABLISHED;
+				//if(old_dcb->state == DYSCO_SYN_SENT)
+				//	old_dcb->state = DYSCO_ESTABLISHED;
 			}
 			
 			return TO_GATE_1;
@@ -1030,18 +1030,18 @@ CONTROL_RETURN DyscoAgentIn::control_input(Packet* pkt, Ipv4* ip, Tcp* tcp, Dysc
 				old_out_ack_cutoff += delta;
 			}
 
-			if(old_out->state == DYSCO_SYN_RECEIVED)
-				old_out->state = DYSCO_CLOSED;
+			//if(old_out->state == DYSCO_SYN_RECEIVED)
+			//	old_out->state = DYSCO_CLOSED;
 			if(new_out->state == DYSCO_SYN_RECEIVED)
 				new_out->state = DYSCO_ESTABLISHED;
 			
-			if(old_out->state == DYSCO_ESTABLISHED)
-				return END;
+			//if(old_out->state == DYSCO_ESTABLISHED)
+			//	return END;
 
 			if(!old_out->state_t) {
 				old_out->ack_cutoff = old_out_ack_cutoff;
 				old_out->valid_ack_cut = 1;
-				old_out->state = DYSCO_ESTABLISHED;
+				//old_out->state = DYSCO_ESTABLISHED;
 			}
 
 			return END;

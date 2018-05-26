@@ -469,7 +469,7 @@ bool DyscoAgentOut::replace_cb_rightA(DyscoControlMessage* cmsg) {
 
 	uint32_t seq_cutoff = old_out->seq_cutoff;
 	old_out->old_path = 1;
-	old_out->state = DYSCO_SYN_RECEIVED;
+	//old_out->state = DYSCO_SYN_RECEIVED;
 	old_out->other_path = new_out;
 
 	if(new_out->seq_add)
@@ -485,8 +485,8 @@ bool DyscoAgentOut::replace_cb_rightA(DyscoControlMessage* cmsg) {
 bool DyscoAgentOut::replace_cb_leftA(DyscoCbReconfig* rcb, DyscoControlMessage* cmsg) {
 	DyscoHashOut* old_dcb = rcb->old_dcb;
 
-	if(old_dcb->state == DYSCO_SYN_SENT)
-		old_dcb->state = DYSCO_ESTABLISHED;
+	//if(old_dcb->state == DYSCO_SYN_SENT)
+	//	old_dcb->state = DYSCO_ESTABLISHED;
 
 	cmsg->seqCutoff = htonl(old_dcb->seq_cutoff);
 
