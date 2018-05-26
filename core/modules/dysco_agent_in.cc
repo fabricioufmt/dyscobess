@@ -92,21 +92,19 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 			switch(input(pkt, ip, tcp, cb_in)) {
 			case TO_GATE_0:
 				out_gates[0].add(pkt);
-#ifdef DEBUG
-				fprintf(stderr, "[%s][DyscoAgentIn] forwards %s [%X:%X]\n\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.value(), tcp->ack_num.value());
-#endif
 				break;
 				
 			case TO_GATE_1:
 				out_gates[1].add(pkt);
-#ifdef DEBUG
-				fprintf(stderr, "[%s][DyscoAgentIn] forwards %s [%X:%X]\n\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.value(), tcp->ack_num.value());
-#endif
 				break;
 				
 			default:
 				break;
 			}
+#ifdef DEBUG
+			fprintf(stderr, "[%s][DyscoAgentIn] forwards %s [%X:%X]\n\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.value(), tcp->ack_num.value());
+#endif
+			
 		} else {
 			switch(control_input(pkt, ip, tcp, cb_in)) {
 			case TO_GATE_0:
@@ -199,24 +197,6 @@ bool DyscoAgentIn::remove_sc(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 
 	pkt->trim(payload_sz);
 	ip->length = ip->length - be16_t(payload_sz);
-
-	return true;
-}
-
-//L.282
-bool DyscoAgentIn::in_hdr_rewrite(Ipv4* ip, Tcp* tcp, DyscoTcpSession* sup) {
-	if(!sup)
-		return false;
-	
-	ip->src = be32_t(ntohl(sup->sip));
-	ip->dst = be32_t(ntohl(sup->dip));
-	tcp->src_port = be16_t(ntohs(sup->sport));
-	tcp->dst_port = be16_t(ntohs(sup->dport));
-
-	ip->checksum = 0;
-	tcp->checksum = 0;
-	ip->checksum = bess::utils::CalculateIpv4Checksum(*ip);
-	tcp->checksum = bess::utils::CalculateIpv4TcpChecksum(*ip, *tcp);
 
 	return true;
 }
@@ -370,7 +350,7 @@ bool DyscoAgentIn::rx_initiation_new(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 		remove_sc(pkt, ip, tcp);
 		dc->parse_tcp_syn_opt_r(tcp, cb_in);
 		dc->insert_tag(this->index, pkt, ip, tcp);
-		in_hdr_rewrite(ip, tcp, &cb_in->sup);
+		hdr_rewrite_full_csum(ip, tcp, &cb_in->sup);
 	}
 	
 	return true;
@@ -471,7 +451,7 @@ CONTROL_RETURN DyscoAgentIn::input(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashIn*
 			if(hasPayload(ip, tcp)) {
 				remove_sc(pkt, ip, tcp);
 				dc->insert_tag(this->index, pkt, ip, tcp);
-				in_hdr_rewrite(ip, tcp, &cb_in->sup);
+				hdr_rewrite_full_csum(ip, tcp, &cb_in->sup);
 			}
 		}
 		
@@ -850,7 +830,7 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 		fprintf(stderr, "NOSTATE_TRANSFER.\n");
 #endif
 		remove_sc(pkt, ip, tcp);
-		in_hdr_rewrite(ip, tcp, &cb_in->sup);
+		hdr_rewrite_full_csum(ip, tcp, &cb_in->sup);
 	
 		return TO_GATE_0;
 	}
