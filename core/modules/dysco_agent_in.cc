@@ -428,7 +428,8 @@ CONTROL_RETURN DyscoAgentIn::input(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashIn*
 			if(cb_in->dcb_out->state == DYSCO_SYN_SENT)
 				cb_in->dcb_out->state = DYSCO_ESTABLISHED;
 		} else {
-			//It is retransmission packet, just remove sc (if there is) and insert Dysco Tag
+			//It is retransmission packet
+			//just remove sc (if there is) and insert Dysco Tag
 			if(payload_sz) {
 				remove_sc(pkt, ip, payload_sz);
 				dc->insert_tag(this->index, pkt, ip, tcp);
