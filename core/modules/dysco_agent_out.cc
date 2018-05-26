@@ -349,13 +349,14 @@ bool DyscoAgentOut::out_translate(bess::Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOu
 	incremental += out_rewrite_seq(tcp, cb);
 	incremental += out_rewrite_ack(tcp, cb);
 
-	/*if(cb->ts_ok)
+	if(cb->ts_ok)
 		incremental += out_rewrite_ts(tcp, cb);
 
 	if(cb->ws_ok)
 		incremental += out_rewrite_rcv_wnd(tcp, cb);
-	*/
+	
 	tcp->checksum = bess::utils::UpdateChecksumWithIncrement(tcp->checksum, incremental);
+	fprintf(stderr, "changing here the checsum\n");
 
 	hdr_rewrite_csum(ip, tcp, &cb->sub);
 	
