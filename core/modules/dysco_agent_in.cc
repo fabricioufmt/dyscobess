@@ -770,7 +770,7 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 		uint32_t seq_cutoff = old_out->seq_cutoff;
 
 		old_out->old_path = 1;
-		old_out->state = DYSCO_SYN_RECEIVED;
+		//old_out->state = DYSCO_SYN_RECEIVED;
 		//old_out->state = DYSCO_ESTABLISHED;
 		old_out->other_path = new_out;
 		
@@ -982,7 +982,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(Packet* pkt, Ipv4* ip, Tcp* tcp, Dysc
 			}
 			
 			DyscoHashOut* old_dcb = rcb->old_dcb;
-			old_dcb->state = DYSCO_CLOSED;
+			//old_dcb->state = DYSCO_CLOSED;
 			cb_out->state = DYSCO_ESTABLISHED;
 
 			cb_in->is_reconfiguration = 0;
@@ -1056,13 +1056,13 @@ CONTROL_RETURN DyscoAgentIn::control_input(Packet* pkt, Ipv4* ip, Tcp* tcp, Dysc
 				old_out_ack_cutoff += delta;
 			}
 
-			if(old_out->state == DYSCO_SYN_RECEIVED)
-				old_out->state = DYSCO_CLOSED;
+			//if(old_out->state == DYSCO_SYN_RECEIVED)
+			//	old_out->state = DYSCO_CLOSED;
 			if(new_out->state == DYSCO_SYN_RECEIVED)
 				new_out->state = DYSCO_ESTABLISHED;
 			
-			if(old_out->state == DYSCO_ESTABLISHED)
-				return END;
+			//if(old_out->state == DYSCO_ESTABLISHED)
+			//	return END;
 
 			if(!old_out->state_t) {
 				old_out->ack_cutoff = old_out_ack_cutoff;
