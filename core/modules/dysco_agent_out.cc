@@ -340,7 +340,7 @@ void DyscoAgentOut::out_translate(bess::Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOu
 			else {
 				cb = pick_path_ack(tcp, cb_out);
 				fprintf(stderr, "pick_path_ack choose: ");
-				if(cb = cb_out)
+				if(cb == cb_out)
 					fprintf(stderr, "old one\n");
 				else
 					fprintf(stderr, "new one\n");
