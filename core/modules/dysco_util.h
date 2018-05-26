@@ -45,6 +45,11 @@ using bess::PacketBatch;
 using bess::utils::be16_t;
 using bess::utils::be32_t;
 using bess::utils::Ethernet;
+using bess::utils::ChecksumIncrement16;
+using bess::utils::ChecksumIncrement32;
+using bess::utils::CalculateIpv4Checksum;
+using bess::utils::CalculateIpv4TcpChecksum;
+using bess::utils::UpdateChecksumWithIncrement;
 
 /*********************************************************************
  *
@@ -465,6 +470,10 @@ inline bool isTCPACK(Tcp* tcp, bool exclusive = false) {
 	return exclusive ? tcp->flags == Tcp::Flag::kAck : tcp->flags & Tcp::Flag::kAck;
 }
 
+inline bool isTCPFIN(Tcp* tcp, bool exclusive = false) {
+	return exclusive ? tcp->flags == Tcp::Flag::kFin : tcp->flags & Tcp::Flag::kFin;
+}
+
 inline bool isFromLeftAnchor(Ipv4* ip, DyscoControlMessage* cmsg) {
 	return ip->src.value() == ntohl(cmsg->leftA);
 }
@@ -495,6 +504,39 @@ inline uint32_t getValueToAck(Packet* pkt) {
 	   toAck++;
 
 	return toAck;
+}
+
+inline void hdr_rewrite(Ipv4* ip, Tcp* tcp, DyscoTcpSession* ss) {
+	*((uint32_t*)(&ip->src)) = ss->sip;
+	*((uint32_t*)(&ip->dst)) = ss->dip;
+	*((uint16_t*)(&tcp->src_port)) = ss->sport;
+	*((uint16_t*)(&tcp->dst_port)) = ss->dport;
+}
+
+inline void hdr_rewrite_csum(Ipv4* ip, Tcp* tcp, DyscoTcpSession* ss) {
+	uint32_t incremental = 0;
+
+	incremental += ChecksumIncrement32(ip->src.raw_value(), ss->sip);
+	incremental += ChecksumIncrement32(ip->dst.raw_value(), ss->dip);
+	
+	ip->checksum  = UpdateChecksumWithIncrement( ip->checksum, incremental);
+	tcp->checksum = UpdateChecksumWithIncrement(tcp->checksum, incremental);
+
+	incremental  = ChecksumIncrement16(tcp->src_port.raw_value(), ss->sport);
+	incremental += ChecksumIncrement16(tcp->dst_port.raw_value(), ss->dport);
+
+	tcp->checksum = UpdateChecksumWithIncrement(tcp->checksum, incremental);
+
+	hdr_rewrite(ip, tcp, ss);
+}
+
+inline void hdr_rewrite_full_csum(Ipv4* ip, Tcp* tcp, DyscoTcpSession* ss) {
+	hdr_rewrite(ip, tcp, ss);
+	
+	ip->checksum = 0;
+	tcp->checksum = 0;
+	ip->checksum = CalculateIpv4Checksum(*ip);
+	tcp->checksum = CalculateIpv4TcpChecksum(*ip, *tcp);
 }
 
 /*********************************************************************
