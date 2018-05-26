@@ -329,6 +329,11 @@ bool DyscoAgentOut::out_translate(bess::Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOu
 		//	cb_out->seq_cutoff = seq;
 	} else {
 		switch(cb_out->state) {
+		case DYSCO_START:
+			cb = cb_out;
+			
+			break;
+			
 		case DYSCO_CLOSED:
 			fprintf(stderr, "I'm in DYSCO_CLOSED state. should not send\n");
 			//TEST
