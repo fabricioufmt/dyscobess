@@ -453,7 +453,7 @@ bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in) {
 
 //L.753
 CONTROL_RETURN DyscoAgentIn::input(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
-	uint16 check1, check2;
+	uint16_t check1, check2;
 	check1 = tcp->checksum;
 	check2 = bess::utils::CalculateIpv4TcpChecksum(*ip, *tcp);
 
