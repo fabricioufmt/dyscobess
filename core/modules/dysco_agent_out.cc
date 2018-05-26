@@ -284,40 +284,26 @@ DyscoHashOut* DyscoAgentOut::pick_path_ack(Tcp* tcp, DyscoHashOut* cb_out) {
 	uint32_t ack = tcp->ack_num.value();
 	
 	if(cb_out->state_t) {
-		fprintf(stderr, "1\n");
 		if(cb_out->state == DYSCO_ESTABLISHED) {
 			cb = cb_out->other_path;
 		}
 	} else {
-		fprintf(stderr, "2\n");
 		if(cb_out->valid_ack_cut) {
-			fprintf(stderr, "3\n");
 			if(cb_out->use_np_ack) {
-				fprintf(stderr, "4\n");
 				cb = cb_out->other_path;
 			} else {
-				fprintf(stderr, "cb_out->ack_cutoff: %X\n", cb_out->ack_cutoff);
-				fprintf(stderr, "ack               : %X\n", ack);
 				if(!dc->after(cb_out->ack_cutoff, ack)) {
-					fprintf(stderr, "5\n");
 					if(tcp->flags & Tcp::kFin)
 						cb = cb_out->other_path;
 					else {
-						fprintf(stderr, "6\n");
-						//TEST
-						//tcp->ack_num = be32_t(cb_out->ack_cutoff);
 						cb = cb_out->other_path;
 						cb_out->ack_ctr++;
-						if(cb_out->ack_ctr > 1) {
-							fprintf(stderr, "7\n");
+						if(cb_out->ack_ctr > 1)
 							cb_out->use_np_ack = 1;
-						}
 					}
-				} else
-					fprintf(stderr, "8\n");
+				}
 			}
-		} else
-			fprintf(stderr, "9\n");
+		}
 	}
 	
 	return cb;
@@ -333,10 +319,8 @@ void DyscoAgentOut::out_translate(bess::Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOu
 	DyscoHashOut* cb = cb_out;
 	DyscoHashOut* other_path = cb_out->other_path;
 	if(!other_path) {
-		fprintf(stderr, "there insn't other_path\n");
 		if(isTCPACK(tcp)) {
 			if(cb->state == DYSCO_SYN_SENT) {
-				fprintf(stderr, "Changed from SYN_SENT to ESTABLISHED.\n");
 				cb->state = DYSCO_ESTABLISHED;
 			}
 		}
@@ -346,19 +330,11 @@ void DyscoAgentOut::out_translate(bess::Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOu
 		//if(seg_sz > 0 && dc->after(seq, cb_out->seq_cutoff))
 		//	cb_out->seq_cutoff = seq;
 	} else {
-		fprintf(stderr, "there is other_path\n");
-		fprintf(stderr, "cb_out->state: %d\n", cb_out->state);
-		fprintf(stderr, "cb_out->other_path->state: %d\n", cb_out->other_path->state);
 		if(cb_out->state == DYSCO_ESTABLISHED) {
 			if(seg_sz > 0)
 				cb = pick_path_seq(cb_out, seq);
 			else {
 				cb = pick_path_ack(tcp, cb_out);
-				fprintf(stderr, "pick_path_ack choose: ");
-				if(cb == cb_out)
-					fprintf(stderr, "old one\n");
-				else
-					fprintf(stderr, "new one\n");
 			}
 		} else if(cb_out->state == DYSCO_SYN_SENT) {
 			if(seg_sz > 0) {
