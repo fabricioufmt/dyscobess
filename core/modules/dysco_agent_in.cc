@@ -442,6 +442,7 @@ CONTROL_RETURN DyscoAgentIn::input(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashIn*
 
 	if(tcp->flags & Tcp::kFin) {
 		if(!cb_in->two_paths) {
+			fprintf(stderr, "reachthere2\n");
 			if(cb_in->dcb_out && cb_in->dcb_out->old_path) {
 				createFinAck(pkt, ip, tcp);
 				//cb_in->dcb_out->state = DYSCO_LAST_ACK;
@@ -453,6 +454,7 @@ CONTROL_RETURN DyscoAgentIn::input(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashIn*
 	}
 
 	if(cb_in->two_paths) {
+		fprintf(stderr, "reachthere\n");
 		if(!payload_sz)
 			in_two_paths_ack(tcp, cb_in);
 		else if(!in_two_paths_data_seg(tcp, cb_in))
