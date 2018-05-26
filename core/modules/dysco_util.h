@@ -70,6 +70,18 @@ enum {
 };
 
 enum {
+	DYSCO_CLOSED = 0,
+	DYSCO_SYN_SENT,
+	DYSCO_SYN_RECEIVED,
+	DYSCO_ESTABLISHED,
+	DYSCO_FIN_WAIT_1,
+	DYSCO_FIN_WAIT_2,
+	DYSCO_CLOSING,
+	DYSCO_CLOSE_WAIT,
+	DYSCO_LAST_ACK
+};
+
+enum {
 	// Locking protocol
 	DYSCO_REQUEST_LOCK = 1,
 	DYSCO_ACK_LOCK,
@@ -103,12 +115,13 @@ enum {
 #define DYSCO_TCP_OPTION_LEN            8
 #define TCPOLEN_SACK_BASE               2
 #define TCPOLEN_SACK_PERBLOCK           8
+/*
 #define DYSCO_SYN_SENT			DYSCO_ADDING_NEW_PATH
 #define DYSCO_SYN_RECEIVED		DYSCO_ACCEPTING_NEW_PATH
 #define DYSCO_ESTABLISHED		DYSCO_INITIALIZING_NEW_PATH
 #define DYSCO_LAST_ACK                  DYSCO_FINISHING_OLD_PATH
 #define DYSCO_CLOSED                    DYSCO_CLOSED_OLD_PATH
-
+*/
 //#define DEBUG                           1 
 #define TTL                             32
 #define PORT_RANGE                      65536

@@ -328,31 +328,87 @@ bool DyscoAgentOut::out_translate(bess::Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOu
 		//if(seg_sz > 0 && dc->after(seq, cb_out->seq_cutoff))
 		//	cb_out->seq_cutoff = seq;
 	} else {
-
-		if(cb_out->state == DYSCO_ESTABLISHED) {
-			if(seg_sz > 0)
-				cb = pick_path_seq(cb_out, seq);
-			else
-				cb = pick_path_ack(tcp, cb_out);
-		} else if(cb_out->state == DYSCO_SYN_SENT) {
+		switch(cb_out->state) {
+		case DYSCO_CLOSED:
+			fprintf(stderr, "I'm in DYSCO_CLOSED state. should not send\n");
+			//TEST
+			//Should forward to other_path
+			if(cb_out->other_path)
+				cb = cb_out->other_path;
+			break;
+			
+		case DYSCO_SYN_SENT:
 			if(seg_sz > 0) {
 				if(dc->after(seq, cb_out->seq_cutoff))
 					cb_out->seq_cutoff = seq;
 			} else
 				cb = pick_path_ack(tcp, cb_out);
-		} else if(cb_out->state == DYSCO_SYN_RECEIVED) {
+			
+			break;
+
+		case DYSCO_SYN_RECEIVED:
 			if(seg_sz > 0) {
 				cb = pick_path_seq(cb_out, seq);
 				//if(!cb_out->old_path)
 
 			} else
 				cb = pick_path_ack(tcp, cb_out);
-		} else if(cb_out->state == DYSCO_CLOSED) {
-			fprintf(stderr, "cb_out state is CLOSED\n");
-			//TEST
-			//Should forward to other_path
-			//if(cb_out->other_path)
-			//	cb = cb_out->other_path;
+			
+			break;
+
+		case DYSCO_ESTABLISHED:
+			if(seg_sz > 0)
+				cb = pick_path_seq(cb_out, seq);
+			else
+				cb = pick_path_ack(tcp, cb_out);
+
+			if(isTCPFIN(tcp)) {
+				fprintf(stderr, "Going to DYSCO_FIN_WAIT_1 state.\n");
+				cb_out->state = DYSCO_FIN_WAIT_1;
+			}
+			
+			break;
+
+		case DYSCO_FIN_WAIT_1:
+		
+			break;
+
+		case DYSCO_FIN_WAIT_2:
+			fprintf(stderr, "I'm in DYSCO_FIN_WAIT_2 state.\n");
+
+			if(isTCPACK(tcp, true)) {
+				cb_out->state = DYSCO_CLOSED;
+				fprintf(stderr, "Going to DYSCO_CLOSED state.\n");
+			}
+			
+			break;
+
+		case DYSCO_CLOSING:
+			fprintf(stderr, "I'm in DYSCO_CLOSING state.\n");
+
+			if(isTCPACK(tcp, true)) {
+				cb_out->state = DYSCO_CLOSED;
+				fprintf(stderr, "Going to DYSCO_CLOSED state.\n");
+			}
+			
+			break;
+
+		case DYSCO_CLOSE_WAIT:
+			fprintf(stderr, "I'm in DYSCO_CLOSE_WAIT state.\n");
+			
+			if(isTCPFIN(tcp)) {
+				fprintf(stderr, "Going to DYSCO_LAST_ACK state.\n");
+				cb_out->state = DYSCO_LAST_ACK;
+			}
+			
+			break;
+
+		case DYSCO_LAST_ACK:
+
+			break;
+			
+		default:
+			
 		}
 	}
 
