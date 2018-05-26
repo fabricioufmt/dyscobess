@@ -239,6 +239,9 @@ uint32_t DyscoAgentIn::in_rewrite_ack(Tcp* tcp, DyscoHashIn* cb_in) {
 
 //L.384
 uint32_t DyscoAgentIn::in_rewrite_ts(Tcp* tcp, DyscoHashIn* cb_in) {
+	if(!cb_in->ts_ok)
+		return 0;
+	
 	DyscoTcpTs* ts = dc->get_ts_option(tcp);
 	if(!ts)
 		return 0;
@@ -273,6 +276,9 @@ uint32_t DyscoAgentIn::in_rewrite_ts(Tcp* tcp, DyscoHashIn* cb_in) {
 
 //L.432
 uint32_t DyscoAgentIn::in_rewrite_rcv_wnd(Tcp* tcp, DyscoHashIn* cb_in) {
+	if(!cb_in->ws_ok)
+		return 0;
+	
 	if(cb_in->ws_delta) {
 		uint16_t new_win;
 		uint32_t wnd = tcp->window.value();
@@ -297,36 +303,28 @@ void DyscoAgentIn::in_hdr_rewrite_csum(Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
 
 	incremental += in_rewrite_seq(tcp, cb_in);
 	incremental += in_rewrite_ack(tcp, cb_in);
-
-	if(cb_in->ts_ok)
-		incremental += in_rewrite_ts(tcp, cb_in);
-	
-	if(cb_in->ws_ok)
-		incremental += in_rewrite_rcv_wnd(tcp, cb_in);
+	incremental += in_rewrite_ts(tcp, cb_in);
+	incremental += in_rewrite_rcv_wnd(tcp, cb_in);
 	
 	tcp->checksum = UpdateChecksumWithIncrement(tcp->checksum, incremental);
 }
 
 //L.505
-bool DyscoAgentIn::rx_initiation_new(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
-	size_t ip_hlen = ip->header_length << 2;
+bool DyscoAgentIn::rx_initiation_new(Packet* pkt, Ipv4* ip, Tcp* tcp, uint32_t payload_sz) {
 	size_t tcp_hlen = tcp->offset << 2;
-	uint32_t payload_sz = ip->length.value() - ip_hlen - tcp_hlen;
+	uint8_t* payload = reinterpret_cast<uint8_t*>(tcp) + tcp_hlen;
+	DyscoHashIn* cb_in = dc->insert_cb_input(this->index, ip, tcp, payload, payload_sz);
+	
+	if(!cb_in)
+		return false;
 
-	if(payload_sz) {
-		uint8_t* payload = reinterpret_cast<uint8_t*>(tcp) + tcp_hlen;
-		DyscoHashIn* cb_in = dc->insert_cb_input(this->index, ip, tcp, payload, payload_sz);
-		if(!cb_in)
-			return false;
+	cb_in->in_iseq = tcp->seq_num.value();
+	cb_in->in_iack = tcp->ack_num.value();
 
-		cb_in->in_iseq = tcp->seq_num.value();
-		cb_in->in_iack = tcp->ack_num.value();
-
-		remove_sc(pkt, ip, payload_sz);
-		dc->parse_tcp_syn_opt_r(tcp, cb_in);
-		dc->insert_tag(this->index, pkt, ip, tcp);
-		hdr_rewrite_full_csum(ip, tcp, &cb_in->sup);
-	}
+	remove_sc(pkt, ip, payload_sz);
+	dc->parse_tcp_syn_opt_r(tcp, cb_in);
+	dc->insert_tag(this->index, pkt, ip, tcp);
+	hdr_rewrite_full_csum(ip, tcp, &cb_in->sup);
 	
 	return true;
 }
@@ -408,16 +406,14 @@ bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in) {
 
 //L.753
 CONTROL_RETURN DyscoAgentIn::input(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
+	uint32_t payload_sz = hasPayload(ip, tcp);
+	
 	if(!cb_in) {
-		if(isTCPSYN(tcp) && hasPayload(ip, tcp)) {
-			if(rx_initiation_new(pkt, ip, tcp))
-				return TO_GATE_0;
-		}
+		if(isTCPSYN(tcp, true) && payload_sz)
+			rx_initiation_new(pkt, ip, tcp, payload_sz);
 		
 		return TO_GATE_0;
 	}
-
-	uint32_t payload_sz = hasPayload(ip, tcp);
 	
 	if(isTCPSYN(tcp)) {
 		if(isTCPACK(tcp)) {

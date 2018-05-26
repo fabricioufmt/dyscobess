@@ -205,6 +205,9 @@ uint32_t DyscoAgentOut::out_rewrite_ack(Tcp* tcp, DyscoHashOut* cb_out) {
 
 //L.422
 uint32_t DyscoAgentOut::out_rewrite_ts(Tcp* tcp, DyscoHashOut* cb_out) {
+	if(!cb_out->ts_ok)
+		return 0;
+	
 	DyscoTcpTs* ts = dc->get_ts_option(tcp);
 	if(!ts)
 		return 0;
@@ -239,6 +242,9 @@ uint32_t DyscoAgentOut::out_rewrite_ts(Tcp* tcp, DyscoHashOut* cb_out) {
 
 //L.466
 uint32_t DyscoAgentOut::out_rewrite_rcv_wnd(Tcp* tcp, DyscoHashOut* cb_out) {
+	if(!cb_out->ws_ok)
+		return 0;
+	
 	if(cb_out->ws_delta) {
 		uint16_t new_win;
 		uint32_t wnd = tcp->window.value();
@@ -350,12 +356,8 @@ void DyscoAgentOut::out_translate(bess::Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOu
 
 	incremental += out_rewrite_seq(tcp, cb);
 	incremental += out_rewrite_ack(tcp, cb);
-
-	if(cb->ts_ok)
-		incremental += out_rewrite_ts(tcp, cb);
-
-	if(cb->ws_ok)
-		incremental += out_rewrite_rcv_wnd(tcp, cb);
+	incremental += out_rewrite_ts(tcp, cb);
+	incremental += out_rewrite_rcv_wnd(tcp, cb);
 
 	tcp->checksum = UpdateChecksumWithIncrement(tcp->checksum, incremental);
 }
