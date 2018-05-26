@@ -483,6 +483,10 @@ inline bool isTCPACK(Tcp* tcp, bool exclusive = false) {
 	return exclusive ? tcp->flags == Tcp::Flag::kAck : tcp->flags & Tcp::Flag::kAck;
 }
 
+inline bool isTCPFIN(Tcp* tcp, bool exclusive = false) {
+	return exclusive ? tcp->flags == Tcp::Flag::kFin : tcp->flags & Tcp::Flag::kFin;
+}
+
 inline bool isFromLeftAnchor(Ipv4* ip, DyscoControlMessage* cmsg) {
 	return ip->src.value() == ntohl(cmsg->leftA);
 }
