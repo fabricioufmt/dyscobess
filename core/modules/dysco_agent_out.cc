@@ -314,9 +314,8 @@ DyscoHashOut* DyscoAgentOut::pick_path_ack(Tcp* tcp, DyscoHashOut* cb_out) {
 						}
 					}
 				} else
-					fprintf(stderr, "5,5\n");
-			} else
-				fprintf(stderr, "8\n");
+					fprintf(stderr, "8\n");
+			}
 		} else
 			fprintf(stderr, "9\n");
 	}
