@@ -295,7 +295,7 @@ uint32_t DyscoAgentIn::in_rewrite_rcv_wnd(Tcp* tcp, DyscoHashIn* cb_in) {
 		uint32_t incremental = ChecksumIncrement16(tcp->window.raw_value(), htons(wnd));
 		tcp->window = be16_t(new_win);
 
-		return incremental
+		return incremental;
 	}
 
 	return 0;
