@@ -28,13 +28,13 @@ class DyscoAgentOut final : public Module {
 	/*
 	  Dysco methods
 	 */
-	bool out_rewrite_seq(Tcp*, DyscoHashOut*);
-	bool out_rewrite_ack(Tcp*, DyscoHashOut*);
-	bool out_rewrite_ts(Tcp*, DyscoHashOut*);
-	bool out_rewrite_rcv_wnd(Tcp*, DyscoHashOut*);
+	uint32_t out_rewrite_seq(Tcp*, DyscoHashOut*);
+	uint32_t out_rewrite_ack(Tcp*, DyscoHashOut*);
+	uint32_t out_rewrite_ts(Tcp*, DyscoHashOut*);
+	uint32_t out_rewrite_rcv_wnd(Tcp*, DyscoHashOut*);
 	DyscoHashOut* pick_path_seq(DyscoHashOut*, uint32_t);
 	DyscoHashOut* pick_path_ack(Tcp*, DyscoHashOut*);
-	bool out_translate(Packet*, Ipv4*, Tcp*, DyscoHashOut*);
+	void out_translate(Packet*, Ipv4*, Tcp*, DyscoHashOut*);
 	bool update_five_tuple(Ipv4*, Tcp*, DyscoHashOut*);
 	bool output(Packet*, Ipv4*, Tcp*, DyscoHashOut*);
 	

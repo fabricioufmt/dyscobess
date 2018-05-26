@@ -206,6 +206,8 @@ uint32_t DyscoAgentIn::in_rewrite_seq(Tcp* tcp, DyscoHashIn* cb_in) {
 		else
 			new_seq = seq - cb_in->seq_delta;
 
+		tcp->seq_num = be32_t(new_seq);
+		
 		return ChecksumIncrement32(htonl(seq), htonl(new_seq));
 	}
 
@@ -239,7 +241,7 @@ uint32_t DyscoAgentIn::in_rewrite_ack(Tcp* tcp, DyscoHashIn* cb_in) {
 uint32_t DyscoAgentIn::in_rewrite_ts(Tcp* tcp, DyscoHashIn* cb_in) {
 	DyscoTcpTs* ts = dc->get_ts_option(tcp);
 	if(!ts)
-		return false;
+		return 0;
 
 	uint32_t incremental = 0;
 	uint32_t new_ts, new_tsr;
