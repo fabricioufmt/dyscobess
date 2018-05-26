@@ -351,8 +351,8 @@ bool DyscoAgentOut::out_translate(bess::Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOu
 			fprintf(stderr, "cb_out state is CLOSED\n");
 			//TEST
 			//Should forward to other_path
-			if(cb_out->other_path)
-				cb = cb_out->other_path;
+			//if(cb_out->other_path)
+			//	cb = cb_out->other_path;
 		}
 	}
 
