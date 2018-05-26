@@ -173,10 +173,10 @@ uint32_t DyscoAgentOut::out_rewrite_seq(Tcp* tcp, DyscoHashOut* cb_out) {
 		else
 			new_seq = seq - (cb_out->seq_delta);
 
-		*((uint32_t*)(&tcp->seq_num)) = (new_seq);
-		//tcp->seq_num = be32_t(new_seq);
+		//*((uint32_t*)(&tcp->seq_num)) = (new_seq);
+		tcp->seq_num = be32_t(new_seq);
 		
-		return new_seq;
+		return bess::utils::ChecksumIncrement32(seq, new_seq);;
 	}
 
 	return 0;
@@ -196,10 +196,10 @@ uint32_t DyscoAgentOut::out_rewrite_ack(Tcp* tcp, DyscoHashOut* cb_out) {
 		//if(cb_out->sack_ok)
 		//	dc->tcp_sack(tcp, cb_out->ack_delta, cb_out->ack_add);
 
-		*((uint32_t*)(&tcp->ack_num)) = (new_ack);
-		//tcp->ack_num = be32_t(new_ack);
+		//*((uint32_t*)(&tcp->ack_num)) = (new_ack);
+		tcp->ack_num = be32_t(new_ack);
 
-		return new_ack;
+		return bess::utils::ChecksumIncrement32(ack, new_ack);
 	}
 
 	return 0;
@@ -338,8 +338,10 @@ bool DyscoAgentOut::out_translate(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHa
 		}
 	}
 
-	out_rewrite_seq(tcp, cb);
-	out_rewrite_ack(tcp, cb);
+	uint32_t incremental = 0;
+	
+	incremental += out_rewrite_seq(tcp, cb);
+	incremental += out_rewrite_ack(tcp, cb);
 
 	if(cb->ts_ok)
 		out_rewrite_ts(tcp, cb);
@@ -347,6 +349,8 @@ bool DyscoAgentOut::out_translate(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHa
 	if(cb->ws_ok)
 		out_rewrite_rcv_wnd(tcp, cb);
 
+	//tcp->checksum = bess::utils::UpdateChecksumWithIncrement(tcp->checksum, incremental);
+	
 	dc->out_hdr_rewrite(pkt, ip, tcp, &cb->sub);
 	
 	return true;
