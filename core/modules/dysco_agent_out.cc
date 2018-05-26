@@ -332,6 +332,8 @@ void DyscoAgentOut::out_translate(bess::Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOu
 		//	cb_out->seq_cutoff = seq;
 	} else {
 		fprintf(stderr, "there is other_path\n");
+		fprintf(stderr, "cb_out->state: %d\n", cb_out->state);
+		fprintf(stderr, "cb_out->other_path->state: %d\n", cb_out->other_path->state);
 		if(cb_out->state == DYSCO_ESTABLISHED) {
 			if(seg_sz > 0)
 				cb = pick_path_seq(cb_out, seq);
