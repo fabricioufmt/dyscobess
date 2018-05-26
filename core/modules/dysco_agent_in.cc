@@ -451,23 +451,23 @@ CONTROL_RETURN DyscoAgentIn::input(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashIn*
 		return TO_GATE_0;
 	}
 
-	//TEST
-	//if(!cb_in->two_paths) {
-		
-		//}
+	if(isTCPFIN(tcp)) {
+		fprintf(stderr, "[%s][DyscoAgentIn] receives %s [%X:%X] (FIN)\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.value(), tcp->ack_num.value());
 
-	
-	if(tcp->flags & Tcp::kFin) {
-		if(!cb_in->two_paths) {
+		fprintf(stderr, "cb_in->two_paths: %d\n", cb_in->two_paths);
+	}
+
+		
+	//if(!cb_in->two_paths) {
 			/*if(cb_in->dcb_out && cb_in->dcb_out->old_path) {
 				createFinAck(pkt, ip, tcp);
 				cb_in->dcb_out->state = DYSCO_LAST_ACK;
 				
 				return TO_GATE_1;
 				}*/
-		}
+	//	}
 
-	}
+	//}
 
 	if(cb_in->two_paths) {
 		if(!hasPayload(ip, tcp))
