@@ -409,6 +409,7 @@ bool DyscoAgentOut::out_translate(bess::Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOu
 			
 		default:
 			
+			break;
 		}
 	}
 
