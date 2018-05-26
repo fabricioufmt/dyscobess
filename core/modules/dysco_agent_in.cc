@@ -455,6 +455,7 @@ CONTROL_RETURN DyscoAgentIn::input(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashIn*
 		fprintf(stderr, "[%s][DyscoAgentIn] receives %s [%X:%X] (FIN)\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.value(), tcp->ack_num.value());
 
 		fprintf(stderr, "cb_in->two_paths: %d\n", cb_in->two_paths);
+		fprintf(stderr, "cb_in->dcb_out->state: %d\n", cb_in->dcb_out->state);
 	}
 
 		
