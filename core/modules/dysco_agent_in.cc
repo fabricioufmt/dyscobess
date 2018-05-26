@@ -222,7 +222,7 @@ uint32_t DyscoAgentIn::in_rewrite_seq(Tcp* tcp, DyscoHashIn* cb_in) {
 			new_seq = seq - cb_in->seq_delta;
 
 		tcp->seq_num = be32_t(new_seq);
-		
+		fprintf(stderr, "changing %X to %x\n", seq, new_seq);
 		return ChecksumIncrement32(htonl(seq), htonl(new_seq));
 	}
 
@@ -892,7 +892,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(Packet* pkt, Ipv4* ip, Tcp* tcp, Dysc
 	//For Retransmission Test
 	if(cnt < 2) {
 		cnt++;
-		return END;
+		return ERROR;
 	}
 	
 	if(isTCPSYN(tcp, true)) {
