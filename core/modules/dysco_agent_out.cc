@@ -416,8 +416,10 @@ bool DyscoAgentOut::output(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb) {
 		return dc->out_syn(this->index, pkt, ip, tcp, cb_out, devip) != 0 ? true : false;
 	}
 
-	if(cb_out)
-		return out_translate(pkt, ip, tcp, cb_out);
+	if(cb_out) {
+		out_translate(pkt, ip, tcp, cb_out);
+		return true;
+	}
 
 	return false;
 }
