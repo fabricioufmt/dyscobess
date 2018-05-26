@@ -55,14 +55,14 @@ class DyscoAgentIn final : public Module {
 	  Dysco methods
 	 */
 	bool tcp_sack(Tcp*, DyscoHashIn*); 
-	bool remove_sc(Packet*, Ipv4*, Tcp*);
-	bool in_hdr_rewrite(Ipv4*, Tcp*, DyscoTcpSession*);
+	bool remove_sc(Packet*, Ipv4*, uint32_t);
+	void in_hdr_rewrite(Ipv4*, Tcp*, DyscoTcpSession*);
 	bool in_rewrite_seq(Tcp*, DyscoHashIn*);
 	bool in_rewrite_ack(Tcp*, DyscoHashIn*);
 	bool in_rewrite_ts(Tcp*, DyscoHashIn*);
 	bool in_rewrite_rcv_wnd(Tcp*, DyscoHashIn*);
 	bool in_hdr_rewrite_csum(Ipv4*, Tcp*, DyscoHashIn*);
-	bool rx_initiation_new(Packet*, Ipv4*, Tcp*);
+	void rx_initiation_new(Packet*, Ipv4*, Tcp*);
 	bool in_two_paths_ack(Tcp*, DyscoHashIn*);
 	bool in_two_paths_data_seg(Tcp*, DyscoHashIn*);
 	CONTROL_RETURN input(Packet*, Ipv4*, Tcp*, DyscoHashIn*);
