@@ -439,7 +439,6 @@ CONTROL_RETURN DyscoAgentIn::input(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashIn*
 
 	if(isTCPACK(tcp)) {
 		if(cb_in->dcb_out->old_path && cb_in->dcb_out->state == DYSCO_LAST_ACK) {
-			fprintf(stderr, "old_path is in LAST_ACK state\n");
 			cb_in->dcb_out->state = DYSCO_CLOSED;
 
 			return ERROR;
@@ -472,7 +471,6 @@ CONTROL_RETURN DyscoAgentIn::input(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashIn*
 	if(isTCPFIN(tcp)) {
 		if(cb_in->dcb_out->old_path && cb_in->dcb_out->other_path->state == DYSCO_ESTABLISHED) {
 			createFinAck(pkt, ip, tcp);
-			fprintf(stderr, "I'm going to answer with FIN/ACK\n");
 			cb_in->dcb_out->state = DYSCO_LAST_ACK;
 
 			return TO_GATE_1;
@@ -480,35 +478,12 @@ CONTROL_RETURN DyscoAgentIn::input(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashIn*
 	}
 
 	if(cb_in->two_paths) {
-		fprintf(stderr, "cb_in->two_paths2\n");
 		if(!payload_sz)
 			in_two_paths_ack(tcp, cb_in);
 		else if(!in_two_paths_data_seg(tcp, cb_in))
 			return TO_GATE_0;
 			
-	} else {
-		fprintf(stderr, "!cb_in->two_paths2\n");
-		if(tcp->flags == Tcp::kAck && cb_in->dcb_out && cb_in->dcb_out->state == DYSCO_LAST_ACK) {
-			//Should consider ACK value to close
-#ifdef DEBUG
-			fprintf(stderr, "old path was closed.\n");
-#endif
-			//cb_in->dcb_out->state = DYSCO_CLOSED;
-			
-			return END;
-		}
 	}
-	
-	
-	//TODO
-	/*
-	  if(cb_in->two_paths) 
-		if(hasPayload(ip, tcp)) {
-			if(!in_two_paths_data_seg(tcp, cb_in))
-				return false;
-		} else
-			in_two_paths_ack(tcp, cb_in);
-	*/
 	
 	in_hdr_rewrite_csum(ip, tcp, cb_in);
 
