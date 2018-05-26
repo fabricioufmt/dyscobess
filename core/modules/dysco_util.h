@@ -45,11 +45,6 @@ using bess::PacketBatch;
 using bess::utils::be16_t;
 using bess::utils::be32_t;
 using bess::utils::Ethernet;
-using bess::utils::ChecksumIncrement16;
-using bess::utils::ChecksumIncrement32;
-using bess::utils::CalculateIpv4Checksum;
-using bess::utils::CalculateIpv4TcpChecksum;
-using bess::utils::UpdateChecksumWithIncrement;
 
 /*********************************************************************
  *
@@ -67,19 +62,6 @@ enum {
 	DYSCO_LOCK_PENDING,
 	DYSCO_LOCKED,
 	DYSCO_CLOSED_OLD_PATH
-};
-
-enum {
-	DYSCO_START = 0,
-	DYSCO_CLOSED,
-	DYSCO_SYN_SENT,
-	DYSCO_SYN_RECEIVED,
-	DYSCO_ESTABLISHED,
-	DYSCO_FIN_WAIT_1,
-	DYSCO_FIN_WAIT_2,
-	DYSCO_CLOSING,
-	DYSCO_CLOSE_WAIT,
-	DYSCO_LAST_ACK
 };
 
 enum {
@@ -116,14 +98,13 @@ enum {
 #define DYSCO_TCP_OPTION_LEN            8
 #define TCPOLEN_SACK_BASE               2
 #define TCPOLEN_SACK_PERBLOCK           8
-/*
 #define DYSCO_SYN_SENT			DYSCO_ADDING_NEW_PATH
 #define DYSCO_SYN_RECEIVED		DYSCO_ACCEPTING_NEW_PATH
 #define DYSCO_ESTABLISHED		DYSCO_INITIALIZING_NEW_PATH
 #define DYSCO_LAST_ACK                  DYSCO_FINISHING_OLD_PATH
 #define DYSCO_CLOSED                    DYSCO_CLOSED_OLD_PATH
-*/
-#define DEBUG                           1 
+
+//#define DEBUG                           1 
 #define TTL                             32
 #define PORT_RANGE                      65536
 #define CNTLIMIT                        4
@@ -484,10 +465,6 @@ inline bool isTCPACK(Tcp* tcp, bool exclusive = false) {
 	return exclusive ? tcp->flags == Tcp::Flag::kAck : tcp->flags & Tcp::Flag::kAck;
 }
 
-inline bool isTCPFIN(Tcp* tcp, bool exclusive = false) {
-	return exclusive ? tcp->flags == Tcp::Flag::kFin : tcp->flags & Tcp::Flag::kFin;
-}
-
 inline bool isFromLeftAnchor(Ipv4* ip, DyscoControlMessage* cmsg) {
 	return ip->src.value() == ntohl(cmsg->leftA);
 }
@@ -519,117 +496,6 @@ inline uint32_t getValueToAck(Packet* pkt) {
 
 	return toAck;
 }
-
-inline void hdr_rewrite(Ipv4* ip, Tcp* tcp, DyscoTcpSession* ss) {
-	*((uint32_t*)(&ip->src)) = ss->sip;
-	*((uint32_t*)(&ip->dst)) = ss->dip;
-	*((uint16_t*)(&tcp->src_port)) = ss->sport;
-	*((uint16_t*)(&tcp->dst_port)) = ss->dport;
-}
-
-inline void hdr_rewrite_csum(Ipv4* ip, Tcp* tcp, DyscoTcpSession* ss) {
-	uint32_t incremental = 0;
-
-	incremental += ChecksumIncrement32(ip->src.raw_value(), ss->sip);
-	incremental += ChecksumIncrement32(ip->dst.raw_value(), ss->dip);
-	
-	ip->checksum  = UpdateChecksumWithIncrement( ip->checksum, incremental);
-	tcp->checksum = UpdateChecksumWithIncrement(tcp->checksum, incremental);
-
-	incremental  = ChecksumIncrement16(tcp->src_port.raw_value(), ss->sport);
-	incremental += ChecksumIncrement16(tcp->dst_port.raw_value(), ss->dport);
-
-	tcp->checksum = UpdateChecksumWithIncrement(tcp->checksum, incremental);
-
-	hdr_rewrite(ip, tcp, ss);
-}
-
-inline void hdr_rewrite_full_csum(Ipv4* ip, Tcp* tcp, DyscoTcpSession* ss) {
-	hdr_rewrite(ip, tcp, ss);
-	ip->checksum = 0;
-	tcp->checksum = 0;
-	ip->checksum = CalculateIpv4Checksum(*ip);
-	tcp->checksum = CalculateIpv4TcpChecksum(*ip, *tcp);
-}
-
-
-
-
-inline void parse_tcp_syn_opt_r(Tcp* tcp, uint32_t tcp_hlen, DyscoHashIn* cb_in) {
-	uint32_t len = tcp_hlen - sizeof(Tcp);
-	uint8_t* ptr = reinterpret_cast<uint8_t*>(tcp + 1);
-
-	cb_in->sack_ok = 0;
-
-	uint32_t opcode, opsize;
-	while(len > 0) {
-		opcode = *ptr++;
-		switch(opcode) {
-		case TCPOPT_EOL:
-			return;
-			
-		case TCPOPT_NOP:
-			len--;
-			continue;
-
-		default:
-			opsize = *ptr++;
-			if(opsize < 2)
-				return;
-			
-			if(opsize > len)
-				return;
-			
-			switch(opsize) {
-			case TCPOPT_WINDOW:
-				if(opsize == TCPOLEN_WINDOW) {
-					uint8_t snd_wscale = *(uint8_t*)ptr;
-					
-					cb_in->ws_ok = 1;
-					cb_in->ws_delta = 0;
-					if (snd_wscale > 14)
-						snd_wscale = 14;
-					
-					cb_in->ws_in = cb_in->ws_out = snd_wscale;
-				}
-				
-				break;
-				
-			case TCPOPT_TIMESTAMP:
-				if(opsize == TCPOLEN_TIMESTAMP) {
-					if(tcp->flags & Tcp::kAck) {
-						uint32_t ts, tsr;
-						
-						cb_in->ts_ok = 1;
-						ts = (uint32_t)(*ptr);
-						tsr = (uint32_t)(*(ptr + 4));
-						cb_in->ts_in = cb_in->ts_out = ts;
-						cb_in->tsr_in = cb_in->tsr_out = tsr;
-						
-						cb_in->ts_delta = cb_in->tsr_delta = 0;
-					}
-				}
-				
-				break;
-				
-			case TCPOPT_SACK_PERMITTED:
-				if(opsize == TCPOLEN_SACK_PERMITTED)
-					cb_in->sack_ok = 1;
-				
-				break;
-
-			ptr += opsize - 2;
-			len -= opsize;
-			
-			}
-		}
-	}
-}
-
-
-
-
-
 
 /*********************************************************************
  *
