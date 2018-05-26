@@ -446,7 +446,7 @@ CONTROL_RETURN DyscoAgentIn::input(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashIn*
 			if(cb_in->dcb_out && cb_in->dcb_out->old_path) {
 				createFinAck(pkt, ip, tcp);
 				//cb_in->dcb_out->state = DYSCO_LAST_ACK;
-				
+				fprintf(stderr, "I'm going to answer with FIN/ACK\n");
 				return TO_GATE_1;
 			}
 		}
