@@ -1208,6 +1208,11 @@ void DyscoAgentIn::createFinAck(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 	tcp->seq_num = tcp->ack_num;
 	tcp->ack_num = seqswap + be32_t(1);
 	tcp->flags |= Tcp::kAck;
+
+	ip->checksum = 0;
+	tcp->checksum = 0;
+	ip->checksum = CalculateIpv4Checksum(*ip);
+	tcp->checksum = CalculateIpv4TcpChecksum(*ip, *tcp);
 }
 
 /*
