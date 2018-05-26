@@ -453,8 +453,15 @@ bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in) {
 
 //L.753
 CONTROL_RETURN DyscoAgentIn::input(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
-	fprintf(stderr, "[%s][DyscoAgentIn]tcp->checksum is: %X\n", ns.c_str(), tcp->checksum);
-	fprintf(stderr, "[%s][DyscoAgentIn]checksum should : %X\n\n", ns.c_str(), bess::utils::CalculateIpv4TcpChecksum(*ip, *tcp));
+	uint16 check1, check2;
+	check1 = tcp->checksum;
+	check2 = bess::utils::CalculateIpv4TcpChecksum(*ip, *tcp);
+
+	if(check1 != check2) {
+		fprintf(stderr, "[%s][DyscoAgentIn] tcp->checksum is: %X\n", ns.c_str(), tcp->checksum);
+		fprintf(stderr, "[%s][DyscoAgentIn] checksum should : %X\n\n", ns.c_str(), bess::utils::CalculateIpv4TcpChecksum(*ip, *tcp));
+		fprintf(stderr, "[%s][DyscoAgentIn] receives %s [%X:%X]\n", ns.c_str(), printPacketSS(ip, tcp),	tcp->seq_num.value(), tcp->ack_num.value());
+	}
 
 	
 	if(!cb_in) {
