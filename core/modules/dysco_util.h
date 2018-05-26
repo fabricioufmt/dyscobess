@@ -506,6 +506,13 @@ inline uint32_t getValueToAck(Packet* pkt) {
 	return toAck;
 }
 
+inline void update_four_tuple(Ipv4* ip, Tcp* tcp, DyscoTcpSession& ss) {
+	ss.sip = ip->src.raw_value();
+	ss.dip = ip->dst.raw_value();
+	ss.sport = tcp->src_port.raw_value();
+	ss.dport = tcp->dst_port.raw_value();
+}
+
 inline void hdr_rewrite(Ipv4* ip, Tcp* tcp, DyscoTcpSession* ss) {
 	*((uint32_t*)(&ip->src)) = ss->sip;
 	*((uint32_t*)(&ip->dst)) = ss->dip;

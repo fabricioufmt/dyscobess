@@ -369,19 +369,6 @@ void DyscoAgentOut::out_translate(bess::Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOu
 	tcp->checksum = UpdateChecksumWithIncrement(tcp->checksum, incremental);
 }
 
-//L.1089
-bool DyscoAgentOut::update_five_tuple(Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) {
-	if(!cb_out)
-		return false;
-	
-	cb_out->sup.sip = htonl(ip->src.value());
-	cb_out->sup.dip = htonl(ip->dst.value());
-	cb_out->sup.sport = htons(tcp->src_port.value());
-	cb_out->sup.dport = htons(tcp->dst_port.value());
-	
-	return true;
-}
-
 //L.1395
 bool DyscoAgentOut::output(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb) {
 	DyscoHashOut* cb_out = cb;
@@ -393,7 +380,7 @@ bool DyscoAgentOut::output(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb) {
 
 		cb_out = dc->lookup_pending_tag(this->index, tcp);
 		if(cb_out) {
-			update_five_tuple(ip, tcp, cb_out);
+			update_four_tuple(ip, tcp, cb_out->sup);
 			
 			return dc->out_handle_mb(this->index, pkt, ip, tcp, cb_out, devip);
 		}
