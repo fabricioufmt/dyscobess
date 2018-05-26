@@ -823,7 +823,7 @@ bool DyscoCenter::out_handle_mb(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp* tc
 		return false;
 
 	if(isTCPSYN(tcp)) {
-		if(isTCPACK(ack))
+		if(isTCPACK(tcp))
 			cb_out->state = DYSCO_SYN_RECEIVED;
 		else
 			cb_out->state = DYSCO_SYN_SENT;
