@@ -318,6 +318,7 @@ void DyscoAgentOut::out_translate(bess::Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOu
 	DyscoHashOut* cb = cb_out;
 	DyscoHashOut* other_path = cb_out->other_path;
 	if(!other_path) {
+		fprintf(stderr, "there insn't other_path\n");
 		if(isTCPACK(tcp)) {
 			if(cb->state == DYSCO_SYN_SENT) {
 				fprintf(stderr, "Changed from SYN_SENT to ESTABLISHED.\n");
@@ -330,7 +331,7 @@ void DyscoAgentOut::out_translate(bess::Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOu
 		//if(seg_sz > 0 && dc->after(seq, cb_out->seq_cutoff))
 		//	cb_out->seq_cutoff = seq;
 	} else {
-
+		fprintf(stderr, "there is other_path\n");
 		if(cb_out->state == DYSCO_ESTABLISHED) {
 			if(seg_sz > 0)
 				cb = pick_path_seq(cb_out, seq);
