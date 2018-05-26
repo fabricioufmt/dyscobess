@@ -393,7 +393,7 @@ bool DyscoAgentOut::output(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb) {
 	}
 
 	if(isTCPSYN(tcp)) {
-		return dc->out_syn(this->index, pkt, ip, tcp, cb_out, devip) != 0 ? true : false;
+		return dc->out_syn(this->index, pkt, ip, tcp, cb_out, devip);
 	}
 
 	if(cb_out) {
