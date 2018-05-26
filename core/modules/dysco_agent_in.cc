@@ -353,7 +353,7 @@ void DyscoAgentIn::rx_initiation_new(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 	cb_in->in_iseq = tcp->seq_num.value();
 	cb_in->in_iack = tcp->ack_num.value();
 
-	remove_sc(pkt, ip, tcp);
+	remove_sc(pkt, ip, payload_sz);
 	parse_tcp_syn_opt_r(tcp, tcp_hlen, cb_in);
 	dc->insert_tag(this->index, pkt, ip, tcp);
 	
@@ -466,8 +466,9 @@ CONTROL_RETURN DyscoAgentIn::input(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashIn*
 			in_hdr_rewrite_csum(ip, tcp, cb_in);
 		} else {
 			//It is retransmission packet, just remove sc (if there is) and insert Dysco Tag
-			if(hasPayload(ip, tcp)) {
-				remove_sc(pkt, ip, tcp);
+			uint32_t payload_sz = hasPayload(ip, tcp);
+			if(payload_sz) {
+				remove_sc(pkt, ip, payload_sz);
 				dc->insert_tag(this->index, pkt, ip, tcp);
 				in_hdr_rewrite(ip, tcp, &cb_in->sup);
 			}
@@ -847,7 +848,7 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 #ifdef DEBUG
 		fprintf(stderr, "NOSTATE_TRANSFER.\n");
 #endif
-		remove_sc(pkt, ip, tcp);
+		remove_sc(pkt, ip, payload_sz);
 		in_hdr_rewrite(ip, tcp, &cb_in->sup);
 	
 		return TO_GATE_0;
