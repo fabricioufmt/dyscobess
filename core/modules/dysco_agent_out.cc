@@ -206,11 +206,12 @@ uint32_t DyscoAgentOut::out_rewrite_ack(Tcp* tcp, DyscoHashOut* cb_out) {
 }
 
 //L.422
-bool DyscoAgentOut::out_rewrite_ts(Tcp* tcp, DyscoHashOut* cb_out) {
+uint32_t DyscoAgentOut::out_rewrite_ts(Tcp* tcp, DyscoHashOut* cb_out) {
 	DyscoTcpTs* ts = dc->get_ts_option(tcp);
 	if(!ts)
 		return false;
 
+	uint32_t incremental = 0;
 	uint32_t new_ts, new_tsr;
 	
 	if(cb_out->ts_delta) {
@@ -219,6 +220,7 @@ bool DyscoAgentOut::out_rewrite_ts(Tcp* tcp, DyscoHashOut* cb_out) {
 		else
 			new_ts = ntohl(ts->ts) - cb_out->ts_delta;
 
+		incremental += bess::utils::ChecksumIncrement32(ts->ts, htonl(new_ts));
 		ts->ts = htonl(new_ts);
 	}
 
@@ -228,25 +230,29 @@ bool DyscoAgentOut::out_rewrite_ts(Tcp* tcp, DyscoHashOut* cb_out) {
 		else
 			new_tsr = ntohl(ts->tsr) - cb_out->tsr_delta;
 
+		incremental += bess::utils::ChecksumIncrement32(ts->tsr, htonl(new_tsr));
 		ts->tsr = htonl(new_tsr);
 	}
 	
-	return true;
+	return incremental;
 }
 
 //L.466
-bool DyscoAgentOut::out_rewrite_rcv_wnd(Tcp* tcp, DyscoHashOut* cb_out) {
+uint32_t DyscoAgentOut::out_rewrite_rcv_wnd(Tcp* tcp, DyscoHashOut* cb_out) {
 	if(cb_out->ws_delta) {
 		uint32_t wnd = tcp->window.value();
 
 		wnd <<= cb_out->ws_in;
 		wnd >>= cb_out->ws_out;
+
+		uint32_t incremental = bess::utils::ChecksumIncrement32(tcp->window.raw_value(), htonl(wnd));
+		
 		tcp->window = be16_t(wnd);
 
-		return true;
+		return incremental;
 	}
 
-	return false;
+	return 0;
 }
 
 //L.492
@@ -343,11 +349,11 @@ bool DyscoAgentOut::out_translate(bess::Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOu
 	incremental += out_rewrite_seq(tcp, cb);
 	incremental += out_rewrite_ack(tcp, cb);
 
-	//if(cb->ts_ok)
-	//	out_rewrite_ts(tcp, cb);
+	if(cb->ts_ok)
+		incremental += out_rewrite_ts(tcp, cb);
 
-	//if(cb->ws_ok)
-	//	out_rewrite_rcv_wnd(tcp, cb);
+	if(cb->ws_ok)
+		incremental += out_rewrite_rcv_wnd(tcp, cb);
 
 	tcp->checksum = bess::utils::UpdateChecksumWithIncrement(tcp->checksum, incremental);
 
