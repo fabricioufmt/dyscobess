@@ -544,10 +544,14 @@ bool DyscoCenter::out_syn(uint32_t i, Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHash
 			cb_in_aux->sack_ok = 0;
 
 		hdr_rewrite_csum(ip, tcp, &cb_out->sub);
+
+		cb_out->state = DYSCO_SYN_RECEIVED;
 	} else {
 		hdr_rewrite(ip, tcp, &cb_out->sub);
 		add_sc(pkt, ip, cb_out);
 		fix_csum(ip, tcp);
+
+		cb_out->state = DYSCO_SYN_SENT;
 	}
 
 	return true;
@@ -818,6 +822,13 @@ bool DyscoCenter::out_handle_mb(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp* tc
 	if(!dh)
 		return false;
 
+	if(isTCPSYN(tcp)) {
+		if(isTCPACK(ack))
+			cb_out->state = DYSCO_SYN_RECEIVED;
+		else
+			cb_out->state = DYSCO_SYN_SENT;
+	}
+	
 	dh->hash_pen.erase(cb_out->sup);
 	dh->hash_pen_tag.erase(cb_out->dysco_tag);
 
