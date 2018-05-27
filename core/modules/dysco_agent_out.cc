@@ -332,7 +332,6 @@ void DyscoAgentOut::out_translate(bess::Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOu
 		//	cb_out->seq_cutoff = seq;
 	} else {
 		if(cb_out->state == DYSCO_ESTABLISHED) {
-			fprintf(stderr, "ESTABLISHED\n");
 			if(seg_sz > 0)
 				cb = pick_path_seq(cb_out, seq);
 			else {
@@ -354,7 +353,6 @@ void DyscoAgentOut::out_translate(bess::Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOu
 			} else
 				cb = pick_path_ack(tcp, cb_out);
 		} else if(cb_out->state == DYSCO_CLOSED) {
-			fprintf(stderr, "CLOSED\n");
 			//TEST
 			//Should forward to other_path
 			if(cb_out->other_path)
