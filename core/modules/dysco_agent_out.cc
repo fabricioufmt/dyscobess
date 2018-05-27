@@ -344,6 +344,7 @@ void DyscoAgentOut::out_translate(bess::Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOu
 					fprintf(stderr, "new)\n");
 				else
 					fprintf(stderr, "old)\n");
+				fprintf(stderr, "%d\n", other_path->state);
 			}
 		} else if(cb_out->state == DYSCO_SYN_SENT) {
 			fprintf(stderr, "SYN_SENT\n");
