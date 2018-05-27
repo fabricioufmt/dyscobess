@@ -336,6 +336,11 @@ void DyscoAgentOut::out_translate(bess::Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOu
 				cb = pick_path_seq(cb_out, seq);
 			else {
 				cb = pick_path_ack(tcp, cb_out);
+				fprintf(stderr, "ack: %X (", tcp->ack_num.raw_value());
+				if(cb == other_path)
+					fprintf(stderr, "new)\n");
+				else
+					fprintf(stderr, "old)\n");
 			}
 		} else if(cb_out->state == DYSCO_SYN_SENT) {
 			fprintf(stderr, "SYN_SENT\n");
