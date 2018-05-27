@@ -329,11 +329,30 @@ void DyscoAgentOut::out_translate(bess::Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOu
 			}
 		}
 		
-		//TEST
-		//cb_out->seq_cutoff = seq;
 		if(seg_sz > 0 && dc->after(seq, cb_out->seq_cutoff))
 			cb_out->seq_cutoff = seq;
 	} else {
+		if(other_path->state == DYSCO_ESTABLISHED) {
+			if(seg_sz > 0)
+				cb = other_path;
+			else {
+				cb = pick_path_ack(tcp, cb_out);
+				fprintf(stderr, "ack: %X (", tcp->ack_num.raw_value());
+				if(cb == other_path)
+					fprintf(stderr, "new)\n");
+				else
+					fprintf(stderr, "old)\n");	
+			}
+		} else if(cb_out->state == DYSCO_CLOSED) {
+			//TEST
+			//Should forward to other_path
+			cb = other_path;
+		} else {
+			fprintf(stderr, "and now?????\n");
+		}
+	}
+		
+		/*
 		if(cb_out->state == DYSCO_ESTABLISHED) {
 			if(seg_sz > 0)
 				cb = pick_path_seq(cb_out, seq);
@@ -370,6 +389,7 @@ void DyscoAgentOut::out_translate(bess::Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOu
 			fprintf(stderr, "and now?????\n");
 		}
 	}
+		*/
 	if(cb && cb->state != 3)
 		fprintf(stderr, "sending through %d state\n", cb->state);
 	if(cb_out && cb_out->state != 3)
