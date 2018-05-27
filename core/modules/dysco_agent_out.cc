@@ -327,9 +327,9 @@ void DyscoAgentOut::out_translate(bess::Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOu
 		}
 		
 		//TEST
-		cb_out->seq_cutoff = seq;
-		//if(seg_sz > 0 && dc->after(seq, cb_out->seq_cutoff))
-		//	cb_out->seq_cutoff = seq;
+		//cb_out->seq_cutoff = seq;
+		if(seg_sz > 0 && dc->after(seq, cb_out->seq_cutoff))
+			cb_out->seq_cutoff = seq;
 	} else {
 		if(cb_out->state == DYSCO_ESTABLISHED) {
 			if(seg_sz > 0)
