@@ -330,29 +330,30 @@ void DyscoAgentOut::out_translate(bess::Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOu
 		//if(seg_sz > 0 && dc->after(seq, cb_out->seq_cutoff))
 		//	cb_out->seq_cutoff = seq;
 	} else {
-		if(cb_out->state == DYSCO_ESTABLISHED) {
+		if(cb_out->other_path->state == DYSCO_ESTABLISHED) {
+			fprintf(stderr, "ESTABLISHED\n");
 			if(seg_sz > 0)
 				cb = pick_path_seq(cb_out, seq);
 			else {
 				cb = pick_path_ack(tcp, cb_out);
 			}
-		} else if(cb_out->state == DYSCO_SYN_SENT) {
-			fprintf(stderr, "never reach here1\n");
+		} else if(cb_out->other_path->state == DYSCO_SYN_SENT) {
+			fprintf(stderr, "SYN_SENT\n");
 			if(seg_sz > 0) {
 				if(dc->after(seq, cb_out->seq_cutoff))
 					cb_out->seq_cutoff = seq;
 			} else
 				cb = pick_path_ack(tcp, cb_out);
-		} else if(cb_out->state == DYSCO_SYN_RECEIVED) {
-			fprintf(stderr, "never reach here2\n");
+		} else if(cb_out->other_path->state == DYSCO_SYN_RECEIVED) {
+			fprintf(stderr, "SYN_RECEIVED\n");
 			if(seg_sz > 0) {
 				cb = pick_path_seq(cb_out, seq);
 				//if(!cb_out->old_path)
 
 			} else
 				cb = pick_path_ack(tcp, cb_out);
-		} else if(cb_out->state == DYSCO_CLOSED) {
-			fprintf(stderr, "may reach here1\n");
+		} else if(cb_out->other_path->state == DYSCO_CLOSED) {
+			fprintf(stderr, "CLOSED\n");
 			//TEST
 			//Should forward to other_path
 			if(cb_out->other_path)
