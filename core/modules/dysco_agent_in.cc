@@ -442,10 +442,14 @@ CONTROL_RETURN DyscoAgentIn::input(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashIn*
 			cb_in->dcb_out->state = DYSCO_CLOSED;
 
 			return ERROR;
-		}
-		
-		if(cb_in->dcb_out->state == DYSCO_SYN_RECEIVED)
+		} else if(cb_in->dcb_out->state == DYSCO_SYN_RECEIVED)
 			cb_in->dcb_out->state = DYSCO_ESTABLISHED;
+
+		else if(cb_in->dcb_out->state == DYSCO_FIN_WAIT_1)
+			cb_in->dcb_out->state = DYSCO_FIN_WAIT_2;
+
+		else if(cb_in->dcb_out->state == DYSCO_CLOSING)
+			cb_in->dcb_out->state = DYSCO_CLOSED;
 	}
 	
 	if(isTCPSYN(tcp)) {

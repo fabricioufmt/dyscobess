@@ -320,21 +320,40 @@ void DyscoAgentOut::out_translate(bess::Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOu
 	DyscoHashOut* cb = cb_out;
 	DyscoHashOut* other_path = cb_out->other_path;
 	if(!other_path) {
-		if(isTCPACK(tcp)) {
-			if(cb->state == DYSCO_SYN_SENT) {
+		if(isTCPACK(tcp))
+			if(cb->state == DYSCO_SYN_SENT)
 				cb->state = DYSCO_ESTABLISHED;
-			}
-		}
+
+		if(isTCPFIN(tcp))
+			if(cb->state == DYSCO_ESTABLISHED)
+				cb->state = DYSCO_FIN_WAIT_1;
 		
 		if(seg_sz > 0 && dc->after(seq, cb_out->seq_cutoff))
 			cb_out->seq_cutoff = seq;
 	} else {
 		if(other_path->state == DYSCO_ESTABLISHED) {
+			if(isTCPFIN(tcp))
+				other_path->state = DYSCO_FIN_WAIT_1;
+			
 			if(seg_sz > 0)
 				cb = other_path;
 			else {
 				cb = pick_path_ack(tcp, cb_out);	
 			}
+		} else if(other_path->state == DYSCO_CLOSE_WAIT) {
+			if(isTCPFIN(tcp))
+				other_path->state = DYSCO_LAST_ACK;
+
+			// assumes
+			cb = other_path;
+
+		} else if(other_path->state == DYSCO_FIN_WAIT_2) {
+			if(isTCPACK(tcp))
+				other_path->state = DYSCO_CLOSED;
+
+			// assumes
+			cb = other_path;
+
 		} else if(cb_out->state == DYSCO_CLOSED) {
 			//TEST
 			//Should forward to other_path
