@@ -16,8 +16,8 @@ m2_0::DyscoVPort(ifname='m2-0', netns='/var/run/netns/m2', mac_addr='00:00:00:00
 m2_1::DyscoVPort(ifname='m2-1', netns='/var/run/netns/m2', mac_addr='00:00:00:00:00:32', ip_addrs=['10.0.3.2/24'])
 m4_0::DyscoVPort(ifname='m4-0', netns='/var/run/netns/m4', mac_addr='00:00:00:00:00:31', ip_addrs=['10.0.3.1/24'])
 
-nat_int::DyscoVPort(ifname='nat-int', netns='/var/run/netns/m4', mac_addr='00:00:00:00:00:22', ip_addrs=['10.0.2.2/24'])
-nat_ext::DyscoVPort(ifname='nat-ext', netns='/var/run/netns/m4', mac_addr='00:00:00:00:00:A1', ip_addrs=['10.0.10.1/24'])
+nat_int::DyscoVPort(ifname='nat-int', netns='/var/run/netns/nat', mac_addr='00:00:00:00:00:22', ip_addrs=['10.0.2.2/24'])
+nat_ext::DyscoVPort(ifname='nat-ext', netns='/var/run/netns/nat', mac_addr='00:00:00:00:00:A1', ip_addrs=['10.0.10.1/24'])
 
 os.system('ip netns exec m1 ifconfig lo up > /dev/null')
 os.system('ip netns exec m2 ifconfig lo up > /dev/null')
