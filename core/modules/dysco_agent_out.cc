@@ -293,6 +293,7 @@ DyscoHashOut* DyscoAgentOut::pick_path_ack(Tcp* tcp, DyscoHashOut* cb_out) {
 			if(cb_out->use_np_ack) {
 				cb = cb_out->other_path;
 			} else {
+				fprintf(stderr, "%X %X\n", cb_out->ack_cutoff, ack);
 				if(!dc->after(cb_out->ack_cutoff, ack)) {
 					if(tcp->flags & Tcp::kFin)
 						cb = cb_out->other_path;
