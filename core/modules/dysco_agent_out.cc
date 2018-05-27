@@ -305,9 +305,8 @@ DyscoHashOut* DyscoAgentOut::pick_path_ack(Tcp* tcp, DyscoHashOut* cb_out) {
 					}
 				}
 			}
-		}
-			//} else
-			//fprintf(stderr, "valid_ack_cut is FALSE(other_path->state: %d)\n", cb_out->other_path->state);
+		} else
+			fprintf(stderr, "valid_ack_cut is FALSE\n");
 	}
 	
 	return cb;
