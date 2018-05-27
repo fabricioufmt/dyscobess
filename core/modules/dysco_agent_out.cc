@@ -369,9 +369,12 @@ void DyscoAgentOut::out_translate(bess::Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOu
 			fprintf(stderr, "and now?????\n");
 		}
 	}
-	fprintf(stderr, "sending through %d state\n", cb->state);
-	fprintf(stderr, "cb_out through %d state\n", cb_out->state);
-	fprintf(stderr, "other_path through %d state\n", other_path->state);
+	if(cb)
+		fprintf(stderr, "sending through %d state\n", cb->state);
+	if(cb_out)
+		fprintf(stderr, "cb_out through %d state\n", cb_out->state);
+	if(other_path)
+		fprintf(stderr, "other_path through %d state\n", other_path->state);
 	hdr_rewrite_csum(ip, tcp, &cb->sub);
 
 	uint32_t incremental = 0;
