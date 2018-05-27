@@ -273,6 +273,7 @@ DyscoHashOut* DyscoAgentOut::pick_path_seq(DyscoHashOut* cb_out, uint32_t seq) {
 	} else if(cb_out->use_np_seq) {
 		cb = cb_out->other_path;
 	} else if(!dc->before(seq, cb_out->seq_cutoff)) {
+		fprintf(stderr, "[%s] %X %X\n", ns.c_str(), seq, cb_out->seq_cutoff);
 		cb = cb_out->other_path;
 	}
 
