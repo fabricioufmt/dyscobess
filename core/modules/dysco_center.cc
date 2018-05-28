@@ -374,7 +374,8 @@ DyscoHashIn* DyscoCenter::insert_cb_input(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_
 			memcpy(&cb_in->my_sup, &cb_in->sub, sizeof(DyscoTcpSession));
 			cb_in->my_sup.dip = neigh_supss->dip;
 			cb_in->my_sup.dport = neigh_supss->dport;
-		}
+		} else
+			memcpy(&cb_in->my_sup, neigh_supss, sizeof(DyscoTcpSession));
 		
 	}
 	memcpy(&cb_in->neigh_sup, neigh_supss, sizeof(DyscoTcpSession));
