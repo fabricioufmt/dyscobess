@@ -358,24 +358,26 @@ DyscoHashIn* DyscoCenter::insert_cb_input(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_
 	DyscoHashOut* cb_out = NULL;
 	DyscoHashIn* cb_in = new DyscoHashIn();
 
-	/*
-	cb_in->sub.sip = htonl(ip->src.value());
-	cb_in->sub.dip = htonl(ip->dst.value());
-	cb_in->sub.sport = htons(tcp->src_port.value());
-	cb_in->sub.dport = htons(tcp->dst_port.value());
-	*/
 	cb_in->sub.sip = ip->src.raw_value();
 	cb_in->sub.dip = ip->dst.raw_value();
 	cb_in->sub.sport = tcp->src_port.raw_value();
 	cb_in->sub.dport = tcp->dst_port.raw_value();
-	
-	DyscoTcpSession* supss;
-	if(isReconfigPacket(ip, tcp))
-		supss = &(reinterpret_cast<DyscoControlMessage*>(payload))->super;
-	else
-		supss = reinterpret_cast<DyscoTcpSession*>(payload);
-	memcpy(&cb_in->sup, supss, sizeof(DyscoTcpSession));
 
+	DyscoTcpSession* neigh_subss;
+	DyscoTcpSession* neigh_supss;
+	if(isReconfigPacket(ip, tcp))
+		neigh_supss = &(reinterpret_cast<DyscoControlMessage*>(payload))->super;
+	else {
+		neigh_supss = reinterpret_cast<DyscoTcpSession*>(payload);
+		neigh_subss = reinterpret_cast<DyscoTcpSession*>(payload + sizeof(DyscoTcpSession));
+	}
+	memcpy(&cb_in->neigh_sup, neigh_supss, sizeof(DyscoTcpSession));
+
+	if(neigh_subss->sip != cb_in->sub.sip || neigh_subss->sport != cb_in->sub.sport) {
+		fprintf(stderr, "NAT crossed.\n");
+		memcpy(&cb_in->my_sup, cb_in->sub, sizeof(DyscoTcpSession));		
+	}
+	
 	cb_in->two_paths = 0;
 	cb_in->seq_delta = cb_in->ack_delta = 0;
 
@@ -420,10 +422,10 @@ bool DyscoCenter::set_ack_number_out(uint32_t i, Tcp* tcp, DyscoHashIn* cb_in) {
 	cb_in->seq_delta = cb_in->ack_delta = 0;
 
 	DyscoTcpSession ss;
-	ss.sip = cb_in->sup.dip;
-	ss.dip = cb_in->sup.sip;
-	ss.sport = cb_in->sup.dport;
-	ss.dport = cb_in->sup.sport;
+	ss.sip = cb_in->my_sup.dip;
+	ss.dip = cb_in->my_sup.sip;
+	ss.sport = cb_in->my_sup.dport;
+	ss.dport = cb_in->my_sup.sport;
 
 	DyscoHashOut* cb_out = lookup_output_by_ss(i, &ss);
 
@@ -904,10 +906,10 @@ DyscoHashIn* DyscoCenter::insert_cb_out_reverse(uint32_t i, DyscoHashOut* cb_out
 	cb_in->sub.sport = cb_out->sub.dport;
 	cb_in->sub.dport = cb_out->sub.sport;
 
-	cb_in->sup.sip = cb_out->sup.dip;
-	cb_in->sup.dip = cb_out->sup.sip;
-	cb_in->sup.sport = cb_out->sup.dport;
-	cb_in->sup.dport = cb_out->sup.sport;
+	cb_in->my_sup.sip = cb_out->sup.dip;
+	cb_in->my_sup.dip = cb_out->sup.sip;
+	cb_in->my_sup.sport = cb_out->sup.dport;
+	cb_in->my_sup.dport = cb_out->sup.sport;
 
 	cb_in->in_iack = cb_in->out_iack = cb_out->out_iseq;
 	cb_in->in_iseq = cb_in->out_iseq = cb_out->out_iack;

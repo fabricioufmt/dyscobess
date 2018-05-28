@@ -297,7 +297,7 @@ uint32_t DyscoAgentIn::in_rewrite_rcv_wnd(Tcp* tcp, DyscoHashIn* cb_in) {
 
 //L.458
 void DyscoAgentIn::in_hdr_rewrite_csum(Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
-	hdr_rewrite_csum(ip, tcp, &cb_in->sup);
+	hdr_rewrite_csum(ip, tcp, &cb_in->my_sup);
 	
 	uint32_t incremental = 0;
 
@@ -324,7 +324,7 @@ bool DyscoAgentIn::rx_initiation_new(Packet* pkt, Ipv4* ip, Tcp* tcp, uint32_t p
 	remove_sc(pkt, ip, payload_sz);
 	dc->parse_tcp_syn_opt_r(tcp, cb_in);
 	dc->insert_tag(this->index, pkt, ip, tcp);
-	hdr_rewrite_full_csum(ip, tcp, &cb_in->sup);
+	hdr_rewrite_full_csum(ip, tcp, &cb_in->my_sup);
 	
 	return true;
 }
@@ -465,7 +465,7 @@ CONTROL_RETURN DyscoAgentIn::input(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashIn*
 			if(payload_sz) {
 				remove_sc(pkt, ip, payload_sz);
 				dc->insert_tag(this->index, pkt, ip, tcp);
-				hdr_rewrite_full_csum(ip, tcp, &cb_in->sup);
+				hdr_rewrite_full_csum(ip, tcp, &cb_in->my_sup);
 			}
 		}
 		
@@ -693,12 +693,12 @@ bool DyscoAgentIn::control_config_rightA(DyscoCbReconfig* rcb, DyscoControlMessa
 		return false;
 	}
 
-	cb_in->sup = cmsg->rightSS;
+	//verify if really my_sup
+	cb_in->my_sup = cmsg->rightSS;
 	compute_deltas_in(cb_in, old_out, rcb);
 	compute_deltas_out(cb_out, old_out, rcb);
 
 	cb_in->two_paths = 1;
-	//cb_in->sup = cmsg->super;
 
 	rcb->new_dcb = cb_out;
 	rcb->old_dcb = old_out;
@@ -823,7 +823,8 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 		fprintf(stderr, "NOSTATE_TRANSFER.\n");
 #endif
 		remove_sc(pkt, ip, payload_sz);
-		hdr_rewrite_full_csum(ip, tcp, &cb_in->sup);
+		//verify
+		hdr_rewrite_full_csum(ip, tcp, &cb_in->my_sup);
 	
 		return TO_GATE_0;
 	}
@@ -1028,7 +1029,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(Packet* pkt, Ipv4* ip, Tcp* tcp, Dysc
 			return ERROR;
 		}
 
-		rcb = dc->lookup_reconfig_by_ss(this->index, &cb_in->sup);
+		rcb = dc->lookup_reconfig_by_ss(this->index, &cb_in->my_sup);
 		if(!rcb) {
 			return ERROR;
 		}

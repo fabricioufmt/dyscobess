@@ -329,7 +329,9 @@ class DyscoHashOut;
 class DyscoHashIn {
  public:
 	DyscoTcpSession sub;
-	DyscoTcpSession sup;
+	DyscoTcpSession my_sup;
+	DyscoTcpSession neigh_sup;
+	
 	DyscoHashOut* dcb_out;
 
 	uint32_t in_iseq;
