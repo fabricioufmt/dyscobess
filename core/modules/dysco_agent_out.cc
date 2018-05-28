@@ -578,7 +578,7 @@ void DyscoAgentOut::add_sc(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out
 
 	ip->length = ip->length + be16_t(payload_sz);
 }
-*/
+
 
 
 
