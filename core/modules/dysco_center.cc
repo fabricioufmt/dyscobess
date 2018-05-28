@@ -206,6 +206,9 @@ DyscoHashOut* DyscoCenter::lookup_pending_tag(uint32_t i, Tcp* tcp) {
 	cb_out_aux.tag_ok = 0;
 	cb_out_aux.sub.sip = 0;
 	cb_out_aux.sub.sport = 0;
+	cb_out_aux.dysco_tag = 0;
+	cb_out_aux.ws_in = 0;
+	cb_out_aux.ts_in = 0;
 	parse_tcp_syn_opt_s(tcp, &cb_out_aux);
 
 	if(cb_out_aux.tag_ok) {

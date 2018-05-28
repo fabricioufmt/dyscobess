@@ -209,7 +209,7 @@ uint32_t DyscoAgentOut::out_rewrite_ts(Tcp* tcp, DyscoHashOut* cb_out) {
 	if(!cb_out->ts_ok)
 		return 0;
 	
-	DyscoTcpTs* ts = dc->get_ts_option(tcp);
+	DyscoTcpTs* ts = get_ts_option(tcp);
 	if(!ts)
 		return 0;
 
@@ -272,7 +272,7 @@ DyscoHashOut* DyscoAgentOut::pick_path_seq(DyscoHashOut* cb_out, uint32_t seq) {
 		}
 	} else if(cb_out->use_np_seq) {
 		cb = cb_out->other_path;
-	} else if(!dc->before(seq, cb_out->seq_cutoff)) {
+	} else if(!before(seq, cb_out->seq_cutoff)) {
 		cb = cb_out->other_path;
 	}
 
@@ -293,7 +293,7 @@ DyscoHashOut* DyscoAgentOut::pick_path_ack(Tcp* tcp, DyscoHashOut* cb_out) {
 			if(cb_out->use_np_ack) {
 				cb = cb_out->other_path;
 			} else {
-				if(!dc->after(cb_out->ack_cutoff, ack)) {
+				if(!after(cb_out->ack_cutoff, ack)) {
 					if(tcp->flags & Tcp::kFin)
 						cb = cb_out->other_path;
 					else {
@@ -328,7 +328,7 @@ void DyscoAgentOut::out_translate(bess::Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOu
 			if(cb->state == DYSCO_ESTABLISHED)
 				cb->state = DYSCO_FIN_WAIT_1;
 		
-		if(seg_sz > 0 && dc->after(seq, cb_out->seq_cutoff))
+		if(seg_sz > 0 && after(seq, cb_out->seq_cutoff))
 			cb_out->seq_cutoff = seq;
 	} else {
 		if(other_path->state == DYSCO_ESTABLISHED) {

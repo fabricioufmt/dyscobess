@@ -242,7 +242,7 @@ uint32_t DyscoAgentIn::in_rewrite_ts(Tcp* tcp, DyscoHashIn* cb_in) {
 	if(!cb_in->ts_ok)
 		return 0;
 	
-	DyscoTcpTs* ts = dc->get_ts_option(tcp);
+	DyscoTcpTs* ts = get_ts_option(tcp);
 	if(!ts)
 		return 0;
 
@@ -412,7 +412,7 @@ bool DyscoAgentIn::in_two_paths_ack(Tcp* tcp, DyscoHashIn* cb_in) {
 		if(cb_out->state_t && cb_out->state == DYSCO_ESTABLISHED) {
 			cb_in->two_paths = 0;
 		} else {
-			if(!dc->after(cb_out->seq_cutoff, ack_seq)) {
+			if(!after(cb_out->seq_cutoff, ack_seq)) {
 				cb_out->use_np_seq = 1;
 				cb_in->two_paths = 0;
 			}
@@ -426,7 +426,7 @@ bool DyscoAgentIn::in_two_paths_ack(Tcp* tcp, DyscoHashIn* cb_in) {
 		if(cb_out->state_t && cb_out->state == DYSCO_ESTABLISHED) {
 			cb_in->two_paths = 0;
 		} else {
-			if(!dc->after(cb_out->seq_cutoff, ack_seq)) {
+			if(!after(cb_out->seq_cutoff, ack_seq)) {
 				cb_out->use_np_seq = 1;
 				cb_in->two_paths = 0;
 				
@@ -462,7 +462,7 @@ bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in) {
 			}
 
 			if(old_out->valid_ack_cut) {
-				if(dc->before(seq, old_out->ack_cutoff))
+				if(before(seq, old_out->ack_cutoff))
 					old_out->ack_cutoff = seq;
 			} else {
 				old_out->ack_cutoff = seq;
@@ -502,7 +502,7 @@ CONTROL_RETURN DyscoAgentIn::input(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashIn*
 	
 	if(isTCPSYN(tcp)) {
 		if(isTCPACK(tcp)) {
-			dc->set_ack_number_out(this->index, tcp, cb_in);
+			set_ack_number_out(tcp, cb_in);
 			in_hdr_rewrite_csum(ip, tcp, cb_in);
 
 			if(cb_in->dcb_out->state == DYSCO_SYN_SENT)
@@ -1136,7 +1136,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(Packet* pkt, Ipv4* ip, Tcp* tcp, Dysc
 #ifdef DEBUG
 			fprintf(stderr, "It isn't left anchor.\n");
 #endif		
-			dc->set_ack_number_out(this->index, tcp, cb_in);
+			set_ack_number_out(tcp, cb_in);
 			in_hdr_rewrite_csum(ip, tcp, cb_in);
 
 			return TO_GATE_0;
@@ -1210,7 +1210,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(Packet* pkt, Ipv4* ip, Tcp* tcp, Dysc
 #ifdef DEBUG
 		fprintf(stderr, "It isn't the right anchor.\n");
 #endif
-		dc->set_ack_number_out(this->index, tcp, cb_in);
+		set_ack_number_out(tcp, cb_in);
 		in_hdr_rewrite_csum(ip, tcp, cb_in);
 		
 		return TO_GATE_0;
