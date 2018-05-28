@@ -416,7 +416,11 @@ bool DyscoCenter::insert_cb_out(uint32_t i, DyscoHashOut* cb_out, uint8_t two_pa
 
 
 
-bool DyscoCenter::insert_pending_reconfig(DyscoHashes* dh, uint8_t* payload, uint32_t payload_sz) {
+bool DyscoCenter::insert_pending_reconfig(uint32_t i, uint8_t* payload, uint32_t payload_sz) {
+	DyscoHashes* dh = get_hashes(i);
+	if(!dh)
+		return false;
+	
 	uint32_t sc_len = (payload_sz - 1 - sizeof(DyscoControlMessage))/sizeof(uint32_t); //-1 is because 0xFF byte for reconfig tag
 	if(sc_len < 2)
 		return false;

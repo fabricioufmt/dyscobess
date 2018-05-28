@@ -347,7 +347,7 @@ bool DyscoAgentIn::rx_initiation_new(Packet* pkt, Ipv4* ip, Tcp* tcp, uint32_t p
 
 	
 	
-	insert_cb_in(this->index, cb_in, ip, tcp);
+	dc->insert_cb_in(this->index, cb_in, ip, tcp);
 	
 	/*
 	DyscoHashIn* cb_in = dc->insert_cb_input(this->index, ip, tcp, payload, payload_sz);
@@ -840,7 +840,7 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 		}
 	}
 
-	insert_cb_in(this->index, cb_in, ip, tcp);
+	dc->insert_cb_in(this->index, cb_in, ip, tcp);
 
 	/*
 	cb_in = dc->insert_cb_input(this->index, ip, tcp, payload, payload_sz);
