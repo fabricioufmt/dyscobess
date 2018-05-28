@@ -338,7 +338,6 @@ DyscoHashIn* DyscoCenter::insert_cb_input(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_
 		neigh_subss = reinterpret_cast<DyscoTcpSession*>(payload + sizeof(DyscoTcpSession));
 		
 		if(neigh_subss->sip != cb_in->sub.sip || neigh_subss->sport != cb_in->sub.sport) {
-			fprintf(stderr, "NAT crossed.\n");
 			memcpy(&cb_in->my_sup, &cb_in->sub, sizeof(DyscoTcpSession));
 			cb_in->my_sup.dip = neigh_supss->dip;
 			cb_in->my_sup.dport = neigh_supss->dport;
@@ -385,6 +384,17 @@ DyscoHashIn* DyscoCenter::insert_cb_input(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_
 	dh->hash_out.insert(std::pair<DyscoTcpSession, DyscoHashOut*>(cb_out->sup, cb_out));
 
 	return cb_in;
+}
+
+bool DyscoCenter::insert_cb_in(uint32_t i, DyscoHashIn* cb_in, Ipv4* ip, Tcp* tcp) {
+	DyscoHashes* dh = get_hashes(i);
+	if(!dh)
+		return false;
+
+	dh->hash_in.insert(std::pair<DyscoTcpSession, DyscoHashIn*>(cb_in->sub, cb_in));
+	cb_in->dcb_out = insert_cb_in_reverse(i, cb_in, ip, tcp);
+	
+	return true;
 }
 
 bool DyscoCenter::insert_cb_out(uint32_t i, DyscoHashOut* cb_out, uint8_t two_paths) {
@@ -467,13 +477,17 @@ bool DyscoCenter::insert_pending(DyscoHashes* dh, uint8_t* payload, uint32_t pay
 	return true;
 }
 
-DyscoHashOut* DyscoCenter::insert_cb_in_reverse(DyscoTcpSession* ss, Ipv4* ip, Tcp* tcp) {
+DyscoHashOut* DyscoCenter::insert_cb_in_reverse(uint32_t i, DyscoHashIn* cb_in, Ipv4* ip, Tcp* tcp) {
+	DyscoHashes* dh = get_hashes(i);
+	if(!dh)
+		return 0;
+
 	DyscoHashOut* cb_out = new DyscoHashOut();
 
-	cb_out->sup.sip = ss->dip;
-	cb_out->sup.dip = ss->sip;
-	cb_out->sup.sport = ss->dport;
-	cb_out->sup.dport = ss->sport;
+	cb_out->sup.sip = cb_in->my_sup.dip;
+	cb_out->sup.dip = cb_in->my_sup.sip;
+	cb_out->sup.sport = cb_in->my_sup.dport;
+	cb_out->sup.dport = cb_in->my_sup.sport;
 
 	cb_out->sub.sip = ip->dst.raw_value();
 	cb_out->sub.dip = ip->src.raw_value();
@@ -492,6 +506,10 @@ DyscoHashOut* DyscoCenter::insert_cb_in_reverse(DyscoTcpSession* ss, Ipv4* ip, T
 
 	cb_out->ack_ctr = 0;
 	cb_out->state = DYSCO_ONE_PATH;
+
+	cb_out->dcb_in = cb_in;
+
+	dh->hash_out.insert(std::pair<DyscoTcpSession, DyscoHashOut*>(cb_out->sup, cb_out));
 	
 	return cb_out;
 }
@@ -968,8 +986,6 @@ DyscoHashIn* DyscoCenter::insert_cb_out_reverse(uint32_t i, DyscoHashOut* cb_out
 		return 0;
 	
 	DyscoHashIn* cb_in = new DyscoHashIn();
-	if(!cb_in)
-		return 0;
 
 	cb_in->sub.sip = cb_out->sub.dip;
 	cb_in->sub.dip = cb_out->sub.sip;
@@ -1000,7 +1016,6 @@ DyscoHashIn* DyscoCenter::insert_cb_out_reverse(uint32_t i, DyscoHashOut* cb_out
 		memcpy(&cb_in->cmsg, cmsg, sizeof(DyscoControlMessage));
 	
 	cb_in->dcb_out = cb_out;
-	cb_out->dcb_in = cb_in;
 
 	dh->hash_in.insert(std::pair<DyscoTcpSession, DyscoHashIn*>(cb_in->sub, cb_in));
 	

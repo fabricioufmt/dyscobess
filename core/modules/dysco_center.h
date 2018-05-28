@@ -50,8 +50,9 @@ class DyscoCenter final : public Module {
 	/*
 	 * DyscoControl methods
 	 */
-	DyscoHashIn* insert_cb_input(uint32_t, Ipv4*, Tcp*, uint8_t*, uint32_t);
-
+	DyscoHashIn* insert_cb_input(uint32_t, Ipv4*, Tcp*, uint8_t*, uint32_t); //TOREMOVE
+	bool insert_cb_in(uint32_t, DyscoHashIn*, Ipv4*, Tcp*);
+	bool insert_cb_out(uint32_t, DyscoHashOut*, uint8_t);
 
 	
 	uint16_t allocate_local_port(uint32_t);
@@ -59,7 +60,6 @@ class DyscoCenter final : public Module {
 	uint32_t get_index(string, uint32_t);
 	
 	
-	bool insert_cb_out(uint32_t, DyscoHashOut*, uint8_t);
 	bool set_ack_number_out(uint32_t, Tcp*, DyscoHashIn*);
 	bool insert_tag(uint32_t, Packet*, Ipv4*, Tcp*);
 	bool replace_cb_leftA(DyscoCbReconfig*, DyscoControlMessage*);
@@ -88,7 +88,7 @@ class DyscoCenter final : public Module {
 	void add_sc(Packet*, Ipv4*, Tcp*, DyscoHashOut*);
 	bool insert_pending(DyscoHashes*, uint8_t*, uint32_t);
 	bool insert_pending_reconfig(DyscoHashes*, uint8_t*, uint32_t);
-	DyscoHashOut* insert_cb_in_reverse(DyscoTcpSession*, Ipv4*, Tcp*);
+	DyscoHashOut* insert_cb_in_reverse(uint32_t, DyscoHashIn*, Ipv4*, Tcp*);
 	DyscoHashOut* create_cb_out(uint32_t, Ipv4*, Tcp*, DyscoPolicies::Filter*, uint32_t);
 
 	inline bool isReconfigPacket(Ipv4* ip, Tcp* tcp) {

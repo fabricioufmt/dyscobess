@@ -311,13 +311,50 @@ void DyscoAgentIn::in_hdr_rewrite_csum(Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
 
 //L.505
 bool DyscoAgentIn::rx_initiation_new(Packet* pkt, Ipv4* ip, Tcp* tcp, uint32_t payload_sz) {
-	size_t tcp_hlen = tcp->offset << 2;
-	uint8_t* payload = reinterpret_cast<uint8_t*>(tcp) + tcp_hlen;
+	uint8_t* payload = reinterpret_cast<uint8_t*>(tcp) +(tcp->offfset << 2);
+
+	DyscoHashIn* cb_in = new DyscoHashIn();
+
+	cb_in->sub.sip = ip->src.raw_value();
+	cb_in->sub.dip = ip->dst.raw_value();
+	cb_in->sub.sport = tcp->src_port.raw_value();
+	cb_in->sub.dport = tcp->dst_port.raw_value();
+
+	DyscoTcpSession* neigh_supss = reinterpret_cast<DyscoTcpSession*>(payload);
+	DyscoTcpSession* neigh_subss = reinterpret_cast<DyscoTcpSession*>(payload + sizeof(DyscoTcpSession));
+		
+	if(neigh_subss->sip != cb_in->sub.sip || neigh_subss->sport != cb_in->sub.sport) {
+#ifdef DEBUG
+		fprintf(stderr, "[%s][DyscoAgentIn] NAT crossed.\n", ns.c_str());
+#endif
+		cb_in->my_sup = cb_in->sub;
+		cb_in->my_sup.dip = neigh_supss->dip;
+		cb_in->my_sup.dport = neigh_supss->dport;
+	} else {
+		cb_in->my_sup.sip = neigh_supss->sip;
+		cb_in->my_sup.dip = neigh_supss->dip;
+		cb_in->my_sup.sport = neigh_supss->sport;
+		cb_in->my_sup.dport = neigh_supss->dport;
+	}
+
+	if(payload_sz > 2 * sizeof(DyscoTcpSession) + sizeof(uint32_t)) {
+		if(!insert_pending(dh, payload, payload_sz)) {
+			delete cb_in;
+				
+			return 0;
+		}
+	}
+
+	
+	
+	insert_cb_in(this->index, cb_in, ip, tcp);
+	
+	/*
 	DyscoHashIn* cb_in = dc->insert_cb_input(this->index, ip, tcp, payload, payload_sz);
 	
 	if(!cb_in)
 		return false;
-
+	*/
 	cb_in->in_iseq = tcp->seq_num.value();
 	cb_in->in_iack = tcp->ack_num.value();
 
@@ -782,10 +819,35 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 	fprintf(stderr, "It isn't the right anchor.\n");
 #endif
 
+	DyscoHashIn* cb_in = new DyscoHashIn();
+
+	cb_in->sub.sip = ip->src.raw_value();
+	cb_in->sub.dip = ip->dst.raw_value();
+	cb_in->sub.sport = tcp->src_port.raw_value();
+	cb_in->sub.dport = tcp->dst_port.raw_value();
+
+	DyscoTcpSession* neigh_supss = &(reinterpret_cast<DyscoControlMessage*>(payload))->super;
+	cb_in->neigh_sup.sip = neigh_supss->sip;
+	cb_in->neigh_sup.dip = neigh_supss->dip;
+	cb_in->neigh_sup.sport = neigh_supss->sport;
+	cb_in->neigh_sup.dport = neigh_supss->dport;
+
+	if(payload_sz > sizeof(DyscoControlMessage) + sizeof(uint32_t)) {
+		if(!insert_pending_reconfig(dh, payload, payload_sz)) {
+			delete cb_in;
+
+			return ERROR;
+		}
+	}
+
+	insert_cb_in(this->index, cb_in, ip, tcp);
+
+	/*
 	cb_in = dc->insert_cb_input(this->index, ip, tcp, payload, payload_sz);
 	if(!cb_in)
 		return ERROR;
-		
+	*/
+	
 	cb_in->in_iseq = rcb->leftIseq;
 	cb_in->in_iack = rcb->leftIack;
 	cb_in->two_paths = 0;
