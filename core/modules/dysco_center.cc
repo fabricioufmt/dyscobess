@@ -387,7 +387,16 @@ DyscoHashIn* DyscoCenter::insert_cb_input(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_
 	return cb_in;
 }
 
+bool DyscoCenter::insert_cb_out(uint32_t i, DyscoHashOut* cb_out, uint8_t two_paths) {
+	DyscoHashes* dh = get_hashes(i);
+	if(!dh)
+		return false;
 
+	dh->hash_out.insert(std::pair<DyscoTcpSession, DyscoHashOut*>(cb_out->sup, cb_out));
+	cb_out->dcb_in = insert_cb_out_reverse(i, cb_out, two_paths);
+
+	return true;
+}
 
 
 
@@ -950,17 +959,6 @@ bool DyscoCenter::insert_tag(uint32_t index, bess::Packet* pkt, Ipv4* ip, Tcp* t
 	tcp->offset += (DYSCO_TCP_OPTION_LEN >> 2);
 	ip->length = ip->length + be16_t(DYSCO_TCP_OPTION_LEN);
 	
-	return true;
-}
-
-bool DyscoCenter::insert_cb_out(uint32_t i, DyscoHashOut* cb_out, uint8_t two_paths) {
-	DyscoHashes* dh = get_hashes(i);
-	if(!dh)
-		return false;
-
-	dh->hash_out.insert(std::pair<DyscoTcpSession, DyscoHashOut*>(cb_out->sup, cb_out));
-	cb_out->dcb_in = insert_cb_out_reverse(i, cb_out, two_paths);
-
 	return true;
 }
 
