@@ -44,6 +44,7 @@ class DyscoAgentOut final : public Module {
 	void add_sc(Packet*, Ipv4*, Tcp*, DyscoHashOut*);
 	bool output_mb(Packet*, Ipv4*, Tcp*, DyscoHashOut*);
 	bool output_syn(Packet*, Ipv4*, Tcp*, DyscoHashOut*);
+	void remove_tag(Packet*, Ipv4*, Tcp*);
 	
 	bool control_output(Ipv4*, Tcp*);
 	bool control_insert_out(DyscoCbReconfig*);

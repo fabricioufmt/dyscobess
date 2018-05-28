@@ -537,7 +537,7 @@ bool DyscoAgentOut::output_mb(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_
 	parse_tcp_syn_opt_s(tcp, cb_out);
 
 	dc->insert_cb_out(this->index, cb_out, 0);
-	hdr_rewrite(pkt, ip, tcp, &cb_out->sub);
+	hdr_rewrite(ip, tcp, &cb_out->sub);
 
 	if(cb_out->tag_ok) {
 		remove_tag(pkt, ip, tcp);
