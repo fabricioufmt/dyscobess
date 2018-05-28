@@ -375,13 +375,13 @@ DyscoHashIn* DyscoCenter::insert_cb_input(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_
 
 	if(neigh_subss->sip != cb_in->sub.sip || neigh_subss->sport != cb_in->sub.sport) {
 		fprintf(stderr, "NAT crossed.\n");
-		memcpy(&cb_in->my_sup, cb_in->sub, sizeof(DyscoTcpSession));		
+		memcpy(&cb_in->my_sup, &cb_in->sub, sizeof(DyscoTcpSession));		
 	}
 	
 	cb_in->two_paths = 0;
 	cb_in->seq_delta = cb_in->ack_delta = 0;
 
-	cb_out = insert_cb_in_reverse(supss, ip, tcp);
+	cb_out = insert_cb_in_reverse(neigh_supss, ip, tcp);
 	if(!cb_out) {
 		delete cb_in;
 
