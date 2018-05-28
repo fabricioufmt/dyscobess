@@ -344,17 +344,13 @@ bool DyscoAgentIn::rx_initiation_new(Packet* pkt, Ipv4* ip, Tcp* tcp, uint32_t p
 			return 0;
 		}
 	}
+	
+	if(!dc->insert_cb_in(this->index, cb_in, ip, tcp)) {
+		delete cb_in;
 
-	
-	
-	dc->insert_cb_in(this->index, cb_in, ip, tcp);
-	
-	/*
-	DyscoHashIn* cb_in = dc->insert_cb_input(this->index, ip, tcp, payload, payload_sz);
-	
-	if(!cb_in)
 		return false;
-	*/
+	}
+	
 	cb_in->in_iseq = tcp->seq_num.value();
 	cb_in->in_iack = tcp->ack_num.value();
 
@@ -840,13 +836,11 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 		}
 	}
 
-	dc->insert_cb_in(this->index, cb_in, ip, tcp);
+	if(!dc->insert_cb_in(this->index, cb_in, ip, tcp)) {
+		delete cb_in;
 
-	/*
-	cb_in = dc->insert_cb_input(this->index, ip, tcp, payload, payload_sz);
-	if(!cb_in)
 		return ERROR;
-	*/
+	}
 	
 	cb_in->in_iseq = rcb->leftIseq;
 	cb_in->in_iack = rcb->leftIack;
