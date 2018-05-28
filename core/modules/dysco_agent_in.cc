@@ -338,9 +338,24 @@ bool DyscoAgentIn::rx_initiation_new(Packet* pkt, Ipv4* ip, Tcp* tcp, uint32_t p
 	}
 
 	if(payload_sz > 2 * sizeof(DyscoTcpSession) + sizeof(uint32_t)) {
-		if(!dc->insert_pending(this->index, payload, payload_sz)) {
+		uint32_t sc_len = (payload_sz - 2 * sizeof(DyscoTcpSession))/sizeof(uint32_t);
+
+		cb_out = new DyscoHashOut();
+		
+		cb_out->sup.sip = neigh_supss->sip;
+		cb_out->sup.dip = neigh_supss->dip;
+		cb_out->sup.sport = neigh_supss->sport;
+		cb_out->sup.dport = neigh_supss->dport;
+
+		cb_out->dysco_tag = dc->get_dysco_tag(this->index);
+		cb_out->sc_len = sc_len - 1;
+		cb_out->sc = new uint32_t[sc_len - 1];
+		memcpy(cb_out->sc, payload + 2 * sizeof(DyscoTcpSession) + sizeof(uint32_t), (sc_len - 1) * sizeof(uint32_t));
+		
+		if(!dc->insert_pending(this->index, cb_out)) {
 			delete cb_in;
-				
+			delete cb_out;
+			
 			return 0;
 		}
 	}
@@ -828,9 +843,28 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 	cb_in->neigh_sup.sport = neigh_supss->sport;
 	cb_in->neigh_sup.dport = neigh_supss->dport;
 
+	uint32_t sc_len = (payload_sz - 1 - sizeof(DyscoControlMessage))/sizeof(uint32_t);
+	//-1 is because 0xFF byte for reconfig tag
+	
 	if(payload_sz > sizeof(DyscoControlMessage) + sizeof(uint32_t)) {
-		if(!dc->insert_pending_reconfig(this->index, payload, payload_sz)) {
+
+		cb_out = new DyscoHashOut();
+
+		cb_out->sip = neigh_supss->sip;
+		cb_out->dip = neigh_supss->dip;
+		cb_out->sport = neigh_supss->sport;
+		cb_out->dport = neigh_supss->dport;
+
+		cb_out->dysco_tag = dc->get_dysco_tag(this->index);
+		cb_out->sc_len = sc_len - 1;
+		cb_out->sc = new uint32_t[sc_len - 1];
+		memcpy(cb_out->sc, payload + sizeof(DyscoControlMessage) + sizeof(uint32_t), (sc_len - 1) * sizeof(uint32_t));
+		cb_out->is_reconfiguration = 1;
+		memcpy(&cb_out->cmsg, cmsg, sizeof(DyscoControlMessage));
+		
+		if(!dc->insert_pending_reconfig(this->index, cb_out)) {
 			delete cb_in;
+			delete cb_out;
 
 			return ERROR;
 		}
@@ -871,7 +905,6 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 	
 	memcpy(&cb_in->cmsg, cmsg, sizeof(DyscoControlMessage));
 
-	uint32_t sc_len = (payload_sz - sizeof(DyscoControlMessage) - 1)/sizeof(uint32_t); //-1 for 0xFF tag
 	uint32_t* sc = (uint32_t*)(payload + sizeof(DyscoControlMessage));
 		
 	if(ntohs(cmsg->semantic) == NOSTATE_TRANSFER || sc_len < 2) {
