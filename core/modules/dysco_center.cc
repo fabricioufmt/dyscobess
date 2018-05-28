@@ -351,7 +351,8 @@ DyscoHashIn* DyscoCenter::insert_cb_input(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_
 	cb_in->seq_delta = cb_in->ack_delta = 0;
 
 	//cb_out = insert_cb_in_reverse(neigh_supss, ip, tcp);
-	cb_out = insert_cb_in_reverse(i, &cb_in->my_sup, ip, tcp);
+	//cb_out = insert_cb_in_reverse(i, &cb_in->my_sup, ip, tcp);
+	cb_out = insert_cb_in_reverse(i, cb_in, ip, tcp);
 	if(!cb_out) {
 		delete cb_in;
 
