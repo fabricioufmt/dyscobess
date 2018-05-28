@@ -370,7 +370,7 @@ bool DyscoAgentIn::rx_initiation_new(Packet* pkt, Ipv4* ip, Tcp* tcp, uint32_t p
 	cb_in->in_iack = tcp->ack_num.value();
 
 	remove_sc(pkt, ip, payload_sz);
-	dc->parse_tcp_syn_opt_r(tcp, cb_in);
+	parse_tcp_syn_opt_r(tcp, cb_in);
 	dc->insert_tag(this->index, pkt, ip, tcp);
 	hdr_rewrite_full_csum(ip, tcp, &cb_in->my_sup);
 	
