@@ -741,7 +741,7 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 		
 		if(!cb_out) {
 			delete cb_in;
-			dc->remove_hahs_reconfig(this->index, rcb);
+			dc->remove_hash_reconfig(this->index, rcb);
 			delete rcb;
 			
 			return ERROR;
