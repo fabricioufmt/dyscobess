@@ -351,7 +351,7 @@ DyscoHashIn* DyscoCenter::insert_cb_input(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_
 	cb_in->seq_delta = cb_in->ack_delta = 0;
 
 	//cb_out = insert_cb_in_reverse(neigh_supss, ip, tcp);
-	cb_out = insert_cb_in_reverse(&cb_in->my_sup, ip, tcp);
+	cb_out = insert_cb_in_reverse(i, &cb_in->my_sup, ip, tcp);
 	if(!cb_out) {
 		delete cb_in;
 
@@ -450,7 +450,11 @@ bool DyscoCenter::insert_pending_reconfig(DyscoHashes* dh, uint8_t* payload, uin
 }
 
 
-bool DyscoCenter::insert_pending(DyscoHashes* dh, uint8_t* payload, uint32_t payload_sz) {
+bool DyscoCenter::insert_pending(uint32_t i, uint8_t* payload, uint32_t payload_sz) {
+	DyscoHashes* dh = get_hashes(i);
+	if(!dh)
+		return false;
+	
 	uint32_t sc_len = (payload_sz - 2 * sizeof(DyscoTcpSession))/sizeof(uint32_t);
 	
 	DyscoHashOut* cb_out = new DyscoHashOut();

@@ -311,7 +311,7 @@ void DyscoAgentIn::in_hdr_rewrite_csum(Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
 
 //L.505
 bool DyscoAgentIn::rx_initiation_new(Packet* pkt, Ipv4* ip, Tcp* tcp, uint32_t payload_sz) {
-	uint8_t* payload = reinterpret_cast<uint8_t*>(tcp) +(tcp->offfset << 2);
+	uint8_t* payload = reinterpret_cast<uint8_t*>(tcp) +(tcp->offset << 2);
 
 	DyscoHashIn* cb_in = new DyscoHashIn();
 
@@ -338,7 +338,7 @@ bool DyscoAgentIn::rx_initiation_new(Packet* pkt, Ipv4* ip, Tcp* tcp, uint32_t p
 	}
 
 	if(payload_sz > 2 * sizeof(DyscoTcpSession) + sizeof(uint32_t)) {
-		if(!insert_pending(dh, payload, payload_sz)) {
+		if(!dc->insert_pending(this->index, payload, payload_sz)) {
 			delete cb_in;
 				
 			return 0;
@@ -833,7 +833,7 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 	cb_in->neigh_sup.dport = neigh_supss->dport;
 
 	if(payload_sz > sizeof(DyscoControlMessage) + sizeof(uint32_t)) {
-		if(!insert_pending_reconfig(dh, payload, payload_sz)) {
+		if(!dc->insert_pending_reconfig(this->index, payload, payload_sz)) {
 			delete cb_in;
 
 			return ERROR;
