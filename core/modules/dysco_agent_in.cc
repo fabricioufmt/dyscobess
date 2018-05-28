@@ -340,7 +340,7 @@ bool DyscoAgentIn::rx_initiation_new(Packet* pkt, Ipv4* ip, Tcp* tcp, uint32_t p
 	if(payload_sz > 2 * sizeof(DyscoTcpSession) + sizeof(uint32_t)) {
 		uint32_t sc_len = (payload_sz - 2 * sizeof(DyscoTcpSession))/sizeof(uint32_t);
 
-		cb_out = new DyscoHashOut();
+		DyscoHashOut* cb_out = new DyscoHashOut();
 		
 		cb_out->sup.sip = neigh_supss->sip;
 		cb_out->sup.dip = neigh_supss->dip;

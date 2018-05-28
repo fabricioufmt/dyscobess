@@ -320,7 +320,7 @@ bool DyscoCenter::insert_pending_reconfig(uint32_t i, DyscoHashOut* cb_out) {
 	if(!dh)
 		return false;
 	
-	dh->hash_pen.insert(std::pair<DyscoTcpSession, DyscoHashOut*>(cb_out->supss, cb_out));
+	dh->hash_pen.insert(std::pair<DyscoTcpSession, DyscoHashOut*>(cb_out->sup, cb_out));
 	dh->hash_pen_tag.insert(std::pair<uint32_t, DyscoHashOut*>(cb_out->dysco_tag, cb_out));
 
 	return true;
