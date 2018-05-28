@@ -968,6 +968,43 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 	return TO_GATE_1;
 }
 
+
+
+
+bool DyscoAgentIn::set_ack_number_out(Tcp* tcp, DyscoHashIn* cb_in) {
+	cb_in->in_iseq = cb_in->out_iseq = tcp->seq_num.value();
+	cb_in->in_iack = cb_in->out_iack = tcp->ack_num.value() - 1;
+	cb_in->seq_delta = cb_in->ack_delta = 0;
+
+	DyscoTcpSession ss;
+	ss.sip = cb_in->my_sup.dip;
+	ss.dip = cb_in->my_sup.sip;
+	ss.sport = cb_in->my_sup.dport;
+	ss.dport = cb_in->my_sup.sport;
+
+	DyscoHashOut* cb_out = dc->lookup_output_by_ss(this->index, &ss);
+
+	if(!cb_out)
+		return false;
+
+	cb_out->out_iack = cb_out->in_iack = tcp->seq_num.value();
+	cb_out->out_iseq = cb_out->in_iseq = tcp->ack_num.value() - 1;
+	
+	parse_tcp_syn_opt_r(tcp, cb_in);
+	if(cb_in->ts_ok) {
+		cb_out->ts_ok = 1;
+		cb_out->tsr_out = cb_out->tsr_in = cb_in->ts_in;
+		cb_out->ts_out = cb_out->ts_in = cb_in->tsr_in;
+
+		cb_out->ts_delta = cb_out->tsr_delta = 0;
+	}
+
+	if(!cb_in->sack_ok)
+		cb_out->sack_ok = 0;
+
+	return true;
+}
+
 CONTROL_RETURN DyscoAgentIn::control_input(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
 	DyscoCbReconfig* rcb;
 	DyscoControlMessage* cmsg = 0;

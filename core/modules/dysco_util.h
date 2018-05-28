@@ -489,6 +489,14 @@ inline bool isTCPFIN(Tcp* tcp, bool exclusive = false) {
 	return exclusive ? tcp->flags == Tcp::Flag::kFin : tcp->flags & Tcp::Flag::kFin;
 }
 
+inline bool before(uint32_t seq1, uint32_t seq2) {
+	return (int32_t)(seq1 - seq2) < 0;
+}
+
+inline bool after(uint32_t seq2, uint32_t seq1) {
+	return before(seq1, seq2);
+}
+
 inline bool isFromLeftAnchor(Ipv4* ip, DyscoControlMessage* cmsg) {
 	return ip->src.value() == ntohl(cmsg->leftA);
 }
@@ -562,6 +570,251 @@ inline void fix_csum(Ipv4* ip, Tcp* tcp) {
 inline void hdr_rewrite_full_csum(Ipv4* ip, Tcp* tcp, DyscoTcpSession* ss) {
 	hdr_rewrite(ip, tcp, ss);
 	fix_csum(ip, tcp);
+}
+
+inline DyscoTcpTs* get_ts_option(Tcp* tcp) {
+	uint32_t len = (tcp->offset << 2) - sizeof(Tcp);
+	uint8_t* ptr = reinterpret_cast<uint8_t*>(tcp + 1);
+
+	uint32_t opcode;
+	uint32_t opsize;
+	while(len > 0) {
+		opcode = *ptr++;
+		switch(opcode) {
+		case TCPOPT_EOL:
+			return 0;
+
+		case TCPOPT_NOP:
+			len--;
+			continue;
+
+		default:
+			opsize = *ptr++;
+			if(opsize < 2)
+				return 0;
+
+			if(opsize > len)
+				return 0;
+
+			if(opcode == TCPOPT_TIMESTAMP && opsize == TCPOLEN_TIMESTAMP)
+				return reinterpret_cast<DyscoTcpTs*>(ptr);
+
+			ptr += opsize - 2;
+			len -= opsize;
+		}
+	}
+
+	return 0;
+}
+
+inline bool tcp_sack(Tcp* tcp, uint32_t delta, uint8_t add) {
+	uint32_t len = (tcp->offset << 2) - sizeof(Tcp);
+	uint8_t* ptr = reinterpret_cast<uint8_t*>(tcp + 1);
+
+	uint32_t opcode;
+	uint32_t opsize;
+	while(len > 0) {
+		opcode = *ptr++;
+		switch(opcode) {
+		case TCPOPT_EOL:
+			return 0;
+
+		case TCPOPT_NOP:
+			len--;
+			continue;
+
+		default:
+			opsize = *ptr++;
+			if(opsize < 2)
+				return 0;
+
+			if(opsize > len)
+				return 0;
+
+			if(opcode == TCPOPT_SACK) {
+				if((opsize >= (TCPOLEN_SACK_BASE + TCPOLEN_SACK_PERBLOCK))
+				   &&
+				   !((opsize - TCPOLEN_SACK_BASE) % TCPOLEN_SACK_PERBLOCK)) {
+					uint8_t* lptr = ptr;
+					uint32_t blen = opsize - 2;
+
+					while(blen > 0) {
+						uint32_t* left_edge = (uint32_t*) lptr;
+						uint32_t* right_edge = (uint32_t*) (lptr + 4);
+						uint32_t new_ack_l, new_ack_r;
+						if(add) {
+							new_ack_l = htonl(ntohl(*left_edge) + delta);
+							new_ack_r = htonl(ntohl(*right_edge) + delta);						
+						} else {
+							new_ack_l = htonl(ntohl(*left_edge) - delta);
+							new_ack_r = htonl(ntohl(*right_edge) - delta);						
+						}
+
+						*left_edge = new_ack_l;
+						*right_edge = new_ack_r;
+
+						lptr += 8;
+						blen -= 8;
+					}
+				}
+			}
+			ptr += opsize - 2;
+			len -= opsize;
+		}
+	}
+
+	return true;
+}
+
+inline bool parse_tcp_syn_opt_s(Tcp* tcp, DyscoHashOut* cb_out) {
+	uint32_t len = (tcp->offset << 2) - sizeof(Tcp);
+	uint8_t* ptr = reinterpret_cast<uint8_t*>(tcp + 1);
+
+	cb_out->sack_ok = 0;
+
+	uint32_t opcode, opsize;
+	while(len > 0) {
+		opcode = *ptr++;
+		
+		switch(opcode) {
+		case TCPOPT_EOL:
+			return false;
+			
+		case TCPOPT_NOP:
+			len--;
+			continue;
+
+		default:
+			opsize = *ptr++;
+			if(opsize < 2)
+				return false;
+			
+			if(opsize > len)
+				return false;
+			
+			switch(opsize) {
+			case TCPOPT_WINDOW:
+				if(opsize == TCPOLEN_WINDOW) {
+					uint8_t snd_wscale = *(uint8_t*)ptr;
+					
+					cb_out->ws_ok = 1;
+					cb_out->ws_delta = 0;
+					if (snd_wscale > 14)
+						snd_wscale = 14;
+					
+					cb_out->ws_in = cb_out->ws_out = snd_wscale;
+				}
+				
+				break;
+				
+			case TCPOPT_TIMESTAMP:
+				if(opsize == TCPOLEN_TIMESTAMP) {
+					if(tcp->flags & Tcp::kAck) {
+						uint32_t ts, tsr;
+						
+						cb_out->ts_ok = 1;
+						ts = (uint32_t)(*ptr);
+						tsr = (uint32_t)(*(ptr + 4));
+						cb_out->ts_in = cb_out->ts_out = ts;
+						cb_out->tsr_in = cb_out->tsr_out = tsr;
+						
+						cb_out->ts_delta = cb_out->tsr_delta = 0;
+					}
+				}
+				
+				break;
+				
+			case TCPOPT_SACK_PERMITTED:
+				if(opsize == TCPOLEN_SACK_PERMITTED)
+					cb_out->sack_ok = 1;
+				
+				break;
+
+			case DYSCO_TCP_OPTION:
+				cb_out->tag_ok = 1;
+				cb_out->dysco_tag = *(uint32_t*)ptr;
+				
+				break;
+			}
+
+			ptr += opsize - 2;
+			len -= opsize;
+		}
+	}
+	
+	return true;
+}
+
+inline bool parse_tcp_syn_opt_r(Tcp* tcp, DyscoHashIn* cb_in) {
+	uint32_t len = (tcp->offset << 2) - sizeof(Tcp);
+	uint8_t* ptr = reinterpret_cast<uint8_t*>(tcp + 1);
+
+	cb_in->sack_ok = 0;
+
+	uint32_t opcode, opsize;
+	while(len > 0) {
+		opcode = *ptr++;
+		switch(opcode) {
+		case TCPOPT_EOL:
+			return false;
+			
+		case TCPOPT_NOP:
+			len--;
+			continue;
+
+		default:
+			opsize = *ptr++;
+			if(opsize < 2)
+				return false;
+			
+			if(opsize > len)
+				return false;
+			
+			switch(opsize) {
+			case TCPOPT_WINDOW:
+				if(opsize == TCPOLEN_WINDOW) {
+					uint8_t snd_wscale = *(uint8_t*)ptr;
+					
+					cb_in->ws_ok = 1;
+					cb_in->ws_delta = 0;
+					if (snd_wscale > 14)
+						snd_wscale = 14;
+					
+					cb_in->ws_in = cb_in->ws_out = snd_wscale;
+				}
+				
+				break;
+				
+			case TCPOPT_TIMESTAMP:
+				if(opsize == TCPOLEN_TIMESTAMP) {
+					if(tcp->flags & Tcp::kAck) {
+						uint32_t ts, tsr;
+						
+						cb_in->ts_ok = 1;
+						ts = (uint32_t)(*ptr);
+						tsr = (uint32_t)(*(ptr + 4));
+						cb_in->ts_in = cb_in->ts_out = ts;
+						cb_in->tsr_in = cb_in->tsr_out = tsr;
+						
+						cb_in->ts_delta = cb_in->tsr_delta = 0;
+					}
+				}
+				
+				break;
+				
+			case TCPOPT_SACK_PERMITTED:
+				if(opsize == TCPOLEN_SACK_PERMITTED)
+					cb_in->sack_ok = 1;
+				
+				break;
+
+			ptr += opsize - 2;
+			len -= opsize;
+			}
+		}
+	}
+	
+	return true;
 }
 
 /*********************************************************************

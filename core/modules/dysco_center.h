@@ -17,17 +17,6 @@ class DyscoCenter final : public Module {
 	CommandResponse CommandAlarm(const bess::pb::EmptyArg&);
 
 	/*
-	  TCP methods
-	*/
-	bool after(uint32_t, uint32_t);
-	bool before(uint32_t, uint32_t);
-	DyscoTcpTs* get_ts_option(Tcp*);
-	bool tcp_sack(Tcp*, uint32_t, uint8_t);
-	bool parse_tcp_syn_opt_s(Tcp*, DyscoHashOut*);
-	bool parse_tcp_syn_opt_r(Tcp*, DyscoHashIn*);
-
-
-	/*
 	 * Lookup methods
 	 */
 	DyscoHashIn* lookup_input(uint32_t, Ipv4*, Tcp*);
@@ -64,7 +53,6 @@ class DyscoCenter final : public Module {
 	uint32_t get_index(string, uint32_t);
 	
 	
-	bool set_ack_number_out(uint32_t, Tcp*, DyscoHashIn*);
 	bool insert_tag(uint32_t, Packet*, Ipv4*, Tcp*);
 	bool replace_cb_leftA(DyscoCbReconfig*, DyscoControlMessage*);
 
