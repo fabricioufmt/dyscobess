@@ -819,7 +819,7 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 	fprintf(stderr, "It isn't the right anchor.\n");
 #endif
 
-	DyscoHashIn* cb_in = new DyscoHashIn();
+	cb_in = new DyscoHashIn();
 
 	cb_in->sub.sip = ip->src.raw_value();
 	cb_in->sub.dip = ip->dst.raw_value();

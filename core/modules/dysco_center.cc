@@ -359,7 +359,7 @@ DyscoHashIn* DyscoCenter::insert_cb_input(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_
 	}
 	if(!isReconfigPacket(ip, tcp)) {
 		if(payload_sz > 2 * sizeof(DyscoTcpSession) + sizeof(uint32_t)) {
-			if(!insert_pending(dh, payload, payload_sz)) {
+			if(!insert_pending(i, payload, payload_sz)) {
 				delete cb_in;
 				delete cb_out;
 				
@@ -368,7 +368,7 @@ DyscoHashIn* DyscoCenter::insert_cb_input(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_
 		}
 	} else {
 		if(payload_sz > sizeof(DyscoControlMessage) + sizeof(uint32_t)) {
-			if(!insert_pending_reconfig(dh, payload, payload_sz)) {
+			if(!insert_pending_reconfig(i, payload, payload_sz)) {
 				delete cb_in;
 				delete cb_out;
 
