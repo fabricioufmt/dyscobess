@@ -73,7 +73,7 @@ class DyscoCenter final : public Module {
 	bool out_handle_mb(uint32_t, Packet*, Ipv4*, Tcp*, DyscoHashOut*, uint32_t);
 	bool out_syn(uint32_t, Packet*, Ipv4*, Tcp*, DyscoHashOut*, uint32_t);
 	
-	
+	uint32_t get_dysco_tag(uint32_t);
 
 	/*
 	  TCP Retransmission methods
@@ -87,7 +87,6 @@ class DyscoCenter final : public Module {
 	unordered_map<uint32_t, DyscoHashes*> hashes;
 	
 	DyscoHashes* get_hashes(uint32_t);
-	uint32_t get_dysco_tag(uint32_t);
 	bool remove_tag(Packet*, Ipv4*, Tcp*);
 	void add_sc(Packet*, Ipv4*, Tcp*, DyscoHashOut*);
 

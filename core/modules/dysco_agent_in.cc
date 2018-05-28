@@ -850,10 +850,10 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 
 		cb_out = new DyscoHashOut();
 
-		cb_out->sip = neigh_supss->sip;
-		cb_out->dip = neigh_supss->dip;
-		cb_out->sport = neigh_supss->sport;
-		cb_out->dport = neigh_supss->dport;
+		cb_out->sup.sip = neigh_supss->sip;
+		cb_out->sup.dip = neigh_supss->dip;
+		cb_out->sup.sport = neigh_supss->sport;
+		cb_out->sup.dport = neigh_supss->dport;
 
 		cb_out->dysco_tag = dc->get_dysco_tag(this->index);
 		cb_out->sc_len = sc_len - 1;
