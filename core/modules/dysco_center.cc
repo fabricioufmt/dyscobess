@@ -319,20 +319,18 @@ bool DyscoCenter::insert_pending(DyscoHashes* dh, uint8_t* payload, uint32_t pay
 	return true;
 }
 
-DyscoHashOut* DyscoCenter::insert_cb_in_reverse(DyscoTcpSession* ss_payload, Ipv4* ip, Tcp* tcp) {
+DyscoHashOut* DyscoCenter::insert_cb_in_reverse(DyscoTcpSession* ss, Ipv4* ip, Tcp* tcp) {
 	DyscoHashOut* cb_out = new DyscoHashOut();
-	if(!cb_out)
-		return 0;
 
-	cb_out->sup.sip = ss_payload->dip;
-	cb_out->sup.dip = ss_payload->sip;
-	cb_out->sup.sport = ss_payload->dport;
-	cb_out->sup.dport = ss_payload->sport;
+	cb_out->sup.sip = ss->dip;
+	cb_out->sup.dip = ss->sip;
+	cb_out->sup.sport = ss->dport;
+	cb_out->sup.dport = ss->sport;
 
-	cb_out->sub.sip = htonl(ip->dst.value());
-	cb_out->sub.dip = htonl(ip->src.value());
-	cb_out->sub.sport = htons(tcp->dst_port.value());
-	cb_out->sub.dport = htons(tcp->src_port.value());
+	cb_out->sub.sip = ip->dst.raw_value();
+	cb_out->sub.dip = ip->src.raw_value();
+	cb_out->sub.sport = tcp->dst_port.raw_value();
+	cb_out->sub.dport = tcp->src_port.raw_value();
 
 	cb_out->in_iack = tcp->seq_num.value();
 	cb_out->out_iack = tcp->seq_num.value();
@@ -384,7 +382,8 @@ DyscoHashIn* DyscoCenter::insert_cb_input(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_
 	cb_in->two_paths = 0;
 	cb_in->seq_delta = cb_in->ack_delta = 0;
 
-	cb_out = insert_cb_in_reverse(neigh_supss, ip, tcp);
+	//cb_out = insert_cb_in_reverse(neigh_supss, ip, tcp);
+	cb_out = insert_cb_in_reverse(&cb_in->my_sup, ip, tcp);
 	if(!cb_out) {
 		delete cb_in;
 
