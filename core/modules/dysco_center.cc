@@ -373,7 +373,9 @@ DyscoHashIn* DyscoCenter::insert_cb_input(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_
 		
 		if(neigh_subss->sip != cb_in->sub.sip || neigh_subss->sport != cb_in->sub.sport) {
 			fprintf(stderr, "NAT crossed.\n");
-			memcpy(&cb_in->my_sup, &cb_in->sub, sizeof(DyscoTcpSession));		
+			memcpy(&cb_in->my_sup, &cb_in->sub, sizeof(DyscoTcpSession));
+			cb_in->my_sup.dip = neigh_supss->dip;
+			cb_in->my_sup.dport = neigh_supss->dport;
 		}
 		
 	}
