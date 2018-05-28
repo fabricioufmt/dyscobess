@@ -442,7 +442,7 @@ bool DyscoAgentOut::output(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb) {
 	return false;
 }
 
-bool DyscoAgentIn::output_syn(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) {
+bool DyscoAgentOut::output_syn(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) {
 	if(!cb_out) {
 		DyscoPolicies::Filter* filter = dc->match_policy(this->index, pkt);
 		if(!filter)
@@ -515,7 +515,7 @@ bool DyscoAgentIn::output_syn(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_
 	return true;
 }
 
-bool DyscoAgentIn::output_mb(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) {
+bool DyscoAgentOut::output_mb(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) {
 	if(isTCPSYN(tcp)) {
 		if(isTCPACK(tcp))
 			cb_out->state = DYSCO_SYN_RECEIVED;

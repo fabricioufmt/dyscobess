@@ -537,7 +537,7 @@ DyscoPolicies::Filter* DyscoCenter::match_policy(uint32_t i, Packet* pkt) {
 	if(!dh)
 		return 0;
 
-	return dh->match_policy(pkt);
+	return dh->policies.match_policy(pkt);
 }
 
 /*
