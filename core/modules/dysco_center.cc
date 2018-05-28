@@ -259,9 +259,6 @@ DyscoHashOut* DyscoCenter::lookup_pending_tag(uint32_t i, Tcp* tcp) {
   Dysco methods (INPUT)
  */
 bool DyscoCenter::insert_pending_reconfig(DyscoHashes* dh, uint8_t* payload, uint32_t payload_sz) {
-	if(!dh)
-		return false;
-
 	uint32_t sc_len = (payload_sz - 1 - sizeof(DyscoControlMessage))/sizeof(uint32_t); //-1 is because 0xFF byte for reconfig tag
 	if(sc_len < 2)
 		return false;
@@ -296,16 +293,9 @@ bool DyscoCenter::insert_pending_reconfig(DyscoHashes* dh, uint8_t* payload, uin
 
 
 bool DyscoCenter::insert_pending(DyscoHashes* dh, uint8_t* payload, uint32_t payload_sz) {
-	if(!dh)
-		return false;
-
-	uint32_t sc_len = (payload_sz - sizeof(DyscoTcpSession))/sizeof(uint32_t);
-	if(sc_len < 2)
-		return false;
+	uint32_t sc_len = (payload_sz - 2 * sizeof(DyscoTcpSession))/sizeof(uint32_t);
 	
 	DyscoHashOut* cb_out = new DyscoHashOut();
-	if(!cb_out)
-		return false;
 
 	DyscoTcpSession* sup = &cb_out->sup;
 	DyscoTcpSession* ss = reinterpret_cast<DyscoTcpSession*>(payload);
@@ -318,7 +308,7 @@ bool DyscoCenter::insert_pending(DyscoHashes* dh, uint8_t* payload, uint32_t pay
 	cb_out->dysco_tag = dh->dysco_tag++; //TODO (verify)
 	cb_out->sc_len = sc_len - 1;
 	uint32_t* sc = new uint32_t[sc_len - 1];
-	memcpy(sc, payload + sizeof(DyscoTcpSession) + sizeof(uint32_t), (sc_len - 1) * sizeof(uint32_t));
+	memcpy(sc, payload + 2 * sizeof(DyscoTcpSession) + sizeof(uint32_t), (sc_len - 1) * sizeof(uint32_t));
 	cb_out->sc = sc;
 	cb_out->is_reconfiguration = 0;
 	
@@ -367,35 +357,36 @@ DyscoHashIn* DyscoCenter::insert_cb_input(uint32_t i, Ipv4* ip, Tcp* tcp, uint8_
 	
 	DyscoHashOut* cb_out = NULL;
 	DyscoHashIn* cb_in = new DyscoHashIn();
-	if(!cb_in)
-		return 0;
 
+	/*
 	cb_in->sub.sip = htonl(ip->src.value());
 	cb_in->sub.dip = htonl(ip->dst.value());
 	cb_in->sub.sport = htons(tcp->src_port.value());
 	cb_in->sub.dport = htons(tcp->dst_port.value());
-
-	DyscoTcpSession* ss;
+	*/
+	cb_in->sub.sip = ip->src.raw_value();
+	cb_in->sub.dip = ip->dst.raw_value();
+	cb_in->sub.sport = tcp->src_port.raw_value();
+	cb_in->sub.dport = tcp->dst_port.raw_value();
 	
+	DyscoTcpSession* supss;
 	if(isReconfigPacket(ip, tcp))
-		ss = &(reinterpret_cast<DyscoControlMessage*>(payload))->super;
+		supss = &(reinterpret_cast<DyscoControlMessage*>(payload))->super;
 	else
-		ss = reinterpret_cast<DyscoTcpSession*>(payload);
-	
-	memcpy(&cb_in->sup, ss, sizeof(DyscoTcpSession));
+		supss = reinterpret_cast<DyscoTcpSession*>(payload);
+	memcpy(&cb_in->sup, supss, sizeof(DyscoTcpSession));
 
 	cb_in->two_paths = 0;
-
 	cb_in->seq_delta = cb_in->ack_delta = 0;
 
-	cb_out = insert_cb_in_reverse(ss, ip, tcp);
+	cb_out = insert_cb_in_reverse(supss, ip, tcp);
 	if(!cb_out) {
 		delete cb_in;
 
 		return 0;
 	}
 	if(!isReconfigPacket(ip, tcp)) {
-		if(payload_sz > sizeof(DyscoTcpSession) + sizeof(uint32_t)) {
+		if(payload_sz > 2 * sizeof(DyscoTcpSession) + sizeof(uint32_t)) {
 			if(!insert_pending(dh, payload, payload_sz)) {
 				delete cb_in;
 				delete cb_out;
