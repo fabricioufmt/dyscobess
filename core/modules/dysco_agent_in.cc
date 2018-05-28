@@ -371,7 +371,7 @@ bool DyscoAgentIn::rx_initiation_new(Packet* pkt, Ipv4* ip, Tcp* tcp, uint32_t p
 
 	remove_sc(pkt, ip, payload_sz);
 	parse_tcp_syn_opt_r(tcp, cb_in);
-	dc->insert_tag(this->index, pkt, ip, tcp);
+	insert_tag(pkt, ip, tcp);
 	hdr_rewrite_full_csum(ip, tcp, &cb_in->my_sup);
 	
 	return true;
@@ -512,7 +512,7 @@ CONTROL_RETURN DyscoAgentIn::input(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashIn*
 			//just remove sc (if there is) and insert Dysco Tag
 			if(payload_sz) {
 				remove_sc(pkt, ip, payload_sz);
-				dc->insert_tag(this->index, pkt, ip, tcp);
+				insert_tag(pkt, ip, tcp);
 				hdr_rewrite_full_csum(ip, tcp, &cb_in->my_sup);
 			}
 		}
@@ -756,6 +756,19 @@ bool DyscoAgentIn::control_config_rightA(DyscoCbReconfig* rcb, DyscoControlMessa
 		old_out->state_t = 1;
 	
 	return true;
+}
+
+void DyscoAgentIn::insert_tag(Packet* pkt, Ipv4* ip, Tcp* tcp) {
+	uint32_t tag = dc->get_dysco_tag(index);
+	DyscoTcpOption* dopt = reinterpret_cast<DyscoTcpOption*>(pkt->append(DYSCO_TCP_OPTION_LEN));
+	
+	dopt->kind = DYSCO_TCP_OPTION;
+	dopt->len = DYSCO_TCP_OPTION_LEN;
+	dopt->padding = 0;
+	dopt->tag = tag;
+
+	tcp->offset += (DYSCO_TCP_OPTION_LEN >> 2);
+	ip->length = ip->length + be16_t(DYSCO_TCP_OPTION_LEN);
 }
 
 CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, uint8_t*, DyscoCbReconfig* rcb, DyscoControlMessage* cmsg) {

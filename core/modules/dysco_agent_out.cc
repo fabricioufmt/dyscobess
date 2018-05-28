@@ -419,14 +419,14 @@ bool DyscoAgentOut::output(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb) {
 	if(!cb_out) {
 		cb_out = dc->lookup_output_pending(this->index, ip, tcp);
 		if(cb_out) {
-			return dc->out_handle_mb(this->index, pkt, ip, tcp, cb_out, devip);
+			return out_handle_mb(pkt, ip, tcp, cb_out);
 		}
 
 		cb_out = dc->lookup_pending_tag(this->index, tcp);
 		if(cb_out) {
 			update_four_tuple(ip, tcp, cb_out->sup);
 			
-			return dc->out_handle_mb(this->index, pkt, ip, tcp, cb_out, devip);
+			return out_handle_mb(pkt, ip, tcp, cb_out);
 		}
 	}
 
@@ -441,6 +441,146 @@ bool DyscoAgentOut::output(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb) {
 
 	return false;
 }
+
+bool DyscoAgentIn::output_syn(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) {
+	if(!cb_out) {
+		DyscoPolicies::Filter* filter = dc->match_policy(this->index, pkt);
+		if(!filter)
+			return false;
+
+		DyscoHashOut* cb_out = new DyscoHashOut();
+
+		cb_out->sc = filter->sc;
+		cb_out->sc_len = filter->sc_len;
+	
+		cb_out->sup.sip = ip->src.raw_value();
+		cb_out->sup.dip = ip->dst.raw_value();
+		cb_out->sup.sport = tcp->src_port.raw_value();
+		cb_out->sup.dport = tcp->dst_port.raw_value();
+
+		if(cb_out->sc_len) {
+			cb_out->sub.sip = devip;
+			cb_out->sub.dip = cb_out->sc[0];
+			cb_out->sub.sport = dc->allocate_local_port(this->index);
+			cb_out->sub.dport = dc->allocate_neighbor_port(this->index);
+		}
+		
+		dc->insert_cb_out(this->index, cb_out, 0);
+	}
+
+	cb_out->seq_cutoff = tcp->seq_num.value();
+	parse_tcp_syn_opt_s(tcp, cb_out);
+	
+	if(isTCPACK(tcp)) {
+		DyscoHashIn* cb_in_aux;
+		DyscoTcpSession local_sub;
+
+		local_sub.sip = cb_out->sub.dip;
+		local_sub.dip = cb_out->sub.sip;
+		local_sub.sport = cb_out->sub.dport;
+		local_sub.dport = cb_out->sub.sport;
+
+		cb_in_aux = dc->lookup_input_by_ss(this->index, &local_sub);
+		if(!cb_in_aux)
+			return false;
+
+		cb_out->in_iseq = cb_out->out_iseq = tcp->seq_num.value();
+		cb_out->in_iack = cb_out->out_iack = tcp->ack_num.value() - 1;
+		cb_in_aux->in_iseq = cb_in_aux->out_iseq = cb_out->out_iack;
+		cb_in_aux->in_iack = cb_in_aux->out_iack = cb_out->out_iseq;
+		cb_in_aux->seq_delta = cb_in_aux->ack_delta = 0;
+
+		if(cb_out->ts_ok) {
+			cb_in_aux->ts_ok = 1;
+			cb_in_aux->ts_in = cb_in_aux->ts_out = cb_out->tsr_out;
+			cb_in_aux->tsr_in = cb_in_aux->tsr_out = cb_out->ts_out;
+			cb_in_aux->ts_delta = cb_in_aux->tsr_delta = 0;
+		} else
+			cb_in_aux->ts_ok = 0;
+
+		if(!cb_out->sack_ok)
+			cb_in_aux->sack_ok = 0;
+
+		hdr_rewrite_csum(ip, tcp, &cb_out->sub);
+
+		cb_out->state = DYSCO_SYN_RECEIVED;
+	} else {
+		hdr_rewrite(ip, tcp, &cb_out->sub);
+		add_sc(pkt, ip, tcp, cb_out);
+		fix_csum(ip, tcp);
+
+		cb_out->state = DYSCO_SYN_SENT;
+	}
+
+	return true;
+}
+
+bool DyscoAgentIn::output_mb(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) {
+	if(isTCPSYN(tcp)) {
+		if(isTCPACK(tcp))
+			cb_out->state = DYSCO_SYN_RECEIVED;
+		else
+			cb_out->state = DYSCO_SYN_SENT;
+	}
+
+	dc->remove_hash_pen(this->index, cb_out->sup);
+	dc->remove_hash_pen_tag(this->index, cb_out->dysco_tag);
+	
+	if(cb_out->sc_len) {
+		cb_out->sub.sip = devip;
+		cb_out->sub.dip = cb_out->sc[0];
+	}
+
+	cb_out->sub.sport = dc->allocate_local_port(this->index);
+	cb_out->sub.dport = dc->allocate_neighbor_port(this->index);
+
+	cb_out->out_iseq = cb_out->in_iseq = tcp->seq_num.value();
+	parse_tcp_syn_opt_s(tcp, cb_out);
+
+	dc->insert_cb_out(this->index, cb_out, 0);
+	out_hdr_rewrite(pkt, ip, tcp, &cb_out->sub);
+
+	if(cb_out->tag_ok) {
+		remove_tag(pkt, ip, tcp);
+	}
+
+	add_sc(pkt, ip, tcp, cb_out);
+	fix_csum(ip, tcp);
+
+	return true;
+}
+
+void DyscoAgentOut::add_sc(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) {
+	uint32_t payload_sz;
+	
+	if(cb_out->is_reconfiguration == 1)
+		payload_sz = sizeof(DyscoControlMessage) + cb_out->sc_len * sizeof(uint32_t) + 1;
+	else
+		payload_sz = 2 * sizeof(DyscoTcpSession) + cb_out->sc_len * sizeof(uint32_t);
+	uint8_t* payload = reinterpret_cast<uint8_t*>(pkt->append(payload_sz));
+
+	if(cb_out->is_reconfiguration == 1) {
+		memcpy(payload, &cb_out->cmsg, sizeof(DyscoControlMessage));
+		memcpy(payload + sizeof(DyscoControlMessage), cb_out->sc, cb_out->sc_len * sizeof(uint32_t));
+		payload[payload_sz - 1] = 0xFF;		
+	} else {
+		DyscoTcpSession sub;
+		
+		sub.sip = ip->src.raw_value();
+		sub.dip = ip->dst.raw_value();
+		sub.sport = tcp->src_port.raw_value();
+		sub.dport = tcp->dst_port.raw_value();
+		
+		memcpy(payload, &cb_out->sup, sizeof(DyscoTcpSession));
+		memcpy(payload + sizeof(DyscoTcpSession), &sub, sizeof(DyscoTcpSession));
+		memcpy(payload + 2 * sizeof(DyscoTcpSession), cb_out->sc, payload_sz - sizeof(DyscoTcpSession));
+	}
+
+	ip->length = ip->length + be16_t(payload_sz);
+}
+
+
+
 
 /************************************************************************/
 /************************************************************************/
