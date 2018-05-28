@@ -419,19 +419,19 @@ bool DyscoAgentOut::output(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb) {
 	if(!cb_out) {
 		cb_out = dc->lookup_output_pending(this->index, ip, tcp);
 		if(cb_out) {
-			//return out_handle_mb(pkt, ip, tcp, cb_out);
+			return output_mb(pkt, ip, tcp, cb_out);
 		}
 
 		cb_out = dc->lookup_pending_tag(this->index, tcp);
 		if(cb_out) {
 			update_four_tuple(ip, tcp, cb_out->sup);
 			
-			//return out_handle_mb(pkt, ip, tcp, cb_out);
+			return output_mb(pkt, ip, tcp, cb_out);
 		}
 	}
 
 	if(isTCPSYN(tcp)) {
-		//return dc->out_syn(this->index, pkt, ip, tcp, cb_out, devip);
+		return output_syn(pkt, ip, tcp, cb_out);
 	}
 
 	if(cb_out) {
@@ -441,7 +441,7 @@ bool DyscoAgentOut::output(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb) {
 
 	return false;
 }
-/*
+
 bool DyscoAgentOut::output_syn(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) {
 	if(!cb_out) {
 		DyscoPolicies::Filter* filter = dc->match_policy(this->index, pkt);
