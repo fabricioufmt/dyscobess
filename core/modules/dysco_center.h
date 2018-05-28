@@ -64,7 +64,7 @@ class DyscoCenter final : public Module {
 	DyscoHashes* get_hashes(uint32_t);
 	uint32_t get_dysco_tag(uint32_t);
 	bool remove_tag(Packet*, Ipv4*, Tcp*);
-	void add_sc(Packet*, Ipv4*, DyscoHashOut*);
+	void add_sc(Packet*, Ipv4*, Tcp*, DyscoHashOut*);
 	bool insert_pending(DyscoHashes*, uint8_t*, uint32_t);
 	DyscoHashOut* lookup_pending_tag_by_tag(uint32_t, uint32_t);
 	bool insert_pending_reconfig(DyscoHashes*, uint8_t*, uint32_t);

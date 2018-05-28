@@ -548,7 +548,7 @@ bool DyscoCenter::out_syn(uint32_t i, Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHash
 		cb_out->state = DYSCO_SYN_RECEIVED;
 	} else {
 		hdr_rewrite(ip, tcp, &cb_out->sub);
-		add_sc(pkt, ip, cb_out);
+		add_sc(pkt, ip, tcp, cb_out);
 		fix_csum(ip, tcp);
 
 		cb_out->state = DYSCO_SYN_SENT;
@@ -868,7 +868,7 @@ bool DyscoCenter::out_handle_mb(uint32_t i, bess::Packet* pkt, Ipv4* ip, Tcp* tc
 		remove_tag(pkt, ip, tcp);
 	}
 
-	add_sc(pkt, ip, cb_out);
+	add_sc(pkt, ip, tcp, cb_out);
 	fix_csum(ip, tcp);
 
 	return true;
@@ -966,13 +966,15 @@ bool DyscoCenter::remove_tag(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 	return true;
 }
 
-void DyscoCenter::add_sc(Packet* pkt, Ipv4* ip, DyscoHashOut* cb_out) {
+void DyscoCenter::add_sc(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) {
 	uint32_t payload_sz;
 	
 	if(cb_out->is_reconfiguration == 1)
 		payload_sz = sizeof(DyscoControlMessage) + cb_out->sc_len * sizeof(uint32_t) + 1;
 	else
-		payload_sz = sizeof(DyscoTcpSession) + cb_out->sc_len * sizeof(uint32_t);
+		//TEST
+		payload_sz = 2 * sizeof(DyscoTcpSession) + cb_out->sc_len * sizeof(uint32_t);
+		//payload_sz = sizeof(DyscoTcpSession) + cb_out->sc_len * sizeof(uint32_t);
 	
 	uint8_t* payload = reinterpret_cast<uint8_t*>(pkt->append(payload_sz));
 
@@ -982,7 +984,14 @@ void DyscoCenter::add_sc(Packet* pkt, Ipv4* ip, DyscoHashOut* cb_out) {
 		payload[payload_sz - 1] = 0xFF;		
 	} else {
 		memcpy(payload, &cb_out->sup, sizeof(DyscoTcpSession));
-		memcpy(payload + sizeof(DyscoTcpSession), cb_out->sc, payload_sz - sizeof(DyscoTcpSession));
+		//TEST
+		DyscoTcpSession sub;
+		sub.sip = ip->src.raw_value();
+		sub.dip = ip->dst.raw_value();
+		sub.sport = tcp->src_port.raw_value();
+		sub.dport = tcp->dst_port.raw_value();
+		memcpy(payload + sizeof(DyscoTcpSession), &sub, sizeof(DyscoTcpSession));
+		memcpy(payload + 2 * sizeof(DyscoTcpSession), cb_out->sc, payload_sz - sizeof(DyscoTcpSession));
 	}
 
 	ip->length = ip->length + be16_t(payload_sz);
