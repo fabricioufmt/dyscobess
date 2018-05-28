@@ -448,7 +448,7 @@ bool DyscoAgentOut::output_syn(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb
 		if(!filter)
 			return false;
 
-		DyscoHashOut* cb_out = new DyscoHashOut();
+		cb_out = new DyscoHashOut();
 
 		cb_out->sc = filter->sc;
 		cb_out->sc_len = filter->sc_len;
@@ -523,8 +523,7 @@ bool DyscoAgentOut::output_mb(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_
 			cb_out->state = DYSCO_SYN_SENT;
 	}
 
-	dc->remove_hash_pen(this->index, cb_out->sup);
-	dc->remove_hash_pen_tag(this->index, cb_out->dysco_tag);
+	dc->remove_hash_pen(this->index, cb_out);
 	
 	if(cb_out->sc_len) {
 		cb_out->sub.sip = devip;
@@ -538,7 +537,7 @@ bool DyscoAgentOut::output_mb(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_
 	parse_tcp_syn_opt_s(tcp, cb_out);
 
 	dc->insert_cb_out(this->index, cb_out, 0);
-	out_hdr_rewrite(pkt, ip, tcp, &cb_out->sub);
+	hdr_rewrite(pkt, ip, tcp, &cb_out->sub);
 
 	if(cb_out->tag_ok) {
 		remove_tag(pkt, ip, tcp);
@@ -579,7 +578,12 @@ void DyscoAgentOut::add_sc(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out
 	ip->length = ip->length + be16_t(payload_sz);
 }
 
+void DyscoAgentOut::remove_tag(Packet* pkt, Ipv4* ip, Tcp* tcp) {
+	tcp->offset -= (DYSCO_TCP_OPTION_LEN >> 2);
+	ip->length = ip->length - be16_t(DYSCO_TCP_OPTION_LEN);
 
+	pkt->trim(DYSCO_TCP_OPTION_LEN);
+}
 
 
 /************************************************************************/

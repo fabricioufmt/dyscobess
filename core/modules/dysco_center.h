@@ -35,9 +35,10 @@ class DyscoCenter final : public Module {
 	bool insert_hash_input(uint32_t, DyscoHashIn*);
 	bool insert_hash_output(uint32_t, DyscoHashOut*);
 	bool insert_hash_reconfig(uint32_t, DyscoCbReconfig*);
-	bool remove_hash_reconfig(uint32_t, DyscoCbReconfig*);
 	bool insert_pending(uint32_t, DyscoHashOut*);
 	bool insert_pending_reconfig(uint32_t, DyscoHashOut*);
+	bool remove_hash_reconfig(uint32_t, DyscoCbReconfig*);
+	bool remove_hash_pen(uint32_t, DyscoHashOut*);
 	
 	/*
 	 * DyscoControl methods

@@ -297,16 +297,6 @@ bool DyscoCenter::insert_hash_reconfig(uint32_t i, DyscoCbReconfig* rcb) {
 	return dh->hash_reconfig.insert(std::pair<DyscoTcpSession, DyscoCbReconfig*>(rcb->super, rcb)).second;
 }
 
-bool DyscoCenter::remove_hash_reconfig(uint32_t i, DyscoCbReconfig* rcb) {
-	DyscoHashes* dh = get_hashes(i);
-	if(!dh)
-		return false;
-
-	dh->hash_reconfig.erase(rcb->super);
-
-	return true;
-}
-
 bool DyscoCenter::insert_pending(uint32_t i, DyscoHashOut* cb_out) {
 	DyscoHashes* dh = get_hashes(i);
 	if(!dh)
@@ -329,7 +319,26 @@ bool DyscoCenter::insert_pending_reconfig(uint32_t i, DyscoHashOut* cb_out) {
 	return true;
 }
 
+bool DyscoCenter::remove_hash_reconfig(uint32_t i, DyscoCbReconfig* rcb) {
+	DyscoHashes* dh = get_hashes(i);
+	if(!dh)
+		return false;
 
+	dh->hash_reconfig.erase(rcb->super);
+
+	return true;
+}
+
+bool DyscoCenter::remove_hash_pen(uint32_t i, DyscoHashOut* cb_out) {
+	DyscoHashes* dh = get_hashes(i);
+	if(!dh)
+		return false;
+
+	dh->hash_pen.erase(cb_out->sup);
+	dh->hash_pen_tag.erase(cb_out->dysco_tag);
+
+	return true;
+}
 
 
 
@@ -490,28 +499,6 @@ DyscoHashIn* DyscoCenter::insert_cb_out_reverse(uint32_t i, DyscoHashOut* cb_out
 	dh->hash_in.insert(std::pair<DyscoTcpSession, DyscoHashIn*>(cb_in->sub, cb_in));
 	
 	return cb_in;
-}
-
-
-bool DyscoCenter::out_hdr_rewrite(bess::Packet*, Ipv4* ip, Tcp* tcp, DyscoTcpSession* sub) {
-	if(!sub)
-		return false;
-
-	ip->src = be32_t(ntohl(sub->sip));
-	ip->dst = be32_t(ntohl(sub->dip));
-	tcp->src_port = be16_t(ntohs(sub->sport));
-	tcp->dst_port = be16_t(ntohs(sub->dport));
-
-	return true;
-}
-
-bool DyscoCenter::remove_tag(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
-	tcp->offset -= (DYSCO_TCP_OPTION_LEN >> 2);
-	ip->length = ip->length - be16_t(DYSCO_TCP_OPTION_LEN);
-
-	pkt->trim(DYSCO_TCP_OPTION_LEN);
-	
-	return true;
 }
 
 /************************************************************************/
