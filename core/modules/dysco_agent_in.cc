@@ -178,6 +178,12 @@ bool DyscoAgentIn::isReconfigPacket(Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
 		if(cb_in->is_reconfiguration) {
 			return true;
 		}
+
+		fprintf(stderr, "SYN+ACK case\n");
+		if(cb_in->dcb_out->state == DYSCO_ESTABLISHED) {
+			//Last ACK could be lost
+			return true;
+		}
 		
 		//Should consider state
 	}
@@ -1428,7 +1434,7 @@ void DyscoAgentIn::retransmissionHandler() {
 			node->ts = now_ts;
 		} else {
 			if(isEstablished(&node->element) || node->cnt > CNTLIMIT) {
-				//If state is Established then don't need to retransmission
+				//If state is Established then don't need to retransmit
 				aux = node->next;
 				list->remove(node);
 				node = aux;
