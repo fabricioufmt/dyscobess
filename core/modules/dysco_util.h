@@ -190,11 +190,13 @@ public:
 	LNode* prev;
 	uint64_t ts;
 	uint32_t cnt;
+	bool isRemoved;
 	
  LNode(const T& e = T(), LNode* n = 0, LNode* p = 0)
 	 : element(e), next(n), prev(p) {
 		ts = 0;
 		cnt = 0;
+		isRemoved = false;
 	}
 	
 	~LNode() {

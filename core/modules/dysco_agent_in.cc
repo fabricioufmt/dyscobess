@@ -84,8 +84,6 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 		fprintf(stderr, "[%s][DyscoAgentIn] receives %s [%X:%X]\n", ns.c_str(), printPacketSS(ip, tcp),	tcp->seq_num.value(), tcp->ack_num.value());
 #endif
 
-		processReceivedPacket(tcp);
-		
 		cb_in = dc->lookup_input(this->index, ip, tcp);
 		
 		if(!isReconfigPacket(ip, tcp, cb_in)) {
@@ -145,6 +143,8 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 }
 
 bool DyscoAgentIn::isReconfigPacket(Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
+	bool removed_from_retransmission = processReceivedPacket(tcp);
+	
 	if(isTCPSYN(tcp, true)) {
 		if(!cb_in) {
 			uint32_t payload_len = hasPayload(ip, tcp);
@@ -173,24 +173,29 @@ bool DyscoAgentIn::isReconfigPacket(Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
 
 	if(!cb_in)
 		return false;
-	
-	if((isTCPSYN(tcp) && isTCPACK(tcp)) || isTCPACK(tcp, true)) {
+
+	if(isTCPSYN(tcp) && isTCPACK(tcp)) {
 		if(cb_in->is_reconfiguration) {
 			return true;
 		}
 
-		if(cb_in->dcb_out)
-			fprintf(stderr, "cb_in->dcb_out->state: %d\n", cb_in->dcb_out->state);
-		if(cb_in->dcb_out->other_path)
-			fprintf(stderr, "cb_in->dcb_out->other_path->state: %d\n", cb_in->dcb_out->other_path->state);
-		
-		if(cb_in->dcb_out->other_path && cb_in->dcb_out->other_path->state == DYSCO_ESTABLISHED) {
-			fprintf(stderr, "SYN+ACK or ACK may be lost.\n");
-			//Last ACK could be lost
+		if(cb_in->dcb_out->other_path && cb_in->dcb_out->other_path->state == DYSCO_ESTABLISHED)
+			return true;
+
+		return false;
+	}
+
+	if(isTCPACK(tcp, true)) {
+		if(cb_in->is_reconfiguration) {
 			return true;
 		}
-		
-		//Should consider state
+
+		if(cb_in->dcb_out->other_path && cb_in->dcb_out->other_path->state == DYSCO_ESTABLISHED) {
+			if(removed_from_retransmission)
+				return true;
+			
+			return false;
+		}
 	}
 
 	return false;
@@ -1464,9 +1469,6 @@ void DyscoAgentIn::retransmissionHandler() {
 }
 
 bool DyscoAgentIn::processReceivedPacket(Tcp* tcp) {
-	if(!dc)
-		return false;
-	
 	uint32_t key = tcp->ack_num.value();
 	
 	mutex* mtx = dc->getMutex(this->index, devip);
@@ -1484,9 +1486,13 @@ bool DyscoAgentIn::processReceivedPacket(Tcp* tcp) {
 
 	LNode<bess::Packet>* node = hash_received->operator[](key);
 	if(node) {
-		delete node;
+		if(!node->isRemoved) {
+			//delete node;
+			node->isRemoved = true;
 
-		hash_received->erase(key);
+			hash_received->erase(key);
+		}
+			
 		mtx->unlock();
 		
 		return true;
