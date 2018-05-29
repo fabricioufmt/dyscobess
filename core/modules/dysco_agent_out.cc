@@ -699,6 +699,10 @@ bool DyscoAgentOut::control_output(Ipv4* ip, Tcp* tcp) {
 #ifdef DEBUG
 		fprintf(stderr, "It's the left anchor.\n");
 #endif
+
+		fprintf(stderr, "checksum is: %X\n", tcp->checksum);
+		fprintf(stderr, "should be  : %X\n", bess::utils::CalculateIpv4TcpChecksum(*ip, *tcp)
+		
 		DyscoHashOut* old_dcb;
 		DyscoHashOut* new_dcb;
 
