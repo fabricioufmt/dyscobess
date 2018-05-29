@@ -1077,7 +1077,6 @@ CONTROL_RETURN DyscoAgentIn::control_input(Packet* pkt, Ipv4* ip, Tcp* tcp, Dysc
 		//Ronaldo: RightA doesn't know about supss (or leftSS)
 		rcb = dc->lookup_reconfig_by_ss(this->index, &cmsg->rightSS); 
 		if(rcb) {
-			fprintf(stderr, "IS_RETRANSMISSION\n");
 			return IS_RETRANSMISSION;
 		}
 
@@ -1343,6 +1342,9 @@ void DyscoAgentIn::createAck(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 	tcp->seq_num = be32_t(tcp->ack_num.value());
 	tcp->ack_num = be32_t(seqswap.value() + 1);
 	tcp->flags = Tcp::kAck;
+
+	//Could be incremental
+	fix_csum(ip, tcp);
 }
 
 void DyscoAgentIn::createSynAck(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
@@ -1368,6 +1370,8 @@ void DyscoAgentIn::createSynAck(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 	tcp->ack_num = seqswap + be32_t(1) + be32_t(payload_len);
 	tcp->flags |= Tcp::kAck;
 	pkt->trim(payload_len);
+
+	fix_csum(ip, tcp);
 }
 
 void DyscoAgentIn::createFinAck(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
@@ -1390,10 +1394,8 @@ void DyscoAgentIn::createFinAck(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 	tcp->ack_num = seqswap + be32_t(1);
 	tcp->flags |= Tcp::kAck;
 
-	ip->checksum = 0;
-	tcp->checksum = 0;
-	ip->checksum = CalculateIpv4Checksum(*ip);
-	tcp->checksum = CalculateIpv4TcpChecksum(*ip, *tcp);
+	//Could be incremental
+	fix_csum(ip, tcp);
 }
 
 /*
