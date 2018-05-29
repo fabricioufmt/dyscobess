@@ -694,29 +694,35 @@ bool DyscoAgentOut::control_output(Ipv4* ip, Tcp* tcp) {
 	uint8_t* payload = reinterpret_cast<uint8_t*>(tcp) + (tcp->offset << 2);
 	DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>(payload);
 	DyscoCbReconfig* rcb = dc->lookup_reconfig_by_ss(this->index, &cmsg->super);
+
+	uint32_t incremental = 0;
 	
 	if(isFromLeftAnchor(ip, cmsg)) {
 #ifdef DEBUG
 		fprintf(stderr, "It's the left anchor.\n");
 #endif
-
-		fprintf(stderr, "checksum is: %X\n", tcp->checksum);
-		fprintf(stderr, "should be  : %X\n", bess::utils::CalculateIpv4TcpChecksum(*ip, *tcp));
 		
 		DyscoHashOut* old_dcb;
 		DyscoHashOut* new_dcb;
 
 		if(rcb) {
 			//Retransmission
+			incremental += UpdateChecksum32(cmsg->leftIseq, htonl(rcb->leftIseq));
+			incremental += UpdateChecksum32(cmsg->leftIack, htonl(rcb->leftIack));
+			incremental += UpdateChecksum32(cmsg->leftIts, htonl(rcb->leftIts));
+			incremental += UpdateChecksum32(cmsg->leftItsr, htonl(rcb->leftItsr));
+			incremental += UpdateChecksum16(cmsg->leftIws, htonl(rcb->leftIws));
+			incremental += UpdateChecksum32(cmsg->leftIwsr, htonl(rcb->leftIwsr));
+			incremental += UpdateChecksum16(cmsg->sack_ok, htonl(rcb->sack_ok));
+
+			tcp->checksum = UpdateChecksumWithIncrement(tcp->checksum, incremental);
+			
 			cmsg->leftIseq = htonl(rcb->leftIseq);
 			cmsg->leftIack = htonl(rcb->leftIack);
-
 			cmsg->leftIts = htonl(rcb->leftIts);
 			cmsg->leftItsr = htonl(rcb->leftItsr);
-
 			cmsg->leftIws = htons(rcb->leftIws);
 			cmsg->leftIwsr = htonl(rcb->leftIwsr);
-
 			cmsg->sackOk = htons(rcb->sack_ok);
 
 			/*
@@ -736,28 +742,33 @@ bool DyscoAgentOut::control_output(Ipv4* ip, Tcp* tcp) {
 		/*
 		  Changing TCP seq/ack values to ISN from old_dcb
 		 */
-		uint32_t incremental = 0;
 		incremental += ChecksumIncrement32(tcp->seq_num.raw_value(), htonl(old_dcb->out_iseq));
 		incremental += ChecksumIncrement32(tcp->ack_num.raw_value(), htonl(old_dcb->out_iack));	
 
-		tcp->checksum = UpdateChecksumWithIncrement(tcp->checksum, incremental);
+		incremental += ChecksumIncrement32(cmsg->leftIseq, htonl(old_dcb->out_iseq));
+		incremental += ChecksumIncrement32(cmsg->leftIack, htonl(old_dcb->out_iack));
+		incremental += ChecksumIncrement32(cmsg->leftIts, htonl(old_dcb->ts_in));
+		incremental += ChecksumIncrement32(cmsg->leftItsr, htonl(old_dcb->tsr_in));
+		incremental += ChecksumIncrement16(cmsg->leftIws, htons(old_dcb->ws_in));
 		
+		incremental += ChecksumIncrement16(cmsg->sack_ok, htonl(old_dcb->sack_ok));
+
 		tcp->seq_num = be32_t(old_dcb->out_iseq);
 		tcp->ack_num = be32_t(old_dcb->out_iack);
-
-		
 		cmsg->leftIseq = htonl(old_dcb->out_iseq);
 		cmsg->leftIack = htonl(old_dcb->out_iack);
-
 		cmsg->leftIts = htonl(old_dcb->ts_in);
 		cmsg->leftItsr = htonl(old_dcb->tsr_in);
-
-		cmsg->leftIws = htonl(old_dcb->ws_in);
-		if(old_dcb->dcb_in)
+		cmsg->leftIws = htons(old_dcb->ws_in);
+		if(old_dcb->dcb_in) {
+			incremental += ChecksumIncrement32(cmsg->leftIwsr, htonl(old_dcb->dcb_in->ws_in));
 			cmsg->leftIwsr = htonl(old_dcb->dcb_in->ws_in);
+		}
 
 		cmsg->sackOk = htonl(old_dcb->sack_ok);
 		
+		tcp->checksum = UpdateChecksumWithIncrement(tcp->checksum, incremental);
+			
 		rcb = insert_cb_control(ip, tcp, cmsg);
 		if(!rcb) {
 			return false;
