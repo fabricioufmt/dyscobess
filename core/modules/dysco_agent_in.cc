@@ -407,7 +407,7 @@ DyscoHashOut* DyscoAgentIn::insert_cb_in_reverse(DyscoHashIn* cb_in, Ipv4* ip, T
 
 	cb_out->dcb_in = cb_in;
 
-	dc->insert_hash_out(this->index, cb_out);
+	dc->insert_hash_output(this->index, cb_out);
 	
 	return cb_out;
 }
@@ -918,7 +918,7 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 		}
 	}
 
-	if(!dc->insert_hash_in(this->index, cb_in)) {
+	if(!dc->insert_hash_input(this->index, cb_in)) {
 		delete cb_in;
 
 		return ERROR;
