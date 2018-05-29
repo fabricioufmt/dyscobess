@@ -179,8 +179,8 @@ bool DyscoAgentIn::isReconfigPacket(Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
 			return true;
 		}
 
-		fprintf(stderr, "SYN+ACK case\n");
-		if(cb_in->dcb_out->state == DYSCO_ESTABLISHED) {
+		if(cb_in->dcb_out->old_path && cb_in->dcb_out->other_path->state == DYSCO_ESTABLISHED) {
+			fprintf(stderr, "SYN+ACK case\n");
 			//Last ACK could be lost
 			return true;
 		}
