@@ -732,8 +732,16 @@ bool DyscoAgentOut::control_output(Ipv4* ip, Tcp* tcp) {
 		/*
 		  Changing TCP seq/ack values to ISN from old_dcb
 		 */
+		uint32_t incremental = 0;
+		incremental += ChecksumIncrement32(tcp->seq_num.raw_value(), htonl(old_dcb->out_iseq));
+		incremental += ChecksumIncrement32(tcp->ack_num.raw_value(), htonl(old_dcb->out_iack));	
+
+		tcp->checksum = UpdateChecksumWithIncrement(tcp->checksum, incremental);
+		
 		tcp->seq_num = be32_t(old_dcb->out_iseq);
 		tcp->ack_num = be32_t(old_dcb->out_iack);
+
+		
 		cmsg->leftIseq = htonl(old_dcb->out_iseq);
 		cmsg->leftIack = htonl(old_dcb->out_iack);
 
