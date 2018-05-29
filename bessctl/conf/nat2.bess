@@ -146,7 +146,7 @@ l3_m4:1 -> UpdateMac(mac_addr='00:00:00:00:00:33') -> l2_3
 
 
 
-dc.add(priority=1, sc_len=2, chain=['10.0.10.2', '10.0.3.1'], filter='dst port 5001', ns='/var/run/netns/m1')
+dc.add(priority=1, sc_len=2, chain=['10.0.2.2', '10.0.3.1'], filter='dst port 5001', ns='/var/run/netns/m1')
 dc.add(priority=1, sc_len=1, chain=['10.0.3.1'], filter='dst port 5001', ns='/var/run/netns/m2')
 
 os.system('ip netns exec m1 tcpdump -i m1-1 arp or icmp or tcp -n -XX -w /home/fabricio/m1_1.pcap & 2> /dev/null')
