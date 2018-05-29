@@ -105,7 +105,8 @@ l2_3:1 -> din6
 
 
 # Router (global)
-din2:1 -> l3_1
+#din2:1 -> l3_1
+din2:1 -> UpdateMac(mac_addr='00:00:00:00:00:22') -> l2_1
 din3:1 -> l3_1
 din5:1 -> l3_1
 din6:1 -> l3_1

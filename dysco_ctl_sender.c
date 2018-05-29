@@ -92,7 +92,7 @@ int main(int argc, char** argv) {
 	if(connect(sockfd, (struct sockaddr*) &serv_addr, sizeof(serv_addr)) == -1)
 		perror("connect failed");
 
-	tx_len = sizeof(struct reconfig_message) + 4 + sc_len * sizeof(uint32_t); //+4 for Service Chain length (uint32)
+	tx_len = sizeof(struct reconfig_message) + 4 + sc_len * sizeof(uint32_t) + 1; //+4 for Service Chain length (uint32) +1 for tag (0xFF)
 	buff = malloc(tx_len);
 	memset(buff, 0, tx_len);
 
