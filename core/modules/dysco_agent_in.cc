@@ -1060,12 +1060,6 @@ CONTROL_RETURN DyscoAgentIn::control_input(Packet* pkt, Ipv4* ip, Tcp* tcp, Dysc
 	DyscoControlMessage* cmsg = 0;
 	size_t tcp_hlen = tcp->offset << 2;
 
-	//For Retransmission Test
-	if(cnt < 2) {
-		cnt++;
-		return ERROR;
-	}
-	
 	if(isTCPSYN(tcp, true)) {
 #ifdef DEBUG
 		fprintf(stderr, "DYSCO_SYN message.\n");
