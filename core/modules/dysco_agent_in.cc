@@ -179,7 +179,12 @@ bool DyscoAgentIn::isReconfigPacket(Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
 			return true;
 		}
 
-		if(cb_in->dcb_out->old_path && cb_in->dcb_out->other_path->state == DYSCO_ESTABLISHED) {
+		if(cb_in->dcb_out)
+			fprintf(stderr, "cb_in->dcb_out->state: %d\n", cb_in->dcb_out->state);
+		if(cb_in->dcb_out->other_path)
+			fprintf(stderr, "cb_in->dcb_out->other_path->state: %d\n", cb_in->dcb_out->other_path->state);
+		
+		if(cb_in->dcb_out->state == DYSCO_ESTABLISHED) {
 			fprintf(stderr, "SYN+ACK case\n");
 			//Last ACK could be lost
 			return true;
@@ -1077,6 +1082,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(Packet* pkt, Ipv4* ip, Tcp* tcp, Dysc
 		//Ronaldo: RightA doesn't know about supss (or leftSS)
 		rcb = dc->lookup_reconfig_by_ss(this->index, &cmsg->rightSS); 
 		if(rcb) {
+			fprintf(stderr, "It's retransmission of SYN.\n\n");
 			return IS_RETRANSMISSION;
 		}
 
