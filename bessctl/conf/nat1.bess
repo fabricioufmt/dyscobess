@@ -87,7 +87,7 @@ l2_2::L2FWD()
 l2_2.add(mac_addr='00:00:00:00:00:A1', gate=0)
 l2_2.add(mac_addr='00:00:00:00:00:A2', gate=1)
 #l2_2.add(mac_addr='00:00:00:00:00:23', gate=2)
-PortInc(port=nat_ext) -> l3_2
+PortInc(port=nat_ext) -> l3_1
 dout3 -> l2_2
 l2_2:0 -> PortOut(port=nat_ext)
 l2_2:1 -> din3
