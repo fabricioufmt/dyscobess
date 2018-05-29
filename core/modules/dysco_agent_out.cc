@@ -701,7 +701,7 @@ bool DyscoAgentOut::control_output(Ipv4* ip, Tcp* tcp) {
 #endif
 
 		fprintf(stderr, "checksum is: %X\n", tcp->checksum);
-		fprintf(stderr, "should be  : %X\n", bess::utils::CalculateIpv4TcpChecksum(*ip, *tcp)
+		fprintf(stderr, "should be  : %X\n", bess::utils::CalculateIpv4TcpChecksum(*ip, *tcp));
 		
 		DyscoHashOut* old_dcb;
 		DyscoHashOut* new_dcb;
