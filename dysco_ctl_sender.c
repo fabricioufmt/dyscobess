@@ -73,12 +73,12 @@ int main(int argc, char** argv) {
 	uint32_t* sc;
 	struct reconfig_message* cmsg;
 
-	if(argc < 14) {
-		fprintf(stderr, "Usage: %s <sup><leftSS><rightSS> <sc1> <sc2> <...>\n", argv[0]);
+	if(argc < 4) {
+		fprintf(stderr, "Usage: %s <sup:src_port><rightSS:src_port> <sc1> <sc2> <...>\n", argv[0]);
 		exit(EXIT_FAILURE);
 	}
 
-	sc_len = argc - 13;
+	sc_len = argc - 3;
 	
 	if((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
 		perror("socket failed");
@@ -97,20 +97,20 @@ int main(int argc, char** argv) {
 	memset(buff, 0, tx_len);
 
 	cmsg = (struct reconfig_message*)(buff);
-	cmsg->super.sip = inet_addr(argv[1]);
-	cmsg->super.dip = inet_addr(argv[3]);
-	cmsg->super.sport = htons(atoi(argv[2]));
-	cmsg->super.dport = htons(atoi(argv[4]));
+	cmsg->super.sip = inet_addr("10.0.2.1");
+	cmsg->super.dip = inet_addr("10.0.10.2");
+	cmsg->super.sport = htons(atoi(argv[1]));
+	cmsg->super.dport = htons(5001);
 
-	cmsg->leftSS.sip = inet_addr(argv[5]);
-	cmsg->leftSS.dip = inet_addr(argv[7]);
-	cmsg->leftSS.sport = htons(atoi(argv[6]));
-	cmsg->leftSS.dport = htons(atoi(argv[8]));
+	cmsg->leftSS.sip = inet_addr("10.0.10.1");
+	cmsg->leftSS.dip = inet_addr("10.0.10.2");
+	cmsg->leftSS.sport = htons(atoi(argv[1]));
+	cmsg->leftSS.dport = htons(5001);
 	
-	cmsg->rightSS.sip = inet_addr(argv[9]);
-	cmsg->rightSS.dip = inet_addr(argv[11]);
-	cmsg->rightSS.sport = htons(atoi(argv[10]));
-	cmsg->rightSS.dport = htons(atoi(argv[12]));
+	cmsg->rightSS.sip = inet_addr("10.0.3.2");
+	cmsg->rightSS.dip = inet_addr("10.0.3.1");
+	cmsg->rightSS.sport = htons(atoi(argv[2]));
+	cmsg->rightSS.dport = htons(5001);
 	
 	//cmsg->leftSS = cmsg->rightSS = cmsg->super;
 
@@ -118,9 +118,9 @@ int main(int argc, char** argv) {
 	memcpy(buff + sizeof(struct reconfig_message), &sclen, sizeof(uint32_t));
 	sc = (uint32_t*)(buff + sizeof(struct reconfig_message) + sizeof(uint32_t));
 	for(i = 0; i < sc_len; i++)
-		sc[i] = inet_addr(argv[13 + i]);
+		sc[i] = inet_addr(argv[3 + i]);
 
-	cmsg->leftA = inet_addr(argv[1]);
+	cmsg->leftA = inet_addr("10.0.2.1");
 	cmsg->rightA = sc[sc_len - 1];
 	
 	fprintf(stdout, "Sending data (cmsg + sc) with %d service chain elements with ", sc_len);

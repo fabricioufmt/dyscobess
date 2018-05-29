@@ -48,7 +48,6 @@ const MAX_BUFFER   = 4000
 
 var spliceTime	int
 var middlebox   string
-var listenPort  5555
 
 	
 /*********************************************************************
@@ -72,11 +71,15 @@ func spliceConnections(l, r net.Conn) {
 	leftSS := dysco.NewTcpSession(net.ParseIP(c1Remote[0]),
 		  net.ParseIP(c1Local[0]), uint16(srcPort), uint16(dstPort))
 
+        fmt.Printf("leftSS: %s:%d -> %s:%d", c1Local, srcPort, c1Remote, dstPort)
+
 	srcPort, _ = strconv.Atoi(c2Local[1])
 	dstPort, _ = strconv.Atoi(c2Remote[1])
 	
 	rightSS := dysco.NewTcpSession(net.ParseIP(c2Local[0]),
 	  	   net.ParseIP(c2Remote[0]), uint16(srcPort), uint16(dstPort))
+
+        fmt.Printf("rightSS: %s:%d -> %s:%d", c2Local, srcPort, c2Remote, dstPort)
 
 	/*	   
 	chain := []string{c1Remote[0], c2Remote[0]}
