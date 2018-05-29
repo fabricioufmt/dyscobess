@@ -734,8 +734,12 @@ bool DyscoAgentOut::control_output(Ipv4* ip, Tcp* tcp) {
 			return true;
 		}
 		
-		old_dcb = dc->lookup_output_by_ss(this->index, &cmsg->leftSS);
+		//old_dcb = dc->lookup_output_by_ss(this->index, &cmsg->leftSS);
+		old_dcb = dc->lookup_output_by_ss(this->index, &cmsg->super);
 		if(!old_dcb) {
+#ifdef DEBUG
+			fprintf(stderr, "lookup output returns false\n");
+#endif
 			return false;
 		}
 		
