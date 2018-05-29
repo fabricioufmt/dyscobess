@@ -414,8 +414,7 @@ void DyscoAgentOut::out_translate(bess::Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOu
 }
 
 //L.1395
-bool DyscoAgentOut::output(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb) {
-	DyscoHashOut* cb_out = cb;
+bool DyscoAgentOut::output(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) {
 	if(!cb_out) {
 		cb_out = dc->lookup_output_pending(this->index, ip, tcp);
 		if(cb_out) {
@@ -465,7 +464,13 @@ bool DyscoAgentOut::output_syn(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb
 			cb_out->sub.dport = dc->allocate_neighbor_port(this->index);
 		}
 		
-		dc->insert_cb_out(this->index, cb_out, 0);
+		if(!dc->insert_hash_output(this->index, cb_out)) {
+			delete cb_out;
+
+			return false;
+		}
+
+		cb_out->dcb_in = insert_cb_out_reverse(cb_out, 0);
 	}
 
 	cb_out->seq_cutoff = tcp->seq_num.value();
@@ -536,7 +541,11 @@ bool DyscoAgentOut::output_mb(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_
 	cb_out->out_iseq = cb_out->in_iseq = tcp->seq_num.value();
 	parse_tcp_syn_opt_s(tcp, cb_out);
 
-	dc->insert_cb_out(this->index, cb_out, 0);
+	if(!dc->insert_hash_output(this->index, cb_out))
+		return false;
+
+	cb_out->dcb_in = insert_cb_out_reverse(cb_out, 0);
+	
 	hdr_rewrite(ip, tcp, &cb_out->sub);
 
 	if(cb_out->tag_ok) {
@@ -631,7 +640,13 @@ bool DyscoAgentOut::control_insert_out(DyscoCbReconfig* rcb) {
 
 	cb_out->sack_ok = rcb->sack_ok;
 
-	dc->insert_cb_out(this->index, cb_out, 0);
+	if(!dc->insert_hash_output(this->index, cb_out)) {
+		delete cb_out;
+		
+		return false;
+	}
+	
+	cb_out->dcb_in = insert_cb_out_reverse(cb_out, 0);	
 
 	DyscoHashIn* cb_in = cb_out->dcb_in;
 	cb_in->ts_in = cb_in->ts_out = cb_out->tsr_out;
@@ -760,7 +775,7 @@ bool DyscoAgentOut::control_output(Ipv4* ip, Tcp* tcp) {
 
 		old_dcb->other_path = new_dcb;
 		new_dcb->other_path = old_dcb;
-		new_dcb->dcb_in = dc->insert_cb_out_reverse(this->index, new_dcb, 1, cmsg);
+		new_dcb->dcb_in = insert_cb_out_reverse(new_dcb, 1, cmsg);
 
 		if(new_dcb->dcb_in) {
 			new_dcb->dcb_in->is_reconfiguration = 1;
@@ -796,6 +811,52 @@ bool DyscoAgentOut::control_output(Ipv4* ip, Tcp* tcp) {
 void DyscoAgentOut::dysco_packet(Ethernet* eth) {
 	eth->dst_addr.FromString(DYSCO_MAC);
 }
+
+
+
+
+
+DyscoHashIn* DyscoAgentOut::insert_cb_out_reverse(DyscoHashOut* cb_out, uint8_t two_paths, DyscoControlMessage* cmsg) {
+	DyscoHashIn* cb_in = new DyscoHashIn();
+
+	cb_in->sub.sip = cb_out->sub.dip;
+	cb_in->sub.dip = cb_out->sub.sip;
+	cb_in->sub.sport = cb_out->sub.dport;
+	cb_in->sub.dport = cb_out->sub.sport;
+
+	cb_in->my_sup.sip = cb_out->sup.dip;
+	cb_in->my_sup.dip = cb_out->sup.sip;
+	cb_in->my_sup.sport = cb_out->sup.dport;
+	cb_in->my_sup.dport = cb_out->sup.sport;
+
+	cb_in->in_iack = cb_in->out_iack = cb_out->out_iseq;
+	cb_in->in_iseq = cb_in->out_iseq = cb_out->out_iack;
+
+	cb_in->seq_delta = cb_in->ack_delta = 0;
+	cb_in->ts_ok = cb_out->ts_ok;
+	cb_in->ts_in = cb_in->ts_out = cb_out->tsr_in;
+	cb_in->ts_delta = 0;
+	cb_in->tsr_in = cb_in->tsr_out = cb_out->ts_in;
+	cb_in->tsr_delta = 0;
+	cb_in->ws_ok = cb_out->ws_ok;
+	cb_in->ws_in = cb_in->ws_out = cb_out->ws_in;
+	cb_in->ws_delta = 0;
+	cb_in->sack_ok = cb_out->sack_ok;
+	cb_in->two_paths = two_paths;
+
+	if(cmsg)
+		memcpy(&cb_in->cmsg, cmsg, sizeof(DyscoControlMessage));
+	
+	cb_in->dcb_out = cb_out;
+
+	dc->insert_hash_input(this->index, cb_in);
+	
+	return cb_in;
+}
+
+
+
+
 
 ADD_MODULE(DyscoAgentOut, "dysco_agent_out", "processes packets outcoming from host")
 

@@ -352,77 +352,9 @@ bool DyscoCenter::remove_hash_pen(uint32_t i, DyscoHashOut* cb_out) {
  *
  *
  ************************************************************************/
-bool DyscoCenter::insert_cb_in(uint32_t i, DyscoHashIn* cb_in, Ipv4* ip, Tcp* tcp) {
-	DyscoHashes* dh = get_hashes(i);
-	if(!dh)
-		return false;
-
-	dh->hash_in.insert(std::pair<DyscoTcpSession, DyscoHashIn*>(cb_in->sub, cb_in));
-	cb_in->dcb_out = insert_cb_in_reverse(i, cb_in, ip, tcp);
-	
-	return true;
-}
-
-bool DyscoCenter::insert_cb_out(uint32_t i, DyscoHashOut* cb_out, uint8_t two_paths) {
-	DyscoHashes* dh = get_hashes(i);
-	if(!dh)
-		return false;
-
-	dh->hash_out.insert(std::pair<DyscoTcpSession, DyscoHashOut*>(cb_out->sup, cb_out));
-	cb_out->dcb_in = insert_cb_out_reverse(i, cb_out, two_paths);
-
-	return true;
-}
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-DyscoHashOut* DyscoCenter::insert_cb_in_reverse(uint32_t i, DyscoHashIn* cb_in, Ipv4* ip, Tcp* tcp) {
-	DyscoHashes* dh = get_hashes(i);
-	if(!dh)
-		return 0;
-
-	DyscoHashOut* cb_out = new DyscoHashOut();
-
-	cb_out->sup.sip = cb_in->my_sup.dip;
-	cb_out->sup.dip = cb_in->my_sup.sip;
-	cb_out->sup.sport = cb_in->my_sup.dport;
-	cb_out->sup.dport = cb_in->my_sup.sport;
-
-	cb_out->sub.sip = ip->dst.raw_value();
-	cb_out->sub.dip = ip->src.raw_value();
-	cb_out->sub.sport = tcp->dst_port.raw_value();
-	cb_out->sub.dport = tcp->src_port.raw_value();
-
-	cb_out->in_iack = tcp->seq_num.value();
-	cb_out->out_iack = tcp->seq_num.value();
-
-	cb_out->other_path = 0;
-	cb_out->old_path = 0;
-	cb_out->valid_ack_cut = 0;
-	cb_out->use_np_seq = 0;
-	cb_out->use_np_ack = 0;
-	cb_out->ack_cutoff = 0;
-
-	cb_out->ack_ctr = 0;
-	cb_out->state = DYSCO_ONE_PATH;
-
-	cb_out->dcb_in = cb_in;
-
-	dh->hash_out.insert(std::pair<DyscoTcpSession, DyscoHashOut*>(cb_out->sup, cb_out));
-	
-	return cb_out;
-}
 
 
 /************************************************************************/
@@ -431,92 +363,13 @@ DyscoHashOut* DyscoCenter::insert_cb_in_reverse(uint32_t i, DyscoHashIn* cb_in, 
   Dysco methods (OUTPUT)
 */
 
-DyscoHashOut* DyscoCenter::create_cb_out(uint32_t i, Ipv4* ip, Tcp* tcp, DyscoPolicies::Filter* filter, uint32_t devip) {
-	DyscoHashes* dh = get_hashes(i);
-	if(!dh)
-		return 0;
-	
-	DyscoHashOut* cb_out = new DyscoHashOut();
 
-	cb_out->sc = filter->sc;
-	cb_out->sc_len = filter->sc_len;
-	
-	cb_out->sup.sip = htonl(ip->src.value());
-	cb_out->sup.dip = htonl(ip->dst.value());
-	cb_out->sup.sport = htons(tcp->src_port.value());
-	cb_out->sup.dport = htons(tcp->dst_port.value());
-
-	if(cb_out->sc_len) {
-		cb_out->sub.sip = devip;
-		cb_out->sub.dip = cb_out->sc[0];
-		cb_out->sub.sport = allocate_local_port(i);
-		cb_out->sub.dport = allocate_neighbor_port(i);
-			
-		return cb_out;
-	}
-
-	delete cb_out;
-	return 0;
-}
-
-DyscoHashIn* DyscoCenter::insert_cb_out_reverse(uint32_t i, DyscoHashOut* cb_out, uint8_t two_paths, DyscoControlMessage* cmsg) {
-	DyscoHashes* dh = get_hashes(i);
-	if(!dh)
-		return 0;
-	
-	DyscoHashIn* cb_in = new DyscoHashIn();
-
-	cb_in->sub.sip = cb_out->sub.dip;
-	cb_in->sub.dip = cb_out->sub.sip;
-	cb_in->sub.sport = cb_out->sub.dport;
-	cb_in->sub.dport = cb_out->sub.sport;
-
-	cb_in->my_sup.sip = cb_out->sup.dip;
-	cb_in->my_sup.dip = cb_out->sup.sip;
-	cb_in->my_sup.sport = cb_out->sup.dport;
-	cb_in->my_sup.dport = cb_out->sup.sport;
-
-	cb_in->in_iack = cb_in->out_iack = cb_out->out_iseq;
-	cb_in->in_iseq = cb_in->out_iseq = cb_out->out_iack;
-
-	cb_in->seq_delta = cb_in->ack_delta = 0;
-	cb_in->ts_ok = cb_out->ts_ok;
-	cb_in->ts_in = cb_in->ts_out = cb_out->tsr_in;
-	cb_in->ts_delta = 0;
-	cb_in->tsr_in = cb_in->tsr_out = cb_out->ts_in;
-	cb_in->tsr_delta = 0;
-	cb_in->ws_ok = cb_out->ws_ok;
-	cb_in->ws_in = cb_in->ws_out = cb_out->ws_in;
-	cb_in->ws_delta = 0;
-	cb_in->sack_ok = cb_out->sack_ok;
-	cb_in->two_paths = two_paths;
-
-	if(cmsg)
-		memcpy(&cb_in->cmsg, cmsg, sizeof(DyscoControlMessage));
-	
-	cb_in->dcb_out = cb_out;
-
-	dh->hash_in.insert(std::pair<DyscoTcpSession, DyscoHashIn*>(cb_in->sub, cb_in));
-	
-	return cb_in;
-}
 
 /************************************************************************/
 /************************************************************************/
 /*
   Dysco methods (CONTROL INPUT)
 */
-
-bool DyscoCenter::replace_cb_leftA(DyscoCbReconfig* rcb, DyscoControlMessage* cmsg) {
-	DyscoHashOut* old_dcb = rcb->old_dcb;
-
-	if(old_dcb->state == DYSCO_SYN_SENT)
-		old_dcb->state = DYSCO_ESTABLISHED;
-
-	cmsg->seqCutoff = old_dcb->seq_cutoff;
-
-	return true;
-}
 
 
 DyscoPolicies::Filter* DyscoCenter::match_policy(uint32_t i, Packet* pkt) {
@@ -560,9 +413,7 @@ bool DyscoCenter::add_retransmission(uint32_t i, uint32_t devip, bess::Packet* p
 	LNode<Packet>* node = list_r->insertTail(*pkt, tsc_to_ns(rdtsc()));
 	uint32_t index = getValueToAck(pkt);
 	hash_r->operator[](index) = node;
-#ifdef DEBUG
-	fprintf(stderr, "Inserting this packet with %u as key\n", index);
-#endif
+	
 	mtx->unlock();
 	
 	return true;

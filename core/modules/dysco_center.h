@@ -40,14 +40,6 @@ class DyscoCenter final : public Module {
 	bool remove_hash_reconfig(uint32_t, DyscoCbReconfig*);
 	bool remove_hash_pen(uint32_t, DyscoHashOut*);
 	
-	/*
-	 * DyscoControl methods
-	 */
-	bool insert_cb_in(uint32_t, DyscoHashIn*, Ipv4*, Tcp*);
-	bool insert_cb_out(uint32_t, DyscoHashOut*, uint8_t);
-	DyscoHashOut* insert_cb_in_reverse(uint32_t, DyscoHashIn*, Ipv4*, Tcp*);
-	DyscoHashIn* insert_cb_out_reverse(uint32_t, DyscoHashOut*, uint8_t, DyscoControlMessage* = 0);
-
 
 	DyscoPolicies::Filter* match_policy(uint32_t, Packet*);
 	uint16_t allocate_local_port(uint32_t);
@@ -55,16 +47,6 @@ class DyscoCenter final : public Module {
 	
 	uint32_t get_index(string, uint32_t);
 	uint32_t get_dysco_tag(uint32_t);	
-
-
-	//TO REMOVE
-	bool replace_cb_leftA(DyscoCbReconfig*, DyscoControlMessage*);
-	bool out_hdr_rewrite(Packet*, Ipv4*, Tcp*, DyscoTcpSession*);
-	bool out_handle_mb(uint32_t, Packet*, Ipv4*, Tcp*, DyscoHashOut*, uint32_t);
-	bool out_syn(uint32_t, Packet*, Ipv4*, Tcp*, DyscoHashOut*, uint32_t);
-	bool remove_tag(Packet*, Ipv4*, Tcp*);
-	void add_sc(Packet*, Ipv4*, Tcp*, DyscoHashOut*);
-
 
 	/*
 	  TCP Retransmission methods
@@ -78,23 +60,6 @@ class DyscoCenter final : public Module {
 	unordered_map<uint32_t, DyscoHashes*> hashes;
 	
 	DyscoHashes* get_hashes(uint32_t);
-	
-	//TOREMOVE
-	DyscoHashOut* create_cb_out(uint32_t, Ipv4*, Tcp*, DyscoPolicies::Filter*, uint32_t);
-
-	inline bool isReconfigPacket(Ipv4* ip, Tcp* tcp) {
-		if(isTCPSYN(tcp)) {
-			uint32_t payload_len = hasPayload(ip, tcp);
-			if(payload_len) {
-				if(((uint8_t*)tcp + (tcp->offset << 2))[payload_len - 1] == 0xFF)
-					return true;
-				
-				return false;
-			}
-		}
-
-		return false;
-	}
 };
 
 #endif //BESS_MODULES_DYSCOCENTER_H_

@@ -360,11 +360,13 @@ bool DyscoAgentIn::rx_initiation_new(Packet* pkt, Ipv4* ip, Tcp* tcp, uint32_t p
 		}
 	}
 	
-	if(!dc->insert_cb_in(this->index, cb_in, ip, tcp)) {
+	if(!dc->insert_hash_input(this->index, cb_in)) {
 		delete cb_in;
 
 		return false;
 	}
+
+	cb_in->dcb_out = insert_cb_in_reverse(cb_in, ip, tcp);
 	
 	cb_in->in_iseq = tcp->seq_num.value();
 	cb_in->in_iack = tcp->ack_num.value();
@@ -375,6 +377,39 @@ bool DyscoAgentIn::rx_initiation_new(Packet* pkt, Ipv4* ip, Tcp* tcp, uint32_t p
 	hdr_rewrite_full_csum(ip, tcp, &cb_in->my_sup);
 	
 	return true;
+}
+
+DyscoHashOut* DyscoAgentIn::insert_cb_in_reverse(DyscoHashIn* cb_in, Ipv4* ip, Tcp* tcp) {
+	DyscoHashOut* cb_out = new DyscoHashOut();
+
+	cb_out->sup.sip = cb_in->my_sup.dip;
+	cb_out->sup.dip = cb_in->my_sup.sip;
+	cb_out->sup.sport = cb_in->my_sup.dport;
+	cb_out->sup.dport = cb_in->my_sup.sport;
+
+	cb_out->sub.sip = ip->dst.raw_value();
+	cb_out->sub.dip = ip->src.raw_value();
+	cb_out->sub.sport = tcp->dst_port.raw_value();
+	cb_out->sub.dport = tcp->src_port.raw_value();
+
+	cb_out->in_iack = tcp->seq_num.value();
+	cb_out->out_iack = tcp->seq_num.value();
+
+	cb_out->other_path = 0;
+	cb_out->old_path = 0;
+	cb_out->valid_ack_cut = 0;
+	cb_out->use_np_seq = 0;
+	cb_out->use_np_ack = 0;
+	cb_out->ack_cutoff = 0;
+
+	cb_out->ack_ctr = 0;
+	cb_out->state = DYSCO_ONE_PATH;
+
+	cb_out->dcb_in = cb_in;
+
+	dc->insert_hash_out(this->index, cb_out);
+	
+	return cb_out;
 }
 
 //L.614
@@ -883,11 +918,13 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 		}
 	}
 
-	if(!dc->insert_cb_in(this->index, cb_in, ip, tcp)) {
+	if(!dc->insert_hash_in(this->index, cb_in)) {
 		delete cb_in;
 
 		return ERROR;
 	}
+	
+	cb_in->dcb_out = insert_cb_in_reverse(cb_in, ip, tcp);
 	
 	cb_in->in_iseq = rcb->leftIseq;
 	cb_in->in_iack = rcb->leftIack;
