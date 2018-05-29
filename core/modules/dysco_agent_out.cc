@@ -713,7 +713,7 @@ bool DyscoAgentOut::control_output(Ipv4* ip, Tcp* tcp) {
 			incremental += ChecksumIncrement32(cmsg->leftItsr, htonl(rcb->leftItsr));
 			incremental += ChecksumIncrement16(cmsg->leftIws, htonl(rcb->leftIws));
 			incremental += ChecksumIncrement32(cmsg->leftIwsr, htonl(rcb->leftIwsr));
-			incremental += ChecksumIncrement16(cmsg->sack_ok, htonl(rcb->sack_ok));
+			incremental += ChecksumIncrement16(cmsg->sackOk, htonl(rcb->sack_ok));
 
 			tcp->checksum = UpdateChecksumWithIncrement(tcp->checksum, incremental);
 			
@@ -751,7 +751,7 @@ bool DyscoAgentOut::control_output(Ipv4* ip, Tcp* tcp) {
 		incremental += ChecksumIncrement32(cmsg->leftItsr, htonl(old_dcb->tsr_in));
 		incremental += ChecksumIncrement16(cmsg->leftIws, htons(old_dcb->ws_in));
 		
-		incremental += ChecksumIncrement16(cmsg->sack_ok, htonl(old_dcb->sack_ok));
+		incremental += ChecksumIncrement16(cmsg->sackOk, htonl(old_dcb->sack_ok));
 
 		tcp->seq_num = be32_t(old_dcb->out_iseq);
 		tcp->ack_num = be32_t(old_dcb->out_iack);
