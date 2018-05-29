@@ -707,13 +707,13 @@ bool DyscoAgentOut::control_output(Ipv4* ip, Tcp* tcp) {
 
 		if(rcb) {
 			//Retransmission
-			incremental += UpdateChecksum32(cmsg->leftIseq, htonl(rcb->leftIseq));
-			incremental += UpdateChecksum32(cmsg->leftIack, htonl(rcb->leftIack));
-			incremental += UpdateChecksum32(cmsg->leftIts, htonl(rcb->leftIts));
-			incremental += UpdateChecksum32(cmsg->leftItsr, htonl(rcb->leftItsr));
-			incremental += UpdateChecksum16(cmsg->leftIws, htonl(rcb->leftIws));
-			incremental += UpdateChecksum32(cmsg->leftIwsr, htonl(rcb->leftIwsr));
-			incremental += UpdateChecksum16(cmsg->sack_ok, htonl(rcb->sack_ok));
+			incremental += ChecksumIncrement32(cmsg->leftIseq, htonl(rcb->leftIseq));
+			incremental += ChecksumIncrement32(cmsg->leftIack, htonl(rcb->leftIack));
+			incremental += ChecksumIncrement32(cmsg->leftIts, htonl(rcb->leftIts));
+			incremental += ChecksumIncrement32(cmsg->leftItsr, htonl(rcb->leftItsr));
+			incremental += ChecksumIncrement16(cmsg->leftIws, htonl(rcb->leftIws));
+			incremental += ChecksumIncrement32(cmsg->leftIwsr, htonl(rcb->leftIwsr));
+			incremental += ChecksumIncrement16(cmsg->sack_ok, htonl(rcb->sack_ok));
 
 			tcp->checksum = UpdateChecksumWithIncrement(tcp->checksum, incremental);
 			
