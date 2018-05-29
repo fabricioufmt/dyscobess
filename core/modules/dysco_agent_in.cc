@@ -1490,7 +1490,7 @@ bool DyscoAgentIn::processReceivedPacket(Tcp* tcp) {
 			//delete node;
 			node->isRemoved = true;
 
-			hash_received->erase(key);
+			//hash_received->erase(key);
 		}
 			
 		mtx->unlock();
