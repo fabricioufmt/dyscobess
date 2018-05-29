@@ -73,12 +73,12 @@ int main(int argc, char** argv) {
 	uint32_t* sc;
 	struct reconfig_message* cmsg;
 
-	if(argc < 4) {
-		fprintf(stderr, "Usage: %s <sup:src_port><rightSS:src_port> <sc1> <sc2> <...>\n", argv[0]);
+	if(argc < 5) {
+		fprintf(stderr, "Usage: %s <sup:src_port><leftSS:src_port><rightSS:src_port> <sc1> <sc2> <...>\n", argv[0]);
 		exit(EXIT_FAILURE);
 	}
 
-	sc_len = argc - 3;
+	sc_len = argc - 4;
 	
 	if((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
 		perror("socket failed");
@@ -104,12 +104,12 @@ int main(int argc, char** argv) {
 
 	cmsg->leftSS.sip = inet_addr("10.0.10.1");
 	cmsg->leftSS.dip = inet_addr("10.0.10.2");
-	cmsg->leftSS.sport = htons(atoi(argv[1]));
+	cmsg->leftSS.sport = htons(atoi(argv[2]));
 	cmsg->leftSS.dport = htons(5001);
 	
 	cmsg->rightSS.sip = inet_addr("10.0.3.2");
 	cmsg->rightSS.dip = inet_addr("10.0.3.1");
-	cmsg->rightSS.sport = htons(atoi(argv[2]));
+	cmsg->rightSS.sport = htons(atoi(argv[3]));
 	cmsg->rightSS.dport = htons(5001);
 	
 	//cmsg->leftSS = cmsg->rightSS = cmsg->super;
@@ -118,7 +118,7 @@ int main(int argc, char** argv) {
 	memcpy(buff + sizeof(struct reconfig_message), &sclen, sizeof(uint32_t));
 	sc = (uint32_t*)(buff + sizeof(struct reconfig_message) + sizeof(uint32_t));
 	for(i = 0; i < sc_len; i++)
-		sc[i] = inet_addr(argv[3 + i]);
+		sc[i] = inet_addr(argv[4 + i]);
 
 	cmsg->leftA = inet_addr("10.0.2.1");
 	cmsg->rightA = sc[sc_len - 1];
