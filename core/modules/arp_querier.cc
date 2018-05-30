@@ -121,7 +121,7 @@ bess::Packet* ArpQuerier::updateDst(bess::Packet* pkt, Ethernet* eth, Ipv4* ip) 
 		entry = &it->second;
 
 		if(entry->sent_request) {
-			entry->pkts.add(pkt);
+			entry->pkts.push_back(pkt);
 			return 0;
 		}
 		
@@ -133,7 +133,7 @@ bess::Packet* ArpQuerier::updateDst(bess::Packet* pkt, Ethernet* eth, Ipv4* ip) 
 	entry = new Arp_Entry();
 	entries_[ip_value] = *entry;
 	entry->sent_request = true;
-	entry->pkts.add(pkt);
+	entry->pkts.push_back(pkt);
 
 	return createArpRequest(eth, ip);
 }
