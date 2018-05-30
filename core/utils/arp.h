@@ -63,7 +63,7 @@ struct[[gnu::packed]] Arp {
   Ethernet::Address sender_hw_addr;  // sender hardware address (sha)
   be32_t sender_ip_addr;             // sender IP address (sip)
   Ethernet::Address target_hw_addr;  // target hardware address (tha)
-  be32_t target_ip_addr;            // target IP address (tip)
+  be32_t target_ip_addr;             // target IP address (tip)
 };
 
   static_assert(sizeof(Arp) == 28, "struct Arp size is incorrect");

@@ -159,15 +159,22 @@ bool DyscoAgentIn::isReconfigPacket(Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
 		}
 
 		if(!cb_in->dcb_out) {
+#ifdef DEBUG
 			fprintf(stderr, "isReconfigPacket: cb_in->dcb_out is NULL\n");
+#endif
 			return false;
 		}
 		
 		if(cb_in->dcb_out->state == DYSCO_SYN_RECEIVED && hasPayload(ip, tcp)) {
+#ifdef DEBUG
 			fprintf(stderr, "isReconfigPacket: SYN_RECEIVED and hasPayload == TRUE\n");
+#endif
 			return true;
 		}
+#ifdef DEBUG
 		fprintf(stderr, "isReconfigPacket: FALSE\n");
+#endif
+		
 		return false;
 	}
 
