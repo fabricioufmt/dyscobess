@@ -39,7 +39,7 @@ class ArpQuerier final : public Module {
 
 	void ProcessBatchIP(bess::PacketBatch*);
 	void ProcessBatchArp(bess::PacketBatch*);
-	void updateArpEntry(Ethernet*, Arp*, bess::PacketBatch*);
+	void updateArpEntry(Arp*, bess::PacketBatch*);
 	void updateSrcEthEntry(Ethernet*, Ipv4*);
 	bess::Packet* updateDst(bess::Packet*, Ethernet*, Ipv4*);
 	bess::Packet* createArpRequest(Ethernet*, Ipv4*);

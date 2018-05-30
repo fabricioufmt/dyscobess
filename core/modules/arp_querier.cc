@@ -52,7 +52,7 @@ void ArpQuerier::ProcessBatchArp(bess::PacketBatch* batch) {
 	RunChooseModule(0, batch);
 }
 
-void ArpQuerier::updateArpEntry(Ethernet* eth, Arp* arp, bess::PacketBatch* batch) {
+void ArpQuerier::updateArpEntry(Arp* arp, bess::PacketBatch* batch) {
 	Arp_Entry* entry;
 	Ethernet* pkt_eth;
 	bess::Packet* pkt;
@@ -87,7 +87,7 @@ void ArpQuerier::updateArpEntry(Ethernet* eth, Arp* arp, bess::PacketBatch* batc
 	mac = arp->sender_hw_addr;
 
 	it = entries_.find(ip);
-	if(it != entries_end()) {
+	if(it != entries_.end()) {
 		entry = &it->second;
 
 		entry->mac = mac;
@@ -100,28 +100,28 @@ void ArpQuerier::updateArpEntry(Ethernet* eth, Arp* arp, bess::PacketBatch* batc
 
 void ArpQuerier::updateSrcEthEntry(Ethernet* eth, Ipv4* ip) {
 	Arp_Entry* entry;
-	be32_t ip = ip->src;
+	be32_t ip_value = ip->src;
 	Ethernet::Address mac = eth->src_addr;
 
-	auto it = entries_.find(ip);
-	if(it != entries_end()) {
+	auto it = entries_.find(ip_value);
+	if(it != entries_.end()) {
 		entry = &it->second;
 
 		entry->mac = mac;
 	} else {
 		entry = new Arp_Entry();
 		entry->mac = mac;
-		entries_[ip] = *entry;
+		entries_[ip_value] = *entry;
 	}
 }
 
 bess::Packet* ArpQuerier::updateDst(bess::Packet* pkt, Ethernet* eth, Ipv4* ip) {
 	Arp_Entry* entry;
-	be32_t ip = ip->src;
+	be32_t ip_value = ip->src;
 	
 	auto it = entries_.find(ip);
-	if(it != entries_end()) {
-		entry = it->second;
+	if(it != entries_.end()) {
+		entry = &it->second;
 
 		if(entry->sent_request) {
 			entry->pkts.add(pkt);
