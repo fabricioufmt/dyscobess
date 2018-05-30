@@ -65,7 +65,7 @@ void ArpQuerier::updateArpEntry(Arp* arp, bess::PacketBatch* batch) {
 
 		entry->mac = mac;
 
-		for(int i = 0; i < entry->pkts.size(); i++) {
+		for(uint32_t i = 0; i < entry->pkts.size(); i++) {
 			pkt = entry->pkts[i];
 			pkt_eth = pkt->head_data<Ethernet*>();
 
