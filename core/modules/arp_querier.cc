@@ -46,7 +46,7 @@ void ArpQuerier::ProcessBatchArp(bess::PacketBatch* batch) {
 		eth = pkt->head_data<Ethernet*>();
 		arp = reinterpret_cast<Arp*>(eth + 1);
 		
-		updateArpEntry(eth, arp, batch);
+		updateArpEntry(arp, batch);
 	}
 
 	RunChooseModule(0, batch);
@@ -119,7 +119,7 @@ bess::Packet* ArpQuerier::updateDst(bess::Packet* pkt, Ethernet* eth, Ipv4* ip) 
 	Arp_Entry* entry;
 	be32_t ip_value = ip->src;
 	
-	auto it = entries_.find(ip);
+	auto it = entries_.find(ip_value);
 	if(it != entries_.end()) {
 		entry = &it->second;
 
@@ -134,7 +134,7 @@ bess::Packet* ArpQuerier::updateDst(bess::Packet* pkt, Ethernet* eth, Ipv4* ip) 
 	}
 
 	entry = new Arp_Entry();
-	entries_[ip] = *entry;
+	entries_[ip_value] = *entry;
 	entry->sent_request = true;
 	entry->pkts.add(pkt);
 
@@ -145,9 +145,9 @@ bess::Packet* ArpQuerier::createArpRequest(Ethernet* eth, Ipv4* ip) {
 	bess::Packet* pkt = bess::Packet::Alloc();
 
 	Ethernet* pkt_eth = pkt->head_data<Ethernet*>();
-	arp_eth->ether_type = be16_t(Ethernet::Type::kArp);
-	arp_eth->src_addr = eth->src_addr;
-	arp_eth->dst_addr.FromString("FF:FF:FF:FF:FF:FF");
+	pkt_eth->ether_type = be16_t(Ethernet::Type::kArp);
+	pkt_eth->src_addr = eth->src_addr;
+	pkt_eth->dst_addr.FromString("FF:FF:FF:FF:FF:FF");
 
 	Arp *pkt_arp = reinterpret_cast<Arp*>(pkt_eth + 1);
 	pkt_arp->hw_addr = be16_t(Arp::kEthernet);
