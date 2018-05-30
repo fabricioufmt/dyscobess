@@ -60,39 +60,39 @@ void ArpQuerier::updateArpEntry(Ethernet* eth, Arp* arp, bess::PacketBatch* batc
 	Ethernet::Address mac = arp->target_hw_addr;
 
 	auto it = entries_.find(ip);
-	if(it != entries_end()) {
-		entry = it->second;
+	if(it != entries_.end()) {
+		entry = &it->second;
 
 		entry->mac = mac;
 
-		auto it = entry.pkts.iterator();
-		while(it != entry.pkts.end()) {
-			pkt = it->second;
+		auto itt = entry.pkts.iterator();
+		while(itt != entry.pkts.end()) {
+			pkt = itt->second;
 			pkt_eth = pkt->head_data<Ethernet*>();
 
 			pkt_eth->dst_mac = mac;
 			batch.add(pkt);
 		}
 
-		entry.pkts.clear();
+		entry->pkts.clear();
 		
 	} else {
 		entry = new Arp_Entry();
-		entry.mac = mac;
+		entry->mac = mac;
 		entries_[ip] = entry;
 	}
 
 	ip = arp->sender_ip_addr;
 	mac = arp->sender_hw_addr;
 
-	auto it = entries_.find(ip);
+	it = entries_.find(ip);
 	if(it != entries_end()) {
-		entry = it->second;
+		entry = &it->second;
 
 		entry->mac = mac;
 	} else {
 		entry = new Arp_Entry();
-		entry.mac = mac;
+		entry->mac = mac;
 		entries_[ip] = *entry;
 	}
 }
@@ -104,12 +104,12 @@ void ArpQuerier::updateSrcEthEntry(Ethernet* eth, Ipv4* ip) {
 
 	auto it = entries_.find(ip);
 	if(it != entries_end()) {
-		entry = it->second;
+		entry = &it->second;
 
 		entry->mac = mac;
 	} else {
 		entry = new Arp_Entry();
-		entry.mac = mac;
+		entry->mac = mac;
 		entries_[ip] = *entry;
 	}
 }
