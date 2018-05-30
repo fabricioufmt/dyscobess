@@ -39,8 +39,10 @@ void ArpQuerier::ProcessBatchIP(bess::PacketBatch* batch) {
 void ArpQuerier::ProcessBatchArp(bess::PacketBatch* batch) {
 	Arp* arp;
 	Ethernet* eth;
+	bess::Packet* pkt;
 	
 	for (int i = 0; i < batch->cnt(); i++) {
+		pkt = batch->pkts()[i];
 		eth = pkt->head_data<Ethernet*>();
 		arp = reinterpret_cast<Arp*>(eth + 1);
 		
