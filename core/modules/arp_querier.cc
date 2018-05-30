@@ -66,11 +66,11 @@ void ArpQuerier::updateArpEntry(Ethernet* eth, Arp* arp, bess::PacketBatch* batc
 		entry->mac = mac;
 
 		auto itt = entry.pkts.iterator();
-		while(itt != entry.pkts.end()) {
+		while(itt != entry->pkts.end()) {
 			pkt = itt->second;
 			pkt_eth = pkt->head_data<Ethernet*>();
 
-			pkt_eth->dst_mac = mac;
+			pkt_eth->dst_addr = mac;
 			batch.add(pkt);
 		}
 
