@@ -8,7 +8,7 @@ void ArpQuerier::ProcessBatch(bess::PacketBatch* batch) {
 		ProcessBatchIP(batch);
 	} else {
 		//Should be ARP reply
-		ProcessBatchARP(batch);
+		ProcessBatchArp(batch);
 	}
 }
 
@@ -29,7 +29,7 @@ void ArpQuerier::ProcessBatchIP(bess::PacketBatch* batch) {
 		
 		updateSrcEthEntry(eth, ip);
 
-		arp_created = updateDst(eth, ip);
+		arp_created = updateDst(pkt, eth, ip);
 		out_batch.add(arp_created ? arp_created : pkt);
 	}
 
