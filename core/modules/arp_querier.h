@@ -11,6 +11,7 @@
 #include "../utils/ip.h"
 
 using bess::utils::Arp;
+using bess::utils::Ipv4;
 using bess::utils::be16_t;
 using bess::utils::be32_t;
 using bess::utils::Ethernet;
