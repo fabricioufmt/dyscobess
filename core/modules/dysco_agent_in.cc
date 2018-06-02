@@ -1094,7 +1094,9 @@ CONTROL_RETURN DyscoAgentIn::control_input(Packet* pkt, Ipv4* ip, Tcp* tcp, Dysc
 		//Ronaldo: RightA doesn't know about supss (or leftSS)
 		rcb = dc->lookup_reconfig_by_ss(this->index, &cmsg->rightSS); 
 		if(rcb) {
+#ifdef DEBUG
 			fprintf(stderr, "It's retransmission of SYN.\n\n");
+#endif
 			return IS_RETRANSMISSION;
 		}
 
