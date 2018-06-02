@@ -105,7 +105,7 @@ l2_3.add(mac_addr='00:00:00:00:00:32', gate=1)
 l2_3.add(mac_addr='00:00:00:00:00:33', gate=2)
 dout5 -> l2_3
 dout6 -> l2_3
-PortInc(port=m3_1)
+PortInc(port=m3_1) -> l2_3
 l2_3:0 -> din5
 l2_3:1 -> din6
 l2_3:2 -> PortOut(port=m3_1)
