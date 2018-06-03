@@ -147,7 +147,7 @@ bool DyscoAgentIn::isReconfigPacket(Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
 	
 	if(isTCPSYN(tcp, true)) {
 		if(!cb_in) {
-			if(ip->dst.value() != devip) {
+			if(ip->dst.raw_value() != devip) {
 #ifdef DEBUG
 				fprintf(stderr, "it's not for me\n");
 				return false;
