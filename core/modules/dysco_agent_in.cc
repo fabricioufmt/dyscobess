@@ -1501,7 +1501,7 @@ bool DyscoAgentIn::processReceivedPacket(Tcp* tcp) {
 	LNode<bess::Packet>* node = hash_received->operator[](key);
 	if(node) {
 		if(!node->isRemoved) {
-			//delete node;
+			delete node;
 			node->isRemoved = true;
 
 			hash_received->erase(key);
