@@ -150,7 +150,11 @@ bool DyscoAgentIn::isReconfigPacket(Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
 			if(ip->dst.raw_value() != devip) {
 #ifdef DEBUG
 				fprintf(stderr, "it's not for me\n");
+#endif
 				return false;
+			} else {
+#ifdef DEBUG
+				fprintf(stderr, "it's for me\n");
 #endif
 			}
 			uint32_t payload_len = hasPayload(ip, tcp);
