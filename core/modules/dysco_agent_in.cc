@@ -147,6 +147,12 @@ bool DyscoAgentIn::isReconfigPacket(Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
 	
 	if(isTCPSYN(tcp, true)) {
 		if(!cb_in) {
+			if(ip->dst.value() != devip) {
+#ifdef DEBUG
+				fprintf(stderr, "it's not for me\n");
+				return false;
+#endif
+			}
 			uint32_t payload_len = hasPayload(ip, tcp);
 			if(payload_len) {
 				uint32_t tcp_hlen = tcp->offset << 2;
