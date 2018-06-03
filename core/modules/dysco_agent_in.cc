@@ -1447,11 +1447,6 @@ void DyscoAgentIn::retransmissionHandler() {
 	LNode<bess::Packet>* tail = list->getTail();
 
 	while(node != tail) {
-		if(node->isRemoved) {
-			node = node->next;
-			continue;
-		}
-			
 		if(node->cnt == 0) {
 			//First transmission
 			node->cnt++;
@@ -1523,10 +1518,10 @@ bool DyscoAgentIn::isEstablished(Packet* pkt) {
 	Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + (ip->header_length << 2));
 
 	DyscoTcpSession ss;
-	ss.sip = htonl(ip->dst.value());
-	ss.dip = htonl(ip->src.value());
-	ss.sport = htons(tcp->dst_port.value());
-	ss.dport = htons(tcp->src_port.value());
+	ss.sip = ip->dst.raw_value();
+	ss.dip = ip->src.raw_value();
+	ss.sport = tcp->dst_port.raw_value();
+	ss.dport = tcp->src_port.raw_value();
 
 	DyscoHashIn* cb_in = dc->lookup_input_by_ss(this->index, &ss);
 	if(!cb_in) {
