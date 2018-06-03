@@ -1461,12 +1461,12 @@ void DyscoAgentIn::retransmissionHandler() {
 				//should remove in hashtable
 				continue;
 			}
-		}
-		
-		if(now_ts - node->ts > DyscoAgentIn::timeout) {
-			node->cnt++;
-			batch->add(&node->element);
-			node->ts = now_ts;
+
+			if(now_ts - node->ts > DyscoAgentIn::timeout) {
+				node->cnt++;
+				batch->add(&node->element);
+				node->ts = now_ts;
+			}
 		}
 		
 		node = node->next;
