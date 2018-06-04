@@ -143,7 +143,10 @@ bess::Packet* ArpQuerier::updateDst(bess::Packet* pkt, Ethernet* eth, Ipv4* ip) 
 bess::Packet* ArpQuerier::createArpRequest(Ethernet* eth, Ipv4* ip) {
 	bess::Packet* pkt = bess::Packet::Alloc();
 
-	Ethernet* pkt_eth = pkt->head_data<Ethernet*>();
+	pkt->set_total_len(sizeof(Ethernet) + sizeof(Arp));
+	pkt->set_data_len(sizeof(Ethernet) + sizeof(Arp));
+	
+	Ethernet* pkt_eth = reinterpret_cast<Ethernet*>(pkt->buffer<char*>() + SNBUF_HEADROOM);
 	pkt_eth->ether_type = be16_t(Ethernet::Type::kArp);
 	pkt_eth->src_addr = eth->src_addr;
 	pkt_eth->dst_addr.FromString("FF:FF:FF:FF:FF:FF");
