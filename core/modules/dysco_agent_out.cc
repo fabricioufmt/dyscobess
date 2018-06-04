@@ -425,35 +425,22 @@ bool DyscoAgentOut::output(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out
 	if(!cb_out) {
 		cb_out = dc->lookup_output_pending(this->index, ip, tcp);
 		if(cb_out) {
-#ifdef DEBUG
-			fprintf(stderr, "lookup output pending is TRUE\n");
-#endif
 			return output_mb(pkt, ip, tcp, cb_out);
-		} else {
-			fprintf(stderr, "lookup output pedning is FALSE\n");
 		}
-
+		
 		cb_out = dc->lookup_pending_tag(this->index, tcp);
 		if(cb_out) {
 			update_four_tuple(ip, tcp, cb_out->sup);
-#ifdef DEBUG
-			fprintf(stderr, "lookup output pending is TRUE\n");
-#endif			
+			
 			return output_mb(pkt, ip, tcp, cb_out);
 		}
 	}
 
 	if(isTCPSYN(tcp)) {
-#ifdef DEBUG
-		fprintf(stderr, "is TCP SYN\n");
-#endif
 		return output_syn(pkt, ip, tcp, cb_out);
 	}
 
 	if(cb_out) {
-#ifdef DEBUG
-		fprintf(stderr, "cb_out is TRUE\n");
-#endif		
 		out_translate(pkt, ip, tcp, cb_out);
 		return true;
 	}
@@ -463,7 +450,6 @@ bool DyscoAgentOut::output(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out
 
 bool DyscoAgentOut::output_syn(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) {
 	if(!cb_out) {
-		fprintf(stderr, "output_syn method: cb_out is NULL\n");
 		DyscoPolicies::Filter* filter = dc->match_policy(this->index, pkt);
 		if(!filter)
 			return false;
@@ -492,8 +478,7 @@ bool DyscoAgentOut::output_syn(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb
 		}
 
 		cb_out->dcb_in = insert_cb_out_reverse(cb_out, 0);
-	} else
-		fprintf(stderr, "output_syn method: cb_out isn't NULL\n");
+	}
 
 	cb_out->seq_cutoff = tcp->seq_num.value();
 	parse_tcp_syn_opt_s(tcp, cb_out);
@@ -532,7 +517,6 @@ bool DyscoAgentOut::output_syn(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb
 
 		cb_out->state = DYSCO_SYN_RECEIVED;
 	} else {
-		fprintf(stderr, "here\n");
 		hdr_rewrite(ip, tcp, &cb_out->sub);
 		add_sc(pkt, ip, tcp, cb_out);
 		fix_csum(ip, tcp);
