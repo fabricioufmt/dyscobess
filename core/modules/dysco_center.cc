@@ -147,11 +147,15 @@ DyscoHashIn* DyscoCenter::lookup_input_by_ss(uint32_t i, DyscoTcpSession* ss) {
 	if(!dh)
 		return 0;
 
+	/*
 	unordered_map<DyscoTcpSession, DyscoHashIn*, DyscoTcpSessionHash>::iterator it = dh->hash_in.find(*ss);
 	if(it != dh->hash_in.end())
 		return it->second;
 	
 	return 0;
+	*/
+
+	return hash_in[*ss];
 }
 
 DyscoHashOut* DyscoCenter::lookup_output(uint32_t i, Ipv4* ip, Tcp* tcp) {
@@ -170,11 +174,15 @@ DyscoHashOut* DyscoCenter::lookup_output_by_ss(uint32_t i, DyscoTcpSession* ss) 
 	if(!dh)
 		return 0;
 
+	/*
 	unordered_map<DyscoTcpSession, DyscoHashOut*, DyscoTcpSessionHash>::iterator it = dh->hash_out.find(*ss);
 	if(it != dh->hash_out.end())
 		return it->second;
 	
 	return 0;
+	*/
+
+	return hash_out[*ss];
 }
 
 DyscoHashOut* DyscoCenter::lookup_output_pending(uint32_t i, Ipv4* ip, Tcp* tcp) {
@@ -187,20 +195,6 @@ DyscoHashOut* DyscoCenter::lookup_output_pending(uint32_t i, Ipv4* ip, Tcp* tcp)
 	ss.dip = ip->dst.raw_value();
 	ss.sport = tcp->src_port.raw_value();
 	ss.dport = tcp->dst_port.raw_value();
-
-	/*
-	unordered_map<DyscoTcpSession, DyscoHashOut*, DyscoTcpSessionHash>::iterator it = dh->hash_pen.find(ss);
-	if(it != dh->hash_pen.end())
-		return it->second;
-	*/
-	/*
-	unordered_map<DyscoTcpSession, DyscoHashOut*, DyscoTcpSessionHash>::iterator it = dh->hash_pen.begin();
-	while(it != dh->hash_pen.end()) {
-		if(ss == it->first)
-			return it->second;
-	}
-	
-	return 0;*/
 
 	return dh->hash_pen[ss];
 }
@@ -249,11 +243,15 @@ DyscoHashOut* DyscoCenter::lookup_pending_tag_by_tag(uint32_t i, uint32_t tag) {
 	if(!dh)
 		return 0;
 
+	/*
 	unordered_map<uint32_t, DyscoHashOut*>::iterator it = dh->hash_pen_tag.find(tag);
 	if(it != dh->hash_pen_tag.end())
 		return it->second;
 	
 	return 0;
+	*/
+
+	return hash_pen_tag[tag];
 }
 
 
@@ -261,12 +259,16 @@ DyscoCbReconfig* DyscoCenter::lookup_reconfig_by_ss(uint32_t i, DyscoTcpSession*
 	DyscoHashes* dh = get_hashes(i);
 	if(!dh)
 		return 0;
-	
+
+	/*
 	unordered_map<DyscoTcpSession, DyscoCbReconfig*, DyscoTcpSessionHash, DyscoTcpSessionEqualTo>::iterator it = dh->hash_reconfig.find(*ss);
 	if(it != dh->hash_reconfig.end())
 		return it->second;
 	
 	return 0;
+	*/
+
+	return hash_reconfig[*ss];
 }
 
 
