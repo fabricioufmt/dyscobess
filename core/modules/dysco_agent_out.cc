@@ -528,6 +528,7 @@ bool DyscoAgentOut::output_syn(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb
 
 		cb_out->state = DYSCO_SYN_RECEIVED;
 	} else {
+		fprintf(stderr, "here\n");
 		hdr_rewrite(ip, tcp, &cb_out->sub);
 		add_sc(pkt, ip, tcp, cb_out);
 		fix_csum(ip, tcp);
