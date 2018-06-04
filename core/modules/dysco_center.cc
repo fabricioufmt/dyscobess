@@ -147,7 +147,7 @@ DyscoHashIn* DyscoCenter::lookup_input_by_ss(uint32_t i, DyscoTcpSession* ss) {
 	if(!dh)
 		return 0;
 
-	unordered_map<DyscoTcpSession, DyscoHashIn*, DyscoTcpSessionHash, DyscoTcpSessionEqualTo>::iterator it = dh->hash_in.find(*ss);
+	unordered_map<DyscoTcpSession, DyscoHashIn*, DyscoTcpSessionHash>::iterator it = dh->hash_in.find(*ss);
 	if(it != dh->hash_in.end())
 		return it->second;
 	
@@ -170,7 +170,7 @@ DyscoHashOut* DyscoCenter::lookup_output_by_ss(uint32_t i, DyscoTcpSession* ss) 
 	if(!dh)
 		return 0;
 
-	unordered_map<DyscoTcpSession, DyscoHashOut*, DyscoTcpSessionHash, DyscoTcpSessionEqualTo>::iterator it = dh->hash_out.find(*ss);
+	unordered_map<DyscoTcpSession, DyscoHashOut*, DyscoTcpSessionHash>::iterator it = dh->hash_out.find(*ss);
 	if(it != dh->hash_out.end())
 		return it->second;
 	
@@ -188,19 +188,6 @@ DyscoHashOut* DyscoCenter::lookup_output_pending(uint32_t i, Ipv4* ip, Tcp* tcp)
 	ss.sport = tcp->src_port.raw_value();
 	ss.dport = tcp->dst_port.raw_value();
 
-	fprintf(stderr, "searching for %s on %p\n", printSS(ss), dh);
-	/*
-	unordered_map<DyscoTcpSession, DyscoHashOut*, DyscoTcpSessionHash, DyscoTcpSessionEqualTo>::iterator it = dh->hash_pen.begin();
-	DyscoTcpSessionEqualTo equals;
-	while(it != dh->hash_pen.end()) {
-		fprintf(stderr, "key: %s\n", printSS(it->first));
-		if(equals(ss, it->first))
-			fprintf(stderr, "is equals\n");
-		else
-			fprintf(stderr, "isn't equals\n");
-		it++;
-	}
-	*/
 	unordered_map<DyscoTcpSession, DyscoHashOut*, DyscoTcpSessionHash>::iterator it = dh->hash_pen.find(ss);
 	if(it != dh->hash_pen.end())
 		return it->second;
@@ -315,11 +302,7 @@ bool DyscoCenter::insert_pending(uint32_t i, DyscoHashOut* cb_out) {
 	if(!dh)
 		return false;
 
-	fprintf(stderr, "inserting with %s key on %p\n", printSS(cb_out->sup), dh);
-
-	fprintf(stderr, "size: %lu\n", dh->hash_pen.size());
 	dh->hash_pen.insert(std::pair<DyscoTcpSession, DyscoHashOut*>(cb_out->sup, cb_out));
-	fprintf(stderr, "size: %lu\n", dh->hash_pen.size());
 	dh->hash_pen_tag.insert(std::pair<uint32_t, DyscoHashOut*>(cb_out->dysco_tag, cb_out));
 
 	return true;

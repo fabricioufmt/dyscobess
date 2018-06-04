@@ -145,9 +145,7 @@ class DyscoTcpSession {
 	uint16_t dport;
 
 	bool operator==(const DyscoTcpSession& t) const {
-		bool ret = sip == t.sip && sport == t.sport && dip == t.dip && dport == t.dport;
-		fprintf(stderr, "they called me\n");
-		return ret;
+		return sip == t.sip && sport == t.sport && dip == t.dip && dport == t.dport;
 	}
 };
 
@@ -459,11 +457,10 @@ class DyscoHashes {
 	DyscoPolicies policies;
 
 	unordered_map<uint32_t, DyscoHashOut*> hash_pen_tag;
-	unordered_map<DyscoTcpSession, DyscoHashIn*, DyscoTcpSessionHash, DyscoTcpSessionEqualTo> hash_in;
-	unordered_map<DyscoTcpSession, DyscoHashOut*, DyscoTcpSessionHash, DyscoTcpSessionEqualTo> hash_out;
-	//unordered_map<DyscoTcpSession, DyscoHashOut*, DyscoTcpSessionHash, DyscoTcpSessionEqualTo> hash_pen;
+	unordered_map<DyscoTcpSession, DyscoHashIn*, DyscoTcpSessionHash> hash_in;
+	unordered_map<DyscoTcpSession, DyscoHashOut*, DyscoTcpSessionHash> hash_out;
 	unordered_map<DyscoTcpSession, DyscoHashOut*, DyscoTcpSessionHash> hash_pen;
-	unordered_map<DyscoTcpSession, DyscoCbReconfig*, DyscoTcpSessionHash, DyscoTcpSessionEqualTo> hash_reconfig;
+	unordered_map<DyscoTcpSession, DyscoCbReconfig*, DyscoTcpSessionHash> hash_reconfig;
 
 	//by devip
 	unordered_map<uint32_t, mutex*> mutexes;
