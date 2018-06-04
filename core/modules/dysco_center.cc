@@ -193,16 +193,6 @@ DyscoHashOut* DyscoCenter::lookup_output_pending(uint32_t i, Ipv4* ip, Tcp* tcp)
 	ss.dport = tcp->dst_port.raw_value();
 
 	return dh->hash_pen[ss];
-	
-	unordered_map<DyscoTcpSession, DyscoHashOut*, DyscoTcpSessionHash>::iterator it = dh->hash_pen.begin();
-	while(it != dh->hash_pen.end()) {
-		if(ss == it->first)
-			return it->second;
-
-		it++;
-	}
-
-	return 0;
 }
 
 DyscoHashOut* DyscoCenter::lookup_pending_tag(uint32_t i, Tcp* tcp) {
