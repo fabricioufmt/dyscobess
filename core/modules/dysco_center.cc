@@ -305,8 +305,10 @@ bool DyscoCenter::insert_pending(uint32_t i, DyscoHashOut* cb_out) {
 		return false;
 
 	fprintf(stderr, "inserting with %s key on %p\n", printSS(cb_out->sup), dh);
-	
+
+	fprintf(stderr, "size: %lu\n", dh->hash_pen.size());
 	dh->hash_pen.insert(std::pair<DyscoTcpSession, DyscoHashOut*>(cb_out->sup, cb_out));
+	fprintf(stderr, "size: %lu\n", dh->hash_pen.size());
 	dh->hash_pen_tag.insert(std::pair<uint32_t, DyscoHashOut*>(cb_out->dysco_tag, cb_out));
 
 	return true;
