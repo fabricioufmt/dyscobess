@@ -60,8 +60,8 @@ void ArpQuerier::updateArpEntry(Arp* arp, bess::PacketBatch* batch) {
 	Arp_Entry* entry;
 	Ethernet* pkt_eth;
 	bess::Packet* pkt;
-	be32_t ip = arp->target_ip_addr;
-	Ethernet::Address mac = arp->target_hw_addr;
+	be32_t ip = arp->sender_ip_addr;
+	Ethernet::Address mac = arp->sender_hw_addr;
 
 	auto it = entries_.find(ip);
 	if(it != entries_.end()) {
