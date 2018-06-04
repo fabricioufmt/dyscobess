@@ -182,7 +182,8 @@ DyscoHashOut* DyscoCenter::lookup_output_pending(uint32_t i, Ipv4* ip, Tcp* tcp)
 	if(!dh)
 		return 0;
 
-	DyscoTcpSession ss;p->src.raw_value();
+	DyscoTcpSession ss;
+	ss.sip = ip->src.raw_value();
 	ss.dip = ip->dst.raw_value();
 	ss.sport = tcp->src_port.raw_value();
 	ss.dport = tcp->dst_port.raw_value();
