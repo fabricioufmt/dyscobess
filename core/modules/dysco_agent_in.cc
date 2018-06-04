@@ -378,7 +378,8 @@ bool DyscoAgentIn::rx_initiation_new(Packet* pkt, Ipv4* ip, Tcp* tcp, uint32_t p
 
 	if(payload_sz > 2 * sizeof(DyscoTcpSession) + sizeof(uint32_t)) {
 #ifdef DEBUG
-		fprintf(stderr, "payload_sz > 2 * sizeof(DyscoTcpSession) + sizeof(uint32_t)");
+		fprintf(stderr, "payload_sz > 2 * sizeof(DyscoTcpSession) + sizeof(uint32_t)\n");
+		fprintf(stderr, "cb_out->sup: %s\n", printSS(*neigh_supss));
 #endif
 		uint32_t sc_len = (payload_sz - 2 * sizeof(DyscoTcpSession))/sizeof(uint32_t);
 
@@ -398,7 +399,7 @@ bool DyscoAgentIn::rx_initiation_new(Packet* pkt, Ipv4* ip, Tcp* tcp, uint32_t p
 			delete cb_in;
 			delete cb_out;
 			
-			return 0;
+			return false;
 		}
 	}
 	
