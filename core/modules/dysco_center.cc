@@ -188,7 +188,7 @@ DyscoHashOut* DyscoCenter::lookup_output_pending(uint32_t i, Ipv4* ip, Tcp* tcp)
 	ss.sport = tcp->src_port.raw_value();
 	ss.dport = tcp->dst_port.raw_value();
 
-	fprintf(stderr, "searching for %s\n", printSS(ss));
+	fprintf(stderr, "searching for %s on %p\n", printSS(ss), dh);
 	
 	unordered_map<DyscoTcpSession, DyscoHashOut*, DyscoTcpSessionHash, DyscoTcpSessionEqualTo>::iterator it = dh->hash_pen.find(ss);
 	if(it != dh->hash_pen.end())
@@ -304,7 +304,7 @@ bool DyscoCenter::insert_pending(uint32_t i, DyscoHashOut* cb_out) {
 	if(!dh)
 		return false;
 
-	fprintf(stderr, "inserting with %s key\n", printSS(cb_out->sup));
+	fprintf(stderr, "inserting with %s key on %p\n", printSS(cb_out->sup), dh);
 	
 	dh->hash_pen.insert(std::pair<DyscoTcpSession, DyscoHashOut*>(cb_out->sup, cb_out));
 	dh->hash_pen_tag.insert(std::pair<uint32_t, DyscoHashOut*>(cb_out->dysco_tag, cb_out));
