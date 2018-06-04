@@ -481,7 +481,7 @@ inline bool isARPReply(Ethernet* eth) {
 	if(eth->ether_type.value() != Ethernet::Type::kArp)
 		return false;
 
-	Arp* arp = pkt->head_data<Arp*>();
+	Arp* arp = reinterpret_cast<Arp*>(eth + 1);
 	return arp->opcode.value() == Arp::kReply;
 }
 
