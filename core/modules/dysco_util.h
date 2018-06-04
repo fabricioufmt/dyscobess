@@ -475,6 +475,14 @@ inline bool isIP(Ethernet* eth) {
 	return eth->ether_type.value() == Ethernet::Type::kIpv4;
 }
 
+inline bool isARPReply(Ethernet* eth) {
+	if(eth->ether_type.value() != Ethernet::Type::kArp)
+		return false;
+
+	bess::utils::Arp* arp = pkt->head_data<bess::utils::Arp*>();
+	return arp->opcode.value() == bess::utils::Arp::kReply;
+}
+
 inline bool isTCP(Ipv4* ip) {
 	return ip->protocol == Ipv4::Proto::kTcp;
 }
