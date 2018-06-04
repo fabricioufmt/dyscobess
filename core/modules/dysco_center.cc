@@ -193,6 +193,9 @@ DyscoHashOut* DyscoCenter::lookup_output_pending(uint32_t i, Ipv4* ip, Tcp* tcp)
 	ss.sport = tcp->src_port.raw_value();
 	ss.dport = tcp->dst_port.raw_value();
 	*/
+
+	fprintf(stderr, "searching for %s\n", printSS(ss));
+	
 	unordered_map<DyscoTcpSession, DyscoHashOut*, DyscoTcpSessionHash, DyscoTcpSessionEqualTo>::iterator it = dh->hash_pen.find(ss);
 	if(it != dh->hash_pen.end())
 		return it->second;
