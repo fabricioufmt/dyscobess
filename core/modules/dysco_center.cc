@@ -147,13 +147,14 @@ DyscoHashIn* DyscoCenter::lookup_input_by_ss(uint32_t i, DyscoTcpSession* ss) {
 	if(!dh)
 		return 0;
 
+	/*
 	unordered_map<DyscoTcpSession, DyscoHashIn*, DyscoTcpSessionHash>::iterator it = dh->hash_in.find(*ss);
 	if(it != dh->hash_in.end())
 		return it->second;
 	
 	return 0;
-
-	//return dh->hash_in[*ss];
+	*/
+	return dh->hash_in[*ss];
 }
 
 DyscoHashOut* DyscoCenter::lookup_output(uint32_t i, Ipv4* ip, Tcp* tcp) {
