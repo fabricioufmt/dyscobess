@@ -461,6 +461,7 @@ bool DyscoAgentOut::output(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out
 
 bool DyscoAgentOut::output_syn(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) {
 	if(!cb_out) {
+		fprintf(stderr, "output_syn method: cb_out is NULL\n");
 		DyscoPolicies::Filter* filter = dc->match_policy(this->index, pkt);
 		if(!filter)
 			return false;
@@ -489,7 +490,8 @@ bool DyscoAgentOut::output_syn(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb
 		}
 
 		cb_out->dcb_in = insert_cb_out_reverse(cb_out, 0);
-	}
+	} else
+		fprintf(stderr, "output_syn method: cb_out isn't NULL\n");
 
 	cb_out->seq_cutoff = tcp->seq_num.value();
 	parse_tcp_syn_opt_s(tcp, cb_out);
