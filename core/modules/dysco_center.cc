@@ -189,6 +189,7 @@ DyscoHashOut* DyscoCenter::lookup_output_pending(uint32_t i, Ipv4* ip, Tcp* tcp)
 	ss.dport = tcp->dst_port.raw_value();
 
 	fprintf(stderr, "searching for %s on %p\n", printSS(ss), dh);
+	/*
 	unordered_map<DyscoTcpSession, DyscoHashOut*, DyscoTcpSessionHash, DyscoTcpSessionEqualTo>::iterator it = dh->hash_pen.begin();
 	DyscoTcpSessionEqualTo equals;
 	while(it != dh->hash_pen.end()) {
@@ -199,11 +200,11 @@ DyscoHashOut* DyscoCenter::lookup_output_pending(uint32_t i, Ipv4* ip, Tcp* tcp)
 			fprintf(stderr, "isn't equals\n");
 		it++;
 	}
-	/*
-	unordered_map<DyscoTcpSession, DyscoHashOut*, DyscoTcpSessionHash, DyscoTcpSessionEqualTo>::iterator it = dh->hash_pen.find(ss);
+	*/
+	unordered_map<DyscoTcpSession, DyscoHashOut*, DyscoTcpSessionHash>::iterator it = dh->hash_pen.find(ss);
 	if(it != dh->hash_pen.end())
 		return it->second;
-	*/
+	
 	return 0;
 }
 
