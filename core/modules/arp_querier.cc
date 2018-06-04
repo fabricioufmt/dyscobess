@@ -72,8 +72,9 @@ void ArpQuerier::updateArpEntry(Arp* arp, bess::PacketBatch* batch) {
 		for(uint32_t i = 0; i < entry->pkts.size(); i++) {
 			pkt = entry->pkts[i];
 			pkt_eth = pkt->head_data<Ethernet*>();
-
+			fprintf(stderr, "changing %s to %s\n", pkt_eth->dst_addr.ToString().c_str(), mac.ToString().c_str());
 			pkt_eth->dst_addr = mac;
+			
 			batch->add(pkt);
 		}
 
@@ -127,6 +128,7 @@ bess::Packet* ArpQuerier::updateDst(bess::Packet* pkt, Ethernet* eth, Ipv4* ip) 
 			return 0;
 		}
 		
+		fprintf(stderr, "changing %s to %s\n", pkt_eth->dst_addr.ToString().c_str(), entry->mac.ToString().c_str());
 		eth->dst_addr = entry->mac;
 		
 		return 0;
