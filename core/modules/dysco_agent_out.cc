@@ -429,6 +429,8 @@ bool DyscoAgentOut::output(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out
 			fprintf(stderr, "lookup output pending is TRUE\n");
 #endif
 			return output_mb(pkt, ip, tcp, cb_out);
+		} else {
+			fprintf(stderr, "lookup output pedning is FALSE\n");
 		}
 
 		cb_out = dc->lookup_pending_tag(this->index, tcp);
