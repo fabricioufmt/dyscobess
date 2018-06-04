@@ -188,9 +188,16 @@ DyscoHashOut* DyscoCenter::lookup_output_pending(uint32_t i, Ipv4* ip, Tcp* tcp)
 	ss.sport = tcp->src_port.raw_value();
 	ss.dport = tcp->dst_port.raw_value();
 
+	/*
 	unordered_map<DyscoTcpSession, DyscoHashOut*, DyscoTcpSessionHash>::iterator it = dh->hash_pen.find(ss);
 	if(it != dh->hash_pen.end())
 		return it->second;
+	*/
+	unordered_map<DyscoTcpSession, DyscoHashOut*, DyscoTcpSessionHash>::iterator it = dh->hash_pen.begin();
+	while(it != dh->hash_pen.end()) {
+		if(ss == it->first)
+			return it->second;
+	}
 	
 	return 0;
 }
