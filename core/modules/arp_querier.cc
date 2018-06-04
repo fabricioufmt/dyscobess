@@ -128,7 +128,7 @@ bess::Packet* ArpQuerier::updateDst(bess::Packet* pkt, Ethernet* eth, Ipv4* ip) 
 			return 0;
 		}
 		
-		fprintf(stderr, "changing %s to %s\n", pkt_eth->dst_addr.ToString().c_str(), entry->mac.ToString().c_str());
+		fprintf(stderr, "changing %s to %s\n", eth->dst_addr.ToString().c_str(), entry->mac.ToString().c_str());
 		eth->dst_addr = entry->mac;
 		
 		return 0;
