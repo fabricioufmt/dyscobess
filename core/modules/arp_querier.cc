@@ -80,6 +80,7 @@ void ArpQuerier::updateArpEntry(Arp* arp, bess::PacketBatch* batch) {
 		entries_[ip] = *entry;
 	}
 
+	/*
 	ip = arp->sender_ip_addr;
 	mac = arp->sender_hw_addr;
 
@@ -93,6 +94,7 @@ void ArpQuerier::updateArpEntry(Arp* arp, bess::PacketBatch* batch) {
 		entry->mac = mac;
 		entries_[ip] = *entry;
 	}
+	*/
 }
 
 void ArpQuerier::updateSrcEthEntry(Ethernet* eth, Ipv4* ip) {
@@ -101,11 +103,7 @@ void ArpQuerier::updateSrcEthEntry(Ethernet* eth, Ipv4* ip) {
 	Ethernet::Address mac = eth->src_addr;
 
 	auto it = entries_.find(ip_value);
-	if(it != entries_.end()) {
-		entry = &it->second;
-
-		entry->mac = mac;
-	} else {
+	if(it == entries_.end()) {
 		entry = new Arp_Entry();
 		entry->mac = mac;
 		entries_[ip_value] = *entry;
