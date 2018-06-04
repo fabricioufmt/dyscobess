@@ -116,7 +116,7 @@ void ArpQuerier::updateSrcEthEntry(Ethernet* eth, Ipv4* ip) {
 
 bess::Packet* ArpQuerier::updateDst(bess::Packet* pkt, Ethernet* eth, Ipv4* ip) {
 	Arp_Entry* entry;
-	be32_t ip_value = ip->src;
+	be32_t ip_value = ip->dst;
 	
 	auto it = entries_.find(ip_value);
 	if(it != entries_.end()) {
