@@ -18,6 +18,7 @@
 #include "../port.h"
 #include "../module.h"
 #include "../utils/ip.h"
+#include "../utils/arp.h"
 #include "../utils/tcp.h"
 #include "../utils/time.h"
 #include "../utils/ether.h"
@@ -39,6 +40,7 @@ using std::thread;
 using std::unordered_map;
 
 using bess::Packet;
+using bess::utils::Arp;
 using bess::utils::Tcp;
 using bess::utils::Ipv4;
 using bess::PacketBatch;
@@ -479,8 +481,8 @@ inline bool isARPReply(Ethernet* eth) {
 	if(eth->ether_type.value() != Ethernet::Type::kArp)
 		return false;
 
-	bess::utils::Arp* arp = pkt->head_data<bess::utils::Arp*>();
-	return arp->opcode.value() == bess::utils::Arp::kReply;
+	Arp* arp = pkt->head_data<Arp*>();
+	return arp->opcode.value() == Arp::kReply;
 }
 
 inline bool isTCP(Ipv4* ip) {
