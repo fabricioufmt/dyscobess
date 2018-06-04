@@ -155,7 +155,7 @@ DyscoHashIn* DyscoCenter::lookup_input_by_ss(uint32_t i, DyscoTcpSession* ss) {
 	return 0;
 	*/
 
-	return hash_in[*ss];
+	return dh->hash_in[*ss];
 }
 
 DyscoHashOut* DyscoCenter::lookup_output(uint32_t i, Ipv4* ip, Tcp* tcp) {
@@ -182,7 +182,7 @@ DyscoHashOut* DyscoCenter::lookup_output_by_ss(uint32_t i, DyscoTcpSession* ss) 
 	return 0;
 	*/
 
-	return hash_out[*ss];
+	return dh->hash_out[*ss];
 }
 
 DyscoHashOut* DyscoCenter::lookup_output_pending(uint32_t i, Ipv4* ip, Tcp* tcp) {
@@ -251,7 +251,7 @@ DyscoHashOut* DyscoCenter::lookup_pending_tag_by_tag(uint32_t i, uint32_t tag) {
 	return 0;
 	*/
 
-	return hash_pen_tag[tag];
+	return dh->hash_pen_tag[tag];
 }
 
 
@@ -268,7 +268,7 @@ DyscoCbReconfig* DyscoCenter::lookup_reconfig_by_ss(uint32_t i, DyscoTcpSession*
 	return 0;
 	*/
 
-	return hash_reconfig[*ss];
+	return dh->hash_reconfig[*ss];
 }
 
 
