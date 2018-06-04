@@ -30,6 +30,10 @@ void ArpQuerier::ProcessBatchIP(bess::PacketBatch* batch) {
 		updateSrcEthEntry(eth, ip);
 
 		arp_created = updateDst(pkt, eth, ip);
+		if(arp_created)
+			fprintf(stderr, "Need to create ARP request\n");
+		else
+			fprintf(stderr, "doesn't need create ARP, just forward.\n");
 		out_batch.add(arp_created ? arp_created : pkt);
 	}
 
