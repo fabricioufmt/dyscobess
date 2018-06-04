@@ -145,7 +145,7 @@ class DyscoTcpSession {
 	uint16_t dport;
 
 	bool operator==(const DyscoTcpSession& t) const {
-		return sip == t.sip && sport == t.sport && dip == t.sip && dport == t.dport;
+		return sip == t.sip && sport == t.sport && dip == t.dip && dport == t.dport;
 	}
 };
 
