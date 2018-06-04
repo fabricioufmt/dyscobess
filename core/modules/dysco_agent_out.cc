@@ -425,22 +425,33 @@ bool DyscoAgentOut::output(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out
 	if(!cb_out) {
 		cb_out = dc->lookup_output_pending(this->index, ip, tcp);
 		if(cb_out) {
+#ifdef DEBUG
+			fprintf(stderr, "lookup output pending is TRUE\n");
+#endif
 			return output_mb(pkt, ip, tcp, cb_out);
 		}
 
 		cb_out = dc->lookup_pending_tag(this->index, tcp);
 		if(cb_out) {
 			update_four_tuple(ip, tcp, cb_out->sup);
-			
+#ifdef DEBUG
+			fprintf(stderr, "lookup output pending is TRUE\n");
+#endif			
 			return output_mb(pkt, ip, tcp, cb_out);
 		}
 	}
 
 	if(isTCPSYN(tcp)) {
+#ifdef DEBUG
+		fprintf(stderr, "is TCP SYN\n");
+#endif
 		return output_syn(pkt, ip, tcp, cb_out);
 	}
 
 	if(cb_out) {
+#ifdef DEBUG
+		fprintf(stderr, "cb_out is TRUE\n");
+#endif		
 		out_translate(pkt, ip, tcp, cb_out);
 		return true;
 	}
