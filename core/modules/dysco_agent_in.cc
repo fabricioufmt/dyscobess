@@ -1475,6 +1475,10 @@ void DyscoAgentIn::retransmissionHandler() {
 				continue;
 			}
 
+#ifdef DEBUG
+			fprintf(stderr, "[%s][DyscoAgentIn-Retransmission] %lu - %lu = %lu (TIMEOUT: %lu).\n", ns.c_str(), now_ts, node->rs, node_ts-node->ts, DyscoAgentIn::timeout);
+#endif
+			
 			if(now_ts - node->ts > DyscoAgentIn::timeout) {
 				node->cnt++;
 				batch->add(&node->element);
