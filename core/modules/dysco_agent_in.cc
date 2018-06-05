@@ -921,12 +921,18 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 	cb_in->sub.sport = tcp->src_port.raw_value();
 	cb_in->sub.dport = tcp->dst_port.raw_value();
 
-	DyscoTcpSession* neigh_supss = &(reinterpret_cast<DyscoControlMessage*>(payload))->super;
+	DyscoTcpSession* neigh_supss = &cmsg->super;
 	cb_in->neigh_sup.sip = neigh_supss->sip;
 	cb_in->neigh_sup.dip = neigh_supss->dip;
 	cb_in->neigh_sup.sport = neigh_supss->sport;
 	cb_in->neigh_sup.dport = neigh_supss->dport;
 
+	DyscoTcpSession* leftSS = &cmsg->leftSS;
+	cb_in->my_sup.sip = leftSS->sip;
+	cb_in->my_sup.dip = leftSS->dip;
+	cb_in->my_sup.sport = leftSS->sport;
+	cb_in->my_sup.dport = leftSS->dport;
+	
 	uint32_t sc_len = (payload_sz - 1 - sizeof(DyscoControlMessage))/sizeof(uint32_t);
 	//-1 is because 0xFF byte for reconfig tag
 	
