@@ -304,6 +304,7 @@ bool DyscoCenter::insert_pending(uint32_t i, DyscoHashOut* cb_out) {
 	if(!dh)
 		return false;
 
+	cb_out->tag_ok = 1;
 	dh->hash_pen.insert(std::pair<DyscoTcpSession, DyscoHashOut*>(cb_out->sup, cb_out));
 	dh->hash_pen_tag.insert(std::pair<uint32_t, DyscoHashOut*>(cb_out->dysco_tag, cb_out));
 
