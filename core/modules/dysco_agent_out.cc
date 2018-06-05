@@ -76,7 +76,7 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 			fprintf(stderr, "It's reconfiguration packet, should be only SYN.\n");
 #endif
 			if(control_output(ip, tcp)) {
-				dysco_packet(eth);
+				//dysco_packet(eth);
 
 				dc->add_retransmission(this->index, devip, pkt);
 			

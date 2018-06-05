@@ -79,7 +79,7 @@ func spliceConnections(l, r net.Conn) {
 	rightSS := dysco.NewTcpSession(net.ParseIP(c2Local[0]),
 	  	   net.ParseIP(c2Remote[0]), uint16(srcPort), uint16(dstPort))
 
-        fmt.Printf("rightSS: %s:%d -> %s:%d", c2Local[0], srcPort, c2Remote[0], dstPort)
+        fmt.Printf("rightSS: %s:%d -> %s:%d\n\n", c2Local[0], srcPort, c2Remote[0], dstPort)
 
 	/*	   
 	chain := []string{c1Remote[0], c2Remote[0]}
