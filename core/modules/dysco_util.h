@@ -128,8 +128,8 @@ enum {
 #define TTL                             32
 #define PORT_RANGE                      65536
 #define CNTLIMIT                        1
-#define SLEEPTIME                       10000 /* usec */  // 10ms
-#define DEFAULT_TIMEOUT                 10000000 /* usec */ // 1s
+#define SLEEPTIME                       100000 /* usec */  // 100ms
+#define DEFAULT_TIMEOUT                 10000000 /* usec */ // 10s
 
 /*********************************************************************
  *
