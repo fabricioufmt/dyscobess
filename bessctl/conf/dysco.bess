@@ -93,13 +93,13 @@ din2.setup()
 din3.setup()
 din4.setup()
 din5.setup()
-din6.setup()
+din10.setup()
 dout1.setup()
 dout2.setup()
 dout3.setup()
 dout4.setup()
 dout5.setup()
-dout6.setup()
+dout10.setup()
 
 dout1 -> l2_1
 PortInc(port=R_1) -> l2_1
