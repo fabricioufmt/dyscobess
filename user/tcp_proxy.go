@@ -96,7 +96,7 @@ func spliceConnections(l, r net.Conn) {
 	} else {
 		chain := []string{middlebox, c2Remote[0]}
 		sc, _ = dysco.CreateSC(2, chain)
-		stateTransf = dysco.STATE_TRANSFER
+		stateTransf = dysco.NOSTATE_TRANSFER
 	}
 
 	dysco_msg :=  dysco.NewReconfigMessage(leftSS, leftSS, rightSS,		
