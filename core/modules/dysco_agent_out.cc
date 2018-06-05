@@ -133,6 +133,9 @@ bool DyscoAgentOut::setup() {
 }
 
 bool DyscoAgentOut::isReconfigPacketOut(Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) {
+	if(ip->src.raw_value() != devip)
+		return false;
+	
 	if(isTCPSYN(tcp, true)) {
 		if(!cb_out) {
 			uint32_t payload_len = hasPayload(ip, tcp);
