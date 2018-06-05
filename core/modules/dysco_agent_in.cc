@@ -1239,16 +1239,25 @@ CONTROL_RETURN DyscoAgentIn::control_input(Packet* pkt, Ipv4* ip, Tcp* tcp, Dysc
 #endif
 
 		if(!cb_in) {
+#ifdef DEBUG
+			fprintf(stderr, "cb_in ERROR\n");
+#endif
 			return ERROR;
 		}
 
 		cmsg = &cb_in->cmsg;
 		if(!cmsg) {
+#ifdef DEBUG
+			fprintf(stderr, "cmsg ERROR\n");
+#endif
 			return ERROR;
 		}
 
 		rcb = dc->lookup_reconfig_by_ss(this->index, &cb_in->my_sup);
 		if(!rcb) {
+#ifdef DEBUG
+			fprintf(stderr, "rcb ERROR\n");
+#endif
 			return ERROR;
 		}
 		
