@@ -95,7 +95,7 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 		}
 			
 		if(output(pkt, ip, tcp, cb_out)) {
-			dysco_packet(eth);
+			//dysco_packet(eth);
 			out_gates[2].add(pkt);
 		} else
 			out_gates[1].add(pkt);
