@@ -1003,7 +1003,7 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 #ifdef DEBUG
 		fprintf(stderr, "NOSTATE_TRANSFER.\n");
 #endif
-		remove_sc(pkt, ip, payload_sz);
+		//remove_sc(pkt, ip, payload_sz);
 		//verify
 		hdr_rewrite_full_csum(ip, tcp, &cb_in->my_sup);
 	
