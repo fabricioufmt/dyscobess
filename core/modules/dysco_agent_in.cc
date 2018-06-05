@@ -1252,20 +1252,20 @@ CONTROL_RETURN DyscoAgentIn::control_input(Packet* pkt, Ipv4* ip, Tcp* tcp, Dysc
 #endif
 			return ERROR;
 		}
-
-		rcb = dc->lookup_reconfig_by_ss(this->index, &cb_in->my_sup);
-		if(!rcb) {
-#ifdef DEBUG
-			fprintf(stderr, "rcb ERROR\n");
-#endif
-			return ERROR;
-		}
 		
 		if(isToRightAnchor(ip, cmsg)) {
 #ifdef DEBUG
 			fprintf(stderr, "It's the right anchor.\n");
 #endif
-
+			
+			rcb = dc->lookup_reconfig_by_ss(this->index, &cb_in->my_sup);
+			if(!rcb) {
+#ifdef DEBUG
+				fprintf(stderr, "rcb ERROR\n");
+#endif
+				return ERROR;
+			}
+			
 			cb_in->is_reconfiguration = 0;
 			
 			DyscoHashOut* old_out;
@@ -1509,10 +1509,13 @@ void DyscoAgentIn::retransmissionHandler() {
 	}
 
 	//mtx->unlock();
+
+	if(batch->cnt() != 0) {
 #ifdef DEBUG
-	fprintf(stderr, "Calling RunChooseModule with %u packets to retransmit.\n", batch->cnt());
+		fprintf(stderr, "Calling RunChooseModule with %u packets to retransmit.\n", batch->cnt());
 #endif
-	RunChooseModule(1, batch);
+		RunChooseModule(1, batch);
+	}
 }
 
 bool DyscoAgentIn::processReceivedPacket(Tcp* tcp) {
