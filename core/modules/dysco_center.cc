@@ -170,15 +170,7 @@ DyscoHashOut* DyscoCenter::lookup_output_by_ss(uint32_t i, DyscoTcpSession* ss) 
 	if(!dh)
 		return 0;
 
-	fprintf(stderr, "Looking for %s on hash_output: \n", printSS(*ss));
-	unordered_map<DyscoTcpSession, DyscoHashOut*, DyscoTcpSessionHash>::iterator it = dh->hash_out.begin();
-	while(it != dh->hash_out.end()) {
-		fprintf(stderr, "%s == %s ?\n", printSS(it->first), printSS(*ss));
-		it++;
-	}
-
-	it = dh->hash_out.find(*ss);
-	//unordered_map<DyscoTcpSession, DyscoHashOut*, DyscoTcpSessionHash>::iterator it = dh->hash_out.find(*ss);
+	unordered_map<DyscoTcpSession, DyscoHashOut*, DyscoTcpSessionHash>::iterator it = dh->hash_out.find(*ss);
 	if(it != dh->hash_out.end())
 		return it->second;
 	
