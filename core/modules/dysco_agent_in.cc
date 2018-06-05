@@ -119,7 +119,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 				break;
 
 			case IS_RETRANSMISSION:
-				out_gates[1].add(pkt);
+				//out_gates[1].add(pkt);
 				break;
 				
 			case END:
