@@ -152,8 +152,6 @@ DyscoHashIn* DyscoCenter::lookup_input_by_ss(uint32_t i, DyscoTcpSession* ss) {
 		return it->second;
 	
 	return 0;
-
-	//return dh->hash_in[*ss];
 }
 
 DyscoHashOut* DyscoCenter::lookup_output(uint32_t i, Ipv4* ip, Tcp* tcp) {
