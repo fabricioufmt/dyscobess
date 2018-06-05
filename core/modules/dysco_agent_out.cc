@@ -38,10 +38,9 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 		return;
 	}
 
-	PacketBatch out_gates[3];
+	PacketBatch out_gates[2];
 	out_gates[0].clear();
 	out_gates[1].clear();
-	out_gates[2].clear();
 
 	Tcp* tcp;
 	Ipv4* ip;
@@ -55,18 +54,13 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 		
 		eth = pkt->head_data<Ethernet*>();
 		if(!isIP(eth)) {
-			if(isARPReply(eth)) {
-				out_gates[0].add(pkt);
-				continue;
-			}
-			
-			out_gates[1].add(pkt);
+			out_gates[0].add(pkt);
 			continue;
 		}
 			
 		ip = reinterpret_cast<Ipv4*>(eth + 1);
 		if(!isTCP(ip)) {
-			out_gates[1].add(pkt);
+			out_gates[0].add(pkt);
 			continue;
 		}
 		
@@ -96,9 +90,9 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 			
 		if(output(pkt, ip, tcp, cb_out)) {
 			//dysco_packet(eth);
-			out_gates[2].add(pkt);
-		} else
 			out_gates[1].add(pkt);
+		} else
+			out_gates[0].add(pkt);
 
 #ifdef DEBUG
 		fprintf(stderr, "[%s][DyscoAgentOut] forwards %s [%X:%X]\n\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.value(), tcp->ack_num.value());
@@ -109,7 +103,6 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 	
 	RunChooseModule(0, &out_gates[0]);
 	RunChooseModule(1, &out_gates[1]);
-	RunChooseModule(2, &out_gates[2]);
 }
 
 bool DyscoAgentOut::setup() {

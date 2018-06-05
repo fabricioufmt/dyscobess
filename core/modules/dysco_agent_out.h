@@ -10,7 +10,7 @@ class DyscoAgentOut final : public Module {
  public:
 	static const Commands cmds;
 	static const gate_idx_t kNumIGates = 1;
-	static const gate_idx_t kNumOGates = 3;
+	static const gate_idx_t kNumOGates = 2;
 
 	DyscoAgentOut();
 
