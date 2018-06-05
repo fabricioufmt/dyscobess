@@ -155,7 +155,12 @@ bool DyscoAgentIn::isReconfigPacket(Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
 			if(payload_len) {
 				uint32_t tcp_hlen = tcp->offset << 2;
 				
-				if(((uint8_t*)tcp + tcp_hlen)[payload_len - 1] == 0xFF)
+				if(((uint8_t*)tcp + tcp_hlen)[payload_len - 1] != 0xFF)
+					return false;
+
+				DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>((uint8_t*)tcp + tcp_hlen);
+
+				if(ntohl(cmsg->rightA) == devip)
 					return true;
 			}
 
