@@ -155,12 +155,7 @@ bool DyscoAgentIn::isReconfigPacket(Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
 			if(payload_len) {
 				uint32_t tcp_hlen = tcp->offset << 2;
 				
-				if(((uint8_t*)tcp + tcp_hlen)[payload_len - 1] != 0xFF)
-					return false;
-
-				DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>((uint8_t*)tcp + tcp_hlen);
-
-				if(ntohl(cmsg->rightA) == devip)
+				if(((uint8_t*)tcp + tcp_hlen)[payload_len - 1] == 0xFF)
 					return true;
 			}
 
@@ -941,15 +936,19 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 	uint32_t sc_len = (payload_sz - 1 - sizeof(DyscoControlMessage))/sizeof(uint32_t);
 	//-1 is because 0xFF byte for reconfig tag
 	
-	if(payload_sz > sizeof(DyscoControlMessage) + sizeof(uint32_t)) {
-
+	//if(payload_sz > sizeof(DyscoControlMessage) + sizeof(uint32_t)) {
+	if(sc_len > 1) {
 		cb_out = new DyscoHashOut();
 
+		/*
 		cb_out->sup.sip = neigh_supss->sip;
 		cb_out->sup.dip = neigh_supss->dip;
 		cb_out->sup.sport = neigh_supss->sport;
 		cb_out->sup.dport = neigh_supss->dport;
+		*/
 
+		cb_out->sup = cb_in->my_sup;
+		
 		cb_out->dysco_tag = dc->get_dysco_tag(this->index);
 		cb_out->sc_len = sc_len - 1;
 		cb_out->sc = new uint32_t[sc_len - 1];
@@ -1008,14 +1007,14 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 #ifdef DEBUG
 		fprintf(stderr, "NOSTATE_TRANSFER.\n");
 #endif
-		//remove_sc(pkt, ip, payload_sz);
+		remove_sc(pkt, ip, payload_sz);
 		//verify
 		hdr_rewrite_full_csum(ip, tcp, &cb_in->my_sup);
 	
 		return TO_GATE_0;
 	}
 
-	//STATE_TRANSFER
+	//STATE_TRANSFER -- not tested
 #ifdef DEBUG
 	fprintf(stderr, "STATE_TRANSFER.\n");
 	fprintf(stderr, "super: %s.\n", printSS(cmsg->super));
