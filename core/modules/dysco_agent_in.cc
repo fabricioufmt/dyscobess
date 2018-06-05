@@ -144,20 +144,14 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 
 bool DyscoAgentIn::isReconfigPacket(Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
 	bool removed_from_retransmission = processReceivedPacket(tcp);
+
+	if(ip->dst.raw_value() != devip)
+		return false;
+
+	uint32_t payload_len = hasPayload(ip, tcp);
 	
 	if(isTCPSYN(tcp, true)) {
 		if(!cb_in) {
-			if(ip->dst.raw_value() != devip) {
-#ifdef DEBUG
-				fprintf(stderr, "it's not for me\n");
-#endif
-				return false;
-			} else {
-#ifdef DEBUG
-				fprintf(stderr, "it's for me\n");
-#endif
-			}
-			uint32_t payload_len = hasPayload(ip, tcp);
 			if(payload_len) {
 				uint32_t tcp_hlen = tcp->offset << 2;
 				
@@ -175,7 +169,7 @@ bool DyscoAgentIn::isReconfigPacket(Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
 			return false;
 		}
 		
-		if(cb_in->dcb_out->state == DYSCO_SYN_RECEIVED && hasPayload(ip, tcp)) {
+		if(cb_in->dcb_out && cb_in->dcb_out->state == DYSCO_SYN_RECEIVED && payload_len) {
 #ifdef DEBUG
 			fprintf(stderr, "isReconfigPacket: SYN_RECEIVED and hasPayload == TRUE\n");
 #endif
@@ -890,6 +884,9 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 		createSynAck(pkt, ip, tcp);
 		
 		if(!control_config_rightA(rcb, cmsg, cb_in, cb_out)) {
+#ifdef DEBUG
+			fprintf(stderr, "control_config_rightA returns false\n");
+#endif
 			return ERROR;
 		}
 		
