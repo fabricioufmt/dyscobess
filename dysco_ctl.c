@@ -237,6 +237,10 @@ void create_message_reconfig(struct reconfig_message* rmsg, uint32_t sc_len, uin
 	//iph->saddr = get_srcip(&rmsg->rightA, &ifindex); //or rmsg->leftA; ?
 	//iph->daddr = rmsg->rightA;
 	iph->saddr = get_srcip(&sc[0], &ifindex);
+
+	//TEST
+	cmsg->leftA = iph->saddr;
+	
 	iph->daddr = sc[0];
 	iph->check = csum((unsigned short*) sendbuf, sizeof(struct iphdr) + sizeof(struct tcphdr));
 	tx_len += sizeof(struct iphdr); //IP does not have Option field.
