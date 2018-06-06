@@ -607,7 +607,8 @@ void DyscoAgentOut::remove_tag(Packet* pkt, Ipv4* ip, Tcp* tcp) {
 DyscoCbReconfig* DyscoAgentOut::insert_cb_control(Ipv4* ip, Tcp* tcp, DyscoControlMessage* cmsg) {
 	DyscoCbReconfig* rcb = new DyscoCbReconfig();
 
-	rcb->super = cmsg->leftSS;
+	//rcb->super = cmsg->leftSS;
+	rcb->super = cmsg->super;
 	rcb->sub_out.sip = ip->src.raw_value();
 	rcb->sub_out.dip = ip->dst.raw_value();
 	rcb->sub_out.sport = tcp->src_port.raw_value();
