@@ -52,7 +52,7 @@ int main(int argc, char** argv) {
 	printf("%s:%u -> %s:%s Connected.\n", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port), argv[1], argv[2]);
 	
 	memset(buff, 0, BUFFSIZE);
-	sprintf(buff, "%s:%u", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
+	sprintf(buff, "%u:%s", ntohs(client_addr.sin_port), inet_ntoa(client_addr.sin_addr));
 	int sockfd1 = socket(AF_INET, SOCK_STREAM, 0);
 	struct sockaddr_in serv_addr1;
 	serv_addr1.sin_family = AF_INET;
