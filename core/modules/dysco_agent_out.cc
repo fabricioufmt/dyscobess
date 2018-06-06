@@ -750,10 +750,12 @@ bool DyscoAgentOut::control_output(Ipv4* ip, Tcp* tcp) {
 		  Changing TCP seq/ack values to ISN from old_dcb
 		 */
 		incremental += ChecksumIncrement32(tcp->seq_num.raw_value(), htonl(old_dcb->out_iseq));
-		incremental += ChecksumIncrement32(tcp->ack_num.raw_value(), htonl(old_dcb->out_iack));	
+		//incremental += ChecksumIncrement32(tcp->ack_num.raw_value(), htonl(old_dcb->out_iack));
+		incremental += ChecksumIncrement32(tcp->ack_num.raw_value(), htonl(old_dcb->in_iack));
 
 		incremental += ChecksumIncrement32(cmsg->leftIseq, htonl(old_dcb->out_iseq));
 		incremental += ChecksumIncrement32(cmsg->leftIack, htonl(old_dcb->out_iack));
+		incremental += ChecksumIncrement32(cmsg->leftIack, htonl(old_dcb->in_iack));
 		incremental += ChecksumIncrement32(cmsg->leftIts, htonl(old_dcb->ts_in));
 		incremental += ChecksumIncrement32(cmsg->leftItsr, htonl(old_dcb->tsr_in));
 		incremental += ChecksumIncrement16(cmsg->leftIws, htons(old_dcb->ws_in));
@@ -761,9 +763,11 @@ bool DyscoAgentOut::control_output(Ipv4* ip, Tcp* tcp) {
 		incremental += ChecksumIncrement16(cmsg->sackOk, htonl(old_dcb->sack_ok));
 
 		tcp->seq_num = be32_t(old_dcb->out_iseq);
-		tcp->ack_num = be32_t(old_dcb->out_iack);
+		//tcp->ack_num = be32_t(old_dcb->out_iack);
+		tcp->ack_num = be32_t(old_dcb->in_iack);
 		cmsg->leftIseq = htonl(old_dcb->out_iseq);
-		cmsg->leftIack = htonl(old_dcb->out_iack);
+		//cmsg->leftIack = htonl(old_dcb->out_iack);
+		cmsg->leftIack = htonl(old_dcb->in_iack);
 		cmsg->leftIts = htonl(old_dcb->ts_in);
 		cmsg->leftItsr = htonl(old_dcb->tsr_in);
 		cmsg->leftIws = htons(old_dcb->ws_in);
