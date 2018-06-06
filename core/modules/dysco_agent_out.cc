@@ -745,6 +745,10 @@ bool DyscoAgentOut::control_output(Ipv4* ip, Tcp* tcp) {
 #endif
 			return false;
 		}
+
+		fprintf(stderr, "Creating ISNs\n");
+		fprintf(stderr, "old_dcb->out: %X %X\n", old_dcb->out_iseq, old_dcb->out_iack);
+		fprintf(stderr, "old_dcb->in: %X %X\n", old_dcb->in_iseq, old_dcb->in_iack);
 		
 		/*
 		  Changing TCP seq/ack values to ISN from old_dcb
