@@ -239,6 +239,7 @@ void create_message_reconfig(struct reconfig_message* rmsg, uint32_t sc_len, uin
 	iph->saddr = get_srcip(&sc[0], &ifindex);
 
 	//TEST
+	cmsg->super.sip = iph->saddr;
 	cmsg->leftA = iph->saddr;
 	
 	iph->daddr = sc[0];
