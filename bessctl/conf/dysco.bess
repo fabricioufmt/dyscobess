@@ -17,6 +17,12 @@ os.system('ip netns add m4 > /dev/null')
 os.system('ip netns add s1 > /dev/null')
 os.system('echo 1 > /proc/sys/net/ipv4/ip_forward')
 
+#Control interfaces
+c1_c::DyscoVPort(ifname='c1-c', netns='/var/run/netns/c1', mac_addr='00:00:00:00:ff:01', ip_addrs=['172.16.0.1/16'])
+m1_c::DyscoVPort(ifname='m1-c', netns='/var/run/netns/m1', mac_addr='00:00:00:00:ff:02', ip_addrs=['172.16.0.2/16'])
+m2_c::DyscoVPort(ifname='m2-c', netns='/var/run/netns/m2', mac_addr='00:00:00:00:ff:03', ip_addrs=['172.16.0.3/16'])
+s1_c::DyscoVPort(ifname='s1-c', netns='/var/run/netns/s1', mac_addr='00:00:00:00:ff:04', ip_addrs=['172.16.0.4/16'])
+
 c1_0::DyscoVPort(ifname='c1-0', netns='/var/run/netns/c1', mac_addr='00:00:00:00:00:12', ip_addrs=['10.0.1.2/24'])
 m1_0::DyscoVPort(ifname='m1-0', netns='/var/run/netns/m1', mac_addr='00:00:00:00:00:22', ip_addrs=['10.0.2.2/24'])
 m1_1::DyscoVPort(ifname='m1-1', netns='/var/run/netns/m1', mac_addr='00:00:00:00:00:32', ip_addrs=['10.0.3.2/24'])
@@ -53,6 +59,21 @@ os.system('ip netns exec m1 route add default gw 10.0.3.1 > /dev/null')
 os.system('ip netns exec m2 route add -net 10.0.1.0/24 gw 10.0.4.1 > /dev/null')
 os.system('ip netns exec m2 route add default gw 10.0.5.1 > /dev/null')
 os.system('ip netns exec s1 route add default gw 10.0.10.1 > /dev/null')
+
+l2_c::L2FWD()
+l2_c.add(mac_addr='00:00:00:00:ff:01', gate=0)
+l2_c.add(mac_addr='00:00:00:00:ff:02', gate=1)
+l2_c.add(mac_addr='00:00:00:00:ff:03', gate=2)
+l2_c.add(mac_addr='00:00:00:00:ff:04', gate=3)
+
+PortInc(port=c1_c) -> l2_c
+PortInc(port=m1_c) -> l2_c
+PortInc(port=m2_c) -> l2_c
+PortInc(port=s1_c) -> l2_c
+l2_c:0 -> PortOut(port=c1_c)
+l2_c:1 -> PortOut(port=m1_c)
+l2_c:2 -> PortOut(port=m2_c)
+l2_c:3 -> PortOut(port=s1_c)
 
 dc::DyscoCenter()
 
