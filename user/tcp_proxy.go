@@ -49,7 +49,10 @@ const MAX_BUFFER   = 4000
 var spliceTime	int
 var middlebox   string
 
-	
+var n           int
+var buff[]      byte
+
+
 /*********************************************************************
  *
  *	spliceConnections: builds  a control message and  sends to the
@@ -70,6 +73,9 @@ func spliceConnections(l, r net.Conn) {
 	
 	leftSS := dysco.NewTcpSession(net.ParseIP(c1Remote[0]),
 		  net.ParseIP(c1Local[0]), uint16(srcPort), uint16(dstPort))
+
+	sup := strings.Split(string(buff[:n]), ":")
+	fmt.Printf(" super: %s:%d -> %s:%d\n", sup[0], sup[1], c1Local[0], dstPort)
 
         fmt.Printf("leftSS: %s:%d -> %s:%d\n", c1Remote[0], srcPort, c1Local[0], dstPort)
 
@@ -150,7 +156,7 @@ func pipe(a, b net.Conn) error {
  *********************************************************************/	
 func handleRequest(w net.Conn, serverAddr string) {
 	defer w.Close()
-	
+
 	conn, err := net.Dial("tcp", serverAddr)
 	if err != nil {
 		fmt.Println("could not open server connection")
@@ -159,6 +165,13 @@ func handleRequest(w net.Conn, serverAddr string) {
 	defer conn.Close()
 
 	go spliceConnections(w, conn)
+
+	/*TEST*/
+	ln, _ := net.Listen("tcp4", ":60999")
+	c, _ := ln.Accept()
+	buff = make([]byte, 1024)
+	n, _ = c.Read(buff)
+	c.Close()
 
 	pipe(w, conn)
 }

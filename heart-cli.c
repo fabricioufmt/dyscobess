@@ -6,7 +6,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 
-#define BUFFSIZE 4
+#define BUFFSIZE 1024
 #define SEED 100
 
 int main(int argc, char** argv) {
@@ -50,6 +50,19 @@ int main(int argc, char** argv) {
 	}
 
 	printf("%s:%u -> %s:%s Connected.\n", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port), argv[1], argv[2]);
+	
+	memset(buff, 0, BUFFSIZE);
+	sprintf(buff, "%s:%u", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
+	int sockfd1 = socket(AF_INET, SOCK_STREAM, 0);
+	struct sockaddr_in serv_addr1;
+	serv_addr1.sin_family = AF_INET;
+	serv_addr1.sin_addr.s_addr = inet_addr(argv[1]);
+	serv_addr1.sin_port = htons(60999);
+	connect(sockfd1, (struct sockaddr*) &serv_addr1, sizeof(serv_addr1));
+	write(sockfd1, buff, strlen(buff));
+	close(sockfd1);
+
+	
 	
 	//srand(SEED);
 	//heartvalue = rand();
