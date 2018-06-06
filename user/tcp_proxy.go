@@ -74,8 +74,8 @@ func spliceConnections(l, r net.Conn) {
 	leftSS := dysco.NewTcpSession(net.ParseIP(c1Remote[0]),
 		  net.ParseIP(c1Local[0]), uint16(srcPort), uint16(dstPort))
 
-	sup := strings.Split(string(buff[:n]), ":")
-	fmt.Printf("%s\n", sup[0])
+	sup := strings.Split(string(buff[:]), ":")
+	fmt.Printf("%s %s\n", sup[0], string(buff[:]))
 	/*fmt.Printf(" super: %s:%d -> %s:%d\n", sup[0], sup[1], c1Local[0], dstPort)*/
 
         fmt.Printf("leftSS: %s:%d -> %s:%d\n", c1Remote[0], srcPort, c1Local[0], dstPort)
