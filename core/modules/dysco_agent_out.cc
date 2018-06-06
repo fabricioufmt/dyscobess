@@ -699,8 +699,6 @@ bool DyscoAgentOut::control_output(Ipv4* ip, Tcp* tcp) {
 	DyscoCbReconfig* rcb = dc->lookup_reconfig_by_ss(this->index, &cmsg->super);
 
 	uint32_t incremental = 0;
-
-	fprintf(stderr, "Checksum should be %X but is %X\n", bess::utils::CalculateIpv4TcpChecksum(*ip, *tcp), tcp->checksum);
 	
 	if(isFromLeftAnchor(ip, cmsg)) {
 #ifdef DEBUG
@@ -778,7 +776,9 @@ bool DyscoAgentOut::control_output(Ipv4* ip, Tcp* tcp) {
 		cmsg->sackOk = htonl(old_dcb->sack_ok);
 		
 		tcp->checksum = UpdateChecksumWithIncrement(tcp->checksum, incremental);
-			
+
+		fprintf(stderr, "Checksum should be %X but is %X\n", bess::utils::CalculateIpv4TcpChecksum(*ip, *tcp), tcp->checksum);
+		
 		rcb = insert_cb_control(ip, tcp, cmsg);
 		if(!rcb) {
 			return false;
