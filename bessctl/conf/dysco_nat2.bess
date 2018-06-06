@@ -155,8 +155,6 @@ dout2:1 -> l2_0
 
 din1:1 -> l2_1
 dout1:1 -> l2_1
-din2:1 -> l2_2
-dout2:1 -> l2_2
 din3:1 -> l2_3
 dout3:1 -> l2_3
 din4:1 -> l2_4
