@@ -877,8 +877,11 @@ DyscoHashIn* DyscoAgentOut::insert_cb_out_reverse(DyscoHashOut* cb_out, uint8_t 
 	if(cmsg)
 		memcpy(&cb_in->cmsg, cmsg, sizeof(DyscoControlMessage));
 
-	if(two_paths == 1)
+	if(two_paths == 1) {
 		cb_in->is_reconfiguration = 1;
+		fprintf(stderr, "Inserting cb_in->my_sup: %s\n", printSS(cb_in->my_sup));
+		
+	}
 	
 	cb_in->dcb_out = cb_out;
 
