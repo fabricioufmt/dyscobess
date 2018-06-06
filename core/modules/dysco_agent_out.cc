@@ -776,8 +776,6 @@ bool DyscoAgentOut::control_output(Ipv4* ip, Tcp* tcp) {
 		
 		tcp->checksum = UpdateChecksumWithIncrement(tcp->checksum, incremental);
 
-		fprintf(stderr, "Checksum should be %X but is %X\n", bess::utils::CalculateIpv4TcpChecksum(*ip, *tcp), tcp->checksum);
-		
 		rcb = insert_cb_control(ip, tcp, cmsg);
 		if(!rcb) {
 			return false;
