@@ -881,7 +881,7 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 		
 		dc->insert_hash_input(this->index, cb_in);
 
-		createSynAck(pkt, ip, tcp);
+		createSynAck(pkt, ip, tcp, cb_out->out_iseq);
 		
 		if(!control_config_rightA(rcb, cmsg, cb_in, cb_out)) {
 #ifdef DEBUG
@@ -1399,7 +1399,7 @@ void DyscoAgentIn::createAck(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 	fix_csum(ip, tcp);
 }
 
-void DyscoAgentIn::createSynAck(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
+void DyscoAgentIn::createSynAck(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, uint32_t ISN) {
 	Ethernet* eth = pkt->head_data<Ethernet*>();
 	Ethernet::Address macswap = eth->dst_addr;
 	eth->dst_addr = eth->src_addr;
@@ -1418,7 +1418,8 @@ void DyscoAgentIn::createSynAck(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 	tcp->dst_port = pswap;
 	
 	be32_t seqswap = tcp->seq_num;
-	tcp->seq_num = tcp->ack_num;
+	//tcp->seq_num = tcp->ack_num;
+	tcp->seq_num = be32_t(ISN);
 	tcp->ack_num = seqswap + be32_t(1) + be32_t(payload_len);
 	tcp->flags |= Tcp::kAck;
 	pkt->trim(payload_len);
