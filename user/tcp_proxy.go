@@ -75,7 +75,8 @@ func spliceConnections(l, r net.Conn) {
 		  net.ParseIP(c1Local[0]), uint16(srcPort), uint16(dstPort))
 
 	sup := strings.Split(string(buff[:n]), ":")
-	fmt.Printf(" super: %s:%d -> %s:%d\n", sup[0], sup[1], c1Local[0], dstPort)
+	fmt.Printf("%s\n", sup[0])
+	/*fmt.Printf(" super: %s:%d -> %s:%d\n", sup[0], sup[1], c1Local[0], dstPort)*/
 
         fmt.Printf("leftSS: %s:%d -> %s:%d\n", c1Remote[0], srcPort, c1Local[0], dstPort)
 
