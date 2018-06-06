@@ -26,19 +26,19 @@ m2_c::DyscoVPort(ifname='m2-c', netns='/var/run/netns/m2', mac_addr='00:00:00:00
 s1_c::DyscoVPort(ifname='s1-c', netns='/var/run/netns/s1', mac_addr='00:00:00:00:ff:04', ip_addrs=['172.16.0.4/16'])
 
 l2_c::L2FWD()
-l2_c.add(mac_addr='00:00:00:00:ff:01', gate=1)
-l2_c.add(mac_addr='00:00:00:00:ff:02', gate=2)
-l2_c.add(mac_addr='00:00:00:00:ff:03', gate=3)
-l2_c.add(mac_addr='00:00:00:00:ff:04', gate=4)
+l2_c.add(mac_addr='00:00:00:00:ff:01', gate=0)
+l2_c.add(mac_addr='00:00:00:00:ff:02', gate=1)
+l2_c.add(mac_addr='00:00:00:00:ff:03', gate=2)
+l2_c.add(mac_addr='00:00:00:00:ff:04', gate=3)
 
 PortInc(port=c1_c) -> l2_c
 PortInc(port=m1_c) -> l2_c
 PortInc(port=m2_c) -> l2_c
 PortInc(port=s1_c) -> l2_c
-l2_c:1 -> PortOut(port=c1_c)
-l2_c:2 -> PortOut(port=m1_c)
-l2_c:3 -> PortOut(port=m2_c)
-l2_c:4 -> PortOut(port=s1_c)
+l2_c:0 -> PortOut(port=c1_c)
+l2_c:1 -> PortOut(port=m1_c)
+l2_c:2 -> PortOut(port=m2_c)
+l2_c:3 -> PortOut(port=s1_c)
 
 
 c1_0::DyscoVPort(ifname='c1-0', netns='/var/run/netns/c1', mac_addr='00:00:00:00:01:02', ip_addrs=['192.168.0.2/24'])
