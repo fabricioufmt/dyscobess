@@ -56,7 +56,9 @@ int main(int argc, char** argv) {
 	int sockfd1 = socket(AF_INET, SOCK_STREAM, 0);
 	struct sockaddr_in serv_addr1;
 	serv_addr1.sin_family = AF_INET;
-	serv_addr1.sin_addr.s_addr = inet_addr(argv[1]);
+	//serv_addr1.sin_addr.s_addr = inet_addr(argv[1]);
+	//TEST
+	serv_addr1.sin_addr.s_addr = inet_addr("172.16.0.2");
 	serv_addr1.sin_port = htons(60999);
 	connect(sockfd1, (struct sockaddr*) &serv_addr1, sizeof(serv_addr1));
 	write(sockfd1, buff, strlen(buff));
