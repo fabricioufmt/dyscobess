@@ -608,10 +608,10 @@ DyscoCbReconfig* DyscoAgentOut::insert_cb_control(Ipv4* ip, Tcp* tcp, DyscoContr
 	DyscoCbReconfig* rcb = new DyscoCbReconfig();
 
 	rcb->super = cmsg->leftSS;
-	rcb->sub_out.sip = htonl(ip->src.value());
-	rcb->sub_out.dip = htonl(ip->dst.value());
-	rcb->sub_out.sport = htons(tcp->src_port.value());
-	rcb->sub_out.dport = htons(tcp->dst_port.value());
+	rcb->sub_out.sip = ip->src.raw_value();
+	rcb->sub_out.dip = ip->dst.raw_value();
+	rcb->sub_out.sport = tcp->src_port.raw_value();
+	rcb->sub_out.dport = tcp->dst_port.raw_value();
 	
 	rcb->leftIseq = ntohl(cmsg->leftIseq);
 	rcb->leftIack = ntohl(cmsg->leftIack);
