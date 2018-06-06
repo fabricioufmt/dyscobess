@@ -106,7 +106,8 @@ func spliceConnections(l, r net.Conn) {
 		
 	time.Sleep(time.Duration(spliceTime) * time.Second)	
 
-	addrSrv := fmt.Sprintf("%s:%d", c1Remote[0], dysco.DYSCO_MANAGEMENT_PORT)
+	/*addrSrv := fmt.Sprintf("%s:%d", c1Remote[0], dysco.DYSCO_MANAGEMENT_PORT)*/
+	addrSrv := fmt.Sprintf("172.16.0.1:%d", dysco.DYSCO_MANAGEMENT_PORT)
 
 	fmt.Printf("Trying to connect %s... ", addrSrv)
 
