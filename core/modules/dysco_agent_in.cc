@@ -186,10 +186,10 @@ bool DyscoAgentIn::isReconfigPacket(Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
 		return false;
 
 	if(isTCPSYN(tcp) && isTCPACK(tcp)) {
-#ifdef DEBUG
-		fprintf(stderr, "is SYN+ACK reconfiguration Packet.\n");
-#endif
 		if(cb_in->is_reconfiguration) {
+#ifdef DEBUG
+			fprintf(stderr, "is SYN+ACK reconfiguration Packet.\n");
+#endif
 			return true;
 		}
 
