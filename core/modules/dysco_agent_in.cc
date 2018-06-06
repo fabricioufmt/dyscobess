@@ -886,8 +886,6 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 		cb_out->dcb_in = cb_in;
 		
 		dc->insert_hash_input(this->index, cb_in);
-
-		fprintf(stderr, "ISNs: %X %X\n", cb_out->in_iseq, cb_out->out_iseq);
 		
 		createSynAck(pkt, ip, tcp, cb_out->out_iseq);
 		
