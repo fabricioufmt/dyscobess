@@ -754,7 +754,6 @@ bool DyscoAgentOut::control_output(Ipv4* ip, Tcp* tcp) {
 
 		incremental += ChecksumIncrement32(cmsg->leftIseq, htonl(old_dcb->out_iseq));
 		incremental += ChecksumIncrement32(cmsg->leftIack, htonl(old_dcb->out_iack));
-		incremental += ChecksumIncrement32(cmsg->leftIack, htonl(old_dcb->in_iack));
 		incremental += ChecksumIncrement32(cmsg->leftIts, htonl(old_dcb->ts_in));
 		incremental += ChecksumIncrement32(cmsg->leftItsr, htonl(old_dcb->tsr_in));
 		incremental += ChecksumIncrement16(cmsg->leftIws, htons(old_dcb->ws_in));
