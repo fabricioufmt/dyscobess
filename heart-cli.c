@@ -63,8 +63,12 @@ int main(int argc, char** argv) {
 		if(ret == 0) {
 			write(sockfd1, buff, strlen(buff));
 			close(sockfd1);
+			printf("Sent super.\n");
+		} else {
+			printf("Failed to connect.\n");
 		}
-	}
+	} else
+		printf("Failed to create socket.\n");
 
 	int val;
 	while(1) {
