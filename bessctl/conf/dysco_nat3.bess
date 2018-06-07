@@ -170,9 +170,9 @@ l2_5:1 -> din5
 l2_10:0 -> PortOut(port=R_10)
 l2_10:1 -> din10
 
-dc.add(priority=1, sc_len=2, chain=['10.0.2.2', '10.0.10.2'], filter='dst port 5001', ns='/var/run/netns/c1')
+dc.add(priority=1, sc_len=2, chain=['10.0.0.2', '10.0.10.2'], filter='dst port 5001', ns='/var/run/netns/c1')
 dc.add(priority=2, sc_len=2, chain=['10.0.4.2', '10.0.10.2'], filter='dst port 5002', ns='/var/run/netns/c1')
-dc.add(priority=3, sc_len=3, chain=['10.0.2.2', '10.0.4.2', '10.0.10.2'], filter='dst port 5003', ns='/var/run/netns/c1')
+dc.add(priority=3, sc_len=3, chain=['10.0.0.2', '10.0.4.2', '10.0.10.2'], filter='dst port 5003', ns='/var/run/netns/c1')
 
 dc.add(priority=1, sc_len=1, chain=['10.0.10.2'], filter='dst port 5001', ns='/var/run/netns/m1')
 
