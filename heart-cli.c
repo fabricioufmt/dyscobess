@@ -54,27 +54,20 @@ int main(int argc, char** argv) {
 	memset(buff, 0, BUFFSIZE);
 	sprintf(buff, "%u:%s", ntohs(client_addr.sin_port), inet_ntoa(client_addr.sin_addr));
 	int sockfd1 = socket(AF_INET, SOCK_STREAM, 0);
-	struct sockaddr_in serv_addr1;
-	serv_addr1.sin_family = AF_INET;
-	//serv_addr1.sin_addr.s_addr = inet_addr(argv[1]);
-	//TEST
-	serv_addr1.sin_addr.s_addr = inet_addr("172.16.0.2");
-	serv_addr1.sin_port = htons(60999);
-	connect(sockfd1, (struct sockaddr*) &serv_addr1, sizeof(serv_addr1));
-	write(sockfd1, buff, strlen(buff));
-	close(sockfd1);
-
-	
-	
-	//srand(SEED);
-	//heartvalue = rand();
-	//memset(buff, 0, BUFFSIZE);
-	//memcpy(buff, &heartvalue, sizeof(int));
+	if(sockfd != -1) {
+		struct sockaddr_in serv_addr1;
+		serv_addr1.sin_family = AF_INET;
+		serv_addr1.sin_addr.s_addr = inet_addr("172.16.0.2");
+		serv_addr1.sin_port = htons(60999);
+		int ret = connect(sockfd1, (struct sockaddr*) &serv_addr1, sizeof(serv_addr1));
+		if(ret == 0) {
+			write(sockfd1, buff, strlen(buff));
+			close(sockfd1);
+		}
+	}
 
 	int val;
 	while(1) {
-		//printf("Sending from %s:%u to %s:%s...\n", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port), argv[1], argv[2]);
-		//write(sockfd, buff, sizeof(int));
 		read(sockfd, &val, sizeof(int));
 	}
 	
