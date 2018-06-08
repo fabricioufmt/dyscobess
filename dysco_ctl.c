@@ -354,6 +354,10 @@ void create_message_reconfig(struct reconfig_message* rmsg, uint32_t sc_len, uin
 	cmsg->super.sip = iph->saddr;
 	cmsg->leftA = iph->saddr;
 
+	fprintf(stdout, "super: %s\n", super);
+	fprintf(stdout, "leftSS: %s\n", left_right);
+	fprintf(stdout, "rightSS: %s\n", left_right + sizeof(struct tcp_session));
+	
 	memcpy(&cmsg->super, (struct tcp_session*) super, sizeof(struct tcp_session));
 	memcpy(&cmsg->leftSS, (struct tcp_session*) left_right, sizeof(struct tcp_session));
 	memcpy(&cmsg->rightSS, (struct tcp_session*) (left_right + sizeof(struct tcp_session)), sizeof(struct tcp_session));
