@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <pthread.h>
 #include <arpa/inet.h>
 #include <sys/types.h>
 #include <sys/ioctl.h>
@@ -114,8 +115,8 @@ unsigned short csum(unsigned short*, uint32_t);
 uint32_t get_srcip(uint32_t*, int32_t*);
 void create_message_reconfig(struct reconfig_message*, uint32_t, uint32_t*);
 
-void receive_super();
-void receive_left_right();
+static void* receive_super(void*);
+static void* receive_left_right(void*);
 
 int main(int argc, char** argv) {
 	int n;
@@ -156,19 +157,9 @@ int main(int argc, char** argv) {
 		return EXIT_FAILURE;
 	}
 
-	pid_t pid1 = fork();
-	if(pid1 == 0) {
-		//The child process
-		receive_super();
-		exit(0);
-	} else {
-		pid_t pid2 = fork();
-		if(pid2 == 0) {
-			//The child process
-			receive_left_right();
-			exit(0);
-		}
-	}
+	pthread_t tid1, tid2;
+	pthread_create(&tid1, 0, receive_super, 0);
+	pthread_create(&tid2, 0, receive_left_right, 0);
 
 	int total_n = 0;
 	srand(SEED);
@@ -213,7 +204,7 @@ int main(int argc, char** argv) {
 	return 0;
 }
 
-void receive_super() {
+static void* receive_super(void* arg) {
 	int n;
 	int sockfd;
 	int connfd;
@@ -254,13 +245,15 @@ void receive_super() {
 		exit(-1);
 	}
 
-	fprintf(stdout, "Received super: %s(%d bytes)\n", super, n);
+	struct tcp_session* ss = (struct tcp_session*) super;
+	
+	fprintf(stdout, "Received super: %X:%u -> %X:%u(%d bytes)\n", ss->sip, ntohs(ss->sport), ss->dip, ntohs(ss->dport), n);
 	
 	close(connfd);
 	close(sockfd);
 }
 
-void receive_left_right() {
+static void* receive_left_right(void* arg) {
 	int n;
 	int sockfd;
 	int connfd;
@@ -301,8 +294,11 @@ void receive_left_right() {
 		exit(-1);
 	}
 
-	fprintf(stdout, "leftSS: %s\n", left_right);
-	fprintf(stdout, "rightSS: %s\n", left_right + sizeof(struct tcp_session));
+	struct tcp_session* leftSS = (struct tcp_session*) left_right;
+	struct tcp_session* rightSS = (struct tcp_session*) (left_right + sizeof(struct tcp_session));
+
+	fprintf(stdout, "Received leftSS: %X:%u -> %X:%u(%d bytes)\n", leftSS->sip, ntohs(leftSS->sport), leftSS->dip, ntohs(leftSS->dport), n);
+	fprintf(stdout, "Received rightSS: %X:%u -> %X:%u(%d bytes)\n", rightSS->sip, ntohs(rightSS->sport), rightSS->dip, ntohs(rightSS->dport), n);
 
 	close(connfd);
 	close(sockfd);
