@@ -254,6 +254,8 @@ void receive_super() {
 		exit(-1);
 	}
 
+	fprintf(stdout, "super: %s\n", super);
+	
 	close(connfd);
 	close(sockfd);
 }
@@ -298,6 +300,9 @@ void receive_left_right() {
 		close(connfd);
 		exit(-1);
 	}
+
+	fprintf(stdout, "leftSS: %s\n", left_right);
+	fprintf(stdout, "rightSS: %s\n", left_right + sizeof(struct tcp_session));
 
 	close(connfd);
 	close(sockfd);
@@ -353,10 +358,6 @@ void create_message_reconfig(struct reconfig_message* rmsg, uint32_t sc_len, uin
 	//TEST
 	cmsg->super.sip = iph->saddr;
 	cmsg->leftA = iph->saddr;
-
-	fprintf(stdout, "super: %s\n", super);
-	fprintf(stdout, "leftSS: %s\n", left_right);
-	fprintf(stdout, "rightSS: %s\n", left_right + sizeof(struct tcp_session));
 	
 	memcpy(&cmsg->super, (struct tcp_session*) super, sizeof(struct tcp_session));
 	memcpy(&cmsg->leftSS, (struct tcp_session*) left_right, sizeof(struct tcp_session));
