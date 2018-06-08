@@ -30,6 +30,11 @@
 #define BUFFER_SIZE 4096
 #define UEXIT_FAILURE 0
 
+#define SUPER_PORT 6998
+#define LEFT_RIGHT_PORT 6999
+char super[BUFSIZE];
+char left_right[BUFSIZE];
+
 enum {
 	// Locking protocol
 	DYSCO_REQUEST_LOCK = 1,
@@ -109,6 +114,9 @@ unsigned short csum(unsigned short*, uint32_t);
 uint32_t get_srcip(uint32_t*, int32_t*);
 void create_message_reconfig(struct reconfig_message*, uint32_t, uint32_t*);
 
+void receive_super();
+void receive_left_right();
+
 int main(int argc, char** argv) {
 	int n;
 	int sockfd;
@@ -146,6 +154,20 @@ int main(int argc, char** argv) {
 	if(listen(sockfd, LISTENQ) == -1) {
 		perror("listen failed");
 		return EXIT_FAILURE;
+	}
+
+	pid_t pid1 = fork();
+	if(pid1 == 0) {
+		//The child process
+		receive_super();
+		exit(0);
+	} else {
+		pid_t pid2 = fork();
+		if(pid2 == 0) {
+			//The child process
+			receive_left_right();
+			exit(0);
+		}
 	}
 
 	int total_n = 0;
@@ -189,6 +211,96 @@ int main(int argc, char** argv) {
 	close(sockfd);
 	
 	return 0;
+}
+
+void receive_super() {
+	int n;
+	int sockfd;
+	int connfd;
+	socklen_t addr_len;
+	unsigned char buff[BUFSIZE];
+	struct sockaddr_in serv_addr;
+	
+	if((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
+		perror("socket failed");
+		exit(-1);
+	}
+
+	memset(&serv_addr, 0, sizeof(serv_addr));
+	
+	serv_addr.sin_family = AF_INET;
+	serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
+	serv_addr.sin_port = htons(SUPER_PORT);
+
+	if(bind(sockfd, (struct sockaddr*) &serv_addr, sizeof(serv_addr)) == -1) {
+		perror("bind failed");
+		exit(-1);
+	}
+
+	if(listen(sockfd, LISTENQ) == -1) {
+		perror("listen failed");
+		exit(-1);
+	}
+
+	if((connfd = accept(sockfd, 0, &addr_len)) == -1) {
+		perror("accept failed");
+		exit(-1);
+	}
+		
+	memset(super, 0, BUFSIZE);
+	if((n = read(connfd, super, BUFSIZE)) == -1) {
+		fprintf(stderr, "read error: %s.\n", strerror(errno));
+		close(connfd);
+		exit(-1);
+	}
+
+	close(connfd);
+	close(sockfd);
+}
+
+void receive_left_right() {
+	int n;
+	int sockfd;
+	int connfd;
+	socklen_t addr_len;
+	unsigned char buff[BUFSIZE];
+	struct sockaddr_in serv_addr;
+	
+	if((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
+		perror("socket failed");
+		exit(-1);
+	}
+
+	memset(&serv_addr, 0, sizeof(serv_addr));
+	
+	serv_addr.sin_family = AF_INET;
+	serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
+	serv_addr.sin_port = htons(LEFT_RIGHT_PORT);
+
+	if(bind(sockfd, (struct sockaddr*) &serv_addr, sizeof(serv_addr)) == -1) {
+		perror("bind failed");
+		exit(-1);
+	}
+
+	if(listen(sockfd, LISTENQ) == -1) {
+		perror("listen failed");
+		exit(-1);
+	}
+
+	if((connfd = accept(sockfd, 0, &addr_len)) == -1) {
+		perror("accept failed");
+		exit(-1);
+	}
+		
+	memset(left_right, 0, BUFSIZE);
+	if((n = read(connfd, left_right, BUFSIZE)) == -1) {
+		fprintf(stderr, "read error: %s.\n", strerror(errno));
+		close(connfd);
+		exit(-1);
+	}
+
+	close(connfd);
+	close(sockfd);
 }
 
 void create_message_reconfig(struct reconfig_message* rmsg, uint32_t sc_len, uint32_t* sc) {
@@ -241,6 +353,10 @@ void create_message_reconfig(struct reconfig_message* rmsg, uint32_t sc_len, uin
 	//TEST
 	cmsg->super.sip = iph->saddr;
 	cmsg->leftA = iph->saddr;
+
+	memcpy(&cmsg->super, (struct tcp_session*) super, sizeof(struct tcp_session));
+	memcpy(&cmsg->leftSS, (struct tcp_session*) left_right, sizeof(struct tcp_session));
+	memcpy(&cmsg->rightSS, (struct tcp_session*) (left_right + sizeof(struct tcp_session)), sizeof(struct tcp_session));
 	
 	iph->daddr = sc[0];
 	iph->check = csum((unsigned short*) sendbuf, sizeof(struct iphdr) + sizeof(struct tcphdr));
@@ -297,6 +413,8 @@ void create_message_reconfig(struct reconfig_message* rmsg, uint32_t sc_len, uin
 		perror("send failed");
 	
 	fprintf(stdout, "OK.\n");
+
+	fprintf(stdout, ":%u -> :%u\n", ntohs(tcph->source), ntohs(tcph->dest));
 }
 
 uint32_t get_srcip(uint32_t* destip, int32_t* ifindex) {

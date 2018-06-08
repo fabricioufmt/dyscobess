@@ -9,6 +9,13 @@
 #define BUFFSIZE 1024
 #define SEED 100
 
+struct tcp_session {
+	uint32_t sip;
+	uint32_t dip;
+	uint16_t sport;
+	uint16_t dport;
+};
+
 int main(int argc, char** argv) {
 	int n;
 	int sockfd;
@@ -50,18 +57,22 @@ int main(int argc, char** argv) {
 	}
 
 	printf("%s:%u -> %s:%s Connected.\n", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port), argv[1], argv[2]);
+
+	struct tcp_session super;
+	super.sip = client_addr.sin_addr.s_addr;
+	super.dip = inet_addr(argv[1]);
+	super.sport = client_addr.sin_port;
+	super.dport = htons(atoi(argv[2]));
 	
-	memset(buff, 0, BUFFSIZE);
-	sprintf(buff, "%u:%s", ntohs(client_addr.sin_port), inet_ntoa(client_addr.sin_addr));
 	int sockfd1 = socket(AF_INET, SOCK_STREAM, 0);
 	if(sockfd != -1) {
 		struct sockaddr_in serv_addr1;
 		serv_addr1.sin_family = AF_INET;
-		serv_addr1.sin_addr.s_addr = inet_addr("172.16.0.2");
-		serv_addr1.sin_port = htons(60999);
+		serv_addr1.sin_addr.s_addr = inet_addr("127.0.0.1");
+		serv_addr1.sin_port = htons(6998);
 		int ret = connect(sockfd1, (struct sockaddr*) &serv_addr1, sizeof(serv_addr1));
 		if(ret == 0) {
-			write(sockfd1, buff, strlen(buff));
+			write(sockfd1, &super, sizeof(struct tcp_session));
 			close(sockfd1);
 			printf("Sent super.\n");
 		} else {

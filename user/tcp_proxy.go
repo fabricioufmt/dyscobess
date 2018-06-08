@@ -62,11 +62,7 @@ var buff[]      byte
  *********************************************************************/	
 func spliceConnections(l, r net.Conn) {
 
-     	sup := strings.Split(string(buff[:]), ":")
-	sup_ip := sup[1]
-	sup_port, _ := strconv.Atoi(sup[0])
-
-	c1Local  := strings.Split(l.LocalAddr().String(), ":")
+     	c1Local  := strings.Split(l.LocalAddr().String(), ":")
 	c1Remote := strings.Split(l.RemoteAddr().String(), ":")
 	
 	c2Local  := strings.Split(r.LocalAddr().String(), ":")
@@ -74,11 +70,6 @@ func spliceConnections(l, r net.Conn) {
 
 	srcPort, _ := strconv.Atoi(c1Remote[1])
 	dstPort, _ := strconv.Atoi(c1Local[1])
-
-	fmt.Printf("  super: %s:%d -> %s:%d\n", sup_ip, sup_port, c1Local[0], dstPort)
-
-	super := dysco.NewTcpSession(net.ParseIP(sup_ip),
-		 net.ParseIP(c1Local[0]), uint16(sup_port), uint16(dstPort))
 
 	leftSS := dysco.NewTcpSession(net.ParseIP(c1Remote[0]),
 		  net.ParseIP(c1Local[0]), uint16(srcPort), uint16(dstPort))
@@ -92,6 +83,17 @@ func spliceConnections(l, r net.Conn) {
 	  	   net.ParseIP(c2Remote[0]), uint16(srcPort), uint16(dstPort))
 
         fmt.Printf("rightSS: %s:%d -> %s:%d\n\n", c2Local[0], srcPort, c2Remote[0], dstPort)
+
+	conn, err := net.Dial("tcp", "127.0.0.1:6999")
+	if err != nil {
+	        fmt.Println("could not open server connection")
+		return
+	}
+	
+	conn.Write(leftSS.Serializer())
+	conn.Write(rightSS.Serializer())
+
+	conn.Close()
 
 	/*	   
 	chain := []string{c1Remote[0], c2Remote[0]}
@@ -111,7 +113,7 @@ func spliceConnections(l, r net.Conn) {
 		stateTransf = dysco.NOSTATE_TRANSFER
 	}
 
-	dysco_msg :=  dysco.NewReconfigMessage(super, leftSS, rightSS,		
+	dysco_msg :=  dysco.NewReconfigMessage(leftSS, leftSS, rightSS,		
 		net.ParseIP(c1Remote[0]), net.ParseIP(c2Remote[0]),
 		stateTransf, net.ParseIP("0.0.0.0"),
 		net.ParseIP("0.0.0.0"), sc)
@@ -120,10 +122,9 @@ func spliceConnections(l, r net.Conn) {
 
 	/*addrSrv := fmt.Sprintf("%s:%d", c1Remote[0], dysco.DYSCO_MANAGEMENT_PORT)*/
 	addrSrv := fmt.Sprintf("172.16.0.1:%d", dysco.DYSCO_MANAGEMENT_PORT)
-
 	fmt.Printf("Trying to connect %s... ", addrSrv)
 
-	conn, err := net.Dial("tcp", addrSrv)
+	conn, err = net.Dial("tcp", addrSrv)
 	if err != nil {
 		fmt.Println("could not connect Dysco daemon.")
 		return
@@ -260,14 +261,6 @@ func main() {
 		if err != nil {
 			log.Fatal("Accept: ", err)
 		}
-		
-		/*TEST*/
-		ln, _ := net.Listen("tcp4", ":60999")
-		c, _ := ln.Accept()
-		buff = make([]byte, 1024)
-		n, _ = c.Read(buff)
-		c.Close()
-		/*TEST*/
 		
 		go handleRequest(conn, serverAddr)
 	}
