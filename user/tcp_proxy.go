@@ -84,7 +84,7 @@ func spliceConnections(l, r net.Conn) {
 
         fmt.Printf("rightSS: %s:%d -> %s:%d\n\n", c2Local[0], srcPort, c2Remote[0], dstPort)
 
-	conn, err := net.Dial("tcp", "127.0.0.1:6999")
+	conn, err := net.Dial("tcp", "172.16.0.1:6999")
 	if err != nil {
 	        fmt.Println("could not open server connection")
 		return
