@@ -72,9 +72,9 @@ int main(int argc, char** argv) {
 		serv_addr1.sin_port = htons(6998);
 		int ret = connect(sockfd1, (struct sockaddr*) &serv_addr1, sizeof(serv_addr1));
 		if(ret == 0) {
-			write(sockfd1, &super, sizeof(struct tcp_session));
+			n = write(sockfd1, &super, sizeof(struct tcp_session));
 			close(sockfd1);
-			printf("Sent super.\n");
+			printf("Super was sent with %d bytes.\n", n);
 		} else {
 			printf("Failed to connect.\n");
 		}

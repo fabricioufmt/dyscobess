@@ -254,7 +254,7 @@ void receive_super() {
 		exit(-1);
 	}
 
-	fprintf(stdout, "super: %s\n", super);
+	fprintf(stdout, "Received super: %s(%d bytes)\n", super, n);
 	
 	close(connfd);
 	close(sockfd);
