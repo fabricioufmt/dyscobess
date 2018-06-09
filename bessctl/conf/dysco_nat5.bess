@@ -48,11 +48,11 @@ os.system('ip netns exec nat ifconfig lo up > /dev/null')
 os.system('ip netns exec c1 route add default gw 10.0.1.1 > /dev/null')
 os.system('ip netns exec m1 route add -net 10.0.1.0/24 gw 10.0.2.1 > /dev/null')
 os.system('ip netns exec m1 route add default gw 10.0.3.1 > /dev/null')
-os.system('ip netns exec m2 route add -net 10.0.1.0/24 gw 10.0.0.1 > /dev/null')
-os.system('ip netns exec m2 route add default gw 10.0.5.1 > /dev/null')
+os.system('ip netns exec m2 route add -net 10.0.1.0/24 gw 10.0.4.1 > /dev/null')
+os.system('ip netns exec m2 route add default gw 10.0.0.1 > /dev/null')
 os.system('ip netns exec s1 route add default gw 10.0.10.1 > /dev/null')
 
-os.system('ip netns exec nat route add default gw 10.0.4.1 > /dev/null')
+os.system('ip netns exec nat route add default gw 10.0.5.1 > /dev/null')
 os.system('ip netns exec nat iptables -t nat -A POSTROUTING -o nat-2 -j MASQUERADE > /dev/null')
 os.system('ip netns exec nat iptables -t filter -A FORWARD -i nat-1 -j ACCEPT > /dev/null')
 
@@ -130,15 +130,15 @@ dout2 -> l2_2
 PortInc(port=R_2) -> l2_2
 dout3 -> l2_3
 PortInc(port=R_3) -> l2_3
-dout5 -> l2_4
+dout4 -> l2_4
 PortInc(port=R_4) -> l2_4
 PortInc(port=nat2) -> l2_5
 PortInc(port=R_5) -> l2_5
 dout10 -> l2_10
 PortInc(port=R_10) -> l2_10
 
-din4:1 -> l2_0
-dout4:1 -> l2_0
+din5:1 -> l2_0
+dout5:1 -> l2_0
 
 din1:1 -> l2_1
 dout1:1 -> l2_1
@@ -146,13 +146,13 @@ din2:1 -> l2_2
 dout2:1 -> l2_2
 din3:1 -> l2_3
 dout3:1 -> l2_3
-din5:1 -> l2_5
-dout5:1 -> l2_5
+din4:1 -> l2_4
+dout4:1 -> l2_4
 din10:1 -> l2_10
 dout10:1 -> l2_10
 
 l2_0:0 -> PortOut(port=nat1)
-l2_0:1 -> din4
+l2_0:1 -> din5
 l2_1:0 -> PortOut(port=R_1)
 l2_1:1 -> din1
 l2_2:0 -> PortOut(port=R_2)
@@ -160,15 +160,15 @@ l2_2:1 -> din2
 l2_3:0 -> PortOut(port=R_3)
 l2_3:1 -> din3
 l2_4:0 -> PortOut(port=R_4)
-l2_4:1 -> PortOut(port=nat2)
+l2_4:1 -> din4
 l2_5:0 -> PortOut(port=R_5)
-l2_5:1 -> din5
+l2_5:1 -> PortOut(port=nat2)
 l2_10:0 -> PortOut(port=R_10)
 l2_10:1 -> din10
 
 dc.add(priority=1, sc_len=2, chain=['10.0.2.2', '10.0.10.2'], filter='dst port 5001', ns='/var/run/netns/c1')
-dc.add(priority=2, sc_len=2, chain=['10.0.0.2', '10.0.10.2'], filter='dst port 5002', ns='/var/run/netns/c1')
-dc.add(priority=3, sc_len=3, chain=['10.0.2.2', '10.0.0.2', '10.0.10.2'], filter='dst port 5003', ns='/var/run/netns/c1')
+dc.add(priority=2, sc_len=2, chain=['10.0.4.2', '10.0.10.2'], filter='dst port 5002', ns='/var/run/netns/c1')
+dc.add(priority=3, sc_len=3, chain=['10.0.2.2', '10.0.4.2', '10.0.10.2'], filter='dst port 5003', ns='/var/run/netns/c1')
 
 dc.add(priority=1, sc_len=1, chain=['10.0.10.2'], filter='dst port 5001', ns='/var/run/netns/m1')
 
