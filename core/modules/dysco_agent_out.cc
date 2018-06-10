@@ -295,6 +295,7 @@ DyscoHashOut* DyscoAgentOut::pick_path_ack(Tcp* tcp, DyscoHashOut* cb_out) {
 				fprintf(stderr, "use_np_ack is FALSE\n");
 				if(!after(cb_out->ack_cutoff, ack)) {
 					fprintf(stderr, "ack_cutoff is before than ack\n");
+					fprintf(stderr, "%X before %X.\n", cb_out->ack_cutoff, ack);
 					if(isTCPFIN(tcp))
 						cb = cb_out->other_path;
 					else {
