@@ -341,7 +341,7 @@ void DyscoAgentIn::in_hdr_rewrite_csum(Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
 
 //L.505
 bool DyscoAgentIn::rx_initiation_new(Packet* pkt, Ipv4* ip, Tcp* tcp, uint32_t payload_sz) {
-	bool nated = false;
+	//bool nated = false;
 #ifdef DEBUG
 	fprintf(stderr, "[%s][DyscoAgentIn] rx_initiation_new method.\n", ns.c_str());
 #endif
@@ -364,7 +364,7 @@ bool DyscoAgentIn::rx_initiation_new(Packet* pkt, Ipv4* ip, Tcp* tcp, uint32_t p
 		cb_in->my_sup = cb_in->sub;
 		cb_in->my_sup.dip = neigh_supss->dip;
 		cb_in->my_sup.dport = neigh_supss->dport;
-		nated = true;
+		//nated = true;
 	} else {
 #ifdef DEBUG
 		fprintf(stderr, "[%s][DyscoAgentIn] not NAT crossed.\n", ns.c_str());
