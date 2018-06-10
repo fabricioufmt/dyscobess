@@ -539,7 +539,7 @@ bool DyscoAgentIn::in_two_paths_ack(Tcp* tcp, DyscoHashIn* cb_in) {
 }
 
 //L.683
-bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in) {
+bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in, uint32_t payload) {
 #ifdef DEBUG
 	fprintf(stderr, "in_two_paths_data_seg\n");
 #endif
@@ -575,18 +575,8 @@ bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in) {
 		}
 	} else {
 		//TEST
-		uint32_t seq = tcp->seq_num.value();
-		uint32_t delta;
+		uint32_t seq = tcp->seq_num.value() + payload;
 		fprintf(stderr, "cb_out->ack_cutoff: %X seq: %X\n", cb_out->ack_cutoff, seq);
-
-		if(cb_out->in_iack < cb_out->out_iack) {
-			delta = cb_out->out_iack - cb_out->in_iack;
-			seq -= delta;
-		} else {
-			delta = cb_out->in_iack - cb_out->out_iack;
-			seq += delta;
-		}
-
 		fprintf(stderr, "Changing cb_out->ack_cutoff from %X to %X\n", cb_out->ack_cutoff, seq);
 		
 		cb_out->ack_cutoff = seq;
@@ -661,7 +651,7 @@ CONTROL_RETURN DyscoAgentIn::input(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashIn*
 	if(cb_in->two_paths) {
 		if(!payload_sz)
 			in_two_paths_ack(tcp, cb_in);
-		else if(!in_two_paths_data_seg(tcp, cb_in))
+		else if(!in_two_paths_data_seg(tcp, cb_in, payload_sz))
 			return TO_GATE_0;
 			
 	}
