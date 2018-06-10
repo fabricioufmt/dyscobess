@@ -573,6 +573,15 @@ bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in) {
 				old_out->valid_ack_cut = 1;
 			}
 		}
+	} else {
+		//TEST
+		uint32_t seq = tcp->seq_num.value();
+		if(cb_out->other_path) {
+			fprintf(stderr, "Changing cb_out->other_path->ack_cutoff from %X to %X\n", cb_out->other_path->ack_cutoff, seq);
+			cb_out->other_path->ack_cutoff = seq;
+			cb_out->other_path->valid_ack_cut = 1;
+			
+		}
 	}
 
 	return true;
