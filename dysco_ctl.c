@@ -248,8 +248,6 @@ static void* receive_super(void* arg) {
 
 	struct tcp_session* ss = (struct tcp_session*) super;
 	
-	fprintf(stdout, "Received super: %X:%u -> %X:%u(%d bytes)\n", ss->sip, ntohs(ss->sport), ss->dip, ntohs(ss->dport), n);
-	
 	close(connfd);
 	close(sockfd);
 }
@@ -297,9 +295,6 @@ static void* receive_left_right(void* arg) {
 
 	struct tcp_session* leftSS = (struct tcp_session*) left_right;
 	struct tcp_session* rightSS = (struct tcp_session*) (left_right + sizeof(struct tcp_session));
-
-	fprintf(stdout, "Received leftSS: %X:%u -> %X:%u(%d bytes)\n", leftSS->sip, ntohs(leftSS->sport), leftSS->dip, ntohs(leftSS->dport), n);
-	fprintf(stdout, "Received rightSS: %X:%u -> %X:%u(%d bytes)\n", rightSS->sip, ntohs(rightSS->sport), rightSS->dip, ntohs(rightSS->dport), n);
 
 	close(connfd);
 	close(sockfd);
