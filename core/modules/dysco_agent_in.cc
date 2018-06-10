@@ -828,6 +828,7 @@ bool DyscoAgentIn::control_config_rightA(DyscoCbReconfig* rcb, DyscoControlMessa
 	
 	DyscoHashOut* old_out = dc->lookup_output_by_ss(this->index, &local_ss);
 	if(!old_out) {
+		dc->remove_hash_input(this->index, cb_in);
 		delete cb_in;
 		dc->remove_hash_reconfig(this->index, rcb);
 		delete rcb;
@@ -897,6 +898,7 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 		cb_out = build_cb_in_reverse(ip, rcb);
 
 		if(!cb_out) {
+			dc->remove_hash_input(this->index, cb_in);
 			delete cb_in;
 			dc->remove_hash_reconfig(this->index, rcb);
 			delete rcb;
@@ -985,7 +987,9 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 		memcpy(&cb_out->cmsg, cmsg, sizeof(DyscoControlMessage));
 		
 		if(!dc->insert_pending_reconfig(this->index, cb_out)) {
+			dc->remove_hash_input(this->index, cb_in);
 			delete cb_in;
+			dc->remove_hash_output(this->index, cb_out);
 			delete cb_out;
 
 			return ERROR;
