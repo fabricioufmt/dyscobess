@@ -857,6 +857,8 @@ bool DyscoAgentIn::control_config_rightA(DyscoCbReconfig* rcb, DyscoControlMessa
 #ifdef DEBUG	
 	fprintf(stderr, "Looking for %s in control_config_rightA method.\n", printSS(local_ss));
 #endif
+
+	cb_in->my_sup = cmsg->rightSS;
 	
 	DyscoHashOut* old_out = dc->lookup_output_by_ss(this->index, &local_ss);
 	if(!old_out) {
@@ -878,16 +880,14 @@ bool DyscoAgentIn::control_config_rightA(DyscoCbReconfig* rcb, DyscoControlMessa
 			fprintf(stderr, "is NAT and switching cb_outs\n");
 #endif
 			old_out = old_out->other_path;
+			cb_in->my_sup.sip = old_out->sup.dip;
+			cb_in->my_sup.dip = old_out->sup.sip;
+			cb_in->my_sup.sport = old_out->sup.dport;
+			cb_in->my_sup.dport = old_out->sup.sport;
 		}
 	}
 
-	//verify if really my_sup
 	//cb_in->my_sup = cmsg->rightSS;
-
-	cb_in->my_sup.sip = old_out->sup.dip;
-	cb_in->my_sup.dip = old_out->sup.sip;
-	cb_in->my_sup.sport = old_out->sup.dport;
-	cb_in->my_sup.dport = old_out->sup.sport;
 	
 	compute_deltas_in(cb_in, old_out, rcb);
 	compute_deltas_out(cb_out, old_out, rcb);
