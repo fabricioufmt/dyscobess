@@ -171,7 +171,9 @@ bool DyscoAgentIn::isReconfigPacket(Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
 		}
 
 #ifdef DEBUG
-		fprintf(stderr, "state: cb_in->dcb_out->state\n");
+		fprintf(stderr, "payload: %d\n", ip->length.value() - (ip->header_length << 2) - (tcp->offset << 2));
+		fprintf(stderr, "state: %d\n", cb_in->dcb_out->state);
+		fprintf(stderr, "payload: %d\n", payload_len);
 #endif
 		
 		if(cb_in->dcb_out->state == DYSCO_SYN_RECEIVED) {
