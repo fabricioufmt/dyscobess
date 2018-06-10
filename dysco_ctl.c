@@ -185,7 +185,7 @@ int main(int argc, char** argv) {
 		total_n += n;
 		while(total_n < sizeof(struct reconfig_message) + sizeof(uint32_t)) {
 			n = read(connfd, buff + total_n, BUFSIZE - total_n);
-			if(n == -1)
+			if(n < 1)
 				break;
 			
 			fprintf(stdout, "received %d bytes\n", n);
