@@ -112,6 +112,8 @@ struct reconfig_message {
 	uint32_t		dstMB;
 } __attribute__((packed));
 
+char* printIP(uint32_t ip);
+char* printSS(struct tcp_session ss);
 unsigned short csum(unsigned short*, uint32_t);
 uint32_t get_srcip(uint32_t*, int32_t*);
 void create_message_reconfig(struct reconfig_message*, uint32_t, uint32_t*);
@@ -253,6 +255,8 @@ static void* receive_super(void* arg) {
 	}
 
 	struct tcp_session* ss = (struct tcp_session*) super;
+
+	printf("Super: %s\n", printSS(*ss));
 	
 	close(connfd1);
 	close(sockfd1);
@@ -301,6 +305,9 @@ static void* receive_left_right(void* arg) {
 
 	struct tcp_session* leftSS = (struct tcp_session*) left_right;
 	struct tcp_session* rightSS = (struct tcp_session*) (left_right + sizeof(struct tcp_session));
+
+	printf("LeftSS: %s\n", printSS(*leftSS));
+	printf("RightSS: %s\n", printSS(*rightSS));
 
 	close(connfd2);
 	close(sockfd2);
@@ -585,4 +592,26 @@ unsigned short csum(unsigned short* ptr, uint32_t nbytes) {
 	sum = sum + (sum >> 16);
   
 	return (short) ~sum;
+}
+
+char* printIP(uint32_t ip) {
+	uint8_t bytes[4];
+        char* buf = (char*) malloc(17);
+	
+        bytes[0] = ip & 0xFF;
+        bytes[1] = (ip >> 8) & 0xFF;
+        bytes[2] = (ip >> 16) & 0xFF;
+        bytes[3] = (ip >> 24) & 0xFF;
+        sprintf(buf, "%d.%d.%d.%d", bytes[3], bytes[2], bytes[1], bytes[0]);
+
+        return buf;
+}
+
+char* printSS(struct tcp_session ss) {
+	char* buf = (char*) malloc(64);
+	sprintf(buf, "%s:%u -> %s:%u",
+		printIP(ntohl(ss.sip)), ntohs(ss.sport),
+		printIP(ntohl(ss.dip)), ntohs(ss.dport));
+
+	return buf;
 }
