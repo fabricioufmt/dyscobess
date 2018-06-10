@@ -882,12 +882,12 @@ bool DyscoAgentIn::control_config_rightA(DyscoCbReconfig* rcb, DyscoControlMessa
 	}
 
 	//verify if really my_sup
-	cb_in->my_sup = cmsg->rightSS;
+	//cb_in->my_sup = cmsg->rightSS;
 
-#ifdef DEBUG
-	fprintf(stderr, "cb_in->my_sup: %s\n", printSS(cb_in->my_sup));
-	fprintf(stderr, "old_out->sup: %s\n", printSS(old_out->sup));
-#endif
+	cb_in->my_sup.sip = old_out->sup.dip;
+	cb_in->my_sup.dip = old_out->sup.sip;
+	cb_in->my_sup.sport = old_out->sup.dport;
+	cb_in->my_sup.dport = old_out->sup.sport;
 	
 	compute_deltas_in(cb_in, old_out, rcb);
 	compute_deltas_out(cb_out, old_out, rcb);
