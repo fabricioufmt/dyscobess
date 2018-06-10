@@ -322,6 +322,26 @@ bool DyscoCenter::insert_pending_reconfig(uint32_t i, DyscoHashOut* cb_out) {
 	return true;
 }
 
+bool DyscoCenter::remove_hash_input(uint32_t i, DyscoHashIn* cb_in) {
+	DyscoHashes* dh = get_hashes(i);
+	if(!dh)
+		return false;
+
+	dh->hash_input.erase(cb_in->sub);
+
+	return true;
+}
+
+bool DyscoCenter::remove_hash_output(uint32_t i, DyscoHashOut* cb_out) {
+	DyscoHashes* dh = get_hashes(i);
+	if(!dh)
+		return false;
+
+	dh->hash_output.erase(cb_out->sup);
+
+	return true;
+}
+
 bool DyscoCenter::remove_hash_reconfig(uint32_t i, DyscoCbReconfig* rcb) {
 	DyscoHashes* dh = get_hashes(i);
 	if(!dh)
