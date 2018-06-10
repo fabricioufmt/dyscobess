@@ -285,31 +285,22 @@ DyscoHashOut* DyscoAgentOut::pick_path_ack(Tcp* tcp, DyscoHashOut* cb_out) {
 			cb = cb_out->other_path;
 		}
 	} else {
-		fprintf(stderr, "state_t is 1\n");
 		if(cb_out->valid_ack_cut) {
-			fprintf(stderr, "valid_ack_cut is TRUE\n");
 			if(cb_out->use_np_ack) {
-				fprintf(stderr, "use_np_ack is TRUE\n");
 				cb = cb_out->other_path;
 			} else {
-				fprintf(stderr, "use_np_ack is FALSE\n");
 				if(!after(cb_out->ack_cutoff, ack)) {
-					fprintf(stderr, "ack_cutoff is before than ack\n");
-					fprintf(stderr, "%X before %X.\n", cb_out->ack_cutoff, ack);
 					if(isTCPFIN(tcp))
 						cb = cb_out->other_path;
 					else {
-						fprintf(stderr, "is not FIN\n");
 						cb = cb_out->other_path;
 						cb_out->ack_ctr++;
 						if(cb_out->ack_ctr > 1)
 							cb_out->use_np_ack = 1;
 					}
-				} else
-					fprintf(stderr, "ack_cutoff is after than ack\n");
+				}
 			}
-		} else
-			fprintf(stderr, "valid_ack_cut is FALSE\n");
+		}
 	}
 	
 	return cb;
