@@ -876,6 +876,10 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 	if(isToRightAnchor(ip, cmsg)) {
 #ifdef DEBUG
 		fprintf(stderr, "It's the right anchor.\n");
+		fprintf(stderr, "my_sub: %s\n", printSS(cmsg->my_sub));
+		fprintf(stderr, "super: %s\n", printSS(cmsg->super));
+		fprintf(stderr, "leftSS: %s\n", printSS(cmsg->leftSS));
+		fprintf(stderr, "rightSS: %s\n", printSS(cmsg->rightSS));
 #endif	
 		cb_in = new DyscoHashIn();
 		
