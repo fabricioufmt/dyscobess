@@ -207,13 +207,13 @@ int main(int argc, char** argv) {
 
 static void* receive_super(void* arg) {
 	int n;
-	int sockfd;
-	int connfd;
+	int sockfd1;
+	int connfd1;
 	socklen_t addr_len;
 	unsigned char buff[BUFSIZE];
 	struct sockaddr_in serv_addr;
 	
-	if((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
+	if((sockfd1 = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
 		perror("socket failed");
 		exit(-1);
 	}
@@ -224,43 +224,43 @@ static void* receive_super(void* arg) {
 	serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
 	serv_addr.sin_port = htons(SUPER_PORT);
 
-	if(bind(sockfd, (struct sockaddr*) &serv_addr, sizeof(serv_addr)) == -1) {
+	if(bind(sockfd1, (struct sockaddr*) &serv_addr, sizeof(serv_addr)) == -1) {
 		perror("bind failed");
 		exit(-1);
 	}
 
-	if(listen(sockfd, LISTENQ) == -1) {
+	if(listen(sockfd1, LISTENQ) == -1) {
 		perror("listen failed");
 		exit(-1);
 	}
 
-	if((connfd = accept(sockfd, 0, &addr_len)) == -1) {
+	if((connfd1 = accept(sockfd1, 0, &addr_len)) == -1) {
 		perror("accept failed");
 		exit(-1);
 	}
 		
 	memset(super, 0, BUFSIZE);
-	if((n = read(connfd, super, BUFSIZE)) == -1) {
+	if((n = read(connfd1, super, BUFSIZE)) == -1) {
 		fprintf(stderr, "read error: %s.\n", strerror(errno));
-		close(connfd);
+		close(connfd1);
 		exit(-1);
 	}
 
 	struct tcp_session* ss = (struct tcp_session*) super;
 	
-	close(connfd);
-	close(sockfd);
+	close(connfd1);
+	close(sockfd1);
 }
 
 static void* receive_left_right(void* arg) {
 	int n;
-	int sockfd;
-	int connfd;
+	int sockfd2;
+	int connfd2;
 	socklen_t addr_len;
 	unsigned char buff[BUFSIZE];
 	struct sockaddr_in serv_addr;
 	
-	if((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
+	if((sockfd2 = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
 		perror("socket failed");
 		exit(-1);
 	}
@@ -271,33 +271,33 @@ static void* receive_left_right(void* arg) {
 	serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
 	serv_addr.sin_port = htons(LEFT_RIGHT_PORT);
 
-	if(bind(sockfd, (struct sockaddr*) &serv_addr, sizeof(serv_addr)) == -1) {
+	if(bind(sockfd2, (struct sockaddr*) &serv_addr, sizeof(serv_addr)) == -1) {
 		perror("bind failed");
 		exit(-1);
 	}
 
-	if(listen(sockfd, LISTENQ) == -1) {
+	if(listen(sockfd2, LISTENQ) == -1) {
 		perror("listen failed");
 		exit(-1);
 	}
 
-	if((connfd = accept(sockfd, 0, &addr_len)) == -1) {
+	if((connfd2 = accept(sockfd2, 0, &addr_len)) == -1) {
 		perror("accept failed");
 		exit(-1);
 	}
 		
 	memset(left_right, 0, BUFSIZE);
-	if((n = read(connfd, left_right, BUFSIZE)) == -1) {
+	if((n = read(connfd2, left_right, BUFSIZE)) == -1) {
 		fprintf(stderr, "read error: %s.\n", strerror(errno));
-		close(connfd);
+		close(connfd2);
 		exit(-1);
 	}
 
 	struct tcp_session* leftSS = (struct tcp_session*) left_right;
 	struct tcp_session* rightSS = (struct tcp_session*) (left_right + sizeof(struct tcp_session));
 
-	close(connfd);
-	close(sockfd);
+	close(connfd2);
+	close(sockfd2);
 }
 
 void create_message_reconfig(struct reconfig_message* rmsg, uint32_t sc_len, uint32_t* sc) {
