@@ -818,6 +818,9 @@ bool DyscoAgentOut::control_output(Ipv4* ip, Tcp* tcp) {
 		new_dcb->is_reconfiguration = 1;
 
 		old_dcb->old_path = 1;
+		//TEST
+		if(old_dcb->dcb_in)
+			old_dcb->dcb_in->two_paths = 1;
 
 		if(ntohs(cmsg->semantic) == STATE_TRANSFER)
 			old_dcb->state_t = 1;
