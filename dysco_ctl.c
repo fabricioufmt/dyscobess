@@ -351,6 +351,8 @@ void create_message_reconfig(struct reconfig_message* rmsg, uint32_t sc_len, uin
 	iph->check = 0;
 	//iph->saddr = get_srcip(&rmsg->rightA, &ifindex); //or rmsg->leftA; ?
 	//iph->daddr = rmsg->rightA;
+	
+	fprintf(stdout, "Calling get_srcip method\n");
 	iph->saddr = get_srcip(&sc[0], &ifindex);
 
 	//TEST
@@ -383,8 +385,6 @@ void create_message_reconfig(struct reconfig_message* rmsg, uint32_t sc_len, uin
 	tx_len += sizeof(struct tcphdr); //TCP does not have Option field
 
 	tx_len += sizeof(struct reconfig_message);
-
-	fprintf(stdout, "Inserting my_sub info\n");
 	
 	cmsg->my_sub.sip = iph->saddr;
 	cmsg->my_sub.dip = iph->daddr;
