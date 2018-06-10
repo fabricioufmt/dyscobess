@@ -575,7 +575,7 @@ bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in, uint32_t 
 		}
 	} else {
 		//TEST
-		uint32_t seq = tcp->seq_num.value() + payload;
+		uint32_t seq = tcp->seq_num.value() + payload + 1;
 		fprintf(stderr, "cb_out->ack_cutoff: %X seq: %X\n", cb_out->ack_cutoff, seq);
 		fprintf(stderr, "Changing cb_out->ack_cutoff from %X to %X\n", cb_out->ack_cutoff, seq);
 		
