@@ -624,7 +624,7 @@ CONTROL_RETURN DyscoAgentIn::input(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashIn*
  */
 DyscoCbReconfig* DyscoAgentIn::insert_rcb_control_input(Ipv4* ip, Tcp* tcp, DyscoControlMessage* cmsg) {
 	DyscoCbReconfig* rcb = new DyscoCbReconfig();
-
+	/*
 	DyscoTcpSession ss;
 	ss.sip = ip->src.raw_value();
 	ss.dip = ip->dst.raw_value();
@@ -645,7 +645,7 @@ DyscoCbReconfig* DyscoAgentIn::insert_rcb_control_input(Ipv4* ip, Tcp* tcp, Dysc
 		
 	}
 #endif
-	
+	*/
 	rcb->super = cmsg->rightSS;
 	rcb->leftSS = cmsg->leftSS;
 	rcb->rightSS = cmsg->rightSS;
