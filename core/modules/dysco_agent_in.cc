@@ -576,12 +576,19 @@ bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in) {
 	} else {
 		//TEST
 		uint32_t seq = tcp->seq_num.value();
-		if(cb_out->other_path) {
-			fprintf(stderr, "Changing cb_out->other_path->ack_cutoff from %X to %X\n", cb_out->other_path->ack_cutoff, seq);
-			cb_out->other_path->ack_cutoff = seq;
-			cb_out->other_path->valid_ack_cut = 1;
-			
+		uint32_t delta;
+		fprintf(stderr, "cb_out->ack_cutoff: %X seq: %X\n", cb_out->ack_cutoff, seq);
+
+		if(cb_out->in_iack < cb_out->out_iack) {
+			delta = cb_out->out_iack - cb_out->in_iack;
+			seq -= delta;
+		} else {
+			delta = cb_out->in_iack - cb_out->out_iack;
+			seq += delta;
 		}
+
+		fprintf(stderr, "Changing cb_out->ack_cutoff from %X to %X\n", cb_out->ack_cutoff, seq);
+		
 		cb_out->ack_cutoff = seq;
 		cb_out->valid_ack_cut = 1;	
 	}
