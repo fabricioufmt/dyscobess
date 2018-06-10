@@ -636,9 +636,13 @@ DyscoCbReconfig* DyscoAgentIn::insert_rcb_control_input(Ipv4* ip, Tcp* tcp, Dysc
 		fprintf(stderr, "[%s][DyscoAgentIn-Control] I'm not behind a NAT.\n", ns.c_str());
 	} else {
 		fprintf(stderr, "[%s][DyscoAgentIn-Control] I'm behind a NAT.\n", ns.c_str());
-		fprintf(stderr, "[%s][DyscoAgentIn-Control] Changing rightSS.\n", ns.c_str());
+		fprintf(stderr, "[%s][DyscoAgentIn-Control] Changing rightSS from:\n", ns.c_str());
+		
+		fprintf(stderr, "[%s][DyscoAgentIn-Control] %s\n", ns.c_str(), printSS(cmsg->rightSS));
 		cmsg->rightSS.sip = ip->src.raw_value();
 		cmsg->rightSS.sport = tcp->src_port.raw_value();
+		fprintf(stderr, "[%s][DyscoAgentIn-Control] %s\n", ns.c_str(), printSS(cmsg->rightSS));
+		
 	}
 #endif
 	
