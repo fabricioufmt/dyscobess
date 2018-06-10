@@ -251,6 +251,7 @@ func NewReconfigMessage(ss, lSS, rSS TcpSession, l, r net.IP, sem uint16,
 	sMB, dMB net.IP, sc *ServiceChain) (*ReconfigMessage) {
 	
 	msg := &ReconfigMessage {
+	        my_sub:         ss,
 		super:		ss,
 		leftSS:		lSS,
 		rightSS:	rSS,
