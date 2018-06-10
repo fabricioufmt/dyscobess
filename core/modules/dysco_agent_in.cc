@@ -651,9 +651,9 @@ CONTROL_RETURN DyscoAgentIn::input(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashIn*
 	}
 
 	if(cb_in->dcb_out) {
-		fprintf(stderr, "cb_in->dcb_out->state: %d\n", cb_in->dcb_out->state);
+		fprintf(stderr, "cb_in->dcb_out->state: %d(old:%d)\n", cb_in->dcb_out->state, cb_in->dcb_out->old_path);
 		if(cb_in->dcb_out->other_path)
-			fprintf(stderr, "cb_in->dcb_out->other_path->state: %d\n", cb_in->dcb_out->other_path->state);
+			fprintf(stderr, "cb_in->dcb_out->other_path->state: %d(old:%d)\n", cb_in->dcb_out->other_path->state, cb_in->dcb_out->other_path->old_path);
 	}
 
 	if(cb_in->two_paths) {
