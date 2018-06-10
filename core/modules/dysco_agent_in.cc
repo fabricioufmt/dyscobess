@@ -888,6 +888,7 @@ bool DyscoAgentIn::control_config_rightA(DyscoCbReconfig* rcb, DyscoControlMessa
 			cb_in->my_sup.dip = old_out->sup.sip;
 			cb_in->my_sup.sport = old_out->sup.dport;
 			cb_in->my_sup.dport = old_out->sup.sport;
+			cb_in->neigh_sup = cmsg->rightSS;
 		}
 	}
 
