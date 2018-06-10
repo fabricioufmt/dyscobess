@@ -122,6 +122,7 @@ type UserMessage struct {
 }
 
 type ReconfigMessage struct {
+     	my_sub	        TcpSession
 	super		TcpSession
 	leftSS		TcpSession	
 	rightSS		TcpSession	
