@@ -356,7 +356,12 @@ bool DyscoAgentIn::rx_initiation_new(Packet* pkt, Ipv4* ip, Tcp* tcp, uint32_t p
 
 	DyscoTcpSession* neigh_supss = reinterpret_cast<DyscoTcpSession*>(payload);
 	DyscoTcpSession* neigh_subss = reinterpret_cast<DyscoTcpSession*>(payload + sizeof(DyscoTcpSession));
-		
+
+	cb_in->neigh_supss.sip = neigh_supss->sip;
+	cb_in->neigh_supss.dip = neigh_supss->dip;
+	cb_in->neigh_supss.sport = neigh_supss->sport;
+	cb_in->neigh_supss.dport = neigh_supss->dport;
+	
 	if(neigh_subss->sip != cb_in->sub.sip || neigh_subss->sport != cb_in->sub.sport) {
 #ifdef DEBUG
 		fprintf(stderr, "[%s][DyscoAgentIn] NAT crossed.\n", ns.c_str());
@@ -431,9 +436,22 @@ DyscoHashOut* DyscoAgentIn::insert_cb_in_reverse(DyscoHashIn* cb_in, Ipv4* ip, T
 	cb_out->sup.sport = cb_in->my_sup.dport;
 	cb_out->sup.dport = cb_in->my_sup.sport;
 
+	if(cb_in->neigh_sup != cb_in->my_sup) {
 #ifdef DEBUG
-	fprintf(stderr, "Inserting %s on hash_output as sup.\n", printSS(cb_in->my_sup));
+		fprintf(stderr, "NAT crossed -- inserting a fake cb_out with neigh_sup\n");
 #endif
+
+		DyscoHashOut* cb_out_nat = new DyscoHashOut();
+		cb_out_nat->sup.sip = cb_in->neigh_sup.dip;
+		cb_out_nat->sup.dip = cb_in->neigh_sup.sip;
+		cb_out_nat->sup.sport = cb_in->neigh_sup.dport;
+		cb_out_nat->sup.dport = cb_in->neigh_sup.sport;
+
+		cb_out_nat->is_nat = true;
+		cb_out_nat->other_path = cb_out;
+
+		dc->insert_hash_output(this->index, cb_out_nat);
+	}
 	
 	cb_out->sub.sip = ip->dst.raw_value();
 	cb_out->sub.dip = ip->src.raw_value();
@@ -836,16 +854,31 @@ bool DyscoAgentIn::control_config_rightA(DyscoCbReconfig* rcb, DyscoControlMessa
 	local_ss.sport = cmsg->rightSS.dport;
 	local_ss.dport = cmsg->rightSS.sport;
 
+#ifdef DEBUG	
 	fprintf(stderr, "Looking for %s in control_config_rightA method.\n", printSS(local_ss));
+#endif
 	
 	DyscoHashOut* old_out = dc->lookup_output_by_ss(this->index, &local_ss);
 	if(!old_out) {
+#ifdef DEBUG
+		fprintf(stderr, "not found\n");
+#endif
 		dc->remove_hash_input(this->index, cb_in);
 		delete cb_in;
 		dc->remove_hash_reconfig(this->index, rcb);
 		delete rcb;
 
 		return false;
+	} else {
+#ifdef DEBUG
+		fprintf(stderr, "found\n");
+#endif
+		if(old_out->is_nat) {
+#ifdef DEBUG
+			fprintf(stderr, "is NAT and switching cb_outs\n");
+#endif
+			old_out = old_out->other_path;
+		}
 	}
 
 	//verify if really my_sup

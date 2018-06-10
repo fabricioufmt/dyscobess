@@ -420,7 +420,8 @@ class DyscoHashOut {
 
 
 	uint8_t is_reconfiguration:1,
-		state:7;
+		is_nat:1,
+		state:6;
 	
 	uint32_t ack_ctr;
 
