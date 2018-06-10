@@ -1324,7 +1324,7 @@ CONTROL_RETURN DyscoAgentIn::control_input(Packet* pkt, Ipv4* ip, Tcp* tcp, Dysc
 
 			//TEST
 			old_dcb->valid_ack_cut = 1;
-			old_dcb->ack_cutoff = cb_out->out_iack;
+			//old_dcb->ack_cutoff = cb_out->out_iack;
 			      
 			
 			//old_dcb->state = DYSCO_CLOSED;
