@@ -384,6 +384,8 @@ void create_message_reconfig(struct reconfig_message* rmsg, uint32_t sc_len, uin
 
 	tx_len += sizeof(struct reconfig_message);
 
+	fprintf(stdout, "Inserting my_sub info\n");
+	
 	cmsg->my_sub.sip = iph->saddr;
 	cmsg->my_sub.dip = iph->daddr;
 	cmsg->my_sub.sport = tcph->source;

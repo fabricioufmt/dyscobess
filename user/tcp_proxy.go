@@ -132,7 +132,8 @@ func spliceConnections(l, r net.Conn) {
 	fmt.Println("Ok.")
 	
 	buf := dysco_msg.Serializer()
-	conn.Write(buf)
+	n, _ := conn.Write(buf)
+	fmt.Sprintf("Sent %d bytes\n", n)
 	conn.Close()
 }
 
