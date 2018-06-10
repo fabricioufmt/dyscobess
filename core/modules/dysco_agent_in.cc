@@ -883,6 +883,12 @@ bool DyscoAgentIn::control_config_rightA(DyscoCbReconfig* rcb, DyscoControlMessa
 
 	//verify if really my_sup
 	cb_in->my_sup = cmsg->rightSS;
+
+#ifdef DEBUG
+	fprintf(stderr, "cb_in->my_sup: %s\n", printSS(cb_in->my_sup));
+	fprintf(stderr, "old_out->sup: %s\n", printSS(old_out->sup));
+#endif
+	
 	compute_deltas_in(cb_in, old_out, rcb);
 	compute_deltas_out(cb_out, old_out, rcb);
 
