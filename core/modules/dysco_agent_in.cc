@@ -1053,6 +1053,7 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 	}
 
 	if(!dc->insert_hash_input(this->index, cb_in)) {
+		dc->remove_hash_input(this->index, cb_in);
 		delete cb_in;
 
 		return ERROR;
