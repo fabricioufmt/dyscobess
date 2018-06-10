@@ -180,7 +180,7 @@ int main(int argc, char** argv) {
 			continue;
 		}
 
-		fprintf(stdout, "received %d bytes\n", n);
+		fprintf(stdout, "Received %d bytes\n", n);
 		
 		total_n += n;
 		while(total_n < sizeof(struct reconfig_message) + sizeof(uint32_t)) {
@@ -188,7 +188,7 @@ int main(int argc, char** argv) {
 			if(n < 1)
 				break;
 			
-			fprintf(stdout, "received %d bytes\n", n);
+			fprintf(stdout, "Received %d bytes\n", n);
 			total_n += n;
 		}
 
@@ -351,8 +351,6 @@ void create_message_reconfig(struct reconfig_message* rmsg, uint32_t sc_len, uin
 	iph->check = 0;
 	//iph->saddr = get_srcip(&rmsg->rightA, &ifindex); //or rmsg->leftA; ?
 	//iph->daddr = rmsg->rightA;
-	
-	fprintf(stdout, "Calling get_srcip method\n");
 	iph->saddr = get_srcip(&sc[0], &ifindex);
 
 	//TEST
@@ -423,8 +421,6 @@ void create_message_reconfig(struct reconfig_message* rmsg, uint32_t sc_len, uin
 		perror("send failed");
 	
 	fprintf(stdout, "OK.\n");
-
-	fprintf(stdout, ":%u -> :%u\n", ntohs(tcph->source), ntohs(tcph->dest));
 }
 
 uint32_t get_srcip(uint32_t* destip, int32_t* ifindex) {
