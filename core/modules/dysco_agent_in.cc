@@ -341,6 +341,7 @@ void DyscoAgentIn::in_hdr_rewrite_csum(Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
 
 //L.505
 bool DyscoAgentIn::rx_initiation_new(Packet* pkt, Ipv4* ip, Tcp* tcp, uint32_t payload_sz) {
+	bool nated = false;
 #ifdef DEBUG
 	fprintf(stderr, "[%s][DyscoAgentIn] rx_initiation_new method.\n", ns.c_str());
 #endif
@@ -363,6 +364,7 @@ bool DyscoAgentIn::rx_initiation_new(Packet* pkt, Ipv4* ip, Tcp* tcp, uint32_t p
 		cb_in->my_sup = cb_in->sub;
 		cb_in->my_sup.dip = neigh_supss->dip;
 		cb_in->my_sup.dport = neigh_supss->dport;
+		nated = true;
 	} else {
 #ifdef DEBUG
 		fprintf(stderr, "[%s][DyscoAgentIn] not NAT crossed.\n", ns.c_str());
@@ -374,6 +376,9 @@ bool DyscoAgentIn::rx_initiation_new(Packet* pkt, Ipv4* ip, Tcp* tcp, uint32_t p
 	}
 
 	if(payload_sz > 2 * sizeof(DyscoTcpSession) + sizeof(uint32_t)) {
+#ifdef DEBUG
+		fprintf(stderr, "I am not last one on service chain.\n");
+#endif
 		uint32_t sc_len = (payload_sz - 2 * sizeof(DyscoTcpSession))/sizeof(uint32_t);
 
 		DyscoHashOut* cb_out = new DyscoHashOut();
@@ -389,7 +394,9 @@ bool DyscoAgentIn::rx_initiation_new(Packet* pkt, Ipv4* ip, Tcp* tcp, uint32_t p
 		memcpy(cb_out->sc, payload + 2 * sizeof(DyscoTcpSession) + sizeof(uint32_t), (sc_len - 1) * sizeof(uint32_t));
 		
 		if(!dc->insert_pending(this->index, cb_out)) {
+			dc->remove_input(this>index, cb_in);
 			delete cb_in;
+			dc->remove_output(this>index, cb_out);
 			delete cb_out;
 			
 			return false;
@@ -397,6 +404,7 @@ bool DyscoAgentIn::rx_initiation_new(Packet* pkt, Ipv4* ip, Tcp* tcp, uint32_t p
 	}
 	
 	if(!dc->insert_hash_input(this->index, cb_in)) {
+		dc->remove_input(this>index, cb_in);
 		delete cb_in;
 
 		return false;
@@ -423,6 +431,10 @@ DyscoHashOut* DyscoAgentIn::insert_cb_in_reverse(DyscoHashIn* cb_in, Ipv4* ip, T
 	cb_out->sup.sport = cb_in->my_sup.dport;
 	cb_out->sup.dport = cb_in->my_sup.sport;
 
+#ifdef DEBUG
+	fprintf(stderr, "Inserting %s on hash_output as sup.\n", printSS(cb_in->my_sup));
+#endif
+	
 	cb_out->sub.sip = ip->dst.raw_value();
 	cb_out->sub.dip = ip->src.raw_value();
 	cb_out->sub.sport = tcp->dst_port.raw_value();
