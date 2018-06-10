@@ -625,6 +625,23 @@ CONTROL_RETURN DyscoAgentIn::input(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashIn*
 DyscoCbReconfig* DyscoAgentIn::insert_rcb_control_input(Ipv4* ip, Tcp* tcp, DyscoControlMessage* cmsg) {
 	DyscoCbReconfig* rcb = new DyscoCbReconfig();
 
+	DyscoTcpSession ss;
+	ss.sip = ip->src.raw_value();
+	ss.dip = ip->dst.raw_value();
+	ss.sport = tcp->src_port.raw_value();
+	ss.dport = tcp->dst_port.raw_value();
+
+#ifdef DEBUG
+	if(ss == cmsg->my_sub) {
+		fprintf(stderr, "[%][DyscoAgentIn-Control] I'm not behind a NAT.\n", ns.c_str());
+	} else {
+		fprintf(stderr, "[%][DyscoAgentIn-Control] I'm behind a NAT.\n", ns.c_str());
+		fprintf(stderr, "[%][DyscoAgentIn-Control] Changing rightSS.\n", ns.c_str());
+		cmsg->rightSS.sip = ip->src.raw_value();
+		cmsg->rightSS.sport = tcp->src_port.raw_value();
+	}
+#endif
+	
 	rcb->super = cmsg->rightSS;
 	rcb->leftSS = cmsg->leftSS;
 	rcb->rightSS = cmsg->rightSS;
@@ -1113,8 +1130,23 @@ CONTROL_RETURN DyscoAgentIn::control_input(Packet* pkt, Ipv4* ip, Tcp* tcp, Dysc
 #ifdef DEBUG
 		fprintf(stderr, "DYSCO_SYN message.\n");
 #endif
+
 		uint8_t* payload = reinterpret_cast<uint8_t*>(tcp) + tcp_hlen;
 		cmsg = reinterpret_cast<DyscoControlMessage*>(payload);
+
+		DyscoTcpSession ss;
+		ss.sip = ip->src.raw_value();
+		ss.dip = ip->dst.raw_value();
+		ss.sport = tcp->src_port.raw_value();
+		ss.dport = tcp->dst_port.raw_value();
+
+#ifdef DEBUG
+		if(ss == cmsg->my_sub) {
+			fprintf(stderr, "[%][DyscoAgentIn-Control] I'm not behind a NAT.\n", ns.c_str());
+		} else {
+			fprintf(stderr, "[%][DyscoAgentIn-Control] I'm behind a NAT.\n", ns.c_str());
+		}
+#endif
 		
 		//rcb = dc->lookup_reconfig_by_ss(this->index, &cmsg->super);
 		//Ronaldo: RightA doesn't know about supss (or leftSS)

@@ -80,6 +80,7 @@ struct pseudo_header {
 };
 
 struct reconfig_message {
+	struct tcp_session      my_sub;
 	struct tcp_session	super;
 	struct tcp_session	leftSS;
 	struct tcp_session	rightSS;
@@ -382,6 +383,11 @@ void create_message_reconfig(struct reconfig_message* rmsg, uint32_t sc_len, uin
 
 	tx_len += sizeof(struct reconfig_message);
 
+	cmsg->my_sub.sip = iph->saddr;
+	cmsg->my_sub.dip = iph->daddr;
+	cmsg->my_sub.sport = tcph->source;
+	cmsg->my_sub.dport = tcph->dest;
+	
 	// Construct Service Chain
 	memcpy(sendbuf + tx_len, sc, sc_len * sizeof(uint32_t));
 	tx_len += sc_len * sizeof(uint32_t);

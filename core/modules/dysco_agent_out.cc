@@ -148,13 +148,6 @@ bool DyscoAgentOut::isReconfigPacketOut(Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out
 
 			return false;
 		}
-		/*
-		if(!cb_out->dcb_in)
-			return false;
-			
-		if(cb_out->dcb_in->is_reconfiguration)
-			return true;
-		*/
 	}
 		
 	return false;
@@ -729,12 +722,6 @@ bool DyscoAgentOut::control_output(Ipv4* ip, Tcp* tcp) {
 			cmsg->leftIwsr = htonl(rcb->leftIwsr);
 			cmsg->sackOk = htons(rcb->sack_ok);
 
-			/*
-			  TOREMOVE
-			cmsg->sport = rcb->sub_out.sport;
-			cmsg->dport = rcb->sub_out.dport;
-			*/
-			
 			return true;
 		}
 		

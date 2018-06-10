@@ -298,6 +298,7 @@ public:
  *********************************************************************/
 class DyscoControlMessage {
  public:
+	DyscoTcpSession my_sub;
 	DyscoTcpSession super;
 	DyscoTcpSession leftSS;
 	DyscoTcpSession rightSS;
