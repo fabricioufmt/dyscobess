@@ -327,7 +327,7 @@ bool DyscoCenter::remove_hash_input(uint32_t i, DyscoHashIn* cb_in) {
 	if(!dh)
 		return false;
 
-	dh->hash_input.erase(cb_in->sub);
+	dh->hash_in.erase(cb_in->sub);
 
 	return true;
 }
@@ -337,7 +337,7 @@ bool DyscoCenter::remove_hash_output(uint32_t i, DyscoHashOut* cb_out) {
 	if(!dh)
 		return false;
 
-	dh->hash_output.erase(cb_out->sup);
+	dh->hash_out.erase(cb_out->sup);
 
 	return true;
 }
