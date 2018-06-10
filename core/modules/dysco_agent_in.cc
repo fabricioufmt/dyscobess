@@ -394,9 +394,9 @@ bool DyscoAgentIn::rx_initiation_new(Packet* pkt, Ipv4* ip, Tcp* tcp, uint32_t p
 		memcpy(cb_out->sc, payload + 2 * sizeof(DyscoTcpSession) + sizeof(uint32_t), (sc_len - 1) * sizeof(uint32_t));
 		
 		if(!dc->insert_pending(this->index, cb_out)) {
-			dc->remove_input(this->index, cb_in);
+			dc->remove_hash_input(this->index, cb_in);
 			delete cb_in;
-			dc->remove_output(this->index, cb_out);
+			dc->remove_hash_output(this->index, cb_out);
 			delete cb_out;
 			
 			return false;
@@ -404,7 +404,7 @@ bool DyscoAgentIn::rx_initiation_new(Packet* pkt, Ipv4* ip, Tcp* tcp, uint32_t p
 	}
 	
 	if(!dc->insert_hash_input(this->index, cb_in)) {
-		dc->remove_input(this->index, cb_in);
+		dc->remove_hash_input(this->index, cb_in);
 		delete cb_in;
 
 		return false;
