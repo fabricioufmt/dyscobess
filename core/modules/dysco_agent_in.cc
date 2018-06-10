@@ -697,6 +697,10 @@ DyscoCbReconfig* DyscoAgentIn::insert_rcb_control_input(Ipv4* ip, Tcp* tcp, Dysc
 		delete rcb;
 		return 0;
 	}
+
+#ifdef DEBUG
+	fprintf(stderr, "Inserting %s in hash_reconfig.\n", printSS(rcb->super));
+#endif
 	
 	return rcb;
 }
@@ -1340,6 +1344,10 @@ CONTROL_RETURN DyscoAgentIn::control_input(Packet* pkt, Ipv4* ip, Tcp* tcp, Dysc
 		if(isToRightAnchor(ip, cmsg)) {
 #ifdef DEBUG
 			fprintf(stderr, "It's the right anchor.\n");
+#endif
+			
+#ifdef DEBUG
+			fprintf(stderr, "Looking for %s in hash_reconfig.\n", printSS(cb_in->my_sup));
 #endif
 			
 			rcb = dc->lookup_reconfig_by_ss(this->index, &cb_in->my_sup);
