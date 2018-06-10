@@ -357,10 +357,10 @@ bool DyscoAgentIn::rx_initiation_new(Packet* pkt, Ipv4* ip, Tcp* tcp, uint32_t p
 	DyscoTcpSession* neigh_supss = reinterpret_cast<DyscoTcpSession*>(payload);
 	DyscoTcpSession* neigh_subss = reinterpret_cast<DyscoTcpSession*>(payload + sizeof(DyscoTcpSession));
 
-	cb_in->neigh_supss.sip = neigh_supss->sip;
-	cb_in->neigh_supss.dip = neigh_supss->dip;
-	cb_in->neigh_supss.sport = neigh_supss->sport;
-	cb_in->neigh_supss.dport = neigh_supss->dport;
+	cb_in->neigh_sup.sip = neigh_supss->sip;
+	cb_in->neigh_sup.dip = neigh_supss->dip;
+	cb_in->neigh_sup.sport = neigh_supss->sport;
+	cb_in->neigh_sup.dport = neigh_supss->dport;
 	
 	if(neigh_subss->sip != cb_in->sub.sip || neigh_subss->sport != cb_in->sub.sport) {
 #ifdef DEBUG
@@ -436,7 +436,7 @@ DyscoHashOut* DyscoAgentIn::insert_cb_in_reverse(DyscoHashIn* cb_in, Ipv4* ip, T
 	cb_out->sup.sport = cb_in->my_sup.dport;
 	cb_out->sup.dport = cb_in->my_sup.sport;
 
-	if(cb_in->neigh_sup != cb_in->my_sup) {
+	if(!(cb_in->neigh_sup == cb_in->my_sup)) {
 #ifdef DEBUG
 		fprintf(stderr, "NAT crossed -- inserting a fake cb_out with neigh_sup\n");
 #endif
