@@ -264,6 +264,7 @@ static void* receive_super(void* arg) {
 
 static void* receive_left_right(void* arg) {
 	int n;
+	int total_n;
 	int sockfd2;
 	int connfd2;
 	socklen_t addr_len;
@@ -301,6 +302,17 @@ static void* receive_left_right(void* arg) {
 		fprintf(stderr, "read error: %s.\n", strerror(errno));
 		close(connfd2);
 		exit(-1);
+	}
+
+	total_n = n;
+	while(total_n < 24) {
+		if((n = read(connfd2, left_right + total_n, BUFSIZE - total_n)) == -1) {
+			fprintf(stderr, "read error: %s.\n", strerror(errno));
+			close(connfd2);
+			exit(-1);
+		}
+
+		total_n += n;
 	}
 
 	struct tcp_session* leftSS = (struct tcp_session*) left_right;
