@@ -1355,9 +1355,15 @@ CONTROL_RETURN DyscoAgentIn::control_input(Packet* pkt, Ipv4* ip, Tcp* tcp, Dysc
 			rcb = dc->lookup_reconfig_by_ss(this->index, &cb_in->my_sup);
 			if(!rcb) {
 #ifdef DEBUG
-				fprintf(stderr, "rcb ERROR\n");
+				fprintf(stderr, "Looking for %s on hash_reconfig, NOT FOUND.\n", printSS(cb_in->my_sup));
 #endif
-				return ERROR;
+				rcb = dc->lookup_reconfig_by_ss(this->index, &cb_in->neigh_sup);
+				if(!rcb) {
+#ifdef DEBUG
+					fprintf(stderr, "Looking for %s on hash_reconfig, NOT FOUND.\n", printSS(cb_in->neigh_sup));
+#endif
+					return ERROR;
+				}
 			}
 			
 			cb_in->is_reconfiguration = 0;
