@@ -148,8 +148,7 @@ bool DyscoAgentIn::isReconfigPacket(Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
 	if(ip->dst.raw_value() != devip)
 		return false;
 
-	//uint32_t payload_len = hasPayload(ip, tcp);
-	uint32_t payload_len = ip->length.value() - (ip->header_length << 2) - (tcp->offset << 2);
+	uint32_t payload_len = hasPayload(ip, tcp);
 	
 	if(isTCPSYN(tcp, true)) {
 		if(!cb_in) {
@@ -163,26 +162,18 @@ bool DyscoAgentIn::isReconfigPacket(Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
 			return false;
 		}
 
-		if(!cb_in->dcb_out) {
+		if(cb_in->dcb_out == 0) {
 #ifdef DEBUG
 			fprintf(stderr, "isReconfigPacket: cb_in->dcb_out is NULL\n");
 #endif
 			return false;
 		}
 
+		if(cb_in->dcb_out->state == DYSCO_SYN_RECEIVED && payload_len > 0) {
 #ifdef DEBUG
-		fprintf(stderr, "payload: %d\n", ip->length.value() - (ip->header_length << 2) - (tcp->offset << 2));
-		fprintf(stderr, "state: %d\n", cb_in->dcb_out->state);
-		fprintf(stderr, "payload: %d\n", payload_len);
+			fprintf(stderr, "isReconfigPacket: SYN_RECEIVED and hasPayload == TRUE\n");
 #endif
-		
-		if(cb_in->dcb_out->state == DYSCO_SYN_RECEIVED) {
-			if(payload_len > 0) {
-#ifdef DEBUG
-				fprintf(stderr, "isReconfigPacket: SYN_RECEIVED and hasPayload == TRUE\n");
-#endif
-				return true;
-			}
+			return true;
 		}
 #ifdef DEBUG
 		fprintf(stderr, "isReconfigPacket: FALSE\n");
