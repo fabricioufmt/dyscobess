@@ -573,6 +573,23 @@ bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in) {
 				old_out->valid_ack_cut = 1;
 			}
 		}
+
+		//TEST
+		if(old_out->state == DYSCO_ESTABLISHED) {
+			uint32_t seq = tcp->seq_num.value();
+			fprintf(stderr, "ESTABLISHED state\n");
+			if(old_out->valid_ack_cut) {
+				if(before(seq, old_out->ack_cutoff)) {
+					fprintf(stderr, "changing ack_cutoff1 from %X to %X\n", old_out->ack_cutoff, seq);
+						
+					old_out->ack_cutoff = seq;
+				}
+			} else {
+				fprintf(stderr, "changing ack_cutoff2 from %X to %X\n", old_out->ack_cutoff, seq);
+				old_out->ack_cutoff = seq;
+				old_out->valid_ack_cut = 1;
+			}
+		}
 	}
 
 	return true;
