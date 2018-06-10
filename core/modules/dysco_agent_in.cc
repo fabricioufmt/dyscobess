@@ -582,6 +582,8 @@ bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in) {
 			cb_out->other_path->valid_ack_cut = 1;
 			
 		}
+		cb_out->ack_cutoff = seq;
+		cb_out->valid_ack_cut = 1;	
 	}
 
 	return true;
