@@ -880,10 +880,10 @@ bool DyscoAgentIn::control_config_rightA(DyscoCbReconfig* rcb, DyscoControlMessa
 			fprintf(stderr, "is NAT and switching cb_outs\n");
 #endif
 			old_out = old_out->other_path;
-			//cb_in->my_sup.sip = old_out->sup.dip;
-			//cb_in->my_sup.dip = old_out->sup.sip;
-			//cb_in->my_sup.sport = old_out->sup.dport;
-			//cb_in->my_sup.dport = old_out->sup.sport;
+			cb_in->my_sup.sip = old_out->sup.dip;
+			cb_in->my_sup.dip = old_out->sup.sip;
+			cb_in->my_sup.sport = old_out->sup.dport;
+			cb_in->my_sup.dport = old_out->sup.sport;
 		}
 	}
 
