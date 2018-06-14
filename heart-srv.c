@@ -56,7 +56,7 @@ int main(int argc, char** argv) {
 			return EXIT_FAILURE;
 		}
 
-		printf("Client is connected.\n");
+		printf("%s:%u -> INADDR_ANY:%s Connected.\n", inet_ntoa(conn_addr.sin_addr), ntohs(conn_addr.sin_port), argv[1]);
 		
 		pid = fork();
 		if(pid > 0) {
