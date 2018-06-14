@@ -59,6 +59,14 @@ struct reconfig_message {
 	uint32_t		dstMB;
 } __attribute__((packed));
 
+void printUsage(char* arg) {
+	fprintf(stderr, "Usage: %s <code> <args> <sc1> <sc2> <...>\n", arg);
+	fprintf(stderr, "Code:\n");
+	fprintf(stderr, "0 <super_src_port> <sc1> <sc2> <...>\n");
+	fprintf(stderr, "1 <super_src_port> <leftSS_src> <leftSS_src_port> <sc1> <sc2> <...>\n");
+	fprintf(stderr, "2 <super_src_port> <rightSS_src> <rightSS_src_port> <sc1> <sc2> <...>\n");
+}
+
 int main(int argc, char** argv) {
 	int i;
 	int n;
@@ -72,6 +80,7 @@ int main(int argc, char** argv) {
 	//Dysco
 	int sc_len;
 	uint32_t* sc;
+	uint32_t sc_index;
 	struct reconfig_message* cmsg;
 
 	/*
@@ -83,11 +92,52 @@ int main(int argc, char** argv) {
 	*/
 
 	if(argc < 3) {
-		fprintf(stderr, "Usage: %s <sup:src_port> <sc1> <sc2> <...>\n", argv[0]);
+		printUsage(argv[0]);
 		exit(EXIT_FAILURE);
 	}
-	sc_len = argc - 2;
 
+	tx_len = sizeof(struct reconfig_message) + sizeof(uint32_t) + sc_len * sizeof(uint32_t) + 1; //+4 for Service Chain length (uint32) +1 for tag (0xFF)
+	buff = malloc(tx_len);
+	memset(buff, 0, tx_len);
+	cmsg = (struct reconfig_message*)(buff);
+	
+	switch(atoi(argv[1])) {
+	case 0:
+		if(argc < 4) {
+			printUsage(argv[0]);
+			exit(EXIT_FAILURE);
+		}
+
+		cmsg->super.sip = inet_addr("10.0.1.2");
+		cmsg->super.dip = inet_addr("10.0.10.2");
+		cmsg->super.sport = htons(atoi(argv[2]));
+		cmsg->super.dport = htons(5001);
+		cmsg->leftSS = cmsg->rightSS = cmsg->super;
+		
+		sc_len = argc - 4;
+		sc_index = 3;
+
+		break;
+	case 1:
+		if(argc < 6) {
+			printUsage(argv[0]);
+			exit(EXIT_FAILURE);
+		}
+
+		cmsg->super.sip = inet_addr("10.0.1.2");
+		cmsg->super.dip = inet_addr("10.0.10.2");
+		cmsg->super.sport = htons(atoi(argv[2]));
+		cmsg->super.dport = htons(5001);
+		cmsg->leftSS = cmsg->super;
+		cmsg->leftSS.sip = inet_addr(argv[3]);
+		cmsg->leftSS.sport = htons(atoi(argv[4]));
+		cmsg->rightSS = cmsg->leftSS;
+		
+		sc_len = argc - 6;
+		sc_index = 5;
+
+		break;
+	}
 	
 	if((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
 		perror("socket failed");
@@ -101,45 +151,12 @@ int main(int argc, char** argv) {
 	if(connect(sockfd, (struct sockaddr*) &serv_addr, sizeof(serv_addr)) == -1)
 		perror("connect failed");
 
-	tx_len = sizeof(struct reconfig_message) + 4 + sc_len * sizeof(uint32_t) + 1; //+4 for Service Chain length (uint32) +1 for tag (0xFF)
-	buff = malloc(tx_len);
-	memset(buff, 0, tx_len);
-
-	/*
-	cmsg = (struct reconfig_message*)(buff);
-	cmsg->super.sip = inet_addr("10.0.2.1");
-	cmsg->super.dip = inet_addr("10.0.10.2");
-	cmsg->super.sport = htons(atoi(argv[1]));
-	cmsg->super.dport = htons(5001);
-
-	cmsg->leftSS.sip = inet_addr("10.0.10.1");
-	cmsg->leftSS.dip = inet_addr("10.0.10.2");
-	cmsg->leftSS.sport = htons(atoi(argv[2]));
-	cmsg->leftSS.dport = htons(5001);
-	
-	cmsg->rightSS.sip = inet_addr("10.0.3.2");
-	cmsg->rightSS.dip = inet_addr("10.0.3.1");
-	cmsg->rightSS.sport = htons(atoi(argv[3]));
-	cmsg->rightSS.dport = htons(5001);
-	*/
-
-	cmsg = (struct reconfig_message*)(buff);
-	cmsg->super.sip = inet_addr("10.0.1.2");
-	cmsg->super.dip = inet_addr("10.0.10.2");
-	cmsg->super.sport = htons(atoi(argv[1]));
-	cmsg->super.dport = htons(5001);
-
-	cmsg->leftSS = cmsg->rightSS = cmsg->super;
-
 	uint32_t sclen = htonl(sc_len);
 	memcpy(buff + sizeof(struct reconfig_message), &sclen, sizeof(uint32_t));
 	sc = (uint32_t*)(buff + sizeof(struct reconfig_message) + sizeof(uint32_t));
-	/*
+	
 	for(i = 0; i < sc_len; i++)
-		sc[i] = inet_addr(argv[4 + i]);
-	*/
-	for(i = 0; i < sc_len; i++)
-		sc[i] = inet_addr(argv[2 + i]);
+		sc[i] = inet_addr(argv[sc_index + i]);
 	cmsg->leftA = inet_addr("10.0.1.2");
 	cmsg->rightA = sc[sc_len - 1];
 	
