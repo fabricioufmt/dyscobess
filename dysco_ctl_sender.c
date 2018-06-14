@@ -65,6 +65,7 @@ void printUsage(char* arg) {
 	fprintf(stderr, "0 <super_src_port> <sc1> <sc2> <...>\n");
 	fprintf(stderr, "1 <super_src_port> <leftSS_src> <leftSS_src_port> <sc1> <sc2> <...>\n");
 	fprintf(stderr, "2 <super_src_port> <rightSS_src> <rightSS_src_port> <sc1> <sc2> <...>\n");
+	fprintf(stderr, "3 <super_src_port> <super_dst> <sc1> <sc2> <...>\n");
 }
 
 int main(int argc, char** argv) {
@@ -158,7 +159,28 @@ int main(int argc, char** argv) {
 		sc_index = 5;
 
 		break;
+
+	case 3:
+		if(argc < 5) {
+			printUsage(argv[0]);
+			exit(EXIT_FAILURE);
+		}
+
+		sc_len = argc - 4;
+		tx_len = sizeof(struct reconfig_message) + sizeof(uint32_t) + sc_len * sizeof(uint32_t) + 1; //+4 for Service Chain length (uint32) +1 for tag (0xFF)
+		buff = malloc(tx_len);
+		memset(buff, 0, tx_len);
+		cmsg = (struct reconfig_message*)(buff);
 		
+		cmsg->super.sip = inet_addr("10.0.1.2");
+		cmsg->super.dip = inet_addr(argv[3]);
+		cmsg->super.sport = htons(atoi(argv[2]));
+		cmsg->super.dport = htons(5001);
+		cmsg->rightSS = cmsg->leftSS = cmsg->super;
+		
+		sc_index = 4;
+
+		break;
 	}
 	
 	if((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
