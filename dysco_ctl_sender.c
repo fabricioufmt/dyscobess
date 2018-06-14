@@ -151,7 +151,7 @@ int main(int argc, char** argv) {
 		cmsg->super.dip = inet_addr("10.0.10.2");
 		cmsg->super.sport = htons(atoi(argv[2]));
 		cmsg->super.dport = htons(5001);
-		cmsg->leftSS = cmsg->super;
+		cmsg->rightSS = cmsg->leftSS = cmsg->super;
 		cmsg->rightSS.sip = inet_addr(argv[3]);
 		cmsg->rightSS.sport = htons(atoi(argv[4]));
 		
