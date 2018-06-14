@@ -732,6 +732,11 @@ bool DyscoAgentOut::control_output(Ipv4* ip, Tcp* tcp) {
 		}
 		
 		//old_dcb = dc->lookup_output_by_ss(this->index, &cmsg->leftSS);
+
+#ifdef DEBUG
+		fprintf(stderr, "Looking for %s on output.\n", printSS(cmsg->super));
+#endif
+		
 		old_dcb = dc->lookup_output_by_ss(this->index, &cmsg->super);
 		if(!old_dcb) {
 #ifdef DEBUG
