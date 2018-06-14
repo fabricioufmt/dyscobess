@@ -27,6 +27,7 @@ struct tcp_session {
 };
 
 struct reconfig_message {
+	struct tcp_session      my_sub;
 	struct tcp_session	super;
 	struct tcp_session	leftSS;
 	struct tcp_session	rightSS;
@@ -123,8 +124,8 @@ int main(int argc, char** argv) {
 	*/
 
 	cmsg = (struct reconfig_message*)(buff);
-	cmsg->super.sip = inet_addr("10.0.2.1");
-	cmsg->super.dip = inet_addr("10.0.3.1");
+	cmsg->super.sip = inet_addr("10.0.1.2");
+	cmsg->super.dip = inet_addr("10.0.10.2");
 	cmsg->super.sport = htons(atoi(argv[1]));
 	cmsg->super.dport = htons(5001);
 
@@ -139,7 +140,7 @@ int main(int argc, char** argv) {
 	*/
 	for(i = 0; i < sc_len; i++)
 		sc[i] = inet_addr(argv[2 + i]);
-	cmsg->leftA = inet_addr("10.0.2.1");
+	cmsg->leftA = inet_addr("10.0.1.2");
 	cmsg->rightA = sc[sc_len - 1];
 	
 	fprintf(stdout, "Sending data (cmsg + sc) with %d service chain elements with ", sc_len);
