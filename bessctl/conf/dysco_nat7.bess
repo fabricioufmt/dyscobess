@@ -149,7 +149,7 @@ dout5 -> l2_5
 PortInc(port=R_5) -> l2_5
 PortInc(port=nat2_1) -> l2_10
 PortInc(port=R_10) -> l2_10
-PortInc(port=nat2_2 -> l2_11
+PortInc(port=nat2_2) -> l2_11
 dout10 -> l2_11
 
 din1:1 -> l2_0
