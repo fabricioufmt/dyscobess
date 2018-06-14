@@ -83,24 +83,11 @@ int main(int argc, char** argv) {
 	uint32_t sc_index;
 	struct reconfig_message* cmsg;
 
-	/*
-	if(argc < 5) {
-		fprintf(stderr, "Usage: %s <sup:src_port><leftSS:src_port><rightSS:src_port> <sc1> <sc2> <...>\n", argv[0]);
-		exit(EXIT_FAILURE);
-	}
-	sc_len = argc - 4;
-	*/
-
 	if(argc < 3) {
 		printUsage(argv[0]);
 		exit(EXIT_FAILURE);
 	}
 
-	tx_len = sizeof(struct reconfig_message) + sizeof(uint32_t) + sc_len * sizeof(uint32_t) + 1; //+4 for Service Chain length (uint32) +1 for tag (0xFF)
-	buff = malloc(tx_len);
-	memset(buff, 0, tx_len);
-	cmsg = (struct reconfig_message*)(buff);
-	
 	switch(atoi(argv[1])) {
 	case 0:
 		if(argc < 4) {
@@ -108,13 +95,18 @@ int main(int argc, char** argv) {
 			exit(EXIT_FAILURE);
 		}
 
+		sc_len = argc - 3;
+		tx_len = sizeof(struct reconfig_message) + sizeof(uint32_t) + sc_len * sizeof(uint32_t) + 1; //+4 for Service Chain length (uint32) +1 for tag (0xFF)
+		buff = malloc(tx_len);
+		memset(buff, 0, tx_len);
+		cmsg = (struct reconfig_message*)(buff);
+		
 		cmsg->super.sip = inet_addr("10.0.1.2");
 		cmsg->super.dip = inet_addr("10.0.10.2");
 		cmsg->super.sport = htons(atoi(argv[2]));
 		cmsg->super.dport = htons(5001);
 		cmsg->leftSS = cmsg->rightSS = cmsg->super;
 		
-		sc_len = argc - 4;
 		sc_index = 3;
 
 		break;
@@ -124,6 +116,12 @@ int main(int argc, char** argv) {
 			exit(EXIT_FAILURE);
 		}
 
+		sc_len = argc - 5;
+		tx_len = sizeof(struct reconfig_message) + sizeof(uint32_t) + sc_len * sizeof(uint32_t) + 1; //+4 for Service Chain length (uint32) +1 for tag (0xFF)
+		buff = malloc(tx_len);
+		memset(buff, 0, tx_len);
+		cmsg = (struct reconfig_message*)(buff);
+		
 		cmsg->super.sip = inet_addr("10.0.1.2");
 		cmsg->super.dip = inet_addr("10.0.10.2");
 		cmsg->super.sport = htons(atoi(argv[2]));
@@ -133,7 +131,6 @@ int main(int argc, char** argv) {
 		cmsg->leftSS.sport = htons(atoi(argv[4]));
 		cmsg->rightSS = cmsg->leftSS;
 		
-		sc_len = argc - 6;
 		sc_index = 5;
 
 		break;
