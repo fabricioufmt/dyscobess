@@ -1051,7 +1051,7 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 	
 	memcpy(&cb_in->cmsg, cmsg, sizeof(DyscoControlMessage));
 
-	uint32_t* sc = (uint32_t*)(payload + sizeof(DyscoControlMessage));
+	//uint32_t* sc = (uint32_t*)(payload + sizeof(DyscoControlMessage));
 		
 	if(ntohs(cmsg->semantic) == NOSTATE_TRANSFER || sc_len < 2) {
 		remove_sc(pkt, ip, payload_sz);
