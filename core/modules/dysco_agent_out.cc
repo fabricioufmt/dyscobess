@@ -76,8 +76,6 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 			fprintf(stderr, "It's reconfiguration packet, should be only SYN.\n");
 #endif
 			if(control_output(ip, tcp)) {
-				//dysco_packet(eth);
-
 				dc->add_retransmission(this->index, devip, pkt);
 			
 #ifdef DEBUG
@@ -89,7 +87,6 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 		}
 			
 		if(output(pkt, ip, tcp, cb_out)) {
-			//dysco_packet(eth);
 			out_gates[1].add(pkt);
 		} else
 			out_gates[0].add(pkt);
@@ -606,7 +603,6 @@ void DyscoAgentOut::remove_tag(Packet* pkt, Ipv4* ip, Tcp* tcp) {
 DyscoCbReconfig* DyscoAgentOut::insert_cb_control(Ipv4* ip, Tcp* tcp, DyscoControlMessage* cmsg) {
 	DyscoCbReconfig* rcb = new DyscoCbReconfig();
 
-	//rcb->super = cmsg->leftSS;
 	rcb->super = cmsg->super;
 	rcb->sub_out.sip = ip->src.raw_value();
 	rcb->sub_out.dip = ip->dst.raw_value();
@@ -658,41 +654,6 @@ bool DyscoAgentOut::control_insert_out(DyscoCbReconfig* rcb) {
 	return true;
 }
 
-bool DyscoAgentOut::replace_cb_rightA(DyscoControlMessage* cmsg) {
-	DyscoCbReconfig* rcb = dc->lookup_reconfig_by_ss(this->index, &cmsg->super);
-
-	if(!rcb)
-		return false;
-
-	DyscoHashOut* old_out = rcb->old_dcb;
-	DyscoHashOut* new_out = rcb->new_dcb;
-
-	uint32_t seq_cutoff = old_out->seq_cutoff;
-	old_out->old_path = 1;
-	//old_out->state = DYSCO_SYN_RECEIVED;
-	old_out->other_path = new_out;
-
-	if(new_out->seq_add)
-		seq_cutoff += new_out->seq_delta;
-	else
-		seq_cutoff -= new_out->seq_delta;
-
-	cmsg->seqCutoff = htonl(seq_cutoff);
-
-	return true;
-}
-
-bool DyscoAgentOut::replace_cb_leftA(DyscoCbReconfig* rcb, DyscoControlMessage* cmsg) {
-	DyscoHashOut* old_dcb = rcb->old_dcb;
-
-	//if(old_dcb->state == DYSCO_SYN_SENT)
-	//	old_dcb->state = DYSCO_ESTABLISHED;
-
-	cmsg->seqCutoff = htonl(old_dcb->seq_cutoff);
-
-	return true;
-}
-
 bool DyscoAgentOut::control_output(Ipv4* ip, Tcp* tcp) {
 	uint8_t* payload = reinterpret_cast<uint8_t*>(tcp) + (tcp->offset << 2);
 	DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>(payload);
@@ -730,8 +691,6 @@ bool DyscoAgentOut::control_output(Ipv4* ip, Tcp* tcp) {
 
 			return true;
 		}
-		
-		//old_dcb = dc->lookup_output_by_ss(this->index, &cmsg->leftSS);
 
 #ifdef DEBUG
 		fprintf(stderr, "Looking for %s on output.\n", printSS(cmsg->super));
@@ -839,14 +798,6 @@ bool DyscoAgentOut::control_output(Ipv4* ip, Tcp* tcp) {
 
 	return true;
 }
-
-void DyscoAgentOut::dysco_packet(Ethernet* eth) {
-	eth->dst_addr.FromString(DYSCO_MAC);
-}
-
-
-
-
 
 DyscoHashIn* DyscoAgentOut::insert_cb_out_reverse(DyscoHashOut* cb_out, uint8_t two_paths, DyscoControlMessage* cmsg) {
 	DyscoHashIn* cb_in = new DyscoHashIn();

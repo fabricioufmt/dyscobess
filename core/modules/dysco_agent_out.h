@@ -48,8 +48,6 @@ class DyscoAgentOut final : public Module {
 	
 	bool control_output(Ipv4*, Tcp*);
 	bool control_insert_out(DyscoCbReconfig*);
-	bool replace_cb_rightA(DyscoControlMessage*);
-	bool replace_cb_leftA(DyscoCbReconfig*, DyscoControlMessage*);
 	DyscoCbReconfig* insert_cb_control(Ipv4*, Tcp*, DyscoControlMessage*);
 
 	DyscoHashIn* insert_cb_out_reverse(DyscoHashOut*, uint8_t, DyscoControlMessage* = 0);
