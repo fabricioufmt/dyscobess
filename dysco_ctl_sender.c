@@ -181,6 +181,35 @@ int main(int argc, char** argv) {
 		sc_index = 4;
 
 		break;
+
+	case 4:
+		if(argc < 6) {
+			printUsage(argv[0]);
+			exit(EXIT_FAILURE);
+		}
+
+		sc_len = argc - 5;
+		tx_len = sizeof(struct reconfig_message) + sizeof(uint32_t) + sc_len * sizeof(uint32_t) + 1; //+4 for Service Chain length (uint32) +1 for tag (0xFF)
+		buff = malloc(tx_len);
+		memset(buff, 0, tx_len);
+		cmsg = (struct reconfig_message*)(buff);
+		
+		cmsg->super.sip = inet_addr("10.0.0.2");
+		cmsg->super.dip = inet_addr("10.0.11.2");
+		cmsg->super.sport = htons(atoi(argv[2]));
+		cmsg->super.dport = htons(5001);
+		cmsg->rightSS = cmsg->leftSS = cmsg->super;
+
+		cmsg->leftSS.sip = inet_addr("10.0.1.2");
+		cmsg->leftSS.sport = htons(atoi(argv[3]));
+
+		cmsg->rightSS.sip = inet_addr("10.0.11.1");
+		cmsg->rightSS.sport = htons(atoi(argv[4]));
+		
+		sc_index = 5;
+
+		break;
+		
 	}
 	
 	if((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
