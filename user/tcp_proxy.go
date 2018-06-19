@@ -104,11 +104,13 @@ func spliceConnections(l, r net.Conn) {
 	var stateTransf uint16
 	
 	if middlebox == "" {
-		chain := []string{c2Remote[0]}
+		/*chain := []string{c2Remote[0]}*/
+		chain := []string{"10.0.4.2"}
 		sc, _ = dysco.CreateSC(1, chain)
 		stateTransf = dysco.NOSTATE_TRANSFER
 	} else {
-		chain := []string{middlebox, c2Remote[0]}
+		/*chain := []string{middlebox, c2Remote[0]}*/
+		chain := []string{middlebox, "10.0.4.2"}
 		sc, _ = dysco.CreateSC(2, chain)
 		stateTransf = dysco.NOSTATE_TRANSFER
 	}
