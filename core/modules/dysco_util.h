@@ -470,6 +470,43 @@ class DyscoHashes {
 	unordered_map<uint32_t, unordered_map<uint32_t, LNode<Packet>* >* > received_hash;
 };
 
+
+/*********************************************************************
+ *
+ *	DEBUG
+ *
+ *********************************************************************/
+inline char* printIP(uint32_t ip) {
+	uint8_t bytes[4];
+        char* buf = (char*) malloc(17);
+	
+        bytes[0] = ip & 0xFF;
+        bytes[1] = (ip >> 8) & 0xFF;
+        bytes[2] = (ip >> 16) & 0xFF;
+        bytes[3] = (ip >> 24) & 0xFF;
+        sprintf(buf, "%d.%d.%d.%d", bytes[3], bytes[2], bytes[1], bytes[0]);
+
+        return buf;
+}
+
+inline char* printSS(DyscoTcpSession ss) {
+	char* buf = (char*) malloc(64);
+	sprintf(buf, "%s:%u -> %s:%u",
+		printIP(ntohl(ss.sip)), ntohs(ss.sport),
+		printIP(ntohl(ss.dip)), ntohs(ss.dport));
+
+	return buf;
+}
+
+inline char* printPacketSS(Ipv4* ip, Tcp* tcp) {
+	char* buf = (char*) malloc(64);
+	sprintf(buf, "%s:%u -> %s:%u",
+		printIP(ip->src.value()), tcp->src_port.value(),
+		printIP(ip->dst.value()), tcp->dst_port.value());
+
+	return buf;
+}
+
 /*********************************************************************
  *
  *	Auxiliary methods
@@ -832,42 +869,6 @@ inline bool parse_tcp_syn_opt_r(Tcp* tcp, DyscoHashIn* cb_in) {
 	}
 	
 	return true;
-}
-
-/*********************************************************************
- *
- *	DEBUG
- *
- *********************************************************************/
-inline char* printIP(uint32_t ip) {
-	uint8_t bytes[4];
-        char* buf = (char*) malloc(17);
-	
-        bytes[0] = ip & 0xFF;
-        bytes[1] = (ip >> 8) & 0xFF;
-        bytes[2] = (ip >> 16) & 0xFF;
-        bytes[3] = (ip >> 24) & 0xFF;
-        sprintf(buf, "%d.%d.%d.%d", bytes[3], bytes[2], bytes[1], bytes[0]);
-
-        return buf;
-}
-
-inline char* printSS(DyscoTcpSession ss) {
-	char* buf = (char*) malloc(64);
-	sprintf(buf, "%s:%u -> %s:%u",
-		printIP(ntohl(ss.sip)), ntohs(ss.sport),
-		printIP(ntohl(ss.dip)), ntohs(ss.dport));
-
-	return buf;
-}
-
-inline char* printPacketSS(Ipv4* ip, Tcp* tcp) {
-	char* buf = (char*) malloc(64);
-	sprintf(buf, "%s:%u -> %s:%u",
-		printIP(ip->src.value()), tcp->src_port.value(),
-		printIP(ip->dst.value()), tcp->dst_port.value());
-
-	return buf;
 }
 
 #endif //BESS_MODULES_DYSCOUTIL_H_
