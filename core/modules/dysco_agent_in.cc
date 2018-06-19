@@ -366,7 +366,6 @@ bool DyscoAgentIn::rx_initiation_new(Packet* pkt, Ipv4* ip, Tcp* tcp, uint32_t p
 		cb_in->my_sup = cb_in->sub;
 		cb_in->my_sup.dip = neigh_supss->dip;
 		cb_in->my_sup.dport = neigh_supss->dport;
-		//nated = true;
 	} else {
 #ifdef DEBUG
 		fprintf(stderr, "[%s][DyscoAgentIn] not NAT crossed.\n", ns.c_str());
@@ -384,12 +383,16 @@ bool DyscoAgentIn::rx_initiation_new(Packet* pkt, Ipv4* ip, Tcp* tcp, uint32_t p
 		uint32_t sc_len = (payload_sz - 2 * sizeof(DyscoTcpSession))/sizeof(uint32_t);
 
 		DyscoHashOut* cb_out = new DyscoHashOut();
-		
+
+		/*
 		cb_out->sup.sip = neigh_supss->sip;
 		cb_out->sup.dip = neigh_supss->dip;
 		cb_out->sup.sport = neigh_supss->sport;
 		cb_out->sup.dport = neigh_supss->dport;
+		*/
 
+		cb_out->sup = cb_in->my_sup;
+		
 		cb_out->dysco_tag = dc->get_dysco_tag(this->index);
 		cb_out->sc_len = sc_len - 1;
 		cb_out->sc = new uint32_t[sc_len - 1];
