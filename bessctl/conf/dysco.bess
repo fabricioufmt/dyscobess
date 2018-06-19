@@ -184,10 +184,10 @@ dout9:1 -> l2_7
 din10:1 -> l2_8
 dout10:1 -> l2_8
 
-l2_1:0 -> din1
-l2_1:1 -> din3
-l2_2:0 -> din2
-l2_2:1 -> din4
+l2_1:0 -> din3
+l2_1:1 -> din1
+l2_2:0 -> din4
+l2_2:1 -> din2
 l2_3:0 -> PortOut(port=R_1)
 l2_3:1 -> din5
 l2_4:0 -> PortOut(port=R_2)
