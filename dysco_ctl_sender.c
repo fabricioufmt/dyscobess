@@ -230,8 +230,9 @@ int main(int argc, char** argv) {
 	
 	for(i = 0; i < sc_len; i++)
 		sc[i] = inet_addr(argv[sc_index + i]);
-	cmsg->leftA = inet_addr("10.0.1.2");
-	cmsg->rightA = sc[sc_len - 1];
+	cmsg->leftA = inet_addr("10.0.3.2");
+	//cmsg->rightA = sc[sc_len - 1];
+	cmsg->rightA = inet_addr("10.0.4.2");
 	
 	fprintf(stdout, "Sending data (cmsg + sc) with %d service chain elements with ", sc_len);
 	n = write(sockfd, buff, tx_len);
