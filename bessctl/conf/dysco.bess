@@ -65,10 +65,10 @@ l2_c.add(mac_addr='00:00:00:00:ff:02', gate=1)
 l2_c.add(mac_addr='00:00:00:00:ff:03', gate=2)
 l2_c.add(mac_addr='00:00:00:00:ff:04', gate=3)
 
-PortInc(port=c1_c) -> l2_c
+PortInc(port=LA_c) -> l2_c
 PortInc(port=m1_c) -> l2_c
 PortInc(port=m2_c) -> l2_c
-PortInc(port=s1_c) -> l2_c
+PortInc(port=RA_c) -> l2_c
 l2_c:0 -> PortOut(port=LA_c)
 l2_c:1 -> PortOut(port=m1_c)
 l2_c:2 -> PortOut(port=m2_c)
