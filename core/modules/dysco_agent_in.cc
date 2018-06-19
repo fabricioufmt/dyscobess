@@ -995,6 +995,9 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 	//-1 is because 0xFF byte for reconfig tag
 	
 	if(sc_len > 1) {
+#ifdef DEBUG
+		fprintf(stderr, "I am not last one on service chain.\n");
+#endif	
 		cb_out = new DyscoHashOut();
 
 		cb_out->sup = cb_in->my_sup;
@@ -1058,6 +1061,7 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 		
 	if(ntohs(cmsg->semantic) == NOSTATE_TRANSFER || sc_len < 2) {
 		remove_sc(pkt, ip, payload_sz);
+		insert_tag(pkt, ip, tcp);
 		hdr_rewrite_full_csum(ip, tcp, &cb_in->my_sup);
 	
 		return TO_GATE_0;
