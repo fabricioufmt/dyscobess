@@ -63,7 +63,7 @@ void printUsage(char* arg) {
 	fprintf(stderr, "Usage: %s <use_case> <args> <sc1> <sc2> <...>\n", arg);
 	fprintf(stderr, "Use case:\n");
 	fprintf(stderr, "0 <super_src_port> <sc1> <sc2> <...>\n");
-	fprintf(stderr, "1 <super_src_port> <leftSS_src> <leftSS_src_port> <sc1> <sc2> <...>\n");
+	fprintf(stderr, "1 <super_src_port> <leftSS_src_port> <sc1> <sc2> <...>\n");
 	fprintf(stderr, "2 <super_src_port> <rightSS_src> <rightSS_src_port> <sc1> <sc2> <...>\n");
 	fprintf(stderr, "3 <super_src_port> <super_dst> <sc1> <sc2> <...>\n");
 }
@@ -112,27 +112,27 @@ int main(int argc, char** argv) {
 
 		break;
 	case 1:
-		if(argc < 6) {
+		if(argc < 5) {
 			printUsage(argv[0]);
 			exit(EXIT_FAILURE);
 		}
 
-		sc_len = argc - 5;
+		sc_len = argc - 4;
 		tx_len = sizeof(struct reconfig_message) + sizeof(uint32_t) + sc_len * sizeof(uint32_t) + 1; //+4 for Service Chain length (uint32) +1 for tag (0xFF)
 		buff = malloc(tx_len);
 		memset(buff, 0, tx_len);
 		cmsg = (struct reconfig_message*)(buff);
 		
 		cmsg->super.sip = inet_addr("10.0.1.2");
-		cmsg->super.dip = inet_addr("10.0.10.2");
+		cmsg->super.dip = inet_addr("10.0.2.2");
 		cmsg->super.sport = htons(atoi(argv[2]));
 		cmsg->super.dport = htons(5001);
 		cmsg->leftSS = cmsg->super;
-		cmsg->leftSS.sip = inet_addr(argv[3]);
-		cmsg->leftSS.sport = htons(atoi(argv[4]));
+		cmsg->leftSS.sip = inet_addr("10.0.3.2");
+		cmsg->leftSS.sport = htons(atoi(argv[3]));
 		cmsg->rightSS = cmsg->leftSS;
 		
-		sc_index = 5;
+		sc_index = 4;
 
 		break;
 
