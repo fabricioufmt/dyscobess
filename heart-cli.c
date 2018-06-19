@@ -68,7 +68,7 @@ int main(int argc, char** argv) {
 	if(sockfd != -1) {
 		struct sockaddr_in serv_addr1;
 		serv_addr1.sin_family = AF_INET;
-		serv_addr1.sin_addr.s_addr = inet_addr("127.0.0.1");
+		serv_addr1.sin_addr.s_addr = inet_addr("172.16.0.1");
 		serv_addr1.sin_port = htons(6998);
 		int ret = connect(sockfd1, (struct sockaddr*) &serv_addr1, sizeof(serv_addr1));
 		if(ret == 0) {

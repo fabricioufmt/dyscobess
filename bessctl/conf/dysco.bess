@@ -18,10 +18,10 @@ os.system('ip netns add s1 > /dev/null')
 os.system('echo 1 > /proc/sys/net/ipv4/ip_forward')
 
 #Control interfaces
-LA_c::DyscoVPort(ifname='c1-c', netns='/var/run/netns/c1', mac_addr='00:00:00:00:ff:01', ip_addrs=['172.16.0.1/16'])
+LA_c::DyscoVPort(ifname='LA-c', netns='/var/run/netns/LA', mac_addr='00:00:00:00:ff:01', ip_addrs=['172.16.0.1/16'])
 m1_c::DyscoVPort(ifname='m1-c', netns='/var/run/netns/m1', mac_addr='00:00:00:00:ff:02', ip_addrs=['172.16.0.2/16'])
-m2_c::DyscoVPort(ifname='m2-c', netns='/var/run/netns/m2', mac_addr='00:00:00:00:ff:03', ip_addrs=['172.16.0.3/16'])
-RA_c::DyscoVPort(ifname='s1-c', netns='/var/run/netns/s1', mac_addr='00:00:00:00:ff:04', ip_addrs=['172.16.0.4/16'])
+c1_c::DyscoVPort(ifname='c1-c', netns='/var/run/netns/c1', mac_addr='00:00:00:00:ff:03', ip_addrs=['172.16.0.3/16'])
+RA_c::DyscoVPort(ifname='RA-c', netns='/var/run/netns/RA', mac_addr='00:00:00:00:ff:04', ip_addrs=['172.16.0.4/16'])
 
 LA_1::DyscoVPort(ifname='LA-1', netns='/var/run/netns/LA', mac_addr='00:00:00:00:00:32', ip_addrs=['10.0.3.2/24'])
 RA_1::DyscoVPort(ifname='RA-1', netns='/var/run/netns/RA', mac_addr='00:00:00:00:00:42', ip_addrs=['10.0.4.2/24'])
@@ -67,11 +67,11 @@ l2_c.add(mac_addr='00:00:00:00:ff:04', gate=3)
 
 PortInc(port=LA_c) -> l2_c
 PortInc(port=m1_c) -> l2_c
-PortInc(port=m2_c) -> l2_c
+PortInc(port=c1_c) -> l2_c
 PortInc(port=RA_c) -> l2_c
 l2_c:0 -> PortOut(port=LA_c)
 l2_c:1 -> PortOut(port=m1_c)
-l2_c:2 -> PortOut(port=m2_c)
+l2_c:2 -> PortOut(port=c1_c)
 l2_c:3 -> PortOut(port=RA_c)
 
 dc::DyscoCenter()
