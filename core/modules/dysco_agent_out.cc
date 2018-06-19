@@ -329,6 +329,7 @@ void DyscoAgentOut::out_translate(bess::Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOu
 	} else {
 #ifdef DEBUG
 		fprintf(stderr, "other_path\n");
+		fprintf(stderr, "other_path->state: %d\n", other_path->state);
 #endif
 		if(other_path->state == DYSCO_ESTABLISHED) {
 			if(isTCPFIN(tcp))

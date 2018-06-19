@@ -1068,37 +1068,6 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 	}
 
 	return TO_GATE_1;
-	
-	//STATE_TRANSFER -- not tested
-	/*
-#ifdef DEBUG
-	fprintf(stderr, "STATE_TRANSFER.\n");
-	fprintf(stderr, "super: %s.\n", printSS(cmsg->super));
-	fprintf(stderr, "leftSS: %s.\n", printSS(cmsg->leftSS));
-	fprintf(stderr, "rightSS: %s.\n", printSS(cmsg->rightSS));
-#endif
-	
-	cb_in->dcb_out->state = DYSCO_SYN_SENT;
-	if(isTCPSYN(tcp, true)) {
-		ip->length = ip->length - be16_t(sizeof(uint32_t));
-		pkt->trim(sizeof(uint32_t));
-		
-		ip->src = ip->dst;
-		ip->dst = be32_t(ntohl(sc[1]));
-
-		memcpy(payload + sizeof(DyscoControlMessage), payload + sizeof(DyscoControlMessage) + 4, (sc_len - 1) * sizeof(uint32_t));
-		payload[sizeof(DyscoControlMessage) + (sc_len - 1) * sizeof(uint32_t)] = 0xFF;
-			
-		ip->checksum = 0;
-		tcp->checksum = 0;
-		ip->checksum = bess::utils::CalculateIpv4Checksum(*ip);
-		tcp->checksum = bess::utils::CalculateIpv4TcpChecksum(*ip, *tcp);
-		
-		return TO_GATE_1;
-	}
-
-	return TO_GATE_1;
-	*/
 }
 
 
