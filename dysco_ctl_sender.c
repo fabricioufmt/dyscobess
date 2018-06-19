@@ -60,8 +60,8 @@ struct reconfig_message {
 } __attribute__((packed));
 
 void printUsage(char* arg) {
-	fprintf(stderr, "Usage: %s <code> <args> <sc1> <sc2> <...>\n", arg);
-	fprintf(stderr, "Code:\n");
+	fprintf(stderr, "Usage: %s <use_case> <args> <sc1> <sc2> <...>\n", arg);
+	fprintf(stderr, "Use case:\n");
 	fprintf(stderr, "0 <super_src_port> <sc1> <sc2> <...>\n");
 	fprintf(stderr, "1 <super_src_port> <leftSS_src> <leftSS_src_port> <sc1> <sc2> <...>\n");
 	fprintf(stderr, "2 <super_src_port> <rightSS_src> <rightSS_src_port> <sc1> <sc2> <...>\n");
@@ -103,7 +103,7 @@ int main(int argc, char** argv) {
 		cmsg = (struct reconfig_message*)(buff);
 		
 		cmsg->super.sip = inet_addr("10.0.1.2");
-		cmsg->super.dip = inet_addr("10.0.10.2");
+		cmsg->super.dip = inet_addr("10.0.2.2");
 		cmsg->super.sport = htons(atoi(argv[2]));
 		cmsg->super.dport = htons(5001);
 		cmsg->leftSS = cmsg->rightSS = cmsg->super;
