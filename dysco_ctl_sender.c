@@ -123,12 +123,12 @@ int main(int argc, char** argv) {
 		memset(buff, 0, tx_len);
 		cmsg = (struct reconfig_message*)(buff);
 		
-		cmsg->super.sip = inet_addr("10.0.1.2");
+		cmsg->super.sip = inet_addr("10.0.0.2");
 		cmsg->super.dip = inet_addr("10.0.2.2");
 		cmsg->super.sport = htons(atoi(argv[2]));
 		cmsg->super.dport = htons(5001);
 		cmsg->leftSS = cmsg->super;
-		cmsg->leftSS.sip = inet_addr("10.0.3.2");
+		cmsg->leftSS.sip = inet_addr("10.0.1.2");
 		cmsg->leftSS.sport = htons(atoi(argv[3]));
 		cmsg->rightSS = cmsg->leftSS;
 		
