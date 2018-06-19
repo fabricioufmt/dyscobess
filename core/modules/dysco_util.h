@@ -524,6 +524,9 @@ inline bool isToLeftAnchor(Ipv4* ip, DyscoControlMessage* cmsg) {
 }
 
 inline bool isToRightAnchor(Ipv4* ip, DyscoControlMessage* cmsg) {
+#ifdef DEBUG
+	fprintf(stderr, "Destination IP: %s -- rightA IP: %s\n", printIP(ip->dst.raw_value()), printIP(cmsg->rightA));
+#endif
 	return ip->dst.value() == ntohl(cmsg->rightA);
 }
 
