@@ -62,6 +62,8 @@ var buff[]      byte
  *********************************************************************/	
 func spliceConnections(l, r net.Conn) {
 
+     	super := dysco.NewTcpSession(net.ParseIP("0"), net.ParseIP("0"), 0, 0)
+
      	c1Local  := strings.Split(l.LocalAddr().String(), ":")
 	c1Remote := strings.Split(l.RemoteAddr().String(), ":")
 	
@@ -115,7 +117,7 @@ func spliceConnections(l, r net.Conn) {
 		stateTransf = dysco.NOSTATE_TRANSFER
 	}
 
-	dysco_msg :=  dysco.NewReconfigMessage(leftSS, leftSS, rightSS,		
+	dysco_msg :=  dysco.NewReconfigMessage(super, leftSS, rightSS,		
 		net.ParseIP(c1Remote[0]), net.ParseIP(c2Remote[0]),
 		stateTransf, net.ParseIP("0.0.0.0"),
 		net.ParseIP("0.0.0.0"), sc)
