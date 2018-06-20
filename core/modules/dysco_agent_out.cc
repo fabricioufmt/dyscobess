@@ -699,18 +699,22 @@ bool DyscoAgentOut::control_output(Ipv4* ip, Tcp* tcp) {
 		}
 
 
-		//Looking for leftSS or super????
-		
 #ifdef DEBUG
-		fprintf(stderr, "Looking for %s on output.\n", printSS(cmsg->leftSS));
+		fprintf(stderr, "Looking for %s(super) on output.\n", printSS(cmsg->super));
 #endif
 		
-		old_dcb = dc->lookup_output_by_ss(this->index, &cmsg->leftSS);
+		old_dcb = dc->lookup_output_by_ss(this->index, &cmsg->super);
 		if(!old_dcb) {
 #ifdef DEBUG
-			fprintf(stderr, "lookup output returns false\n");
+			fprintf(stderr, "Looking for %s(leftSS) on output.\n", printSS(cmsg->leftSS));
 #endif
-			return false;
+			old_dcb = dc->lookup_output_by_ss(this->index, &cmsg->leftSS);
+			if(!old_dcb) {
+#ifdef DEBUG
+				fprintf(stderr, "lookup output returns false\n");
+#endif
+				return false;
+			}
 		}
 
 		/*
