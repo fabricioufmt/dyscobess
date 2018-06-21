@@ -55,7 +55,7 @@ os.system('ip netns exec m2 ifconfig lo up > /dev/null')
 os.system('ip netns exec R ifconfig lo up > /dev/null')
 os.system('ip netns exec nat ifconfig lo up > /dev/null')
 
-os.system('ip netns exec c1 route add default gw 10.0.0.1 > /dev/null')
+os.system('ip netns exec c1 route add default gw 10.0.1.1 > /dev/null')
 os.system('ip netns exec s1 route add default gw 10.0.0.1 > /dev/null')
 os.system('ip netns exec LA route add default gw 10.0.3.1 > /dev/null')
 os.system('ip netns exec RA route add default gw 10.0.4.1 > /dev/null')
