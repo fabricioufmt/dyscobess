@@ -65,7 +65,7 @@ void printUsage(char* arg) {
 	fprintf(stderr, "0 <super_src_port> <sc1> <sc2> <...>\n");
 	fprintf(stderr, "1 <super_src_port> <leftSS_src_port> <sc1> <sc2> <...>\n");
 	fprintf(stderr, "2 <super_src_port> <rightSS_src> <rightSS_src_port> <sc1> <sc2> <...>\n");
-	fprintf(stderr, "3 <super_src_port> <super_dst> <sc1> <sc2> <...>\n");
+	fprintf(stderr, "3 <super_src_port> <rightSS_src_port> <sc1> <sc2> <...>\n");
 }
 
 int main(int argc, char** argv) {
@@ -173,10 +173,12 @@ int main(int argc, char** argv) {
 		cmsg = (struct reconfig_message*)(buff);
 		
 		cmsg->super.sip = inet_addr("10.0.1.2");
-		cmsg->super.dip = inet_addr(argv[3]);
+		cmsg->super.dip = inet_addr("10.0.2.2");
 		cmsg->super.sport = htons(atoi(argv[2]));
 		cmsg->super.dport = htons(5001);
 		cmsg->rightSS = cmsg->leftSS = cmsg->super;
+		cmsg->rightSS.sip = inet_addr("10.0.0.2");
+		cmsg->rightSS.sport = htons(atoi(argv[3]));
 		
 		sc_index = 4;
 
