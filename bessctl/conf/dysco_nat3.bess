@@ -27,10 +27,10 @@ RA_c::DyscoVPort(ifname='RA-c', netns='/var/run/netns/RA', mac_addr='00:00:00:00
 
 LA_1::DyscoVPort(ifname='LA-1', netns='/var/run/netns/LA', mac_addr='00:00:00:00:00:32', ip_addrs=['10.0.3.2/24'])
 RA_1::DyscoVPort(ifname='RA-1', netns='/var/run/netns/RA', mac_addr='00:00:00:00:00:42', ip_addrs=['10.0.4.2/24'])
-m1_0::DyscoVPort(ifname='m1-0', netns='/var/run/netns/m1', mac_addr='00:00:00:00:00:02', ip_addrs=['10.0.5.2/24'])
-m1_1::DyscoVPort(ifname='m1-1', netns='/var/run/netns/m1', mac_addr='00:00:00:00:00:62', ip_addrs=['10.0.0.2/24'])
+m1_0::DyscoVPort(ifname='m1-0', netns='/var/run/netns/m1', mac_addr='00:00:00:00:00:52', ip_addrs=['10.0.5.2/24'])
+m1_1::DyscoVPort(ifname='m1-1', netns='/var/run/netns/m1', mac_addr='00:00:00:00:00:02', ip_addrs=['10.0.0.2/24'])
 nat_0::DyscoVPort(ifname='nat-0', netns='/var/run/netns/nat', mac_addr='00:00:00:00:00:01', ip_addrs=['10.0.0.1/24'])
-nat_1::DyscoVPort(ifname='nat-1', netns='/var/run/netns/nat', mac_addr='00:00:00:00:00:52', ip_addrs=['10.0.6.2/24'])
+nat_1::DyscoVPort(ifname='nat-1', netns='/var/run/netns/nat', mac_addr='00:00:00:00:00:62', ip_addrs=['10.0.6.2/24'])
 m2_0::DyscoVPort(ifname='m2-0', netns='/var/run/netns/m2', mac_addr='00:00:00:00:00:72', ip_addrs=['10.0.7.2/24'])
 m2_1::DyscoVPort(ifname='m2-1', netns='/var/run/netns/m2', mac_addr='00:00:00:00:00:82', ip_addrs=['10.0.8.2/24'])
 
