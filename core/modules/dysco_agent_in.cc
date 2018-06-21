@@ -584,7 +584,7 @@ bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in, uint32_t 
 		fprintf(stderr, "setting onto %s %s ack_cutoff: %X.\n", printSS(cb_out->sup), printSS(cb_out->sub), seq);
 #endif
 		cb_out->ack_cutoff = seq;
-		cb_out->valid_ack_cut = 1;	
+		cb_out->valid_ack_cut = 0;	
 	}
 
 	return true;
