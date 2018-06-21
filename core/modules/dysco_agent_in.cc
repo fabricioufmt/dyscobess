@@ -583,8 +583,7 @@ bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in, uint32_t 
 #ifdef DEBUG
 		fprintf(stderr, "setting onto %s %s ack_cutoff: %X.\n", printSS(cb_out->sup), printSS(cb_out->sub), seq);
 #endif
-		cb_out->ack_cutoff = seq;
-		cb_out->valid_ack_cut = 0;	
+		cb_out->ack_cutoff = seq;	
 	}
 
 	return true;
@@ -1191,7 +1190,10 @@ CONTROL_RETURN DyscoAgentIn::control_input(Packet* pkt, Ipv4* ip, Tcp* tcp, Dysc
 			
 			DyscoHashOut* old_dcb = rcb->old_dcb;
 
-			old_dcb->valid_ack_cut = 1;
+			if(!old_dcb->valid_ack_cut) {
+				old_dcb->valid_ack_cut = 1;
+				old_dcb->use_np_ack = 1;
+			}
 			
 			cb_out->state = DYSCO_ESTABLISHED;
 
