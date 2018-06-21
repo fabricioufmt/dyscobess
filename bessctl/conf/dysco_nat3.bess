@@ -210,7 +210,7 @@ l2_3:1 -> din5
 l2_4:0 -> PortOut(port=R_2)
 l2_4:1 -> din6
 l2_5:0 -> PortOut(port=R_3)
-l2_5:1 -> din8
+l2_5:1 -> din7
 l2_6:0 -> PortOut(port=R_4)
 l2_6:1 -> PortOut(port=nat_1)
 l2_7:0 -> PortOut(port=R_5)
