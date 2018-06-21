@@ -549,22 +549,19 @@ inline bool after(uint32_t seq2, uint32_t seq1) {
 }
 
 inline bool isFromLeftAnchor(Ipv4* ip, DyscoControlMessage* cmsg) {
-	return ip->src.value() == ntohl(cmsg->leftA);
+	return ip->src.raw_value() == cmsg->leftA;
 }
 
 inline bool isFromRightAnchor(Ipv4* ip, DyscoControlMessage* cmsg) {
-	return ip->src.value() == ntohl(cmsg->rightA);
+	return ip->src.raw_value() == cmsg->rightA;
 }
 
 inline bool isToLeftAnchor(Ipv4* ip, DyscoControlMessage* cmsg) {
-	return ip->dst.value() == ntohl(cmsg->leftA);
+	return ip->dst.raw_value() == cmsg->leftA;
 }
 
 inline bool isToRightAnchor(Ipv4* ip, DyscoControlMessage* cmsg) {
-#ifdef DEBUG
-	fprintf(stderr, "Destination IP: %s -- rightA IP: %s\n", printIP(ip->dst.raw_value()), printIP(cmsg->rightA));
-#endif
-	return ip->dst.value() == ntohl(cmsg->rightA);
+	return ip->dst.raw_value() == cmsg->rightA;
 }
 
 inline uint32_t hasPayload(Ipv4* ip, Tcp* tcp) {
