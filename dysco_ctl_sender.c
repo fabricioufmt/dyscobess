@@ -177,7 +177,7 @@ int main(int argc, char** argv) {
 		cmsg->super.sport = htons(atoi(argv[2]));
 		cmsg->super.dport = htons(5001);
 		cmsg->rightSS = cmsg->leftSS = cmsg->super;
-		cmsg->rightSS.sip = inet_addr("10.0.0.2");
+		cmsg->rightSS.sip = inet_addr("10.0.6.2");
 		cmsg->rightSS.sport = htons(atoi(argv[3]));
 		
 		sc_index = 4;
