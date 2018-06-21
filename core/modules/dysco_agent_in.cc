@@ -563,9 +563,16 @@ bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in, uint32_t 
 			}
 
 			if(old_out->valid_ack_cut) {
-				if(before(seq, old_out->ack_cutoff))
+				if(before(seq, old_out->ack_cutoff)) {
+#ifdef DEBUG
+					fprintf(stderr, "setting onto %s %s ack_cutoff: %X.\n", printSS(old_out->sup), printSS(old_out->sub), seq);
+#endif
 					old_out->ack_cutoff = seq;
+				}
 			} else {
+#ifdef DEBUG
+				fprintf(stderr, "setting onto %s %s ack_cutoff: %X.\n", printSS(old_out->sup), printSS(old_out->sub), seq);
+#endif
 				old_out->ack_cutoff = seq;
 				old_out->valid_ack_cut = 1;
 			}
@@ -573,7 +580,9 @@ bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in, uint32_t 
 	} else {
 		//TEST
 		uint32_t seq = tcp->seq_num.value() + payload + 1;
-		
+#ifdef DEBUG
+		fprintf(stderr, "setting onto %s %s ack_cutoff: %X.\n", printSS(cb_out->sup), printSS(cb_out->sub), seq);
+#endif
 		cb_out->ack_cutoff = seq;
 		cb_out->valid_ack_cut = 1;	
 	}
@@ -1276,6 +1285,9 @@ CONTROL_RETURN DyscoAgentIn::control_input(Packet* pkt, Ipv4* ip, Tcp* tcp, Dysc
 				new_out->state = DYSCO_ESTABLISHED;
 			
 			if(!old_out->state_t) {
+#ifdef DEBUG
+				fprintf(stderr, "setting onto %s %s to ack_cutoff: %x.\n", printSS(old_out->sup), printSS(old_out->sub), old_out_ack_cutoff);
+#endif
 				old_out->ack_cutoff = old_out_ack_cutoff;
 				old_out->valid_ack_cut = 1;
 			}
