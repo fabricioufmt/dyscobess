@@ -96,7 +96,6 @@ int main(int argc, char** argv) {
 	case 0:
 	case 4:
 	case 5:
-	case 6:
 		if(argc < 4) {
 			printUsage(argv[0]);
 			exit(EXIT_FAILURE);
@@ -190,7 +189,28 @@ int main(int argc, char** argv) {
 		sc_index = 4;
 
 		break;
-	
+
+	case 6:
+		if(argc < 4) {
+			printUsage(argv[0]);
+			exit(EXIT_FAILURE);
+		}
+
+		sc_len = argc - 3;
+		tx_len = sizeof(struct reconfig_message) + sizeof(uint32_t) + sc_len * sizeof(uint32_t) + 1; //+4 for Service Chain length (uint32) +1 for tag (0xFF)
+		buff = malloc(tx_len);
+		memset(buff, 0, tx_len);
+		cmsg = (struct reconfig_message*)(buff);
+		
+		cmsg->super.sip = inet_addr("10.0.1.2");
+		cmsg->super.dip = inet_addr("10.0.0.2");
+		cmsg->super.sport = htons(atoi(argv[2]));
+		cmsg->super.dport = htons(5001);
+		cmsg->leftSS = cmsg->rightSS = cmsg->super;
+		
+		sc_index = 3;
+
+		break;
 	}
 	
 	if((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
