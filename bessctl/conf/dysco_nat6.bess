@@ -161,7 +161,7 @@ dout2 -> l2_0
 PortInc(port=nat_0) -> l2_0
 dout1 -> l2_1
 dout3 -> l2_1
-dout2 -> l2_2
+dout4 -> l2_2
 PortInc(port=nat_1) -> l2_2
 dout5 -> l2_3
 PortInc(port=R_1) -> l2_3
