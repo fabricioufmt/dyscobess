@@ -66,7 +66,7 @@ os.system('ip netns exec m2 route add default gw 10.0.8.1 > /dev/null')
 
 os.system('ip netns exec R route add -net 10.0.1.0/24 gw 10.0.3.2 > /dev/null')
 os.system('ip netns exec R route add -net 10.0.0.0/24 gw 10.0.7.2 > /dev/null')
-os.system('ip netns exec nat route add default gw 10.0.7.1 > /dev/null')
+#os.system('ip netns exec nat route add default gw 10.0.7.1 > /dev/null')
 os.system('ip netns exec nat iptables -t nat -A POSTROUTING -o nat-0 -j MASQUERADE > /dev/null')
 os.system('ip netns exec nat iptables -t filter -A FORWARD -i nat-1 -j ACCEPT > /dev/null')
 
