@@ -126,7 +126,10 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 			case END:
 #ifdef DEBUG
 				fprintf(stderr, "3-way from Reconfiguration Session is DONE.\n\n");
+				fprintf(stderr, "cb_in->dcb_out->other_path: %s %s\n", printSS(cb_in->dcb_out->other_path->sub), printSS(cb_in->dcb_out->other_path->sup));
 #endif
+
+				
 				break;
 			case ERROR:
 #ifdef DEBUG
