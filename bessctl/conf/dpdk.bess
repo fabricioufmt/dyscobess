@@ -1,0 +1,43 @@
+import os
+import scapy.all as scapy
+
+#dpdk_ports = int($BESS_PORTS!'1')
+dpdk_ports = 2
+print('Using %d DPDK ports... (envvar "BESS_PORTS")' % dpdk_ports)
+
+os.system('rm -rf /tmp/vhost*.sock')
+
+port0::PMDPort(port_id=0, num_inc_q=1, num_out_q=1)
+port1::PMDPort(port_id=1, num_inc_q=1, num_out_q=1)
+vhost0::PMDPort(vdev='eth_vhost0,iface=/tmp/vhost0.sock', num_inc_q=1, num_out_q=1)
+vhost1::PMDPort(vdev='eth_vhost1,iface=/tmp/vhost1.sock', num_inc_q=1, num_out_q=1)
+
+#port0::PMDPort(port_id=0, num_inc_q=1, num_out_q=1)
+#port1::PMDPort(port_id=1, num_inc_q=1, num_out_q=1)
+
+pinc0::PortInc(port=port0)
+pinc1::PortInc(port=port1)
+pinc2::PortInc(port=vhost0)
+pinc3::PortInc(port=vhost1)
+pout0::PortOut(port=port0)
+pout1::PortOut(port=port1)
+pout2::PortOut(port=vhost0)
+pout3::PortOut(port=vhost1)
+
+#0 -> vhost0
+pinc0 -> pout2
+#1 -> vhost1
+pinc1 -> pout3
+
+#vhost0 -> 1
+pinc2 -> pout1
+#vhost1 -> 0
+pinc3 -> pout0
+
+#QueueInc(port=port0, qid=0) -> QueueOut(port=vhost0, qid=0)
+#QueueInc(port=vhost0, qid=0) -> QueueOut(port=port1, qid=0)
+#QueueInc(port=port1, qid=0) -> QueueOut(port=vhost1, qid=0)
+#QueueInc(port=vhost1, qid=0) -> QueueOut(port=port0, qid=0)
+
+#QueueInc(port=port0, qid=0) -> QueueOut(port=port1, qid=0)
+#QueueInc(port=port1, qid=0) -> QueueOut(port=port0, qid=0)
