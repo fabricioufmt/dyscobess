@@ -6,7 +6,7 @@ os.system('rm -rf /tmp/vhost*.sock')
 port0::PMDPort(port_id=0, num_inc_q=1, num_out_q=1)
 port1::PMDPort(port_id=1, num_inc_q=1, num_out_q=1)
 vport0::PMDPort(vdev='eth_vhost0,iface=/tmp/vport0.sock', num_inc_q=1, num_out_q=1)
-vport1::PMDPort(vdev='eth_vhost1,iface=/tmp/vport1.sock', num_inc_q=1, num_out_q=1)
+vport1::PMDPort(vdev='eth_pcap0,rx_pcap=/tmp/file_rx.pcap,tx_pcap=/tmp/file_tx.pcap', num_inc_q=1, num_out_q=1)
 
 dc::DyscoCenter()
 
