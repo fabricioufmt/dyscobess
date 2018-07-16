@@ -1,7 +1,7 @@
 import os
 import scapy.all as scapy
 
-os.system('rm -rf /tmp/vhost*.sock')
+os.system('rm -rf /tmp/vport*.sock')
 
 port0::PMDPort(port_id=0, num_inc_q=1, num_out_q=1)
 port1::PMDPort(port_id=1, num_inc_q=1, num_out_q=1)
