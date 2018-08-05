@@ -1,4 +1,4 @@
-#include "DPDKRing.h"
+#include "dpdkring.h"
 
 #include "../utils/ether.h"
 #include "../utils/format.h"
