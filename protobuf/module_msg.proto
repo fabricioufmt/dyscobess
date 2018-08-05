@@ -1216,7 +1216,7 @@ message UpdateMacArg {
 }
 
 message DPDKRingArg {
-	string _TX_RING = 1;
-	string _RX_RING = 2;
-	string _MEM_POOL = 3;
+	string TX_RING = 1;
+	string RX_RING = 2;
+	string MEM_POOL = 3;
 }
