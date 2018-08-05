@@ -15,15 +15,11 @@ CommandResponse DPDKRing::Init(const bess::pb::DPDKRingArg& arg) {
 	}
 	
 	_message_pool = rte_mempool_lookup(arg._MEM_POOL().c_str());
-	if(_message_pool) {
+	if(!_message_pool) {
 		return CommandFailure(EINVAL, "Error to lookup the mempool.");
 	}
 		
 	return CommandSuccess();
-}
-
-void DPDKRing::DeInit() {
-	//Nothing to do
 }
 
 int DPDKRing::RecvPackets(queue_t, bess::Packet** pkts, int cnt) {
