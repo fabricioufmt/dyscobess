@@ -1214,3 +1214,9 @@ message L2FWDCommandAddArg {
 message UpdateMacArg {
 	string mac_addr = 1;
 }
+
+message DPDKRingArg {
+	string _TX_RING = 1;
+	string _RX_RING = 2;
+	string _MEM_POOL = 3;
+}
