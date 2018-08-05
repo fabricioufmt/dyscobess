@@ -23,7 +23,7 @@ CommandResponse DPDKRing::Init(const bess::pb::DPDKRingArg& arg) {
 }
 
 int DPDKRing::RecvPackets(queue_t, bess::Packet** pkts, int cnt) {
-	return rte_ring_dequeue_burst(_rx_ring, (struct mbuf**) pkts, cnt)
+	return rte_ring_dequeue_burst(_rx_ring, (struct mbuf**) pkts, cnt);
 }
 
 int DPDKRing::SendPackets(queue_t, bess::Packet** pkts, int cnt) {
