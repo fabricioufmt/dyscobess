@@ -22,6 +22,10 @@ CommandResponse DPDKRing::Init(const bess::pb::DPDKRingArg& arg) {
 	return CommandSuccess();
 }
 
+void DPDKRing::DeInit() {
+
+}
+
 int DPDKRing::RecvPackets(queue_t, bess::Packet** pkts, int cnt) {
 	unsigned int avail;
 	

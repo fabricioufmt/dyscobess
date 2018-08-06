@@ -16,6 +16,7 @@ class DPDKRing final : public Port {
 		: Port() {}
 
 	CommandResponse Init(const bess::pb::DPDKRingArg&);
+	void DeInit();
 	int RecvPackets(queue_t, bess::Packet**, int);
 	int SendPackets(queue_t, bess::Packet**, int);
 
