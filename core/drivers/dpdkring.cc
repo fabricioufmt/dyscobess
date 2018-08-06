@@ -35,3 +35,5 @@ int DPDKRing::RecvPackets(queue_t, bess::Packet** pkts, int cnt) {
 int DPDKRing::SendPackets(queue_t, bess::Packet** pkts, int cnt) {
 	return rte_ring_enqueue_burst(_tx_ring, (void* const*) pkts, cnt, 0);
 }
+
+ADD_MODULE(DPDKRing, "dpdkring", "DPDK Ring module driver")
