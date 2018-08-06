@@ -4,8 +4,10 @@ import scapy.all as scapy
 dpdk_ports = 2
 print('Using %d DPDK ports...' % dpdk_ports)
 
-port0::PMDPort(port_id=0, num_inc_q=1, num_out_q=1)
-port1::PMDPort(port_id=1, num_inc_q=1, num_out_q=1)
+#port0::PMDPort(port_id=0, num_inc_q=1, num_out_q=1)
+#port1::PMDPort(port_id=1, num_inc_q=1, num_out_q=1)
+port0::PMDPort(port_id=0)
+port1::PMDPort(port_id=1)
 ring0::DPDKRing(rx_ring='dpdk0_2_snort', tx_ring='snort_2_dpdk0', mem_pool='click_mempool_snort_0')
 ring1::DPDKRing(rx_ring='dpdk1_2_snort', tx_ring='snort_2_dpdk1', mem_pool='click_mempool_snort_1')
 
