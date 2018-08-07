@@ -1,22 +1,24 @@
 #include "dpdkring.h"
 
+#include <rte_errno.h>
+
 #include "../utils/ether.h"
 #include "../utils/format.h"
 
 CommandResponse DPDKRing::Init(const bess::pb::DPDKRingArg& arg) {
 	_tx_ring = rte_ring_lookup(arg.tx_ring().c_str());
 	if(!_tx_ring) {
-		return CommandFailure(EINVAL, "Error to lookup the TX ring -- %s.", arg.tx_ring().c_str());
+		return CommandFailure(EINVAL, "Error to lookup the TX ring -- %s (%s).", arg.tx_ring().c_str(), rte_strerror(rte_errno));
 	}
 
 	_rx_ring = rte_ring_lookup(arg.rx_ring().c_str());
 	if(!_rx_ring) {
-		return CommandFailure(EINVAL, "Error to lookup the RX ring -- %s.", arg.rx_ring().c_str());
+		return CommandFailure(EINVAL, "Error to lookup the RX ring -- %s (%s)", arg.rx_ring().c_str(), rte_strerror(rte_errno));
 	}
 	
 	_message_pool = rte_mempool_lookup(arg.mem_pool().c_str());
 	if(!_message_pool) {
-		return CommandFailure(EINVAL, "Error to lookup the mempool. -- %s", arg.mem_pool().c_str());
+		return CommandFailure(EINVAL, "Error to lookup the mempool. -- %s (%s)", arg.mem_pool().c_str(), rte_strerror(rte_errno));
 	}
 		
 	return CommandSuccess();
