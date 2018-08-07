@@ -11,5 +11,5 @@ port1::PMDPort(port_id=1)
 ring0::DPDKRing(rx_ring='dpdk0_2_snort', tx_ring='snort_2_dpdk0', mem_pool='click_mempool_snort_0')
 ring1::DPDKRing(rx_ring='dpdk1_2_snort', tx_ring='snort_2_dpdk1', mem_pool='click_mempool_snort_1')
 
-port0 -> ring0
-ring1 -> port1
+PortInc(port=port0) -> PortOut(port=ring1)
+PortInc(port=port1) -> PortOut(port=ring0)
