@@ -8,7 +8,7 @@
 
 CommandResponse DPDKRing::Init(const bess::pb::DPDKRingArg& arg) {
 	int huge = rte_eal_has_hugepages();
-	if(huge < 0)
+	if(huge == 0)
 		fprintf(stderr, "No Hugepages\n");
 	else
 		fprintf(stderr, "Hugepages\n");
