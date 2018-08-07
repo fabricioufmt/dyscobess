@@ -19,12 +19,15 @@ CommandResponse DPDKRing::Init(const bess::pb::DPDKRingArg& arg) {
 		//return CommandFailure(EINVAL, "Error to lookup the RX ring -- %s (%s)", arg.rx_ring().c_str(), rte_strerror(rte_errno));
 		_rx_ring = rte_ring_create(arg.rx_ring().c_str(), 128, rte_socket_id(), 0);
 		if(!_rx_ring)
-			return CommandFailure(EINVAL, "Error to lookup and create the RX ring -- %s (%s)", arg.rx_ring().c_str(), rte_strerror(rte_errno));
+			return CommandFailure(EINVAL, "Error to lookup and create the RX ring -- %s (%s).", arg.rx_ring().c_str(), rte_strerror(rte_errno));
 	}
 	
 	_message_pool = rte_mempool_lookup(arg.mem_pool().c_str());
 	if(!_message_pool) {
-		return CommandFailure(EINVAL, "Error to lookup the mempool. -- %s (%s)", arg.mem_pool().c_str(), rte_strerror(rte_errno));
+		//return CommandFailure(EINVAL, "Error to lookup the mempool. -- %s (%s)", arg.mem_pool().c_str(), rte_strerror(rte_errno));
+		_message_pool = rte_mempool_create(arg.mem_pool().c_str(), 256, 64, 64, 0, NULL, NULL, NULL, NULL, rte_socket_id(), 0);
+		if(!_message_pool)
+			return CommandFailure(EINVAL, "Error to lookup and create the mempool -- %s (%s).", arg.mem_pool().c_str(), rte_strerror(rte_errno));
 	}
 		
 	return CommandSuccess();
