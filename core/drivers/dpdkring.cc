@@ -1,11 +1,18 @@
 #include "dpdkring.h"
 
+#include <rte_eal.h>
 #include <rte_errno.h>
 
 #include "../utils/ether.h"
 #include "../utils/format.h"
 
 CommandResponse DPDKRing::Init(const bess::pb::DPDKRingArg& arg) {
+	int huge = rte_eal_has_hugepages();
+	if(huge < 0)
+		fprintf(stderr, "No Hugepages\n");
+	else
+		fprintf(stderr, "Hugepages\n");
+	
 	_tx_ring = rte_ring_lookup(arg.tx_ring().c_str());
 	if(!_tx_ring) {
 		//return CommandFailure(EINVAL, "Error to lookup the TX ring -- %s (%s).", arg.tx_ring().c_str(), rte_strerror(rte_errno));
