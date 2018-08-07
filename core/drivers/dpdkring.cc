@@ -6,17 +6,17 @@
 CommandResponse DPDKRing::Init(const bess::pb::DPDKRingArg& arg) {
 	_tx_ring = rte_ring_lookup(arg.tx_ring().c_str());
 	if(!_tx_ring) {
-		return CommandFailure(EINVAL, "Error to lookup the TX ring.");
+		return CommandFailure(EINVAL, "Error to lookup the TX ring -- %s.", arg.tx_ring().c_str());
 	}
 
 	_rx_ring = rte_ring_lookup(arg.rx_ring().c_str());
 	if(!_rx_ring) {
-		return CommandFailure(EINVAL, "Error to lookup the RX ring.");
+		return CommandFailure(EINVAL, "Error to lookup the RX ring -- %s.", arg.rx_ring().c_str());
 	}
 	
 	_message_pool = rte_mempool_lookup(arg.mem_pool().c_str());
 	if(!_message_pool) {
-		return CommandFailure(EINVAL, "Error to lookup the mempool.");
+		return CommandFailure(EINVAL, "Error to lookup the mempool. -- %s", arg.mem_pool().c_str());
 	}
 		
 	return CommandSuccess();
