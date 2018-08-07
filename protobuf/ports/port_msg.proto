@@ -91,3 +91,9 @@ message DyscoVPortArg {
   bool loopback = 8;
   repeated string ip_addrs = 9;
 }
+
+message DPDKRing {
+	string rx_ring = 1;
+	string tx_ring = 2;
+	string mem_pool = 3;
+}
