@@ -92,7 +92,7 @@ message DyscoVPortArg {
   repeated string ip_addrs = 9;
 }
 
-message DPDKRing {
+message DPDKRingArg {
 	string rx_ring = 1;
 	string tx_ring = 2;
 	string mem_pool = 3;
