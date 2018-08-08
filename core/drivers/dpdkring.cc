@@ -46,8 +46,12 @@ void DPDKRing::DeInit() {
 
 int DPDKRing::RecvPackets(queue_t, bess::Packet** pkts, int cnt) {
 	unsigned int avail;
+
+	int n = rte_ring_dequeue_burst(_rx_ring, (void**) pkts, cnt, &avail);
+
+	fprintf(stderr, "received %d packets\n");
 	
-	return rte_ring_dequeue_burst(_rx_ring, (void**) pkts, cnt, &avail);
+	return n;
 }
 
 int DPDKRing::SendPackets(queue_t, bess::Packet** pkts, int cnt) {
