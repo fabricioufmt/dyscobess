@@ -14,8 +14,8 @@ payload = ('hello' + '0123456789' * 200)[:pkt_size-len(eth/ip/tcp)]
 pkt = eth/ip/tcp/payload
 pkt_data = bytes(pkt)
 
-#port0::PMDPort(port_id=0, num_inc_q=1, num_out_q=1)
-#port1::PMDPort(port_id=1, num_inc_q=1, num_out_q=1)
+port0::PMDPort(port_id=0, num_inc_q=1, num_out_q=1)
+port1::PMDPort(port_id=1, num_inc_q=1, num_out_q=1)
 port0::PMDPort(port_id=0)
 port1::PMDPort(port_id=1)
 ring0::DPDKRing(rx_ring='dpdk0_2_snort', tx_ring='snort_2_dpdk0', mem_pool='click_mempool_snort_0')
@@ -24,7 +24,7 @@ ring1::DPDKRing(rx_ring='dpdk1_2_snort', tx_ring='snort_2_dpdk1', mem_pool='clic
 FlowGen(template=pkt_data, pps=1e6, flow_rate = 1e4, flow_duration = 10.0, \
         arrival='exponential', duration='pareto', quick_rampup=True) -> PortOut(port=ring0)
 FlowGen(template=pkt_data, pps=1e6, flow_rate = 1e4, flow_duration = 10.0, \
-        arrival='exponential', duration='pareto', quick_rampup=True) -> PortOut(port=ring1)
+        arrival='exponential', duration='pareto', quick_rampup=True) -> PortOut(port=port0)
 
 #PortInc(port=port0) -> PortOut(port=ring1)
 #PortInc(port=port1) -> PortOut(port=ring0)
