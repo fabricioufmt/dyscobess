@@ -22,9 +22,9 @@ ring0::DPDKRing(rx_ring='dpdk0_2_snort', tx_ring='snort_2_dpdk0', mem_pool='clic
 ring1::DPDKRing(rx_ring='dpdk1_2_snort', tx_ring='snort_2_dpdk1', mem_pool='click_mempool_snort_1')
 
 FlowGen(template=pkt_data, pps=1e6, flow_rate = 1e4, flow_duration = 10.0, \
-        arrival='exponential', duration='pareto', quick_rampup=True) -> PortIn(port=ring0)
+        arrival='exponential', duration='pareto', quick_rampup=True) -> PortInc(port=ring0)
 FlowGen(template=pkt_data, pps=1e6, flow_rate = 1e4, flow_duration = 10.0, \
-        arrival='exponential', duration='pareto', quick_rampup=True) -> PortIn(port=ring1)
+        arrival='exponential', duration='pareto', quick_rampup=True) -> PortInc(port=ring1)
 
 #PortInc(port=port0) -> PortOut(port=ring1)
 #PortInc(port=port1) -> PortOut(port=ring0)
