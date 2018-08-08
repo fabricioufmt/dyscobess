@@ -130,7 +130,7 @@ static void init_eal(const char *prog_name, int mb_per_socket,
       std::to_string(RTE_MAX_LCORE - 1) + "@" + std::to_string(default_core),
       // Do not bother with /var/run/.rte_config and .rte_hugepage_info,
       // since we don't want to interfere with other DPDK applications.
-      "--no-shconf",
+      //"--no-shconf",
   };
 
   if (no_huge) {
