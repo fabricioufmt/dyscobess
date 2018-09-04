@@ -117,6 +117,9 @@ enum {
 #define DYSCO_TCP_OPTION_LEN            8
 #define TCPOLEN_SACK_BASE               2
 #define TCPOLEN_SACK_PERBLOCK           8
+
+#define LOCKING_OPTION                  254
+#define LOCKING_OPTION_LEN              4
 /*
 #define DYSCO_SYN_SENT			DYSCO_ADDING_NEW_PATH
 #define DYSCO_SYN_RECEIVED		DYSCO_ACCEPTING_NEW_PATH
@@ -621,6 +624,21 @@ inline void fix_csum(Ipv4* ip, Tcp* tcp) {
 inline void hdr_rewrite_full_csum(Ipv4* ip, Tcp* tcp, DyscoTcpSession* ss) {
 	hdr_rewrite(ip, tcp, ss);
 	fix_csum(ip, tcp);
+}
+
+inline bool isLockingPacket(Tcp* tcp) {
+	if(tcp->offset < 6)
+		return false;
+
+	DyscoTcpOption* tcpo = reinterpret_cast<DyscoTcpOption*>(reinterpret_cast<uint8_t*>(tcp) + 20);
+
+	return tcpo->kind == LOCKING_OPTION;
+}
+
+inline bool isLeftAnchor(Tcp* tcp) {
+	DyscoTcpOption* tcpo = reinterpret_cast<DyscoTcpOption*>(reinterpret_cast<uint8_t*>(tcp) + 20);
+
+	return (tcpo->padding >> 4) == 0;
 }
 
 inline DyscoTcpTs* get_ts_option(Tcp* tcp) {

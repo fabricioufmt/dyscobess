@@ -71,6 +71,14 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 #endif
 		cb_out = dc->lookup_output(this->index, ip, tcp);
 
+		if(isLockingPacket(tcp)) {
+			if(isLeftAnchor(tcp)) {
+				fprintf(stderr, "I'm the LeftAnchor\n");
+			} else {
+				fprintf(stderr, "I'm not the LeftAnchor\n");
+			}
+		}
+		
 		if(isReconfigPacketOut(ip, tcp, cb_out)) {
 #ifdef DEBUG
 			fprintf(stderr, "It's reconfiguration packet, should be only SYN.\n");
