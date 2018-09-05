@@ -458,7 +458,7 @@ unordered_map<uint32_t, LNode<Packet>*>* DyscoCenter::getHashReceived(uint32_t i
 	return dh->received_hash[devip];
 }
 
-bool DyscoCenter::save_sc(uint32_t i, Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) {
+bool DyscoCenter::save_sc(uint32_t i, Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut*) {
 	//should save sc...
 	//for test, i'm just removing...
 
