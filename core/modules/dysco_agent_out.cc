@@ -73,7 +73,13 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 
 		if(isLockingPacket(tcp)) {
 			if(isLeftAnchor(tcp)) {
-				fprintf(stderr, "I'm the LeftAnchor\n");
+				//Starting locking protocol if there is a cb_out entry
+				if(!cb_out) {
+					fprintf(stderr, "There is not a entry on cb_out\n");
+				} else {
+					fprintf(stderr, "There is a entry on cb_out\n");
+					fprintf(stderr, "Entry: %s\n", printSS(cb_out->sub));
+				}	
 			} else {
 				fprintf(stderr, "I'm not the LeftAnchor\n");
 			}
