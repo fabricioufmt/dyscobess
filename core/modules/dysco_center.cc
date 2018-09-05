@@ -458,4 +458,19 @@ unordered_map<uint32_t, LNode<Packet>*>* DyscoCenter::getHashReceived(uint32_t i
 	return dh->received_hash[devip];
 }
 
+bool DyscoCenter::save_sc(uint32_t i, Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) {
+	//should save sc...
+	//for test, i'm just removing...
+
+	uint32_t payload_sz = hasPayload(ip, tcp);
+	if(!payload_sz)
+		return false;
+
+	pkt->trim(payload_sz);
+	ip->length = ip->length - be16_t(payload_sz);
+
+	return true;
+}
+
+
 ADD_MODULE(DyscoCenter, "dysco_center", "Dysco center")

@@ -76,15 +76,22 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 				//Starting locking protocol if there is a cb_out entry
 				if(!cb_out) {
 					fprintf(stderr, "There is not a entry on cb_out\n");
+					continue;
 				} else {
 					fprintf(stderr, "There is a entry on cb_out\n");
 					fprintf(stderr, "Entry: %s\n", printSS(cb_out->sub));
+					fprintf(stderr, "State: %d\n", cb_out->state);
+					if(cb_out->state == DYSCO_REQUEST_LOCK || cb_out->state == DYSCO_ACK_LOCK || cb_out->state == DYSCO_NACK_LOCK) {
+						fprintf(stderr, "state either LOCK, ACK, or NACK... dropping\n");
+						continue;
+					}
 
-					//dc->save_service_chain(this->index, ip, tcp, cb_out);
+					dc->save_sc(this->index, pkt, ip, tcp, cb_out);
 					//update_four_tuple(...)
 					//fix_seq_ack(...)
 					//send
-					hdr_rewrite_csum(ip, tcp, &cb_out->sub);
+					hdr_rewrite(ip, tcp, &cb_out->sub);
+					fix_csum(ip, tcp);
 					out_gates[0].add(pkt);
 					continue;
 				}	

@@ -57,6 +57,11 @@ class DyscoCenter final : public Module {
 	bool add_retransmission(uint32_t, uint32_t, Packet*);
 	LinkedList<Packet>* getRetransmissionList(uint32_t, uint32_t);
 	unordered_map<uint32_t, LNode<Packet>*>* getHashReceived(uint32_t, uint32_t);
+
+	/*
+	  Locking methods
+	 */
+	bool save_sc(uint32_t, Packet*, Ipv4*, Tcp*, DyscoHashOut*);
 	
  private:
 	unordered_map<uint32_t, DyscoHashes*> hashes;
