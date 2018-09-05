@@ -22,7 +22,7 @@
 
 #define MIN_ARGC 7
 #define BUFSIZE 2048
-#define OPT_KIND 253
+#define OPT_KIND 254
 #define OPT_LENGTH 4
 
 struct pseudo_header {
@@ -35,9 +35,8 @@ struct pseudo_header {
 
 struct tcpopt {
 	uint8_t kind;
-	uint8_t length;
-	uint8_t lhop;
-	uint8_t rhop;
+	uint8_t len;
+	uint16_t padding;
 };
 
 /*
@@ -145,9 +144,10 @@ void create_segment(struct iphdr* iph, struct tcphdr* tcph, uint16_t sport, uint
 
 	//Construct the TCP Option
 	tcpo->kind = OPT_KIND;
-	tcpo->length = OPT_LENGTH;
-	tcpo->lhop = lhop;
-	tcpo->rhop = rhop;
+	tcpo->len = OPT_LENGTH;
+	tcpo->padding = lhop;
+	tcpo->padding <<= 8;
+	tcpo->padding |= rhop;
 
 	//Construct the pseudo header
 	struct pseudo_header psh;
