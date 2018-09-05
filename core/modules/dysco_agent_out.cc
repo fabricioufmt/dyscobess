@@ -79,6 +79,8 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 				} else {
 					fprintf(stderr, "There is a entry on cb_out\n");
 					fprintf(stderr, "Entry: %s\n", printSS(cb_out->sub));
+
+					dc->save_service_chain(this->index, ip, tcp, cb_out);
 				}	
 			} else {
 				fprintf(stderr, "I'm not the LeftAnchor\n");
