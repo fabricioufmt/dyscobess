@@ -80,9 +80,10 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 				} else {
 					fprintf(stderr, "There is a entry on cb_out\n");
 					fprintf(stderr, "Entry: %s\n", printSS(cb_out->sub));
+					fprintf(stderr, "Lock State: %d\n", cb_out->lock_state);
 					fprintf(stderr, "State: %d\n", cb_out->state);
-					if(cb_out->state == DYSCO_REQUEST_LOCK || cb_out->state == DYSCO_ACK_LOCK || cb_out->state == DYSCO_NACK_LOCK) {
-						fprintf(stderr, "state either LOCK, ACK, or NACK... dropping\n");
+					if(cb_out->lock_state == DYSCO_REQUEST_LOCK || cb_out->lock_state == DYSCO_ACK_LOCK || cb_out->lock_state == DYSCO_NACK_LOCK) {
+						fprintf(stderr, "lock_state either LOCK, ACK, or NACK... dropping\n");
 						continue;
 					}
 

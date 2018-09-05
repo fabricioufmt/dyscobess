@@ -85,7 +85,8 @@ enum {
 
 enum {
 	// Locking protocol
-	DYSCO_REQUEST_LOCK = 1,
+	DYSCO_NEW_LOCK = 0,
+	DYSCO_REQUEST_LOCK,
 	DYSCO_ACK_LOCK,
 	DYSCO_NACK_LOCK,
 	
@@ -425,6 +426,8 @@ class DyscoHashOut {
 	uint8_t is_reconfiguration:1,
 		is_nat:1,
 		state:6;
+
+	uint8_t lock_state;
 	
 	uint32_t ack_ctr;
 
