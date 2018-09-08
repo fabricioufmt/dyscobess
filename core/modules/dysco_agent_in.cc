@@ -130,7 +130,6 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 						//Am I the SignalAnchor?
 						//should verify a field on cb_in or cb_out and... inserting service-chain....
 
-						Ethernet* eth = pkt->head_data<Ethernet*>();
 						Ethernet::Address macswap = eth->dst_addr;
 						eth->dst_addr = eth->src_addr;
 						eth->src_addr = macswap;
