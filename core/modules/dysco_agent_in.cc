@@ -93,7 +93,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 				//start the locking...
 				//creating a SYN segment with new session etc etc...
 				//...
-				createLockingPacket(pkt, ip, tcp, cb_in);
+				createLockingPacket(pkt, ip, tcp, tcpo, cb_in);
 				out_gates[1].add(pkt);
 				break;
 			} else {
@@ -1464,7 +1464,7 @@ void DyscoAgentIn::createFinAck(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 void DyscoAgentIn::createLockingPacket(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoTcpOption* tcpo, DyscoHashIn* cb_in) {
 	// adjusting size of Packet
 	pkt->trim(tcpo->len);
-	DyscoControlMessage* cmsg = pkt->append(sizeof(DyscoControlMessage));
+	DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>(pkt->append(sizeof(DyscoControlMessage)));
 
 	ip->id = be16_t(rand());
 	ip->ttl = 53;
