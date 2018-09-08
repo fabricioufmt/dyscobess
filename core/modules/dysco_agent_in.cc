@@ -102,7 +102,37 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 		}
 
 		if(isLockingPacket(ip, tcp)) {
-			out_gates[0].add(pkt);
+			DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>(getPayload(ip, tcp));
+			if(isTCPSYN(tcp, true)) {
+				cb_in = dc->lookup_input_by_ss(this->index, &cmsg->my_sub);
+				if(!cb_in) {
+					fprintf(stderr, "[%s][DyscoAgentIn] does not found cb_in.\n", ns.c_str());
+					break;
+				}
+
+				if(!cb_in->dcb_out) {
+					fprintf(stderr, "[%s][DyscoAgentIn] does not found dcb_out.\n", ns.c_str());
+					break;
+				}
+				
+				if(cb_in->dcb_out->lock_state == DYSCO_CLOSED_LOCK) {
+					fprintf(stderr, "[%s][DyscoAgentIn] changing from DYSCO_CLOSED_LOCK to DYSCO_REQUEST_LOCK state.\n", ns.c_str());
+					cb_in->dcb_out->lock_state = DYSCO_REQUEST_LOCK;
+					out_gates[0].add(pkt);
+					break;
+				} else {
+					fprintf(stderr, "[%s][DyscoAgentIn] there is a locking running.\n", ns.c_str());
+					break;
+				}
+				
+				//should verify cb_in from old session
+				//and verify the state
+				//change to LOCK_REQUEST
+				//and send to other subss
+			} else {
+				
+			}
+			
 			break;
 		}
 		
@@ -1473,10 +1503,9 @@ void DyscoAgentIn::createLockingPacket(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoTcp
 	ip->id = be16_t(rand());
 	ip->ttl = 53;
 	ip->checksum = 0;
-	ip->src = be32_t(cb_in->sub.sip);
-	ip->dst = be32_t(cb_in->sub.dip);
-	uint16_t newlength = ip->length.value() - tcpo->len - hasPayload(ip, tcp) + sizeof(DyscoControlMessage);
-	ip->length = be16_t(newlength);
+	*((uint32_t*)(&ip->src)) = cb_in->sub.sip;
+	*((uint32_t*)(&ip->dst)) = cb_in->sub.dip;
+	ip->length = be16_t(ip->length.value() - tcpo->len - hasPayload(ip, tcp) + sizeof(DyscoControlMessage));
 	memset(cmsg, 0, sizeof(DyscoControlMessage));
 
 	tcp->src_port = be16_t(rand());

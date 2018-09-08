@@ -85,7 +85,7 @@ enum {
 
 enum {
 	// Locking protocol
-	DYSCO_NEW_LOCK = 0,
+	DYSCO_CLOSED_LOCK = 0,
 	DYSCO_REQUEST_LOCK,
 	DYSCO_ACK_LOCK,
 	DYSCO_NACK_LOCK,
@@ -633,6 +633,10 @@ inline void hdr_rewrite_full_csum(Ipv4* ip, Tcp* tcp, DyscoTcpSession* ss) {
 	fix_csum(ip, tcp);
 }
 
+inline void* getPayload(Ipv4* ip, Tcp* tcp) {
+	return reinterpret_cast<void*>(reinterpret_cast<char*>(tcp) + hasPayload(ip, tcp));
+}
+
 inline DyscoTcpOption* isLockSignalPacket(Tcp* tcp) {
 	if(tcp->offset < 6)
 		return 0;
@@ -643,13 +647,12 @@ inline DyscoTcpOption* isLockSignalPacket(Tcp* tcp) {
 }
 
 inline bool isLockingPacket(Ipv4* ip, Tcp* tcp) {
-	if(!isTCPSYN(tcp, true))
-		return false;
+	if(isTCPSYN(tcp, true) && hasPayload(ip, tcp) && tcp->dst_port == be16_t(LOCKING_PORT))
+		return true;
+	if(isTCPSYN(tcp) && isTCPACK(tcp) && hasPayload(ip, tcp) && tcp->src_port == be16_t(LOCKING_PORT))
+		return true;
 
-	if(!hasPayload(ip, tcp))
-		return false;
-
-	return tcp->dst_port == be16_t(LOCKING_PORT);
+	return false;
 }
 
 inline bool isLeftAnchor(DyscoTcpOption* tcpo) {

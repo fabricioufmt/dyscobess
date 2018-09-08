@@ -71,34 +71,50 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 #endif
 		cb_out = dc->lookup_output(this->index, ip, tcp);
 
-		if(isLockingPacket(ip, tcp)) {
-			//if(isLeftAnchor(tcp)) {
-				//Starting locking protocol if there is a cb_out entry
+		DyscoTcpOption* tcpo = isLockSignalPacket(tcp);
+		if(tcpo) {
+			if(isLeftAnchor(tcpo)) {
 				if(!cb_out) {
-					fprintf(stderr, "There is not a entry on cb_out\n");
+					fprintf(stderr, "[%s][DyscoAgentOut] There is not a entry on cb_out.\n", ns.c_str());
 					continue;
-				} else {
-					fprintf(stderr, "There is a entry on cb_out\n");
-					fprintf(stderr, "Entry: %s\n", printSS(cb_out->sub));
-					fprintf(stderr, "Lock State: %d\n", cb_out->lock_state);
-					fprintf(stderr, "State: %d\n", cb_out->state);
-					if(cb_out->lock_state == DYSCO_REQUEST_LOCK || cb_out->lock_state == DYSCO_ACK_LOCK || cb_out->lock_state == DYSCO_NACK_LOCK) {
-						fprintf(stderr, "lock_state either LOCK, ACK, or NACK... dropping\n");
-						continue;
-					}
+				}
+				
+				fprintf(stderr, "[%s][DyscoAgentOut] There is a entry on cb_out.\n", ns.c_str());
+				fprintf(stderr, "Entry: %s.\n", printSS(cb_out->sub));
+				fprintf(stderr, "State: %d.\n", cb_out->state);
+				fprintf(stderr, "Lock State: %d.\n", cb_out->lock_state);
+				
+				if(cb_out->lock_state != DYSCO_CLOSED_LOCK) {
+					fprintf(stderr, "Lock State: either LOCK, ACK, or NACK... dropping.\n");
+					continue;
+				}
 
-					dc->save_sc(this->index, pkt, ip, tcp, cb_out);
-					//update_four_tuple(...)
-					//fix_seq_ack(...)
-					//send
-					hdr_rewrite(ip, tcp, &cb_out->sub);
-					fix_csum(ip, tcp);
-					out_gates[0].add(pkt);
-					continue;
-				}	
-				//} else {
-				//fprintf(stderr, "I'm not the LeftAnchor\n");
-				//}
+				fprintf(stderr, "[%s][DyscoAgentOut] creating a LockingPacket(SYN+PAYLOAD) and sending it.");
+
+				DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>(getPayload(ip, tcp));
+				memcpy(tcpo, cmsg, sizeof(DyscoControlMessage));
+				pkt->trim(tcpo->len);
+				ip->id = be16_t(rand());
+				ip->ttl = 53;
+				ip->checksum = 0;
+				*((uint32_t*)(&ip->src)) = cb_in->sub.sip;
+				*((uint32_t*)(&ip->dst)) = cb_in->sub.dip;
+				ip->length = be16_t(ip->length.value() - tcpo->len);
+
+				tcp->src_port = be16_t(rand());
+				tcp->dst_port = be16_t(LOCKING_PORT);
+				tcp->seq_num = be32_t(rand());
+				tcp->ack_num = be32_t(rand());
+				tcp->offset = 5;
+				tcp->flags = Tcp::kSyn;
+				
+				cb_out->lock_state = DYSCO_REQUEST_LOCK;
+				
+				cmsg->my_sub = cb_out->sub;
+				fix_csum(ip, tcp);
+				out_gates[0].add(pkt);
+				continue;
+			}
 		}
 		
 		if(isReconfigPacketOut(ip, tcp, cb_out)) {
