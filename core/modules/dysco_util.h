@@ -121,6 +121,10 @@ enum {
 
 #define LOCKING_OPTION                  254
 #define LOCKING_OPTION_LEN              4
+
+
+#define LOCKING_PORT                    6999
+
 /*
 #define DYSCO_SYN_SENT			DYSCO_ADDING_NEW_PATH
 #define DYSCO_SYN_RECEIVED		DYSCO_ACCEPTING_NEW_PATH
@@ -638,13 +642,14 @@ inline DyscoTcpOption* isLockSignalPacket(Tcp* tcp) {
 	return tcpo;
 }
 
-inline bool isLockingPacket(Tcp* tcp) {
-	if(tcp->offset < 6)
+inline bool isLockingPacket(Packet* pkt, IPv4* ip, Tcp* tcp) {
+	if(!isTCPSYN(tcp, true))
 		return false;
 
-	DyscoTcpOption* tcpo = reinterpret_cast<DyscoTcpOption*>(reinterpret_cast<uint8_t*>(tcp) + 20);
+	if(!hasPayload(ip, tcp))
+		return false;
 
-	return tcpo->kind == LOCKING_OPTION;
+	return tcp->dst_port == be16_t(LOCKING_PORT);
 }
 
 inline bool isLeftAnchor(DyscoTcpOption* tcpo) {
