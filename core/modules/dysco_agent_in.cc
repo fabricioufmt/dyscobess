@@ -127,12 +127,14 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 					cmsg->rhop--;
 					if(cb_in->dcb_out->lock_state == DYSCO_CLOSED_LOCK) {
 						fprintf(stderr, "[%s][DyscoAgentIn] changing from DYSCO_CLOSED_LOCK to DYSCO_ACK_LOCK state... should forwarding a SYN+ACK packet to backwards\n", ns.c_str());
-						
-						
-
 						//Am I the SignalAnchor?
 						//should verify a field on cb_in or cb_out and... inserting service-chain....
 
+						Ethernet* eth = pkt->head_data<Ethernet*>();
+						Ethernet::Address macswap = eth->dst_addr;
+						eth->dst_addr = eth->src_addr;
+						eth->src_addr = macswap;
+						
 						ip->id = be16_t(rand());
 						ip->ttl = 53;
 						ip->checksum = 0;
@@ -145,7 +147,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 						tcp->src_port = tcp->dst_port;
 						tcp->dst_port = portswap;
 
-						tcp->ack_num = tcp->seq_num + be32_t(1);
+						tcp->ack_num = tcp->seq_num + be32_t(1) + be32_t(hasPayload(ip, tcp));
 						tcp->seq_num = be32_t(rand());
 						tcp->flags |= Tcp::kAck;
 
