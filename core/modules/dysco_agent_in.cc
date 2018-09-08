@@ -86,6 +86,20 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 #endif
 
 		cb_in = dc->lookup_input(this->index, ip, tcp);
+
+		DyscoTcpOption* tcpo = isLockSignalPacket(tcp);
+		if(tcpo && cb_in && cb_in->dcb_out) {
+			if(isLeftAnchor(tcpo)) {
+				//start the locking...
+				//creating a SYN segment with new session etc etc...
+				//...
+				createLockingPacket(pkt, ip, tcp, cb_in);
+				out_gates[1].add(pkt);
+				break;
+			} else {
+				//should decrement lhop and keep forwarding
+			}
+		}
 		
 		if(!isReconfigPacket(ip, tcp, cb_in)) {
 			switch(input(pkt, ip, tcp, cb_in)) {
@@ -1440,6 +1454,33 @@ void DyscoAgentIn::createFinAck(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 	tcp->flags |= Tcp::kAck;
 
 	//Could be incremental
+	fix_csum(ip, tcp);
+}
+
+/*
+  - remove TCP Option
+  - increase Packet buffer (sizeof(DyscoControlMessage))
+ */
+void DyscoAgentIn::createLockingPacket(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoTcpOption* tcpo, DyscoHashIn* cb_in) {
+	// adjusting size of Packet
+	pkt->trim(tcpo->len);
+	DyscoControlMessage* cmsg = pkt->append(sizeof(DyscoControlMessage));
+
+	ip->id = be16_t(rand());
+	ip->ttl = 53;
+	ip->checksum = 0;
+	ip->src = be32_t(cb_in->sub.sip);
+	ip->dst = be32_t(cb_in->sub.dip);
+	ip->length = ip->length - be16_t(tcpo->len) + be16_t(sizeof(DyscoControlMessage));
+	memset(cmsg, 0, sizeof(DyscoControlMessage));
+
+	tcp->src_port = be16_t(cb_in->sub.sport);
+	tcp->dst_port = be16_t(cb_in->sub.dport);
+	tcp->seq_num = be32_t(rand());
+	tcp->ack_num = be32_t(rand());
+	tcp->offset = 5;
+	tcp->flags = Tcp::kSyn;
+	
 	fix_csum(ip, tcp);
 }
 

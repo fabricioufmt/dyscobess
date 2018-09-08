@@ -458,7 +458,7 @@ unordered_map<uint32_t, LNode<Packet>*>* DyscoCenter::getHashReceived(uint32_t i
 	return dh->received_hash[devip];
 }
 
-bool DyscoCenter::save_sc(uint32_t, Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut*) {
+bool DyscoCenter::save_sc(uint32_t, Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) {
 	//should save sc...
 	//for test, i'm just removing...
 
@@ -466,6 +466,7 @@ bool DyscoCenter::save_sc(uint32_t, Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOu
 	if(!payload_sz)
 		return false;
 
+	cb_out->lock_state = DYSCO_REQUEST_LOCK;
 	pkt->trim(payload_sz);
 	ip->length = ip->length - be16_t(payload_sz);
 

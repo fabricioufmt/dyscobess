@@ -629,6 +629,15 @@ inline void hdr_rewrite_full_csum(Ipv4* ip, Tcp* tcp, DyscoTcpSession* ss) {
 	fix_csum(ip, tcp);
 }
 
+inline DyscoTcpOption* isLockSignalPacket(Tcp* tcp) {
+	if(tcp->offset < 6)
+		return 0;
+
+	DyscoTcpOption* tcpo = reinterpret_cast<DyscoTcpOption*>(reinterpret_cast<uint8_t*>(tcp) + 20);
+
+	return tcpo;
+}
+
 inline bool isLockingPacket(Tcp* tcp) {
 	if(tcp->offset < 6)
 		return false;
@@ -638,9 +647,7 @@ inline bool isLockingPacket(Tcp* tcp) {
 	return tcpo->kind == LOCKING_OPTION;
 }
 
-inline bool isLeftAnchor(Tcp* tcp) {
-	DyscoTcpOption* tcpo = reinterpret_cast<DyscoTcpOption*>(reinterpret_cast<uint8_t*>(tcp) + 20);
-
+inline bool isLeftAnchor(DyscoTcpOption* tcpo) {
 	return (tcpo->padding >> 4) == 0;
 }
 
