@@ -195,7 +195,17 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 				//change to LOCK_REQUEST
 				//and send to other subss
 			} else {
-				
+				//receives SYN+ACK
+				if(!cb_in) {
+					fprintf(stderr, "cb_in is NULL\n");
+					break;
+				} else if(!cb_in->dcb_out) {
+					fprint(stderr, "cb_in->dcb_out is NULL\n");
+					break;
+				} else {
+					fprintf(stderr, "cb_in->dcb_out->lock_state: %d\n", cb_in->dcb_out->lock_state);
+					break;
+				}
 			}
 			
 			break;
