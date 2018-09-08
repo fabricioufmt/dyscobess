@@ -137,13 +137,13 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 						ip->ttl = 53;
 						ip->checksum = 0;
 
-						be32_t ipaddr = ip->src;
+						be32_t ipswap = ip->src;
 						ip->src = ip->dst;
-						ip->dst = ipaddr;
+						ip->dst = ipswap;
 
-						be16_t port = tcp->src_port;
+						be16_t portswap = tcp->src_port;
 						tcp->src_port = tcp->dst_port;
-						tcp->dst_port = port;
+						tcp->dst_port = portswap;
 
 						tcp->ack_num = tcp->seq_num + be32_t(1);
 						tcp->seq_num = be32_t(rand());
