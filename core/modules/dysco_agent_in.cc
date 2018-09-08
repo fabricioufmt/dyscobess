@@ -198,8 +198,15 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 			} else {
 				//receives SYN+ACK
 				if(!cb_in) {
-					fprintf(stderr, "cb_in is NULL\n");
-					break;
+					fprintf(stderr, "cb_in is NULL... looking for cb_out");
+					cb_out = dc->lookup_output_by_ss(this->index, &cmsg->my_sub);
+					if(!cb_out) {
+						fprintf(stderr, "cb_in and cb_out are NULL... dropping\n");
+						break;
+					}
+
+					fprintf(stderr, "cb_out->lock_state = %d\n", cb_out->lock_state);
+					
 				} else if(!cb_in->dcb_out) {
 					fprintf(stderr, "cb_in->dcb_out is NULL\n");
 					break;
