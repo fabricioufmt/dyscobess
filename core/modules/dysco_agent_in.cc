@@ -160,6 +160,23 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 					
 				} else {
 					//No
+					if(cb_in->dcb_out->lock_state != DYSCO_CLOSED_LOCK) {
+						//should forward a DYSCO_NACK_LOCK segment
+					} else {
+						fprintf(stderr, "[%s][DyscoAgentIn] the supss is %s\n", ns.c_str(), printSS(cb_in->supss));
+						DyscoHashOut* cb_out = dc->lookup_output_by_ss(this->index, cb_in->supss);// works with forwarding mbs... and proxy or terminated-middlebox?????
+						if(!cb_out) {
+							fprintf(stderr, "cb_out is NULL\n");
+							break;
+						}
+
+						fprintf(stderr, "[%s][DyscoAgentIn] should forward to %s\n", ns.c_str(), printSS(cb_out->sub));
+					
+
+						
+						//should set to DYSCO_REQUEST_LOCK sttate and forward to next subss.
+						
+					}
 				}
 				
 				if(cb_in->dcb_out->lock_state == DYSCO_CLOSED_LOCK) {
