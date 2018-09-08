@@ -105,6 +105,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 		if(isLockingPacket(ip, tcp)) {
 			fprintf(stderr, "[%s][DyscoAgentIn] receives LockingPacket.\n", ns.c_str());
 			DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>(getPayload(tcp));
+			fprintf(stderr, "looking input by : %s\n", printSS(&cmsg->my_sub));
 			cb_in = dc->lookup_input_by_ss(this->index, &cmsg->my_sub);
 			if(isTCPSYN(tcp, true)) {
 				if(!cb_in) {
