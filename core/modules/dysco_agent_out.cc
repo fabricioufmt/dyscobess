@@ -92,21 +92,20 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 				fprintf(stderr, "[%s][DyscoAgentOut] creating a LockingPacket(SYN+PAYLOAD) and sending it.\n", ns.c_str());
 
 				DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>(getPayload(ip, tcp));
-				//memcpy(tcpo, cmsg, sizeof(DyscoControlMessage));
-				//pkt->trim(tcpo->len);
+				memcpy(tcpo, cmsg, sizeof(DyscoControlMessage));
+				pkt->trim(tcpo->len);
 				ip->id = be16_t(rand());
 				ip->ttl = 53;
 				ip->checksum = 0;
 				*((uint32_t*)(&ip->src)) = cb_out->sub.sip;
 				*((uint32_t*)(&ip->dst)) = cb_out->sub.dip;
-				//ip->length = be16_t(ip->length.value() - tcpo->len);
+				ip->length = be16_t(ip->length.value() - tcpo->len);
 
 				tcp->src_port = be16_t(rand());
 				tcp->dst_port = be16_t(LOCKING_PORT);
 				tcp->seq_num = be32_t(rand());
 				tcp->ack_num = be32_t(rand());
-				//tcp->offset = 5;
-				tcp->offset = 6;
+				tcp->offset = 5;
 				tcp->flags = Tcp::kSyn;
 				
 				cb_out->lock_state = DYSCO_REQUEST_LOCK;
