@@ -1474,10 +1474,10 @@ void DyscoAgentIn::createLockingPacket(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoTcp
 	ip->length = be16_t(newlength);
 	memset(cmsg, 0, sizeof(DyscoControlMessage));
 
-	tcp->src_port = be16_t(rand());
-	tcp->dst_port = be16_t(6999);
-	tcp->seq_num = be32_t(rand());
-	tcp->ack_num = be32_t(rand());
+	tcp->src_port = be16_t(1);
+	tcp->dst_port = be16_t(2);
+	tcp->seq_num = be32_t(3);
+	tcp->ack_num = be32_t(4);
 	tcp->offset = 5;
 	tcp->flags = Tcp::kSyn;
 	
