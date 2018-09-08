@@ -71,7 +71,7 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 #endif
 		cb_out = dc->lookup_output(this->index, ip, tcp);
 
-		if(isLockingPacket(tcp)) {
+		if(isLockingPacket(ip, tcp)) {
 			//if(isLeftAnchor(tcp)) {
 				//Starting locking protocol if there is a cb_out entry
 				if(!cb_out) {
