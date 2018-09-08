@@ -91,23 +91,26 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 
 				fprintf(stderr, "[%s][DyscoAgentOut] creating a LockingPacket(SYN+PAYLOAD) and sending it.\n", ns.c_str());
 
-				DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>(getPayload(ip, tcp));
-				memcpy(tcpo, cmsg, sizeof(DyscoControlMessage));
-
 				uint32_t sc_sz = hasPayload(ip, tcp) - sizeof(DyscoControlMessage);
-
 				fprintf(stderr, "[%s][DyscoAgentOut] should remove %u bytes for TCP Option and %u for service chain.\n", ns.c_str(), tcpo->len, sc_sz);
 				
+				DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>(getPayload(ip, tcp));
+
 				//should save service chain
+				//uint32_t* sc = reinterpret_cast<uint32_t*>(reinterpret_cast<char*>(cmsg) + sizeof(DyscoControlMessage));
+
 				
+				ip->length = be16_t(ip->length.value() - tcpo->len - sc_sz);
 				pkt->trim(tcpo->len + sc_sz);
+				
+				memcpy(tcpo, cmsg, sizeof(DyscoControlMessage));
+				
 				ip->id = be16_t(rand());
 				ip->ttl = 53;
 				ip->checksum = 0;
 				*((uint32_t*)(&ip->src)) = cb_out->sub.sip;
 				*((uint32_t*)(&ip->dst)) = cb_out->sub.dip;
-				ip->length = be16_t(ip->length.value() - tcpo->len - sc_sz);
-
+				
 				tcp->src_port = be16_t(rand());
 				tcp->dst_port = be16_t(LOCKING_PORT);
 				tcp->seq_num = be32_t(rand());
