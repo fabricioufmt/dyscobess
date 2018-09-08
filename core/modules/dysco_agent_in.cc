@@ -109,11 +109,13 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 				cb_in = dc->lookup_input_by_ss(this->index, &cmsg->my_sub);
 				if(!cb_in) {
 					fprintf(stderr, "[%s][DyscoAgentIn] does not found cb_in.\n", ns.c_str());
+					out_gates[0].add(pkt); //for DEBUG
 					break;
 				}
 
 				if(!cb_in->dcb_out) {
 					fprintf(stderr, "[%s][DyscoAgentIn] does not found dcb_out.\n", ns.c_str());
+					out_gates[0].add(pkt); //for DEBUG
 					break;
 				}
 
@@ -126,6 +128,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 					break;
 				} else {
 					fprintf(stderr, "[%s][DyscoAgentIn] there is a locking running.\n", ns.c_str());
+					out_gates[0].add(pkt); //for DEBUG
 					break;
 				}
 				
