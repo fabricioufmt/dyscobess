@@ -642,7 +642,7 @@ inline DyscoTcpOption* isLockSignalPacket(Tcp* tcp) {
 	return tcpo;
 }
 
-inline bool isLockingPacket(Packet* pkt, IPv4* ip, Tcp* tcp) {
+inline bool isLockingPacket(Ipv4* ip, Tcp* tcp) {
 	if(!isTCPSYN(tcp, true))
 		return false;
 
