@@ -199,7 +199,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 				//receives SYN+ACK
 				if(!cb_in) {
 					fprintf(stderr, "cb_in is NULL... looking for cb_out");
-					cb_out = dc->lookup_output_by_ss(this->index, &cmsg->my_sub);
+					DyscoHashOut* cb_out = dc->lookup_output_by_ss(this->index, &cmsg->my_sub);
 					if(!cb_out) {
 						fprintf(stderr, "cb_in and cb_out are NULL... dropping\n");
 						break;
