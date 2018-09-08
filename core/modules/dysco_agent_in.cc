@@ -89,6 +89,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 
 		DyscoTcpOption* tcpo = isLockSignalPacket(tcp);
 		if(tcpo && cb_in && cb_in->dcb_out) {
+			fprintf(stderr, "[%s][DyscoAgentIn] receives LockingSignalPacket.\n", ns.c_str());
 			if(isLeftAnchor(tcpo)) {
 				//start the locking...
 				//creating a SYN segment with new session etc etc...
@@ -102,6 +103,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 		}
 
 		if(isLockingPacket(ip, tcp)) {
+			fprintf(stderr, "[%s][DyscoAgentIn] receives LockingPacket.\n", ns.c_str());
 			DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>(getPayload(ip, tcp));
 			if(isTCPSYN(tcp, true)) {
 				cb_in = dc->lookup_input_by_ss(this->index, &cmsg->my_sub);
@@ -114,6 +116,8 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 					fprintf(stderr, "[%s][DyscoAgentIn] does not found dcb_out.\n", ns.c_str());
 					break;
 				}
+
+				fprintf(stderr, "[%s][DyscoAgentIn] cb_in and dcb_out are found.\n", ns.c_str());
 				
 				if(cb_in->dcb_out->lock_state == DYSCO_CLOSED_LOCK) {
 					fprintf(stderr, "[%s][DyscoAgentIn] changing from DYSCO_CLOSED_LOCK to DYSCO_REQUEST_LOCK state.\n", ns.c_str());
