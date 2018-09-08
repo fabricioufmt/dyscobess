@@ -97,8 +97,8 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 				ip->id = be16_t(rand());
 				ip->ttl = 53;
 				ip->checksum = 0;
-				*((uint32_t*)(&ip->src)) = cb_in->sub.sip;
-				*((uint32_t*)(&ip->dst)) = cb_in->sub.dip;
+				*((uint32_t*)(&ip->src)) = cb_out->sub.sip;
+				*((uint32_t*)(&ip->dst)) = cb_out->sub.dip;
 				ip->length = be16_t(ip->length.value() - tcpo->len);
 
 				tcp->src_port = be16_t(rand());
