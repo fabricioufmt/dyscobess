@@ -1462,8 +1462,7 @@ void DyscoAgentIn::createFinAck(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
   - increase Packet buffer (sizeof(DyscoControlMessage))
  */
 void DyscoAgentIn::createLockingPacket(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoTcpOption* tcpo, DyscoHashIn* cb_in) {
-	// adjusting size of Packet
-	pkt->trim(tcpo->len);
+	pkt->trim(tcpo->len + hasPayload(ip, tcp));
 	DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>(pkt->append(sizeof(DyscoControlMessage)));
 
 	ip->id = be16_t(rand());
@@ -1471,11 +1470,12 @@ void DyscoAgentIn::createLockingPacket(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoTcp
 	ip->checksum = 0;
 	ip->src = be32_t(cb_in->sub.sip);
 	ip->dst = be32_t(cb_in->sub.dip);
-	ip->length = ip->length - be16_t(tcpo->len) + be16_t(sizeof(DyscoControlMessage));
+	uint16_t newlength = ip->length.value() - tcpo->len - hasPayload(ip, tcp) + sizeof(DyscoControlMessage);
+	ip->length = be16_t(newlength);
 	memset(cmsg, 0, sizeof(DyscoControlMessage));
 
-	tcp->src_port = be16_t(cb_in->sub.sport);
-	tcp->dst_port = be16_t(cb_in->sub.dport);
+	tcp->src_port = be16_t(rand());
+	tcp->dst_port = be16_t(6999);
 	tcp->seq_num = be32_t(rand());
 	tcp->ack_num = be32_t(rand());
 	tcp->offset = 5;
