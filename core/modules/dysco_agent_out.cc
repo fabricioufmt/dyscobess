@@ -89,7 +89,7 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 					continue;
 				}
 
-				fprintf(stderr, "[%s][DyscoAgentOut] creating a LockingPacket(SYN+PAYLOAD) and sending it.");
+				fprintf(stderr, "[%s][DyscoAgentOut] creating a LockingPacket(SYN+PAYLOAD) and sending it.", ns.c_str());
 
 				DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>(getPayload(ip, tcp));
 				memcpy(tcpo, cmsg, sizeof(DyscoControlMessage));
