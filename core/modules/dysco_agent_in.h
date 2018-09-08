@@ -89,6 +89,8 @@ class DyscoAgentIn final : public Module {
 	void createAck(Packet*, Ipv4*, Tcp*);
 	void createSynAck(Packet*, Ipv4*, Tcp*, uint32_t);
 	void createFinAck(Packet*, Ipv4*, Tcp*);
+
+	void createLockingPacket(Packet*, Ipv4*, Tcp*, DyscoTcpOption*, DyscoHashIn*);
 };
 
 #endif //BESS_MODULES_DYSCOAGENTIN_H_
