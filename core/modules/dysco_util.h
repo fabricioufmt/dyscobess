@@ -335,6 +335,10 @@ class DyscoControlMessage {
 
 	uint32_t srcMB;
 	uint32_t dstMB;
+
+	uint8_t lhop;
+	uint8_t rhop;
+	uint16_t padding;
 };
 
 class DyscoHashOut;

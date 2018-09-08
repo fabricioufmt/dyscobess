@@ -63,6 +63,10 @@ struct reconfig_message {
 	
 	uint32_t		srcMB;
 	uint32_t		dstMB;
+
+	uint8_t			lhop;
+	uint8_t			rhop;
+	uint16_t		padding;
 } __attribute__((packed));
 
 struct pseudo_header {
@@ -192,6 +196,9 @@ void create_segment(struct iphdr* iph, struct tcphdr* tcph, uint16_t sport, uint
 	tcpo->padding = lhop;
 	tcpo->padding <<= 8;
 	tcpo->padding |= rhop;
+
+	cmsg->lhop = lhop;
+	cmsg->rhop = rhop;
 
 	//Construct the pseudo header
 	struct pseudo_header psh;

@@ -120,6 +120,46 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 				}
 
 				fprintf(stderr, "[%s][DyscoAgentIn] cb_in and dcb_out are found.\n", ns.c_str());
+
+				//Am I the RightAnchor?
+				if(cmsg->rhop == 1) {
+					//Yes
+					cmsg->rhop--;
+					if(cb_in->dcb_out->lock_state == DYSCO_CLOSED_LOCK) {
+						fprintf(stderr, "[%s][DyscoAgentIn] changing from DYSCO_CLOSED_LOCK to DYSCO_ACK_LOCK state... should forwarding a SYN+ACK packet to backwards\n", ns.c_str());
+						
+						
+
+						//Am I the SignalAnchor?
+						//should verify a field on cb_in or cb_out and... inserting service-chain....
+
+						ip->id = be16_t(rand());
+						ip->ttl = 53;
+						ip->checksum = 0;
+
+						be32_t ipaddr = ip->src;
+						ip->src = ip->dst;
+						ip->dst = ipaddr;
+
+						be16_t port = tcp->src_port;
+						tcp->src_port = tcp->dst_port;
+						tcp->dst_port = port;
+
+						tcp->ack_num = tcp->seq_num + be32_t(1);
+						tcp->seq_num = be32_t(rand());
+						tcp->flags |= Tcp::kAck;
+
+						fix_csum(ip, tcp);
+						
+						cb_in->dcb_out->lock_state = DYSCO_ACK_LOCK;
+						out_gates[1].add(pkt);
+						
+						break;
+					}
+					
+				} else {
+					//No
+				}
 				
 				if(cb_in->dcb_out->lock_state == DYSCO_CLOSED_LOCK) {
 					fprintf(stderr, "[%s][DyscoAgentIn] changing from DYSCO_CLOSED_LOCK to DYSCO_REQUEST_LOCK state.\n", ns.c_str());

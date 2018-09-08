@@ -114,7 +114,7 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 				tcp->src_port = be16_t(rand());
 				tcp->dst_port = be16_t(LOCKING_PORT);
 				tcp->seq_num = be32_t(rand());
-				tcp->ack_num = be32_t(rand());
+				tcp->ack_num = be32_t(0);
 				tcp->offset = 5;
 				tcp->flags = Tcp::kSyn;
 				
