@@ -94,7 +94,7 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 				uint32_t sc_sz = hasPayload(ip, tcp) - sizeof(DyscoControlMessage);
 				fprintf(stderr, "[%s][DyscoAgentOut] should remove %u bytes for TCP Option and %u for service chain.\n", ns.c_str(), tcpo->len, sc_sz);
 				
-				DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>(getPayload(ip, tcp));
+				DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>(getPayload(tcp));
 
 				//should save service chain
 				//uint32_t* sc = reinterpret_cast<uint32_t*>(reinterpret_cast<char*>(cmsg) + sizeof(DyscoControlMessage));

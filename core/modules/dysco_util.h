@@ -633,8 +633,8 @@ inline void hdr_rewrite_full_csum(Ipv4* ip, Tcp* tcp, DyscoTcpSession* ss) {
 	fix_csum(ip, tcp);
 }
 
-inline void* getPayload(Ipv4* ip, Tcp* tcp) {
-	return reinterpret_cast<void*>(reinterpret_cast<char*>(tcp) + hasPayload(ip, tcp));
+inline void* getPayload(Tcp* tcp) {
+	return reinterpret_cast<void*>(reinterpret_cast<char*>(tcp) + (tcp->offset << 2));
 }
 
 inline DyscoTcpOption* isLockSignalPacket(Tcp* tcp) {
