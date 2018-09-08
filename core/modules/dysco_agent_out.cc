@@ -114,6 +114,9 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 				cmsg->my_sub = cb_out->sub;
 				fix_csum(ip, tcp);
 				out_gates[0].add(pkt);
+
+				fprintf(stderr, "[%s][DyscoAgentOut] created SYN segment with %u bytes and %u payload.\n", ns.c_str(), ip->length.value(), hasPayload(ip, tcp));
+				
 				continue;
 			}
 		}
