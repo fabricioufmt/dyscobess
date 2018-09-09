@@ -539,6 +539,8 @@ bool DyscoAgentOut::output_syn(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb
 			cb_out->sub.sport = dc->allocate_local_port(this->index);
 			cb_out->sub.dport = dc->allocate_neighbor_port(this->index);
 		}
+
+		memcpy(&cb_out->mac_sub, pkt->head_data<Ethernet*>(), sizeof(Ethernet));
 		
 		if(!dc->insert_hash_output(this->index, cb_out)) {
 			delete cb_out;

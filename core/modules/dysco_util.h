@@ -349,6 +349,8 @@ class DyscoHashIn {
 	DyscoTcpSession sub;
 	DyscoTcpSession my_sup;
 	DyscoTcpSession neigh_sup;
+
+	Ethernet mac_sub;
 	
 	DyscoHashOut* dcb_out;
 
@@ -391,6 +393,8 @@ class DyscoHashOut {
 	DyscoTcpSession sub;
 	DyscoTcpSession sup;
 
+	Ethernet mac_sub;
+	
 	uint32_t in_iseq;
 	uint32_t in_iack;
 	uint32_t out_iseq;

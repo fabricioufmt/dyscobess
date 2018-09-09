@@ -429,6 +429,8 @@ bool DyscoAgentIn::rx_initiation_new(Packet* pkt, Ipv4* ip, Tcp* tcp, uint32_t p
 	cb_in->sub.sport = tcp->src_port.raw_value();
 	cb_in->sub.dport = tcp->dst_port.raw_value();
 
+	memcpy(&cb_in->mac_sub, pkt->head_data<Ethernet*>(), sizeof(Ethernet));
+	
 	DyscoTcpSession* neigh_supss = reinterpret_cast<DyscoTcpSession*>(payload);
 	DyscoTcpSession* neigh_subss = reinterpret_cast<DyscoTcpSession*>(payload + sizeof(DyscoTcpSession));
 
@@ -1728,6 +1730,9 @@ bool DyscoAgentIn::processRequestLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoCont
 		}
 
 		//from here....
+		Ethernet* eth = pkt->head_data<Ethernet*>();
+		eth->src_addr = cb_out->mac_sub.src_addr;
+		eth->dst_addr = cb_out->mac_sub.dst_addr;
 		hdr_rewrite(ip, tcp, &cb_out->sub);
 		cmsg->rhop--;
 		fix_csum(ip, tcp);
