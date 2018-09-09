@@ -1724,8 +1724,11 @@ bool DyscoAgentIn::processRequestLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoCont
 			fprintf(stderr, "cb_out->dcb_in->neigh_sup: %s\n", printSS(cb_out->dcb_in->neigh_sup));
 			
 		}
-		
-		//should forwawrd to next subss
+
+		//from here....
+		hdr_rewrite(ip, tcp, &cb_in->my_sup);
+		cmsg->rhop--;
+		fix_csum(ip, tcp);
 		cb_in->dcb_out->lock_state = DYSCO_REQUEST_LOCK;
 		fprintf(stderr, "Changing lock_state field from DYSCO_CLOSED_LOCK to DYSCO_REQUEST_LOCK\n");
 
