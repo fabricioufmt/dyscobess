@@ -1728,7 +1728,7 @@ bool DyscoAgentIn::processRequestLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoCont
 		}
 
 		//from here....
-		hdr_rewrite(ip, tcp, &cb_in->my_sup);
+		hdr_rewrite(ip, tcp, &cb_out->sub);
 		cmsg->rhop--;
 		fix_csum(ip, tcp);
 		cb_in->dcb_out->lock_state = DYSCO_REQUEST_LOCK;
