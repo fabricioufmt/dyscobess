@@ -99,7 +99,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 				//...
 				createLockingPacket(pkt, ip, tcp, tcpo, cb_in);
 				out_gates[1].add(pkt);
-				break;
+				continue;
 			} else {
 				//should decrement lhop and keep forwarding
 			}
@@ -127,13 +127,13 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 				cb_in = dc->lookup_input_by_ss(this->index, &subswap);
 				if(!cb_in) {
 					fprintf(stderr, "[%s][DyscoAgentIn] cb_in is NULL\n", ns.c_str());
-					break;
+					continue;
 				}
 			}
 
 			if(!cb_in->dcb_out) {
 				fprintf(stderr, "[%s][DyscoAgentIn] does not found cb_in->dcb_out.\n", ns.c_str());
-				break;
+				continue;
 			}
 
 			fprintf(stderr, "[%s][DyscoAgentIn] finds cb_in and cb_in->dcb_out.\n", ns.c_str());
@@ -143,6 +143,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 			if(cmsg->lock_state == DYSCO_REQUEST_LOCK) {
 				fprintf(stderr, "processing Request Lock\n");
 				if(processRequestLock(pkt, ip, tcp, cmsg, cb_in)) {
+					fprintf(stderr, "processRequestLock returns true\n");
 					out_gates[1].add(pkt);
 					continue;
 				}
