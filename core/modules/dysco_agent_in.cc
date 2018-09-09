@@ -1652,6 +1652,7 @@ bool DyscoAgentIn::isEstablished(Packet* pkt) {
 
 bool DyscoAgentIn::processRequestLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoControlMessage* cmsg, DyscoHashIn* cb_in) {
 	if(cb_in->dcb_out->lock_state != DYSCO_CLOSED_LOCK) {
+		Ethernet* eth = pkt->head_data<Ethernet*>();
 		Ethernet::Address macswap = eth->dst_addr;
 		eth->dst_addr = eth->src_addr;
 		eth->src_addr = macswap;
@@ -1690,7 +1691,7 @@ bool DyscoAgentIn::processRequestLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoCont
 		return true;
 	} else {
 		//I'm the RightAnchor
-		
+		Ethernet* eth = pkt->head_data<Ethernet*>();		
 		Ethernet::Address macswap = eth->dst_addr;
 		eth->dst_addr = eth->src_addr;
 		eth->src_addr = macswap;
@@ -1726,6 +1727,7 @@ bool DyscoAgentIn::processAckLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoControlM
 	//Am I either LeftAnchor, non-Anchor or RightAnchor
 	
 	if(cb_in->dcb_out->lock_state != DYSCO_REQUEST_LOCK) {
+		Ethernet* eth = pkt->head_data<Ethernet*>();
 		Ethernet::Address macswap = eth->dst_addr;
 		eth->dst_addr = eth->src_addr;
 		eth->src_addr = macswap;
