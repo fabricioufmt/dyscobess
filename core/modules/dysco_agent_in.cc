@@ -1706,10 +1706,25 @@ bool DyscoAgentIn::processRequestLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoCont
 		fprintf(stderr, "cb_in->sub: %s\n", printSS(cb_in->sub));
 		fprintf(stderr, "cb_in->my_sup: %s\n", printSS(cb_in->my_sup));
 		fprintf(stderr, "cb_in->neigh_sup: %s\n", printSS(cb_in->neigh_sup));
-
 		fprintf(stderr, "cb_in->dcb_out->sub: %s\n", printSS(cb_in->dcb_out->sub));
 		fprintf(stderr, "cb_in->dcb_out->sup: %s\n", printSS(cb_in->dcb_out->sup));
-				
+
+		//test
+		fprintf(stderr, "looking for output by %s...\n", printSS(cb_in->my_sup));
+		DyscoHashOut* cb_out = dc->lookup_output_by_ss(this->index, &cb_in->my_sup);
+		if(!cb_out) {
+			fprintf(stderr, "not found\n");
+			return false;
+		} else {
+			fprintf(stderr, "found\n");
+			fprintf(stderr, "cb_out->sub: %s\n", printSS(cb_out->sub));
+			fprintf(stderr, "cb_out->sup: %s\n", printSS(cb_out->sup));
+			fprintf(stderr, "cb_out->dcb_in->sub: %s\n", printSS(cb_out->dcb_in->sub));
+			fprintf(stderr, "cb_out->dcb_in->my_sup: %s\n", printSS(cb_out->dcb_in->my_sup));
+			fprintf(stderr, "cb_out->dcb_in->neigh_sup: %s\n", printSS(cb_out->dcb_in->neigh_sup));
+			
+		}
+		
 		//should forwawrd to next subss
 		cb_in->dcb_out->lock_state = DYSCO_REQUEST_LOCK;
 		fprintf(stderr, "Changing lock_state field from DYSCO_CLOSED_LOCK to DYSCO_REQUEST_LOCK\n");
