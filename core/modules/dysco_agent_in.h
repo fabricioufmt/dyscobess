@@ -91,6 +91,8 @@ class DyscoAgentIn final : public Module {
 	void createFinAck(Packet*, Ipv4*, Tcp*);
 
 	void createLockingPacket(Packet*, Ipv4*, Tcp*, DyscoTcpOption*, DyscoHashIn*);
+	bool processAckLock(Packet*, Ipv4*, Tcp*, DyscoControlMessage*, DyscoHashIn*);
+	bool processRequestLock(Packet*, Ipv4*, Tcp*, DyscoControlMessage*, DyscoHashIn*);
 };
 
 #endif //BESS_MODULES_DYSCOAGENTIN_H_
