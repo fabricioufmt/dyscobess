@@ -63,7 +63,6 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 	size_t ip_hlen;
 	DyscoHashIn* cb_in;
 
-	DyscoHashOut* cb_out;
 	DyscoTcpOption* tcpo;
 	DyscoControlMessage* cmsg;
 	
