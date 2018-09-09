@@ -122,6 +122,7 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 
 				cmsg = reinterpret_cast<DyscoControlMessage*>(getPayload(tcp));
 				cmsg->my_sub = cb_out->sub;
+				cmsg->lock_state = DYSCO_REQUEST_LOCK;
 				fix_csum(ip, tcp);
 				out_gates[0].add(pkt);
 

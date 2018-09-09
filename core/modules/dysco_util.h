@@ -338,7 +338,8 @@ class DyscoControlMessage {
 
 	uint8_t lhop;
 	uint8_t rhop;
-	uint16_t padding;
+	uint8_t lock_state;
+	uint8_t padding;
 };
 
 class DyscoHashOut;
