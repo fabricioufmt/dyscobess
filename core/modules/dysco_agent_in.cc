@@ -122,16 +122,12 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 				subswap.dip = cmsg->my_sub.sip;
 				subswap.sport = cmsg->my_sub.dport;
 				subswap.dport = cmsg->my_sub.sport;
-				
-				cb_out = dc->lookup_output_by_ss(this->index, &subswap);
-				if(!cb_out) {
-					fprintf(stderr, "[%s][DyscoAgentIn] both cb_in and cb_out are NULL\n", ns.c_str());
-					break;
-				}
 
-				cb_in = cb_out->dcb_in;
+				fprintf(stderr, "looking for %s\n", printSS(subswap));
+				
+				cb_in = dc->lookup_input_by_ss(this->index, &subswap);
 				if(!cb_in) {
-					fprintf(stderr, "[%s][DyscoAgentIn] cb_out->dcb_in is NULL\n", ns.c_str());
+					fprintf(stderr, "[%s][DyscoAgentIn] cb_in is NULL\n", ns.c_str());
 					break;
 				}
 			}
