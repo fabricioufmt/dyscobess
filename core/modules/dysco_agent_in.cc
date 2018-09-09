@@ -430,6 +430,10 @@ bool DyscoAgentIn::rx_initiation_new(Packet* pkt, Ipv4* ip, Tcp* tcp, uint32_t p
 	cb_in->sub.dport = tcp->dst_port.raw_value();
 
 	memcpy(&cb_in->mac_sub, pkt->head_data<Ethernet*>(), sizeof(Ethernet));
+
+	fprintf(stderr, "copying MAC values(input)\n");
+	fprintf(stderr, "MAC SRC: %s\n", cb_in->mac_sub.src_addr.ToString().c_str());
+	fprintf(stderr, "MAC DST: %s\n", cb_in->mac_sub.dst_addr.ToString().c_str());
 	
 	DyscoTcpSession* neigh_supss = reinterpret_cast<DyscoTcpSession*>(payload);
 	DyscoTcpSession* neigh_subss = reinterpret_cast<DyscoTcpSession*>(payload + sizeof(DyscoTcpSession));
