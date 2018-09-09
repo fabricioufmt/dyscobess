@@ -1758,7 +1758,9 @@ bool DyscoAgentIn::processAckLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoControlM
 	}
 
 	fprintf(stderr, "Changing lock_state field to DYSCO_ACK_LOCK\n");
-	cb_in->dcb_out->lock_state = DYSCO_ACK_LOCK;	
+	cb_in->dcb_out->lock_state = DYSCO_ACK_LOCK;
+
+	return false;
 }
 
 ADD_MODULE(DyscoAgentIn, "dysco_agent_in", "processes packets incoming to host")
