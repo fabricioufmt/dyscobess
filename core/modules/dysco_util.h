@@ -647,7 +647,7 @@ inline DyscoTcpOption* isLockSignalPacket(Tcp* tcp) {
 		return 0;
 
 	DyscoTcpOption* tcpo = reinterpret_cast<DyscoTcpOption*>(reinterpret_cast<uint8_t*>(tcp) + 20);
-	if(tcpo.kind == LOCKING_OPTION)
+	if(tcpo->kind == LOCKING_OPTION)
 		return tcpo;
 
 	return 0;
