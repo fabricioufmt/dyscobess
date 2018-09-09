@@ -1733,6 +1733,8 @@ bool DyscoAgentIn::processRequestLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoCont
 		Ethernet* eth = pkt->head_data<Ethernet*>();
 		eth->src_addr = cb_out->mac_sub.src_addr;
 		eth->dst_addr = cb_out->mac_sub.dst_addr;
+		fprintf(stderr, "MAC SRC: %s\n" eth->src_addr.ToString().c_str());
+		fprintf(stderr, "MAC DST: %s\n" eth->dst_addr.ToString().c_str());
 		hdr_rewrite(ip, tcp, &cb_out->sub);
 		cmsg->rhop--;
 		fix_csum(ip, tcp);
