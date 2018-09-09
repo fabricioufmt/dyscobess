@@ -49,6 +49,10 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 	size_t ip_hlen;
 	DyscoHashOut* cb_out;
 
+	uint32_t sc_sz;
+	DyscoTcpOption* tcpo;
+	DyscoControlMessage* cmsg;
+
 	for(int i = 0; i < batch->cnt(); i++) {
 		pkt = batch->pkts()[i];
 		
@@ -71,15 +75,17 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 #endif
 		cb_out = dc->lookup_output(this->index, ip, tcp);
 
-		DyscoTcpOption* tcpo = isLockSignalPacket(tcp);
+		tcpo = isLockSignalPacket(tcp);
 		if(tcpo) {
+			fprintf(stderr, "[%s][DyscoAgentOut] It's Locking Signal Packet.\n", ns.c_str());
 			if(isLeftAnchor(tcpo)) {
+				fprintf(stderr, "[%s][DyscoAgentOut] I'm the LeftAnchor.\n", ns.c_str());
 				if(!cb_out) {
-					fprintf(stderr, "[%s][DyscoAgentOut] There is not a entry on cb_out.\n", ns.c_str());
+					fprintf(stderr, "[%s][DyscoAgentOut] There's not a entry on cb_out... dropping.\n", ns.c_str());
 					continue;
 				}
 				
-				fprintf(stderr, "[%s][DyscoAgentOut] There is a entry on cb_out.\n", ns.c_str());
+				fprintf(stderr, "[%s][DyscoAgentOut] There's a entry on cb_out.\n", ns.c_str());
 				fprintf(stderr, "Entry: %s.\n", printSS(cb_out->sub));
 				fprintf(stderr, "State: %d.\n", cb_out->state);
 				fprintf(stderr, "Lock State: %d.\n", cb_out->lock_state);
@@ -89,12 +95,10 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 					continue;
 				}
 
-				fprintf(stderr, "[%s][DyscoAgentOut] creating a LockingPacket(SYN+PAYLOAD) and sending it.\n", ns.c_str());
+				fprintf(stderr, "[%s][DyscoAgentOut] creates a LockingPacket(SYN+PAYLOAD) and sends it.\n", ns.c_str());
 
-				uint32_t sc_sz = hasPayload(ip, tcp) - sizeof(DyscoControlMessage);
-				fprintf(stderr, "[%s][DyscoAgentOut] should remove %u bytes for TCP Option and %u for service chain.\n", ns.c_str(), tcpo->len, sc_sz);
-				
-				DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>(getPayload(tcp));
+				sc_sz = hasPayload(ip, tcp) - sizeof(DyscoControlMessage);
+				cmsg = reinterpret_cast<DyscoControlMessage*>(getPayload(tcp));
 
 				//should save service chain
 				//uint32_t* sc = reinterpret_cast<uint32_t*>(reinterpret_cast<char*>(cmsg) + sizeof(DyscoControlMessage));
@@ -122,13 +126,18 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 
 				cmsg = reinterpret_cast<DyscoControlMessage*>(getPayload(tcp));
 				cmsg->my_sub = cb_out->sub;
+
+				fprintf(stderr, "cb_out->sub: %s\n", ns.c_str(), printSS(cb_out->sub));
+				fprintf(stderr, "cb_out->dcb_in->sub: %s\n", ns.c_str(), printSS(cb_out->dcb_in->sub);
+				
 				cmsg->lock_state = DYSCO_REQUEST_LOCK;
 				fix_csum(ip, tcp);
 				out_gates[0].add(pkt);
-
-				fprintf(stderr, "[%s][DyscoAgentOut] created SYN segment with %u bytes and %u payload.\n", ns.c_str(), ip->length.value(), hasPayload(ip, tcp));
 				
 				continue;
+			} else {
+				fprintf(stderr, "[%s][DyscoAgentOut] I'm not the LeftAnchor\n", ns.c_str());
+				//TODO
 			}
 		}
 		
