@@ -63,6 +63,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 	size_t ip_hlen;
 	DyscoHashIn* cb_in;
 
+	DyscoHashOut* cb_out;
 	DyscoTcpOption* tcpo;
 	DyscoControlMessage* cmsg;
 	
@@ -114,28 +115,41 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 			cb_in = dc->lookup_input_by_ss(this->index, &cmsg->my_sub);
 
 			if(!cb_in) {
-				fprintf(stderr, "[%s][DyscoAgentIn] does not found cb_in.\n", ns.c_str());
-				out_gates[0].add(pkt); //for DEBUG
-				break;
+				fprintf(stderr, "[%s][DyscoAgentIn] does not found cb_in... looking for cb_out\n", ns.c_str());
+				
+				cb_out = dc->lookup_output_by_ss(this->index, &cmsg->my_sub);
+				if(!cb_out) {
+					fprintf(stderr, "[%s][DyscoAgentIn] both cb_in and cb_out are NULL\n", ns.c_str());
+					break;
+				}
+
+				cb_in = cb_out->dcb_in;
+				if(!cb_in) {
+					fprintf(stderr, "[%s][DyscoAgentIn] cb_out->dcb_in is NULL\n", ns.c_str());
+				}
 			}
 
 			if(!cb_in->dcb_out) {
 				fprintf(stderr, "[%s][DyscoAgentIn] does not found cb_in->dcb_out.\n", ns.c_str());
-				out_gates[0].add(pkt); //for DEBUG
 				break;
 			}
 
 			fprintf(stderr, "[%s][DyscoAgentIn] finds cb_in and cb_in->dcb_out.\n", ns.c_str());
+			fprintf(stderr, "State: %d\n", cb_in->dcb_out->state);
+			fprintf(stderr, "Lock State: %d\n",  cb_in->dcb_out->lock_state);
 
 			if(cmsg->lock_state == DYSCO_REQUEST_LOCK) {
+				fprintf(stderr, "processing Request Lock\n");
 				processRequestLock(pkt, ip, tcp, cmsg, cb_in);
 				out_gates[0].add(pkt); //for DEBUG
 				out_gates[1].add(pkt); //for DEBUG
 			} else if (cmsg->lock_state == DYSCO_ACK_LOCK) {
+				fprintf(stderr, "processing Ack Lock\n");
 				out_gates[0].add(pkt); //for DEBUG
 				out_gates[1].add(pkt); //for DEBUG
 				processAckLock(pkt, ip, tcp, cmsg, cb_in);
 			} else if (cmsg->lock_state == DYSCO_NACK_LOCK) {
+				fprintf(stderr, "processing Nack Lock\n");
 				//processNackLock(pkt, ip, tcp, cmsg, cb_in);
 			} else {
 				//nothing..
