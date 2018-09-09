@@ -128,7 +128,7 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 				cmsg->my_sub = cb_out->sub;
 
 				fprintf(stderr, "cb_out->sub: %s\n", printSS(cb_out->sub));
-				fprintf(stderr, "cb_out->dcb_in->sub: %s\n", printSS(cb_out->dcb_in->sub);
+				fprintf(stderr, "cb_out->dcb_in->sub: %s\n", printSS(cb_out->dcb_in->sub));
 				
 				cmsg->lock_state = DYSCO_REQUEST_LOCK;
 				fix_csum(ip, tcp);
