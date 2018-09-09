@@ -1700,9 +1700,19 @@ bool DyscoAgentIn::processRequestLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoCont
 	if(cmsg->rhop > 1) {
 		//I'm not the RightAnchor
 
+		fprintf(stderr, "I'm not the RightAnchor\n");
+		fprintf(stderr, "cmsg->my_sub: %s\n", printSS(cmsg->my_sub));
+		
+		fprintf(stderr, "cb_in->sub: %s\n", printSS(cb_in->sub));
+		fprintf(stderr, "cb_in->my_sup: %s\n", printSS(cb_in->my_sup));
+		fprintf(stderr, "cb_in->neigh_sup: %s\n", printSS(cb_in->neigh_sup));
+
+		fprintf(stderr, "cb_in->dcb_out->sub: %s\n", printSS(cb_in->dcb_out->sub));
+		fprintf(stderr, "cb_in->dcb_out->sup: %s\n", printSS(cb_in->dcb_out->sup));
+				
 		//should forwawrd to next subss
 		cb_in->dcb_out->lock_state = DYSCO_REQUEST_LOCK;
-		fprintf(stderr, "Changing lock_state field to DYSCO_REQUEST_LOCK\n");
+		fprintf(stderr, "Changing lock_state field from DYSCO_CLOSED_LOCK to DYSCO_REQUEST_LOCK\n");
 
 		return true;
 	} else {

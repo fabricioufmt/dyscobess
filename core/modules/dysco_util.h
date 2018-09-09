@@ -647,13 +647,16 @@ inline DyscoTcpOption* isLockSignalPacket(Tcp* tcp) {
 		return 0;
 
 	DyscoTcpOption* tcpo = reinterpret_cast<DyscoTcpOption*>(reinterpret_cast<uint8_t*>(tcp) + 20);
+	if(tcpo.kind == LOCKING_OPTION)
+		return tcpo;
 
-	return tcpo;
+	return 0;
 }
 
 inline bool isLockingPacket(Ipv4* ip, Tcp* tcp) {
 	if(isTCPSYN(tcp, true) && hasPayload(ip, tcp) && tcp->dst_port == be16_t(LOCKING_PORT))
 		return true;
+	
 	if(isTCPSYN(tcp) && isTCPACK(tcp) && hasPayload(ip, tcp) && tcp->src_port == be16_t(LOCKING_PORT))
 		return true;
 
