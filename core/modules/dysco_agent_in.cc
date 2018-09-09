@@ -1730,6 +1730,7 @@ bool DyscoAgentIn::processRequestLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoCont
 		cmsg->rhop--;
 		fix_csum(ip, tcp);
 		cb_in->dcb_out->lock_state = DYSCO_REQUEST_LOCK;
+		cb_out->lock_state = DYSCO_REQUEST_LOCK;
 		fprintf(stderr, "Changing lock_state field from DYSCO_CLOSED_LOCK to DYSCO_REQUEST_LOCK\n");
 
 		return true;
