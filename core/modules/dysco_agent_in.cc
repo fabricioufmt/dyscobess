@@ -142,9 +142,11 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 
 			if(cmsg->lock_state == DYSCO_REQUEST_LOCK) {
 				fprintf(stderr, "processing Request Lock\n");
-				processRequestLock(pkt, ip, tcp, cmsg, cb_in);
-				out_gates[0].add(pkt); //for DEBUG
-				out_gates[1].add(pkt); //for DEBUG
+				if(processRequestLock(pkt, ip, tcp, cmsg, cb_in)) {
+					out_gates[1].add(pkt);
+					continue;
+				}
+
 			} else if (cmsg->lock_state == DYSCO_ACK_LOCK) {
 				fprintf(stderr, "processing Ack Lock\n");
 				out_gates[0].add(pkt); //for DEBUG
