@@ -111,13 +111,19 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 			
 			cmsg = reinterpret_cast<DyscoControlMessage*>(getPayload(tcp));
 
-			fprintf(stderr, "looking input by : %s\n", printSS(cmsg->my_sub));
+			fprintf(stderr, "looking input by: %s\n", printSS(cmsg->my_sub));
 			cb_in = dc->lookup_input_by_ss(this->index, &cmsg->my_sub);
 
 			if(!cb_in) {
-				fprintf(stderr, "[%s][DyscoAgentIn] does not found cb_in... looking for cb_out\n", ns.c_str());
+				fprintf(stderr, "[%s][DyscoAgentIn] does not found cb_in... looking for cb_out (LA case)\n", ns.c_str());
+
+				DyscoTcpSession subswap;
+				subswap.sip = cmsg->my_sub.dip;
+				subswap.dip = cmsg->my_sub.sip;
+				subswap.sport = cmsg->my_sub.dport;
+				subswap.dport = cmsg->my_sub.sport;
 				
-				cb_out = dc->lookup_output_by_ss(this->index, &cmsg->my_sub);
+				cb_out = dc->lookup_output_by_ss(this->index, &subswap);
 				if(!cb_out) {
 					fprintf(stderr, "[%s][DyscoAgentIn] both cb_in and cb_out are NULL\n", ns.c_str());
 					break;
@@ -126,6 +132,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 				cb_in = cb_out->dcb_in;
 				if(!cb_in) {
 					fprintf(stderr, "[%s][DyscoAgentIn] cb_out->dcb_in is NULL\n", ns.c_str());
+					break;
 				}
 			}
 
