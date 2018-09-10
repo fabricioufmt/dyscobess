@@ -140,7 +140,7 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 				fprintf(stderr, "cb_out->sup: %s\n", printSS(cb_out->sup));
 				fprintf(stderr, "cb_out->sub: %s\n", printSS(cb_out->sub));
 
-				uint8_t* lhop = ((uint8_t*)(tcpo->padding)) + 1;
+				uint8_t* lhop = ((uint8_t*)(&tcpo->padding)) + 1;
 				lhop--;
 				hdr_rewrite(ip, tcp, &cb_out->sub);
 				fix_csum(ip, tcp);
