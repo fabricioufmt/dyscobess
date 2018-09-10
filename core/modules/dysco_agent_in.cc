@@ -1733,7 +1733,7 @@ bool DyscoAgentIn::processRequestLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoCont
 			fprintf(stderr, "cb_out->dcb_in->sub: %s\n", printSS(cb_out->dcb_in->sub));
 			fprintf(stderr, "cb_out->dcb_in->my_sup: %s\n", printSS(cb_out->dcb_in->my_sup));
 			fprintf(stderr, "cb_out->dcb_in->neigh_sup: %s\n", printSS(cb_out->dcb_in->neigh_sup));
-			
+			fprintf(stderr, "cb_in: %p and cb_out: %p\n", cb_in->module, cb_out->module); 
 		}
 
 		//from here....
