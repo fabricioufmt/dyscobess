@@ -1735,13 +1735,14 @@ bool DyscoAgentIn::processRequestLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoCont
 			fprintf(stderr, "cb_in: %p and cb_out: %p\n", cb_in->module, cb_out->module); 
 		}
 
-		//from here....
 		Ethernet* eth = pkt->head_data<Ethernet*>();
 		eth->src_addr = cb_out->mac_sub.src_addr;
 		eth->dst_addr = cb_out->mac_sub.dst_addr;
 		fprintf(stderr, "MAC SRC: %s\n", eth->src_addr.ToString().c_str());
 		fprintf(stderr, "MAC DST: %s\n", eth->dst_addr.ToString().c_str());
-		hdr_rewrite(ip, tcp, &cb_out->sub);
+		*((uint32_t*)(&ip->src)) = cb_out->sub.sip;
+		*((uint32_t*)(&ip->dst)) = cb_out->sub.dip;
+		//hdr_rewrite(ip, tcp, &cb_out->sub);
 		cmsg->rhop--;
 		fix_csum(ip, tcp);
 		cb_in->dcb_out->lock_state = DYSCO_REQUEST_LOCK;
