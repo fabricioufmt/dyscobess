@@ -154,7 +154,7 @@ din5:1 -> l2_3
 dout5:1 -> l2_3
 din6:1 -> l2_4
 dout6:1 -> l2_4
-din7:1 -> l2_5
+din7:1 -> UpdateMac(mac_addr='00:00:00:00:00:51') -> l2_5
 dout7:1 -> l2_5
 din8:1 -> l2_6
 dout8:1 -> l2_6
