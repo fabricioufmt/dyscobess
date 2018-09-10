@@ -94,6 +94,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 		if(tcpo && cb_in && cb_in->dcb_out) {
 			fprintf(stderr, "[%s][DyscoAgentIn] receives LockingSignalPacket.\n", ns.c_str());
 			if(isLeftAnchor(tcpo)) {
+				fprintf(stderr, "I'm the LeftAnchor\n");
 				//start the locking...
 				//creating a SYN segment with new session etc etc...
 				//...
@@ -101,6 +102,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 				out_gates[1].add(pkt);
 				continue;
 			} else {
+				fprintf(stderr, "I'm not the LeftAnchor\n");
 				//should decrement lhop and keep forwarding
 			}
 		}
@@ -1538,26 +1540,62 @@ void DyscoAgentIn::createFinAck(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
   - increase Packet buffer (sizeof(DyscoControlMessage))
  */
 void DyscoAgentIn::createLockingPacket(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoTcpOption* tcpo, DyscoHashIn* cb_in) {
+	fprintf(stderr, "creating Locking Packet\n");
+	
 	pkt->trim(tcpo->len + hasPayload(ip, tcp));
 	DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>(pkt->append(sizeof(DyscoControlMessage)));
 
 	ip->id = be16_t(rand());
 	ip->ttl = 53;
 	ip->checksum = 0;
-	*((uint32_t*)(&ip->src)) = cb_in->sub.sip;
-	*((uint32_t*)(&ip->dst)) = cb_in->sub.dip;
+
+	be32_t ipswap = ip->src;
+	ip->src = ip->dst;
+	ip->dst = ipswap;
+	
+	//*((uint32_t*)(&ip->src)) = cb_in->sub.sip;
+	//*((uint32_t*)(&ip->dst)) = cb_in->sub.dip;
 	ip->length = be16_t(ip->length.value() - tcpo->len - hasPayload(ip, tcp) + sizeof(DyscoControlMessage));
 	memset(cmsg, 0, sizeof(DyscoControlMessage));
 
 	tcp->src_port = be16_t(rand());
 	tcp->dst_port = be16_t(LOCKING_PORT);
 	tcp->seq_num = be32_t(rand());
-	tcp->ack_num = be32_t(rand());
+	tcp->ack_num = be32_t(0);
 	tcp->offset = 5;
 	tcp->flags = Tcp::kSyn;
 
 	cmsg->lock_state = DYSCO_REQUEST_LOCK;
-	cmsg->leftA = cb_in->sub.sip;
+	//cmsg->leftA = cb_in->sub.sip;
+	cmsg->leftA = ip->src.raw_value();
+	cmsg->my_sub.sip = cb_in->sub.dip;
+	cmsg->my_sub.dip = cb_in->sub.sip;
+	cmsg->my_sub.sport = cb_in->sub.dport;
+	cmsg->my_sub.dport = cb_in->sub.sport;
+
+	fprintf(stderr, "cb_in->sub: %s\n", printSS(cb_in->sub));
+	fprintf(stderr, "cb_in->my_sup: %s\n", printSS(cb_in->my_sup));
+	fprintf(stderr, "cb_in->neigh_sup: %s\n", printSS(cb_in->neigh_sup));
+	if(cb_in->dcb_out) {
+		fprintf(stderr, "cb_in->dcb_out->sub: %s\n", printSS(cb_in->dcb_out->sub));
+		fprintf(stderr, "cb_in->dcb_out->sup: %s\n", printSS(cb_in->dcb_out->sup));
+	}
+
+	//test
+	fprintf(stderr, "looking for output (cb_in->my_sup) by %s...\n", printSS(cb_in->my_sup));
+	DyscoHashOut* cb_out = dc->lookup_output_by_ss(this->index, &cb_in->my_sup);
+	if(!cb_out) {
+		fprintf(stderr, "not found\n");
+		return;
+	} else {
+		fprintf(stderr, "found\n");
+		fprintf(stderr, "cb_out->sub: %s\n", printSS(cb_out->sub));
+		fprintf(stderr, "cb_out->sup: %s\n", printSS(cb_out->sup));
+		fprintf(stderr, "cb_out->dcb_in->sub: %s\n", printSS(cb_out->dcb_in->sub));
+		fprintf(stderr, "cb_out->dcb_in->my_sup: %s\n", printSS(cb_out->dcb_in->my_sup));
+		fprintf(stderr, "cb_out->dcb_in->neigh_sup: %s\n", printSS(cb_out->dcb_in->neigh_sup));
+		fprintf(stderr, "cb_in: %p and cb_out: %p\n", cb_in->module, cb_out->module); 
+	}
 	
 	fix_csum(ip, tcp);
 }
