@@ -144,7 +144,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 				fprintf(stderr, "processing Request Lock\n");
 				if(processRequestLock(pkt, ip, tcp, cmsg, cb_in)) {
 					fprintf(stderr, "processRequestLock returns true\n");
-					out_gates[0].add(pkt); //0 for debug
+					out_gates[1].add(pkt);
 					continue;
 				}
 
