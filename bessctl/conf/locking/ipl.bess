@@ -52,6 +52,8 @@ os.system('ip netns exec m1 route add -net 10.0.1.0/24 gw 10.0.5.1 > /dev/null')
 os.system('ip netns exec m1 route add default gw 10.0.6.1 > /dev/null')
 os.system('ip netns exec m2 route add -net 10.0.1.0/24 gw 10.0.7.1 > /dev/null')
 os.system('ip netns exec m2 route add default gw 10.0.8.1 > /dev/null')
+os.system('ip netns exec R route add -net 10.0.1.0/24 gw 10.0.3.2 > /dev/null')
+os.system('ip netns exec R route add -net 10.0.2.0/24 gw 10.0.4.2 > /dev/null')
 
 dc::DyscoCenter()
 ipfwd::IPLookup()
