@@ -1748,7 +1748,12 @@ bool DyscoAgentIn::processRequestLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoCont
 		cb_out->lock_state = DYSCO_REQUEST_LOCK;
 		fprintf(stderr, "Changing lock_state field from DYSCO_CLOSED_LOCK to DYSCO_REQUEST_LOCK\n");
 
-		return true;
+		PacketBatch out;
+		out.clear();
+		out.add(pkt);
+		cb_out->module->RunChooseModule(1, &out);
+		
+		return false;
 	} else {
 		//I'm the RightAnchor
 		Ethernet* eth = pkt->head_data<Ethernet*>();		
