@@ -494,11 +494,13 @@ bool DyscoAgentOut::output(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out
 	if(!cb_out) {
 		cb_out = dc->lookup_output_pending(this->index, ip, tcp);
 		if(cb_out) {
+			cb_out->module = this;
 			return output_mb(pkt, ip, tcp, cb_out);
 		}
 		
 		cb_out = dc->lookup_pending_tag(this->index, tcp);
 		if(cb_out) {
+			cb_out->module = this;
 			update_four_tuple(ip, tcp, cb_out->sup);
 			
 			return output_mb(pkt, ip, tcp, cb_out);
@@ -510,6 +512,7 @@ bool DyscoAgentOut::output(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out
 	}
 
 	if(cb_out) {
+		cb_out->module = this;
 		out_translate(pkt, ip, tcp, cb_out);
 		return true;
 	}
@@ -554,7 +557,7 @@ bool DyscoAgentOut::output_syn(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb
 
 		cb_out->dcb_in = insert_cb_out_reverse(cb_out, 0);
 	}
-
+	cb_out->module = this;
 	cb_out->seq_cutoff = tcp->seq_num.value();
 	parse_tcp_syn_opt_s(tcp, cb_out);
 	
@@ -898,7 +901,7 @@ bool DyscoAgentOut::control_output(Ipv4* ip, Tcp* tcp) {
 
 DyscoHashIn* DyscoAgentOut::insert_cb_out_reverse(DyscoHashOut* cb_out, uint8_t two_paths, DyscoControlMessage* cmsg) {
 	DyscoHashIn* cb_in = new DyscoHashIn();
-	cb_in->module = this;
+
 	cb_in->sub.sip = cb_out->sub.dip;
 	cb_in->sub.dip = cb_out->sub.sip;
 	cb_in->sub.sport = cb_out->sub.dport;
