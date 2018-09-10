@@ -1545,6 +1545,11 @@ void DyscoAgentIn::createLockingPacket(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoTcp
 	pkt->trim(tcpo->len + hasPayload(ip, tcp));
 	DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>(pkt->append(sizeof(DyscoControlMessage)));
 
+	Ethernet* eth = pkt->head_data<Ethernet*>();
+	Ethernet::Address macswap = eth->dst_addr;
+	eth->dst_addr = eth->src_addr;
+	eth->src_addr = macswap;
+	
 	ip->id = be16_t(rand());
 	ip->ttl = 53;
 	ip->checksum = 0;
