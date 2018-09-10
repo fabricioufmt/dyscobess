@@ -1548,6 +1548,9 @@ void DyscoAgentIn::createLockingPacket(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoTcp
 	tcp->ack_num = be32_t(rand());
 	tcp->offset = 5;
 	tcp->flags = Tcp::kSyn;
+
+	cmsg->lock_state = DYSCO_REQUEST_LOCK;
+	cmsg->leftA = cb_in->sub.sip;
 	
 	fix_csum(ip, tcp);
 }
@@ -1781,7 +1784,9 @@ bool DyscoAgentIn::processRequestLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoCont
 
 		cmsg->lock_state = DYSCO_ACK_LOCK;			
 		fix_csum(ip, tcp);
-		fprintf(stderr, "Changing lock_state field to DYSCO_ACK_LOCK\n");						
+		fprintf(stderr, "Changing lock_state field to DYSCO_ACK_LOCK\n");
+		
+		cb_in->dcb_out->isRA = 1;
 		cb_in->dcb_out->lock_state = DYSCO_ACK_LOCK;
 
 		return true;
@@ -1824,8 +1829,35 @@ bool DyscoAgentIn::processAckLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoControlM
 		return true;
 	}
 
-	fprintf(stderr, "Changing lock_state field to DYSCO_ACK_LOCK\n");
-	cb_in->dcb_out->lock_state = DYSCO_ACK_LOCK;
+	if(cb_in->dcb_out->is_LA) {
+		fprintf(stderr, "I'm the LeftAnchor... it's OK for reconfiguration\n");
+	} else {
+		fprintf(stderr, "I'm not the LeftAnchor... just forward the ACK_LOCK\n");
+		fprintf(stderr, "cmsg->my_sub: %s\n", printSS(cmsg->my_sub));
+		
+		fprintf(stderr, "cb_in->sub: %s\n", printSS(cb_in->sub));
+		fprintf(stderr, "cb_in->my_sup: %s\n", printSS(cb_in->my_sup));
+		fprintf(stderr, "cb_in->neigh_sup: %s\n", printSS(cb_in->neigh_sup));
+		fprintf(stderr, "cb_in->dcb_out->sub: %s\n", printSS(cb_in->dcb_out->sub));
+		fprintf(stderr, "cb_in->dcb_out->sup: %s\n", printSS(cb_in->dcb_out->sup));
+
+		//test
+		fprintf(stderr, "looking for output by %s...\n", printSS(cb_in->my_sup));
+		DyscoHashOut* cb_out = dc->lookup_output_by_ss(this->index, &cb_in->my_sup);
+		if(!cb_out) {
+			fprintf(stderr, "not found\n");
+			return false;
+		} else {
+			fprintf(stderr, "found\n");
+			fprintf(stderr, "cb_out->sub: %s\n", printSS(cb_out->sub));
+			fprintf(stderr, "cb_out->sup: %s\n", printSS(cb_out->sup));
+			fprintf(stderr, "cb_out->dcb_in->sub: %s\n", printSS(cb_out->dcb_in->sub));
+			fprintf(stderr, "cb_out->dcb_in->my_sup: %s\n", printSS(cb_out->dcb_in->my_sup));
+			fprintf(stderr, "cb_out->dcb_in->neigh_sup: %s\n", printSS(cb_out->dcb_in->neigh_sup));
+			fprintf(stderr, "cb_in: %p and cb_out: %p\n", cb_in->module, cb_out->module); 
+		}
+	}
+       
 
 	return false;
 }

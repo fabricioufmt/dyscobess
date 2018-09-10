@@ -439,7 +439,9 @@ class DyscoHashOut {
 
 	uint8_t is_reconfiguration:1,
 		is_nat:1,
-		state:6;
+		is_LA:1,
+		is_RA:1,
+		state:4;
 
 	uint8_t lock_state;
 	
