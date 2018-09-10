@@ -147,12 +147,13 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 					out_gates[1].add(pkt);
 					continue;
 				}
-
 			} else if (cmsg->lock_state == DYSCO_ACK_LOCK) {
 				fprintf(stderr, "processing Ack Lock\n");
-				out_gates[0].add(pkt); //for DEBUG
-				out_gates[1].add(pkt); //for DEBUG
-				processAckLock(pkt, ip, tcp, cmsg, cb_in);
+				if(processAckLock(pkt, ip, tcp, cmsg, cb_in)) {
+					fprintf(stderr, "processRequestLock returns true\n");
+					out_gates[1].add(pkt);
+					continue;
+				}
 			} else if (cmsg->lock_state == DYSCO_NACK_LOCK) {
 				fprintf(stderr, "processing Nack Lock\n");
 				//processNackLock(pkt, ip, tcp, cmsg, cb_in);
@@ -1782,9 +1783,15 @@ bool DyscoAgentIn::processRequestLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoCont
 		tcp->seq_num = be32_t(rand());
 		tcp->flags |= Tcp::kAck;
 
-		cmsg->lock_state = DYSCO_ACK_LOCK;			
+		cmsg->lock_state = DYSCO_ACK_LOCK;
+		DyscoTcpSession ss;
+		ss.sip = cmsg->my_sub.dip;
+		ss.dip = cmsg->my_sub.sip;
+		ss.sport = cmsg->my_sub.dport;
+		ss.dport = cmsg->my_sub.sport;
+		cmsg->my_sub = ss;
 		fix_csum(ip, tcp);
-		fprintf(stderr, "Changing lock_state field to DYSCO_ACK_LOCK\n");
+		fprintf(stderr, "Changing lock_state field from DYSCO_CLOSED_LOCK to DYSCO_ACK_LOCK\n");
 		
 		cb_in->dcb_out->is_RA = 1;
 		cb_in->dcb_out->lock_state = DYSCO_ACK_LOCK;
@@ -1858,7 +1865,6 @@ bool DyscoAgentIn::processAckLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoControlM
 		}
 	}
        
-
 	return false;
 }
 
