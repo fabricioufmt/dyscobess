@@ -1576,27 +1576,9 @@ void DyscoAgentIn::createLockingPacket(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoTcp
 	fprintf(stderr, "cb_in->sub: %s\n", printSS(cb_in->sub));
 	fprintf(stderr, "cb_in->my_sup: %s\n", printSS(cb_in->my_sup));
 	fprintf(stderr, "cb_in->neigh_sup: %s\n", printSS(cb_in->neigh_sup));
-	if(cb_in->dcb_out) {
-		fprintf(stderr, "cb_in->dcb_out->sub: %s\n", printSS(cb_in->dcb_out->sub));
-		fprintf(stderr, "cb_in->dcb_out->sup: %s\n", printSS(cb_in->dcb_out->sup));
-	}
+	fprintf(stderr, "cb_in->dcb_out->sub: %s\n", printSS(cb_in->dcb_out->sub));
+	fprintf(stderr, "cb_in->dcb_out->sup: %s\n", printSS(cb_in->dcb_out->sup));
 
-	//test
-	fprintf(stderr, "looking for output (cb_in->my_sup) by %s...\n", printSS(cb_in->my_sup));
-	DyscoHashOut* cb_out = dc->lookup_output_by_ss(this->index, &cb_in->my_sup);
-	if(!cb_out) {
-		fprintf(stderr, "not found\n");
-		return;
-	} else {
-		fprintf(stderr, "found\n");
-		fprintf(stderr, "cb_out->sub: %s\n", printSS(cb_out->sub));
-		fprintf(stderr, "cb_out->sup: %s\n", printSS(cb_out->sup));
-		fprintf(stderr, "cb_out->dcb_in->sub: %s\n", printSS(cb_out->dcb_in->sub));
-		fprintf(stderr, "cb_out->dcb_in->my_sup: %s\n", printSS(cb_out->dcb_in->my_sup));
-		fprintf(stderr, "cb_out->dcb_in->neigh_sup: %s\n", printSS(cb_out->dcb_in->neigh_sup));
-		fprintf(stderr, "cb_in: %p and cb_out: %p\n", cb_in->module, cb_out->module); 
-	}
-	
 	fix_csum(ip, tcp);
 }
 
