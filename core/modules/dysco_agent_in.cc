@@ -545,6 +545,12 @@ DyscoHashOut* DyscoAgentIn::insert_cb_in_reverse(DyscoHashIn* cb_in, Ipv4* ip, T
 	cb_out->sub.sport = tcp->dst_port.raw_value();
 	cb_out->sub.dport = tcp->src_port.raw_value();
 
+	cb_out->mac_sub.src_addr = cb_in->mac_sub.dst_addr;
+	cb_out->mac_sub.dst_addr = cb_in->mac_sub.src_addr;
+	fprintf(stderr, "copying MAC values(output)\n");
+	fprintf(stderr, "MAC SRC: %s\n", cb_out->mac_sub.src_addr.ToString().c_str());
+	fprintf(stderr, "MAC DST: %s\n", cb_out->mac_sub.dst_addr.ToString().c_str());
+	
 	cb_out->in_iack = tcp->seq_num.value();
 	cb_out->out_iack = tcp->seq_num.value();
 
