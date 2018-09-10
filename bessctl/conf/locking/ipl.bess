@@ -167,12 +167,12 @@ din10:1 -> ipfwd
 
 ipfwd:1 -> l2_1
 ipfwd:2 -> l2_2
-ipfwd:3 -> l2_3
-ipfwd:4 -> l2_4
-ipfwd:5 -> l2_5
-ipfwd:6 -> l2_6
-ipfwd:7 -> l2_7
-ipfwd:8 -> l2_8
+ipfwd:3 -> UpdateMac(mac_addr='00:00:00:00:31') -> l2_3
+ipfwd:4 -> UpdateMac(mac_addr='00:00:00:00:41') -> l2_4
+ipfwd:5 -> UpdateMac(mac_addr='00:00:00:00:51') -> l2_5
+ipfwd:6 -> UpdateMac(mac_addr='00:00:00:00:61') -> l2_6
+ipfwd:7 -> UpdateMac(mac_addr='00:00:00:00:71') -> l2_7
+ipfwd:8 -> UpdateMac(mac_addr='00:00:00:00:81') -> l2_8
 ipfwd:9 -> Sink() #default... should be outside
 
 l2_1:0 -> din3
