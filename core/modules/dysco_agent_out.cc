@@ -94,7 +94,7 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 					fprintf(stderr, "Lock State: either LOCK, ACK, or NACK... dropping.\n");
 					continue;
 				}
-
+				cb_out->is_LA = 1;
 				fprintf(stderr, "[%s][DyscoAgentOut] creates a LockingPacket(SYN+PAYLOAD) and sends it.\n", ns.c_str());
 
 				sc_sz = hasPayload(ip, tcp) - sizeof(DyscoControlMessage);
