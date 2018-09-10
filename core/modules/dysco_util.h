@@ -385,6 +385,7 @@ class DyscoHashIn {
 		padding:7;
 	
 	DyscoControlMessage cmsg;
+	Module* module;
 };
 
 class DyscoHashOut {
@@ -445,6 +446,7 @@ class DyscoHashOut {
 	uint32_t ack_ctr;
 
 	DyscoControlMessage cmsg;
+	Module* module;
 };
 
 class DyscoCbReconfig {

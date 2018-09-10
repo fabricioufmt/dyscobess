@@ -524,7 +524,7 @@ bool DyscoAgentOut::output_syn(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb
 			return false;
 
 		cb_out = new DyscoHashOut();
-
+		cb_out->module = this;
 		cb_out->sc = filter->sc;
 		cb_out->sc_len = filter->sc_len;
 	
@@ -714,7 +714,7 @@ DyscoCbReconfig* DyscoAgentOut::insert_cb_control(Ipv4* ip, Tcp* tcp, DyscoContr
 
 bool DyscoAgentOut::control_insert_out(DyscoCbReconfig* rcb) {
 	DyscoHashOut* cb_out = new DyscoHashOut();
-
+	cb_out->module = this;
 	cb_out->sup = rcb->super;
 	cb_out->sub = rcb->sub_out;
 
@@ -836,6 +836,7 @@ bool DyscoAgentOut::control_output(Ipv4* ip, Tcp* tcp) {
 		}
 
 		new_dcb = new DyscoHashOut();
+		new_dcb->module = this;
 
 		rcb->old_dcb = old_dcb;
 		rcb->new_dcb = new_dcb;
@@ -897,7 +898,7 @@ bool DyscoAgentOut::control_output(Ipv4* ip, Tcp* tcp) {
 
 DyscoHashIn* DyscoAgentOut::insert_cb_out_reverse(DyscoHashOut* cb_out, uint8_t two_paths, DyscoControlMessage* cmsg) {
 	DyscoHashIn* cb_in = new DyscoHashIn();
-
+	cb_in->module = this;
 	cb_in->sub.sip = cb_out->sub.dip;
 	cb_in->sub.dip = cb_out->sub.sip;
 	cb_in->sub.sport = cb_out->sub.dport;

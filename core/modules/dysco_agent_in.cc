@@ -424,7 +424,7 @@ bool DyscoAgentIn::rx_initiation_new(Packet* pkt, Ipv4* ip, Tcp* tcp, uint32_t p
 	uint8_t* payload = reinterpret_cast<uint8_t*>(tcp) + (tcp->offset << 2);
 
 	DyscoHashIn* cb_in = new DyscoHashIn();
-
+	cb_in->module = this;
 	cb_in->sub.sip = ip->src.raw_value();
 	cb_in->sub.dip = ip->dst.raw_value();
 	cb_in->sub.sport = tcp->src_port.raw_value();
@@ -468,7 +468,7 @@ bool DyscoAgentIn::rx_initiation_new(Packet* pkt, Ipv4* ip, Tcp* tcp, uint32_t p
 		uint32_t sc_len = (payload_sz - 2 * sizeof(DyscoTcpSession))/sizeof(uint32_t);
 
 		DyscoHashOut* cb_out = new DyscoHashOut();
-
+		cb_out->module = this;
 		/*
 		cb_out->sup.sip = neigh_supss->sip;
 		cb_out->sup.dip = neigh_supss->dip;
@@ -515,7 +515,8 @@ bool DyscoAgentIn::rx_initiation_new(Packet* pkt, Ipv4* ip, Tcp* tcp, uint32_t p
 
 DyscoHashOut* DyscoAgentIn::insert_cb_in_reverse(DyscoHashIn* cb_in, Ipv4* ip, Tcp* tcp) {
 	DyscoHashOut* cb_out = new DyscoHashOut();
-
+	cb_out->module = this;
+	
 	cb_out->sup.sip = cb_in->my_sup.dip;
 	cb_out->sup.dip = cb_in->my_sup.sip;
 	cb_out->sup.sport = cb_in->my_sup.dport;
@@ -527,6 +528,7 @@ DyscoHashOut* DyscoAgentIn::insert_cb_in_reverse(DyscoHashIn* cb_in, Ipv4* ip, T
 #endif
 
 		DyscoHashOut* cb_out_nat = new DyscoHashOut();
+		cb_out_nat->module = this;
 		cb_out_nat->sup.sip = cb_in->neigh_sup.dip;
 		cb_out_nat->sup.dip = cb_in->neigh_sup.sip;
 		cb_out_nat->sup.sport = cb_in->neigh_sup.dport;
@@ -782,7 +784,7 @@ DyscoCbReconfig* DyscoAgentIn::insert_rcb_control_input(Ipv4* ip, Tcp* tcp, Dysc
 
 DyscoHashOut* DyscoAgentIn::build_cb_in_reverse(Ipv4*, DyscoCbReconfig* rcb) {
 	DyscoHashOut* cb_out = new DyscoHashOut();
-	
+	cb_out->module = this;
 	cb_out->sup.sip = rcb->rightSS.dip;
 	cb_out->sup.dip = rcb->rightSS.sip;
 	cb_out->sup.sport = rcb->rightSS.dport;
@@ -1007,7 +1009,7 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 		fprintf(stderr, "It's the right anchor.\n");
 #endif	
 		cb_in = new DyscoHashIn();
-		
+		cb_in->module = this;
 		cb_in->sub = rcb->sub_in;
 		cb_in->out_iseq = rcb->leftIseq;
 		cb_in->out_iack = rcb->leftIack;
@@ -1066,7 +1068,7 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 #endif
 
 	cb_in = new DyscoHashIn();
-
+	cb_in->module = this;
 	cb_in->sub.sip = ip->src.raw_value();
 	cb_in->sub.dip = ip->dst.raw_value();
 	cb_in->sub.sport = tcp->src_port.raw_value();
@@ -1092,7 +1094,7 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 		fprintf(stderr, "I am not last one on service chain.\n");
 #endif	
 		cb_out = new DyscoHashOut();
-
+		cb_out->module = this;
 		cb_out->sup = cb_in->my_sup;
 		
 		cb_out->dysco_tag = dc->get_dysco_tag(this->index);
