@@ -1863,6 +1863,27 @@ bool DyscoAgentIn::processAckLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoControlM
 			fprintf(stderr, "cb_out->dcb_in->neigh_sup: %s\n", printSS(cb_out->dcb_in->neigh_sup));
 			fprintf(stderr, "cb_in: %p and cb_out: %p\n", cb_in->module, cb_out->module); 
 		}
+
+		Ethernet* eth = pkt->head_data<Ethernet*>();
+		eth->src_addr = cb_out->mac_sub.src_addr;
+		eth->dst_addr = cb_out->mac_sub.dst_addr;
+		fprintf(stderr, "MAC SRC: %s\n", eth->src_addr.ToString().c_str());
+		fprintf(stderr, "MAC DST: %s\n", eth->dst_addr.ToString().c_str());
+		*((uint32_t*)(&ip->src)) = cb_out->sub.sip;
+		*((uint32_t*)(&ip->dst)) = cb_out->sub.dip;
+		//hdr_rewrite(ip, tcp, &cb_out->sub);
+		cmsg->my_sub = cb_out->sub;
+		fix_csum(ip, tcp);
+		cb_in->dcb_out->lock_state = DYSCO_ACK_LOCK;
+		cb_out->lock_state = DYSCO_ACK_LOCK;
+		fprintf(stderr, "Changing lock_state field from DYSCO_REQUEST_LOCK to DYSCO_ACK_LOCK\n");
+
+		PacketBatch out;
+		out.clear();
+		out.add(pkt);
+		cb_out->module->RunChooseModule(1, &out);
+		
+		return false;
 	}
        
 	return false;
