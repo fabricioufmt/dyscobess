@@ -77,7 +77,7 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 
 		tcpo = isLockSignalPacket(tcp);
 		if(tcpo) {
-			fprintf(stderr, "[%s][DyscoAgentOut] It's Locking Signal Packet.\n", ns.c_str());
+			fprintf(stderr, "It's Locking Signal Packet.\n");
 			if(isLeftAnchor(tcpo)) {
 				fprintf(stderr, "[%s][DyscoAgentOut] I'm the LeftAnchor.\n", ns.c_str());
 				if(!cb_out) {
@@ -91,7 +91,7 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 				fprintf(stderr, "Lock State: %d.\n", cb_out->lock_state);
 				
 				if(cb_out->lock_state != DYSCO_CLOSED_LOCK) {
-					fprintf(stderr, "Lock State: either LOCK, ACK, or NACK... dropping.\n");
+					fprintf(stderr, "Lock State: either REQUEST, ACK, or NACK... dropping.\n");
 					continue;
 				}
 				cb_out->is_LA = 1;
@@ -137,6 +137,17 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 				continue;
 			} else {
 				fprintf(stderr, "[%s][DyscoAgentOut] I'm not the LeftAnchor\n", ns.c_str());
+				fprintf(stderr, "cb_out->sup: %s\n", printSS(cb_out->sup));
+				fprintf(stderr, "cb_out->sub: %s\n", printSS(cb_out->sub));
+
+				uint8_t* lhop = ((uint8_t*)(tcpo->padding)) + 1;
+				lhop--;
+				hdr_rewrite(ip, tcp, &cb_out->sub);
+				fix_csum(ip, tcp);
+				fprintf(stderr, "forwarding to %s\n", printSS(cb_out->sub));
+				out_gates[0].add(pkt);
+				continue;
+				
 				//TODO
 			}
 		}
