@@ -1577,7 +1577,9 @@ void DyscoAgentIn::createLockingPacket(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoTcp
 	cmsg->my_sub.dip = cb_in->sub.sip;
 	cmsg->my_sub.sport = cb_in->sub.dport;
 	cmsg->my_sub.dport = cb_in->sub.sport;
-
+	cmsg->lhop = (tcpo->padding >> 4);
+	cmsg->rhop = (tcpo->padding);
+	
 	fprintf(stderr, "cb_in->sub: %s\n", printSS(cb_in->sub));
 	fprintf(stderr, "cb_in->my_sup: %s\n", printSS(cb_in->my_sup));
 	fprintf(stderr, "cb_in->neigh_sup: %s\n", printSS(cb_in->neigh_sup));
@@ -1793,6 +1795,7 @@ bool DyscoAgentIn::processRequestLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoCont
 		return false;
 	} else {
 		//I'm the RightAnchor
+		fprintf(stderr, "I'm the RightAnchor\n");
 		Ethernet* eth = pkt->head_data<Ethernet*>();		
 		Ethernet::Address macswap = eth->dst_addr;
 		eth->dst_addr = eth->src_addr;
