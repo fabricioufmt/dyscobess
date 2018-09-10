@@ -1786,7 +1786,7 @@ bool DyscoAgentIn::processRequestLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoCont
 		fix_csum(ip, tcp);
 		fprintf(stderr, "Changing lock_state field to DYSCO_ACK_LOCK\n");
 		
-		cb_in->dcb_out->isRA = 1;
+		cb_in->dcb_out->is_RA = 1;
 		cb_in->dcb_out->lock_state = DYSCO_ACK_LOCK;
 
 		return true;
