@@ -119,7 +119,12 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 				fix_csum(ip, tcp); //should be incremental checksum
 				
 				fprintf(stderr, "forwarding to %s\n",printSS(cb_out->sub));
-				out_gates[1].add(pkt);
+
+				PacketBatch out;
+				out.clear();
+				out.add(pkt);
+				cb_out->module->RunChooseModule(1, &out);
+				
 				continue;
 			}
 		}
