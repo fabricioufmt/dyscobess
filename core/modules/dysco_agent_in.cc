@@ -94,7 +94,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 		if(tcpo && cb_in && cb_in->dcb_out) {
 			fprintf(stderr, "Receives Locking Signal Packet.\n");
 			
-			uint8_t* lhop = ((uint8_t*)(&tcpo->padding)) + 1;
+			uint8_t* lhop = (uint8_t*)(&tcpo->padding) + 1;
 			(*lhop)--;
 			
 			if(isLeftAnchor(tcpo)) {
@@ -1607,6 +1607,8 @@ void DyscoAgentIn::createLockingPacket(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoTcp
 	cmsg->my_sub.dport = cb_in->sub.sport;
 	cmsg->lhop = 0; //(tcpo->padding >> 4);
 	cmsg->rhop = (tcpo->padding & 0xff);
+
+	fprintf(stderr, "padding: %u, lhop: %u, rhop: %u\n", tcpo->padding, cmsg->lhop, cmsg->rhop);
 	
 	fprintf(stderr, "cb_in->sub: %s\n", printSS(cb_in->sub));
 	fprintf(stderr, "cb_in->my_sup: %s\n", printSS(cb_in->my_sup));
