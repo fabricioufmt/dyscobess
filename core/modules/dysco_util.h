@@ -664,7 +664,7 @@ inline DyscoTcpOption* isLockSignalPacket(Tcp* tcp) {
 
 inline bool isLockingPacket(Ipv4* ip, Tcp* tcp) {
 	if(isTCPSYN(tcp) && hasPayload(ip, tcp)) {
-		DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>((uint8_t*) tcp + hasPayload(ip, tcp));
+		DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>(tcp + 1);
 		return cmsg->type == DYSCO_LOCK;
 	}
 
