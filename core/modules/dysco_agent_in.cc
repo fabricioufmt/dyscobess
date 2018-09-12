@@ -93,6 +93,10 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 		tcpo = isLockSignalPacket(tcp);
 		if(tcpo && cb_in && cb_in->dcb_out) {
 			fprintf(stderr, "Receives Locking Signal Packet.\n");
+			
+			uint8_t* lhop = ((uint8_t*)(&tcpo->padding)) + 1;
+			(*lhop)--;
+			
 			if(isLeftAnchor(tcpo)) {
 				fprintf(stderr, "I'm the LeftAnchor\n");
 				
@@ -111,8 +115,6 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 
 				fprintf(stderr, "cb_in: %p and cb_out: %p\n", cb_in->module, cb_out->module);
 
-				uint8_t* lhop = ((uint8_t*)(&tcpo->padding)) + 1;
-				(*lhop)--;
 				eth->src_addr = cb_out->mac_sub.src_addr;
 				eth->dst_addr = cb_out->mac_sub.dst_addr;
 				hdr_rewrite(ip, tcp, &cb_out->sub);
@@ -1603,8 +1605,8 @@ void DyscoAgentIn::createLockingPacket(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoTcp
 	cmsg->my_sub.dip = cb_in->sub.sip;
 	cmsg->my_sub.sport = cb_in->sub.dport;
 	cmsg->my_sub.dport = cb_in->sub.sport;
-	cmsg->lhop = (tcpo->padding >> 4);
-	cmsg->rhop = (tcpo->padding) - 1;
+	cmsg->lhop = 0; //(tcpo->padding >> 4);
+	cmsg->rhop = (tcpo->padding);
 	
 	fprintf(stderr, "cb_in->sub: %s\n", printSS(cb_in->sub));
 	fprintf(stderr, "cb_in->my_sup: %s\n", printSS(cb_in->my_sup));
@@ -1740,6 +1742,7 @@ bool DyscoAgentIn::isEstablished(Packet* pkt) {
 }
 
 bool DyscoAgentIn::processRequestLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoControlMessage* cmsg, DyscoHashIn* cb_in) {
+	/*
 	if(cb_in->dcb_out->lock_state != DYSCO_CLOSED_LOCK) {
 		Ethernet* eth = pkt->head_data<Ethernet*>();
 		Ethernet::Address macswap = eth->dst_addr;
@@ -1769,8 +1772,11 @@ bool DyscoAgentIn::processRequestLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoCont
 
 		return true;
 	}
+	*/
+
+	cmsg->rhop--;
 	
-	if(cmsg->rhop > 1) {
+	if(cmsg->rhop > 0) {
 		//I'm not the RightAnchor
 
 		fprintf(stderr, "I'm not the RightAnchor\n");
@@ -1806,7 +1812,7 @@ bool DyscoAgentIn::processRequestLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoCont
 		*((uint32_t*)(&ip->src)) = cb_out->sub.sip;
 		*((uint32_t*)(&ip->dst)) = cb_out->sub.dip;
 		//hdr_rewrite(ip, tcp, &cb_out->sub);
-		cmsg->rhop--;
+		cmsg->lhop++;
 		cmsg->my_sub = cb_out->sub;
 		fix_csum(ip, tcp);
 		cb_in->dcb_out->lock_state = DYSCO_REQUEST_LOCK;
@@ -1850,6 +1856,7 @@ bool DyscoAgentIn::processRequestLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoCont
 		ss.sport = cmsg->my_sub.dport;
 		ss.dport = cmsg->my_sub.sport;
 		cmsg->my_sub = ss;
+		cmsg->lhop++;
 		fix_csum(ip, tcp);
 		fprintf(stderr, "Changing lock_state field from DYSCO_CLOSED_LOCK to DYSCO_ACK_LOCK\n");
 		
@@ -1863,8 +1870,7 @@ bool DyscoAgentIn::processRequestLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoCont
 }
 
 bool DyscoAgentIn::processAckLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoControlMessage* cmsg, DyscoHashIn* cb_in) {
-	//Am I either LeftAnchor, non-Anchor or RightAnchor
-	
+	/*
 	if(cb_in->dcb_out->lock_state != DYSCO_REQUEST_LOCK) {
 		Ethernet* eth = pkt->head_data<Ethernet*>();
 		Ethernet::Address macswap = eth->dst_addr;
@@ -1895,7 +1901,7 @@ bool DyscoAgentIn::processAckLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoControlM
 
 		return true;
 	}
-
+	*/
 	if(cb_in->dcb_out->is_LA) {
 		fprintf(stderr, "I'm the LeftAnchor... it's OK for reconfiguration\n");
 	} else {
@@ -1933,6 +1939,7 @@ bool DyscoAgentIn::processAckLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoControlM
 		*((uint32_t*)(&ip->dst)) = cb_out->sub.dip;
 		//hdr_rewrite(ip, tcp, &cb_out->sub);
 		cmsg->my_sub = cb_out->sub;
+		cmsg->lhop--;
 		fix_csum(ip, tcp);
 		cb_in->dcb_out->lock_state = DYSCO_ACK_LOCK;
 		cb_out->lock_state = DYSCO_ACK_LOCK;

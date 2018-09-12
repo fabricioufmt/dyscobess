@@ -143,10 +143,7 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 			} else {
 				fprintf(stderr, "I'm not the LeftAnchor\n");
 				
-				uint8_t* lhop = ((uint8_t*)(&tcpo->padding)) + 1;
-				(*lhop)--;
-				hdr_rewrite(ip, tcp, &cb_out->sub);
-				fix_csum(ip, tcp); //should be incremental checksum
+				hdr_rewrite_csum(ip, tcp, &cb_out->sub);
 				
 				fprintf(stderr, "forwarding to %s\n",printSS(cb_out->sub));
 				out_gates[0].add(pkt);
