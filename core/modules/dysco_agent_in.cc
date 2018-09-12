@@ -1601,11 +1601,11 @@ void DyscoAgentIn::createLockingPacket(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoTcp
 	tcp->offset = 5;
 	tcp->flags = Tcp::kSyn;
 
-	cmsg->type = DYSCO_LOCK;
-	cmsg->lock_state = DYSCO_REQUEST_LOCK;
+	cb_in->dcb_out->is_LA = 1;
 	cb_in->dcb_out->lock_state = DYSCO_REQUEST_LOCK;
 	
-	//cmsg->leftA = cb_in->sub.sip;
+	cmsg->type = DYSCO_LOCK;
+	cmsg->lock_state = DYSCO_REQUEST_LOCK;
 	cmsg->leftA = ip->src.raw_value();
 	cmsg->my_sub.sip = cb_in->sub.dip;
 	cmsg->my_sub.dip = cb_in->sub.sip;
@@ -1779,9 +1779,9 @@ bool DyscoAgentIn::processRequestLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoCont
 		return true;
 	}
 	*/
-	fprintf(stderr, "before cmsg->rhop: %u\n", cmsg->rhop);
+
 	cmsg->rhop--;
-	fprintf(stderr, "after cmsg->rhop: %u\n", cmsg->rhop);
+
 	if(cmsg->rhop > 0) {
 		//I'm not the RightAnchor
 
@@ -1908,6 +1908,7 @@ bool DyscoAgentIn::processAckLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoControlM
 		return true;
 	}
 	*/
+
 	if(cb_in->dcb_out->is_LA) {
 		fprintf(stderr, "I'm the LeftAnchor... it's OK for reconfiguration\n");
 	} else {
