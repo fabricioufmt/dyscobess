@@ -62,7 +62,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 	Ethernet* eth;
 	size_t ip_hlen;
 	DyscoHashIn* cb_in;
-
+	DyscoHashOut* cb_out;
 	DyscoTcpOption* tcpo;
 	DyscoControlMessage* cmsg;
 	
@@ -92,18 +92,31 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 
 		tcpo = isLockSignalPacket(tcp);
 		if(tcpo && cb_in && cb_in->dcb_out) {
-			fprintf(stderr, "[%s][DyscoAgentIn] receives LockingSignalPacket.\n", ns.c_str());
+			fprintf(stderr, "Receives Locking Signal Packet.\n");
 			if(isLeftAnchor(tcpo)) {
 				fprintf(stderr, "I'm the LeftAnchor\n");
-				//start the locking...
-				//creating a SYN segment with new session etc etc...
-				//...
+				
 				createLockingPacket(pkt, ip, tcp, tcpo, cb_in);
 				out_gates[1].add(pkt);
 				continue;
 			} else {
 				fprintf(stderr, "I'm not the LeftAnchor\n");
-				//should decrement lhop and keep forwarding
+
+				cb_out = dc->lookup_output_by_ss(this->index, &cb_in->my_sup);
+
+				if(!cb_out) {
+					fprintf(stderr, "cb_out not found\n");
+					continue;
+				}
+
+				uint8_t* lhop = ((uint8_t*)(&tcpo->padding)) + 1;
+				(*lhop)--;
+				hdr_rewrite(ip, tcp, &cb_out->sub);
+				fix_csum(ip, tcp); //should be incremental checksum
+				
+				fprintf(stderr, "forwarding to %s\n",printSS(cb_out->sub));
+				out_gates[1].add(pkt);
+				continue;
 			}
 		}
 

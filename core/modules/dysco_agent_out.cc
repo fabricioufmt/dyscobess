@@ -78,39 +78,41 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 		tcpo = isLockSignalPacket(tcp);
 		if(tcpo) {
 			fprintf(stderr, "It's Locking Signal Packet.\n");
+			if(!cb_out) {
+				fprintf(stderr, "There's not a entry on cb_out... dropping.\n");
+				continue;
+			}
+
+			if(cb_out->lock_state != DYSCO_CLOSED_LOCK) {
+				fprintf(stderr, "Lock State: either REQUEST, ACK, or NACK... dropping.\n");
+				continue;
+			}
+
+			fprintf(stderr, "Entry: %s.\n", printSS(cb_out->sub));
+			fprintf(stderr, "State: %d.\n", cb_out->state);
+			fprintf(stderr, "Lock State: %d.\n", cb_out->lock_state);
+			fprintf(stderr, "cb_out->sub: %s\n", printSS(cb_out->sub));
+			fprintf(stderr, "cb_out->dcb_in->sub: %s\n", printSS(cb_out->dcb_in->sub));
+			
+			sc_sz = hasPayload(ip, tcp) - sizeof(DyscoControlMessage);
+			cmsg = reinterpret_cast<DyscoControlMessage*>(getPayload(tcp));
+
+			if(!cb_out->sc)
+				fprintf(stderr, "cb_out->sc is NULL\n");
+			else
+				fprintf(stderr, "cb_out->sc is NULL\n");
+
+			cb_out->is_signaler = 1;
+			cb_out->sc_len = sc_sz/sizeof(uint32_t);
+			cb_out->sc = reinterpret_cast<uint32_t*>(reinterpret_cast<char*>(cmsg) + sizeof(DyscoControlMessage));
+			
 			if(isLeftAnchor(tcpo)) {
-				fprintf(stderr, "[%s][DyscoAgentOut] I'm the LeftAnchor.\n", ns.c_str());
-				if(!cb_out) {
-					fprintf(stderr, "[%s][DyscoAgentOut] There's not a entry on cb_out... dropping.\n", ns.c_str());
-					continue;
-				}
+				fprintf(stderr, "I'm the LeftAnchor.\n");
 				
-				fprintf(stderr, "[%s][DyscoAgentOut] There's a entry on cb_out.\n", ns.c_str());
-				fprintf(stderr, "Entry: %s.\n", printSS(cb_out->sub));
-				fprintf(stderr, "State: %d.\n", cb_out->state);
-				fprintf(stderr, "Lock State: %d.\n", cb_out->lock_state);
-				
-				if(cb_out->lock_state != DYSCO_CLOSED_LOCK) {
-					fprintf(stderr, "Lock State: either REQUEST, ACK, or NACK... dropping.\n");
-					continue;
-				}
 				cb_out->is_LA = 1;
-				fprintf(stderr, "[%s][DyscoAgentOut] creates a LockingPacket(SYN+PAYLOAD) and sends it.\n", ns.c_str());
+				fprintf(stderr, "Creating the Locking Packet.\n");
 
-				sc_sz = hasPayload(ip, tcp) - sizeof(DyscoControlMessage);
-				cmsg = reinterpret_cast<DyscoControlMessage*>(getPayload(tcp));
-
-				if(!cb_out->sc)
-					fprintf(stderr, "cb_out->sc is NULL\n");
-				else
-					fprintf(stderr, "cb_out->sc is NULL\n");
-
-				cb_out->sc = reinterpret_cast<uint32_t*>(reinterpret_cast<char*>(cmsg) + sizeof(DyscoControlMessage));
-
-				
-				ip->length = be16_t(ip->length.value() - tcpo->len - sc_sz);
 				pkt->trim(tcpo->len + sc_sz);
-				
 				memcpy(tcpo, cmsg, sizeof(DyscoControlMessage));
 				
 				ip->id = be16_t(rand());
@@ -118,6 +120,7 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 				ip->checksum = 0;
 				*((uint32_t*)(&ip->src)) = cb_out->sub.sip;
 				*((uint32_t*)(&ip->dst)) = cb_out->sub.dip;
+				ip->length = be16_t(ip->length.value()-tcpo->len-sc_sz);
 				
 				tcp->src_port = be16_t(rand());
 				tcp->dst_port = be16_t(rand());
@@ -129,28 +132,23 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 				cb_out->lock_state = DYSCO_REQUEST_LOCK;
 
 				cmsg = reinterpret_cast<DyscoControlMessage*>(getPayload(tcp));
-				cmsg->my_sub = cb_out->sub;
 				cmsg->type = DYSCO_LOCK;
-				fprintf(stderr, "cb_out->sub: %s\n", printSS(cb_out->sub));
-				fprintf(stderr, "cb_out->dcb_in->sub: %s\n", printSS(cb_out->dcb_in->sub));
-				
+				cmsg->my_sub = cb_out->sub;
 				cmsg->lock_state = DYSCO_REQUEST_LOCK;
-				fix_csum(ip, tcp);
-				out_gates[0].add(pkt);
 				
+				fix_csum(ip, tcp);
+				fprintf(stderr, "forwarding to %s\n",printSS(cb_out->sub));
+				out_gates[0].add(pkt);				
 				continue;
 			} else {
-				fprintf(stderr, "[%s][DyscoAgentOut] I'm not the LeftAnchor\n", ns.c_str());
-				fprintf(stderr, "cb_out->sup: %s\n", printSS(cb_out->sup));
-				fprintf(stderr, "cb_out->sub: %s\n", printSS(cb_out->sub));
-
+				fprintf(stderr, "I'm not the LeftAnchor\n");
+				
 				uint8_t* lhop = ((uint8_t*)(&tcpo->padding)) + 1;
 				(*lhop)--;
 				hdr_rewrite(ip, tcp, &cb_out->sub);
-				fix_csum(ip, tcp);
-				fprintf(stderr, "forwarding to %s\n", printSS(cb_out->sub));
-
-				//should do incremental checksum
+				fix_csum(ip, tcp); //should be incremental checksum
+				
+				fprintf(stderr, "forwarding to %s\n",printSS(cb_out->sub));
 				out_gates[0].add(pkt);
 				continue;
 			}

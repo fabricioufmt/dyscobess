@@ -444,7 +444,8 @@ class DyscoHashOut {
 		is_RA:1,
 		state:4;
 
-	uint8_t lock_state;
+	uint8_t lock_state:7,
+		is_signaler:1;
 	
 	uint32_t ack_ctr;
 
