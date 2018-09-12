@@ -109,6 +109,8 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 					continue;
 				}
 
+				fprintf(stderr, "cb_in: %p and cb_out: %p\n", cb_in->module, cb_out->module);
+
 				uint8_t* lhop = ((uint8_t*)(&tcpo->padding)) + 1;
 				(*lhop)--;
 				eth->src_addr = cb_out->mac_sub.src_addr;
