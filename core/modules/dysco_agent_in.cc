@@ -1570,6 +1570,8 @@ void DyscoAgentIn::createFinAck(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
  */
 void DyscoAgentIn::createLockingPacket(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoTcpOption* tcpo, DyscoHashIn* cb_in) {
 	fprintf(stderr, "creating Locking Packet\n");
+
+	uint8_t rhop = tcpo->padding & 0xff;
 	
 	pkt->trim(tcpo->len + hasPayload(ip, tcp));
 	DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>(pkt->append(sizeof(DyscoControlMessage)));
@@ -1609,11 +1611,9 @@ void DyscoAgentIn::createLockingPacket(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoTcp
 	cmsg->my_sub.dip = cb_in->sub.sip;
 	cmsg->my_sub.sport = cb_in->sub.dport;
 	cmsg->my_sub.dport = cb_in->sub.sport;
-	cmsg->lhop = 0; //(tcpo->padding >> 4);
-	cmsg->rhop = (tcpo->padding & 0xff);
+	cmsg->lhop = 0;
+	cmsg->rhop = rhop;
 
-	fprintf(stderr, "padding: %u, lhop: %u, rhop: %u\n", tcpo->padding, cmsg->lhop, cmsg->rhop);
-	
 	fprintf(stderr, "cb_in->sub: %s\n", printSS(cb_in->sub));
 	fprintf(stderr, "cb_in->my_sup: %s\n", printSS(cb_in->my_sup));
 	fprintf(stderr, "cb_in->neigh_sup: %s\n", printSS(cb_in->neigh_sup));
