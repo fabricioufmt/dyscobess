@@ -664,14 +664,14 @@ inline DyscoTcpOption* isLockSignalPacket(Tcp* tcp) {
 }
 
 inline bool isLockingPacket(Ipv4* ip, Tcp* tcp) {
-	if(isTCPSYN(tcp) && hasPayload(ip, tcp)) {
-		fprintf(stderr, "isLockingPacket method with SYN flag and Payload\n");
-		DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>(tcp + 1);
-		fprintf(stderr, "cmsg->my_sub: %s\n", printSS(cmsg->my_sub));
-		fprintf(stderr, "cmsg->type: %d\n", cmsg->type);
-		return cmsg->type == DYSCO_LOCK;
+	uint32_t payload_len = hasPayload(ip, tcp);
+	if(isTCPSYN(tcp) && payload_len) {
+		if(payload_len > sizeof(DyscoControlMessage)) {
+			DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>(tcp + 1);
+			return cmsg->type == DYSCO_LOCK;
+		}
 	}
-	fprintf(stderr, "isLockingPacket method returns false\n");
+
 	return false;
 }
 
