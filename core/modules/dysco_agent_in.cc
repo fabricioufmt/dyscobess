@@ -1773,9 +1773,9 @@ bool DyscoAgentIn::processRequestLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoCont
 		return true;
 	}
 	*/
-
+	fprintf(stderr, "before cmsg->rhop: %u\n", cmsg->rhop);
 	cmsg->rhop--;
-	fprintf(stderr, "cmsg->rhop: %u\n", cmsg->rhop);
+	fprintf(stderr, "after cmsg->rhop: %u\n", cmsg->rhop);
 	if(cmsg->rhop > 0) {
 		//I'm not the RightAnchor
 
