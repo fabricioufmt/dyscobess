@@ -1593,6 +1593,7 @@ void DyscoAgentIn::createLockingPacket(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoTcp
 	tcp->offset = 5;
 	tcp->flags = Tcp::kSyn;
 
+	cmsg->type = DYSCO_LOCK;
 	cmsg->lock_state = DYSCO_REQUEST_LOCK;
 	//cmsg->leftA = cb_in->sub.sip;
 	cmsg->leftA = ip->src.raw_value();
