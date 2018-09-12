@@ -111,6 +111,8 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 
 				uint8_t* lhop = ((uint8_t*)(&tcpo->padding)) + 1;
 				(*lhop)--;
+				eth->src_addr = cb_out->mac_sub.src_addr;
+				eth->dst_addr = cb_out->mac_sub.dst_addr;
 				hdr_rewrite(ip, tcp, &cb_out->sub);
 				fix_csum(ip, tcp); //should be incremental checksum
 				
