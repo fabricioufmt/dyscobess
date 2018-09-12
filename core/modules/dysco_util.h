@@ -668,7 +668,7 @@ inline bool isLockingPacket(Ipv4* ip, Tcp* tcp) {
 	fprintf(stderr, "isLockingPacket: payload_len=%u\n", payload_len);
 	if(isTCPSYN(tcp) && payload_len) {
 		fprintf(stderr, "sizeof(DyscoControlMessage)=%lu\n", sizeof(DyscoControlMessage));
-		if(payload_len > sizeof(DyscoControlMessage)) {
+		if(payload_len >= sizeof(DyscoControlMessage)) {
 			DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>(tcp + 1);
 			fprintf(stderr, "cmsg->type: %u and DYSCO_LOCK: %u\n", cmsg->type, DYSCO_LOCK);
 			return cmsg->type == DYSCO_LOCK;
