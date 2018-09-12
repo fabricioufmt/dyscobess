@@ -1564,7 +1564,7 @@ void DyscoAgentIn::createLockingPacket(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoTcp
 	memset(cmsg, 0, sizeof(DyscoControlMessage));
 
 	tcp->src_port = be16_t(rand());
-	tcp->dst_port = be16_t(LOCKING_PORT);
+	tcp->dst_port = be16_t(rand());
 	tcp->seq_num = be32_t(rand());
 	tcp->ack_num = be32_t(0);
 	tcp->offset = 5;
