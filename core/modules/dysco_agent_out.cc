@@ -100,8 +100,12 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 				sc_sz = hasPayload(ip, tcp) - sizeof(DyscoControlMessage);
 				cmsg = reinterpret_cast<DyscoControlMessage*>(getPayload(tcp));
 
-				//should save service chain
-				//uint32_t* sc = reinterpret_cast<uint32_t*>(reinterpret_cast<char*>(cmsg) + sizeof(DyscoControlMessage));
+				if(!cb_out->sc)
+					fprintf(stderr, "cb_out->sc is NULL\n");
+				else
+					fprintf(stderr, "cb_out->sc is NULL\n");
+
+				cb_out->sc = reinterpret_cast<uint32_t*>(reinterpret_cast<char*>(cmsg) + sizeof(DyscoControlMessage));
 
 				
 				ip->length = be16_t(ip->length.value() - tcpo->len - sc_sz);
@@ -116,7 +120,7 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 				*((uint32_t*)(&ip->dst)) = cb_out->sub.dip;
 				
 				tcp->src_port = be16_t(rand());
-				tcp->dst_port = be16_t(LOCKING_PORT);
+				tcp->dst_port = be16_t(rand());
 				tcp->seq_num = be32_t(rand());
 				tcp->ack_num = be32_t(0);
 				tcp->offset = 5;
@@ -126,7 +130,7 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 
 				cmsg = reinterpret_cast<DyscoControlMessage*>(getPayload(tcp));
 				cmsg->my_sub = cb_out->sub;
-
+				cmsg->type = DYSCO_LOCK;
 				fprintf(stderr, "cb_out->sub: %s\n", printSS(cb_out->sub));
 				fprintf(stderr, "cb_out->dcb_in->sub: %s\n", printSS(cb_out->dcb_in->sub));
 				
@@ -145,10 +149,10 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 				hdr_rewrite(ip, tcp, &cb_out->sub);
 				fix_csum(ip, tcp);
 				fprintf(stderr, "forwarding to %s\n", printSS(cb_out->sub));
+
+				//should do incremental checksum
 				out_gates[0].add(pkt);
 				continue;
-				
-				//TODO
 			}
 		}
 		

@@ -109,7 +109,11 @@ enum {
 	DYSCO_STATE_TRANSFERRED,
 	DYSCO_ACK_ACK,
 	DYSCO_GET_MAPPING,
-	DYSCO_GET_REC_TIME
+	DYSCO_GET_REC_TIME,
+
+	// Locking
+	DYSCO_LOCK,
+	DYSCO_RECONFIG
 };
 
 #define NOSTATE_TRANSFER	        0
@@ -121,9 +125,6 @@ enum {
 
 #define LOCKING_OPTION                  254
 #define LOCKING_OPTION_LEN              4
-
-
-#define LOCKING_PORT                    6999
 
 /*
 #define DYSCO_SYN_SENT			DYSCO_ADDING_NEW_PATH
@@ -339,7 +340,7 @@ class DyscoControlMessage {
 	uint8_t lhop;
 	uint8_t rhop;
 	uint8_t lock_state;
-	uint8_t padding;
+	uint8_t type;
 };
 
 class DyscoHashOut;
@@ -662,11 +663,10 @@ inline DyscoTcpOption* isLockSignalPacket(Tcp* tcp) {
 }
 
 inline bool isLockingPacket(Ipv4* ip, Tcp* tcp) {
-	if(isTCPSYN(tcp, true) && hasPayload(ip, tcp) && tcp->dst_port == be16_t(LOCKING_PORT))
-		return true;
-	
-	if(isTCPSYN(tcp) && isTCPACK(tcp) && hasPayload(ip, tcp) && tcp->src_port == be16_t(LOCKING_PORT))
-		return true;
+	if(isTCPSYN(tcp) && hasPayload(ip, tcp)) {
+		DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>((uint8_t*) tcp + hasPayload(ip, tcp));
+		return cmsg->type == DYSCO_LOCK;
+	}
 
 	return false;
 }
