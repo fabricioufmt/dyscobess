@@ -1595,6 +1595,7 @@ void DyscoAgentIn::createLockingPacket(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoTcp
 
 	cmsg->type = DYSCO_LOCK;
 	cmsg->lock_state = DYSCO_REQUEST_LOCK;
+	cb_in->dcb_out->lock_state = DYSCO_REQUEST_LOCK;
 	//cmsg->leftA = cb_in->sub.sip;
 	cmsg->leftA = ip->src.raw_value();
 	cmsg->my_sub.sip = cb_in->sub.dip;
