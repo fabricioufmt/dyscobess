@@ -96,6 +96,10 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 			
 			uint8_t* lhop = (uint8_t*)(&tcpo->padding) + 1;
 			(*lhop)--;
+			uint8_t* rhop = (uint8_t*)(&tcpo->padding);
+			
+			fprintf(stderr, "tcpo->padding: %u, lhop: %u rhop: %u\n",
+				tcpo->padding, *lhop, *rhop);
 			
 			if(isLeftAnchor(tcpo)) {
 				fprintf(stderr, "I'm the LeftAnchor\n");
