@@ -150,6 +150,7 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 				cb_out->lock_state = DYSCO_REQUEST_LOCK;
 
 				cmsg = reinterpret_cast<DyscoControlMessage*>(getPayload(tcp));
+				cmsg->lhop = cmsg->rhop;
 				cmsg->type = DYSCO_LOCK;
 				cmsg->my_sub = cb_out->sub;
 				cmsg->lock_state = DYSCO_REQUEST_LOCK;

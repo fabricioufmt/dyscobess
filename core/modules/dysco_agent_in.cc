@@ -1612,7 +1612,7 @@ void DyscoAgentIn::createLockingPacket(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoTcp
 	cmsg->my_sub.dip = cb_in->sub.sip;
 	cmsg->my_sub.sport = cb_in->sub.dport;
 	cmsg->my_sub.dport = cb_in->sub.sport;
-	cmsg->lhop = 0;
+	cmsg->lhop = rhop;
 	cmsg->rhop = rhop;
 
 #ifdef DEBUG
@@ -1781,45 +1781,6 @@ bool DyscoAgentIn::processRequestLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoCont
 	fprintf(stderr, "cb_out->is_signaler: %u\n", cb_out->is_signaler);
 #endif
 	
-	/*
-	if(cb_in->dcb_out->lock_state != DYSCO_CLOSED_LOCK) {
-		Ethernet* eth = pkt->head_data<Ethernet*>();
-		Ethernet::Address macswap = eth->dst_addr;
-		eth->dst_addr = eth->src_addr;
-		eth->src_addr = macswap;
-						
-		ip->id = be16_t(rand());
-		ip->ttl = 53;
-		ip->checksum = 0;
-
-		be32_t ipswap = ip->src;
-		ip->src = ip->dst;
-		ip->dst = ipswap;
-
-		be16_t portswap = tcp->src_port;
-		tcp->src_port = tcp->dst_port;
-		tcp->dst_port = portswap;
-
-		tcp->ack_num = tcp->seq_num + be32_t(1) + be32_t(hasPayload(ip, tcp));
-		tcp->seq_num = be32_t(rand());
-		tcp->flags |= Tcp::kAck;
-
-		cmsg->lock_state = DYSCO_NACK_LOCK;			
-		fix_csum(ip, tcp);
-		fprintf(stderr, "Changing lock_state field to DYSCO_NACK_LOCK\n");
-		cb_in->dcb_out->lock_state = DYSCO_NACK_LOCK;
-
-		return true;
-	}
-	*/
-
-#ifdef DEBUG
-	if(cb_out->is_signaler)
-		fprintf(stderr, "I'm the signaler.\n");
-	else
-		fprintf(stderr, "I'm not the signaler.\n");
-#endif
-
 	switch(cb_out->lock_state) {
 	case DYSCO_CLOSED_LOCK:
 	case DYSCO_REQUEST_LOCK:
@@ -1830,7 +1791,6 @@ bool DyscoAgentIn::processRequestLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoCont
 			eth->dst_addr = cb_out->mac_sub.dst_addr;
 			*((uint32_t*)(&ip->src)) = cb_out->sub.sip;
 			*((uint32_t*)(&ip->dst)) = cb_out->sub.dip;
-			cmsg->lhop++;
 			cmsg->my_sub = cb_out->sub;
 			fix_csum(ip, tcp);
 #ifdef DEBUG
@@ -1878,7 +1838,6 @@ bool DyscoAgentIn::processRequestLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoCont
 			ss.sport = cmsg->my_sub.dport;
 			ss.dport = cmsg->my_sub.sport;
 			cmsg->my_sub = ss;
-			cmsg->lhop++;
 
 			if(cb_out->is_signaler) {
 				uint32_t* sc = reinterpret_cast<uint32_t*>(pkt->append(cb_out->sc_len * sizeof(uint32_t)));
@@ -2001,7 +1960,6 @@ bool DyscoAgentIn::processAckLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoControlM
 			*((uint32_t*)(&ip->src)) = cb_out->sub.sip;
 			*((uint32_t*)(&ip->dst)) = cb_out->sub.dip;
 			cmsg->my_sub = cb_out->sub;
-			cmsg->lhop--;
 			fix_csum(ip, tcp);
 			cb_out->lock_state = DYSCO_ACK_LOCK;
 			cb_in->dcb_out->lock_state = DYSCO_ACK_LOCK;
