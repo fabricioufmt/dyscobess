@@ -187,6 +187,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 				} else {
 					//for debug
 					out_gates[0].add(pkt);
+					continue;
 				}
 			} else if (cmsg->lock_state == DYSCO_NACK_LOCK) {
 				fprintf(stderr, "processing Nack Lock\n");
