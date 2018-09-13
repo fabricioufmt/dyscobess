@@ -1787,7 +1787,8 @@ bool DyscoAgentIn::processRequestLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoCont
 	}
 	*/
 
-	DyscoHashOut* cb_out = dc->lookup_output_by_ss(this->index, &cb_in->my_sup);
+	//DyscoHashOut* cb_out = dc->lookup_output_by_ss(this->index, &cb_in->my_sup);
+	DyscoHashOut* cb_out = cb_in->dcb_out;
 
 	switch(cb_out->lock_state) {
 	case DYSCO_CLOSED_LOCK:
