@@ -1795,6 +1795,9 @@ bool DyscoAgentIn::processRequestLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoCont
 
 	if(!cb_out)
 		return false;
+
+	fprintf(stderr, "cb_out->sup: %s\n", printSS(cb_out->sup));
+	fprintf(stderr, "cb_out->sub: %s\n", printSS(cb_out->sub));
 	
 	switch(cb_out->lock_state) {
 	case DYSCO_CLOSED_LOCK:
