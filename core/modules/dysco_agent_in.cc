@@ -96,10 +96,6 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 			
 			uint8_t* lhop = (uint8_t*)(&tcpo->padding) + 1;
 			(*lhop)--;
-			uint8_t* rhop = (uint8_t*)(&tcpo->padding);
-			
-			fprintf(stderr, "tcpo->padding: %u, lhop: %u rhop: %u\n",
-				tcpo->padding, *lhop, *rhop);
 			
 			if(isLeftAnchor(tcpo)) {
 				fprintf(stderr, "I'm the LeftAnchor\n");
@@ -168,8 +164,16 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 
 			fprintf(stderr, "[%s][DyscoAgentIn] finds cb_in and cb_in->dcb_out.\n", ns.c_str());
 			fprintf(stderr, "State: %d\n", cb_in->dcb_out->state);
-			fprintf(stderr, "Lock State: %d\n",  cb_in->dcb_out->lock_state);
+			fprintf(stderr, "Lock State(cb_in->dcb_out): %d\n",  cb_in->dcb_out->lock_state);
 
+			cb_out = dc->lookup_output_by_ss(this->index, cb_in->sup);
+			if(!cb_out) {
+				fprintf(stderr, "cb_out is NULL\n");
+			} else {
+				fprintf(stderr, "cb_out->sup: %s\n", printSS(cb_out->sup));
+				fprintf(stderr, "cb_out->sub: %s\n", printSS(cb_out->sub));
+			}
+			
 			if(cmsg->lock_state == DYSCO_REQUEST_LOCK) {
 				fprintf(stderr, "processing Request Lock\n");
 				if(processRequestLock(pkt, ip, tcp, cmsg, cb_in)) {

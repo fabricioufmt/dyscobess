@@ -105,12 +105,6 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 			cb_out->is_signaler = 1;
 			cb_out->sc_len = sc_sz/sizeof(uint32_t);
 			cb_out->sc = reinterpret_cast<uint32_t*>(reinterpret_cast<char*>(cmsg) + sizeof(DyscoControlMessage));
-
-			uint8_t* lhop = (uint8_t*)(&tcpo->padding) + 1;
-			uint8_t* rhop = (uint8_t*)(&tcpo->padding);
-			
-			fprintf(stderr, "tcpo->padding: %u, lhop: %u rhop: %u\n",
-				tcpo->padding, *lhop, *rhop);
 			
 			if(isLeftAnchor(tcpo)) {
 				fprintf(stderr, "I'm the LeftAnchor.\n");
