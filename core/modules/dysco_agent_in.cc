@@ -1964,7 +1964,7 @@ bool DyscoAgentIn::processAckLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoControlM
 			
 	if(!cb_out) {
 #ifdef DEBUG
-		fprintf(stderr, "cb_out not found.\n", ns.c_str());
+		fprintf(stderr, "cb_out not found.\n");
 #endif
 		return false;
 	}
