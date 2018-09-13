@@ -170,7 +170,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 			if(!cb_out) {
 				fprintf(stderr, "cb_out is NULL\n");
 			} else {
-				fprintf(stderr, "cb_out->sup: %s\n", printSS(cb_out->my_sup));
+				fprintf(stderr, "cb_out->sup: %s\n", printSS(cb_out->sup));
 				fprintf(stderr, "cb_out->sub: %s\n", printSS(cb_out->sub));
 			}
 			
