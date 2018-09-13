@@ -166,7 +166,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 			fprintf(stderr, "State: %d\n", cb_in->dcb_out->state);
 			fprintf(stderr, "Lock State(cb_in->dcb_out): %d\n",  cb_in->dcb_out->lock_state);
 
-			cb_out = dc->lookup_output_by_ss(this->index, cb_in->sup);
+			cb_out = dc->lookup_output_by_ss(this->index, cb_in->my_sup);
 			if(!cb_out) {
 				fprintf(stderr, "cb_out is NULL\n");
 			} else {
