@@ -98,30 +98,38 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 			(*lhop)--;
 			
 			if(isLeftAnchor(tcpo)) {
+#ifdef DEBUG
 				fprintf(stderr, "I'm the LeftAnchor\n");
-				
+#endif			
 				createLockingPacket(pkt, ip, tcp, tcpo, cb_in);
 				out_gates[1].add(pkt);
 				continue;
 			} else {
+#ifdef DEBUG
 				fprintf(stderr, "I'm not the LeftAnchor\n");
+#endif
 
 				cb_out = dc->lookup_output_by_ss(this->index, &cb_in->my_sup);
 
 				if(!cb_out) {
+#ifdef DEBUG 
 					fprintf(stderr, "cb_out not found\n");
+#endif
 					continue;
 				}
 
+#ifdef DEBUG
 				fprintf(stderr, "cb_in: %p and cb_out: %p\n", cb_in->module, cb_out->module);
-
+#endif
+				
 				eth->src_addr = cb_out->mac_sub.src_addr;
 				eth->dst_addr = cb_out->mac_sub.dst_addr;
 				hdr_rewrite(ip, tcp, &cb_out->sub);
 				fix_csum(ip, tcp); //should be incremental checksum
-				
-				fprintf(stderr, "forwarding to %s\n\n",printSS(cb_out->sub));
 
+#ifdef DEBUG
+				fprintf(stderr, "forwarding to %s\n\n",printSS(cb_out->sub));
+#endif
 				PacketBatch out;
 				out.clear();
 				out.add(pkt);
@@ -159,29 +167,39 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 				}
 			}
 			*/
-			if(!cb_in->dcb_out) {
+
+			cmsg->rhop--;
+			if(cmsg->rhop > 0) {
+#ifdef DEBUG
+				fprintf(stderr, "I'm not the RightAnchor.\n");
+#endif
+				cb_out = dc->lookup_output_by_ss(this->index, &cb_in->my_sup);
+			} else {
+#ifdef DEBUG
+				fprintf(stderr, "I'm the RightAnchor.\n");
+#endif
+				cb_out = cb_in->dcb_out;
+			}
+			
+			if(!cb_out) {
+#ifdef DEBUG
 				fprintf(stderr, "[%s][DyscoAgentIn] does not found cb_in->dcb_out.\n", ns.c_str());
+#endif
 				continue;
 			}
 
-			fprintf(stderr, "[%s][DyscoAgentIn] finds cb_in and cb_in->dcb_out.\n", ns.c_str());
-			fprintf(stderr, "State: %d\n", cb_in->dcb_out->state);
-			fprintf(stderr, "Lock State(cb_in->dcb_out): %d\n",  cb_in->dcb_out->lock_state);
-
-			/*
-			//cb_out = dc->lookup_output_by_ss(this->index, &cb_in->my_sup);
-			cb_out = cb_in->dcb_out;
-			if(!cb_out) {
-				fprintf(stderr, "cb_out is NULL\n");
-			} else {
-				fprintf(stderr, "cb_out->sup: %s\n", printSS(cb_out->sup));
-				fprintf(stderr, "cb_out->sub: %s\n", printSS(cb_out->sub));
-			}
-			*/
+#ifdef DEBUG
+			
+			fprintf(stderr, "State: %d\n", cb_out->state);
+			fprintf(stderr, "Lock State: %d\n",  cb_out->lock_state);
+			fprintf(stderr, "cb_out->sup: %s\n", printSS(cb_out->sup));
+			fprintf(stderr, "cb_out->sub: %s\n", printSS(cb_out->sub));
+#endif
 			if(cmsg->lock_state == DYSCO_REQUEST_LOCK) {
+#ifdef DEBUG
 				fprintf(stderr, "processing Request Lock\n");
-				if(processRequestLock(pkt, ip, tcp, cmsg, cb_in)) {
-					fprintf(stderr, "processRequestLock returns true\n");
+#endif
+				if(processRequestLock(pkt, ip, tcp, cmsg, cb_in, cb_out)) {
 					out_gates[1].add(pkt);
 					continue;
 				}
@@ -1577,8 +1595,10 @@ void DyscoAgentIn::createFinAck(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
   - increase Packet buffer (sizeof(DyscoControlMessage))
  */
 void DyscoAgentIn::createLockingPacket(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoTcpOption* tcpo, DyscoHashIn* cb_in) {
+#ifdef DEBUG
 	fprintf(stderr, "creating Locking Packet\n");
-
+#endif
+	
 	uint8_t rhop = tcpo->padding & 0xff;
 	
 	pkt->trim(tcpo->len + hasPayload(ip, tcp));
@@ -1597,8 +1617,6 @@ void DyscoAgentIn::createLockingPacket(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoTcp
 	ip->src = ip->dst;
 	ip->dst = ipswap;
 	
-	//*((uint32_t*)(&ip->src)) = cb_in->sub.sip;
-	//*((uint32_t*)(&ip->dst)) = cb_in->sub.dip;
 	ip->length = be16_t(ip->length.value() - tcpo->len - hasPayload(ip, tcp) + sizeof(DyscoControlMessage));
 	memset(cmsg, 0, sizeof(DyscoControlMessage));
 
@@ -1622,12 +1640,14 @@ void DyscoAgentIn::createLockingPacket(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoTcp
 	cmsg->lhop = 0;
 	cmsg->rhop = rhop;
 
+#ifdef DEBUG
 	fprintf(stderr, "cb_in->sub: %s\n", printSS(cb_in->sub));
 	fprintf(stderr, "cb_in->my_sup: %s\n", printSS(cb_in->my_sup));
 	fprintf(stderr, "cb_in->neigh_sup: %s\n", printSS(cb_in->neigh_sup));
 	fprintf(stderr, "cb_in->dcb_out->sub: %s\n", printSS(cb_in->dcb_out->sub));
 	fprintf(stderr, "cb_in->dcb_out->sup: %s\n", printSS(cb_in->dcb_out->sup));
-
+#endif
+	
 	fix_csum(ip, tcp);
 }
 
@@ -1755,7 +1775,7 @@ bool DyscoAgentIn::isEstablished(Packet* pkt) {
 	return false;
 }
 
-bool DyscoAgentIn::processRequestLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoControlMessage* cmsg, DyscoHashIn* cb_in) {
+bool DyscoAgentIn::processRequestLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoControlMessage* cmsg, DyscoHashIn* cb_in, DyscoHashOut* cb_out) {
 	/*
 	if(cb_in->dcb_out->lock_state != DYSCO_CLOSED_LOCK) {
 		Ethernet* eth = pkt->head_data<Ethernet*>();
@@ -1788,40 +1808,18 @@ bool DyscoAgentIn::processRequestLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoCont
 	}
 	*/
 
-	//DyscoHashOut* cb_out = dc->lookup_output_by_ss(this->index, &cb_in->my_sup);
-	DyscoHashOut* cb_out = cb_in->dcb_out;
-	if(cb_out) 
-		if(!cb_out->is_signaler)
-			cb_out = dc->lookup_output_by_ss(this->index, &cb_in->my_sup);
-	
-	if(!cb_out) {
 #ifdef DEBUG
-		fprintf(stderr, "Can't find cb_out... dropping.\n");
+	if(cb_out->is_signaler)
+		fprintf(stderr, "I'm the signaler.\n");
+	else
+		fprintf(stderr, "I'm not the signaler.\n");
 #endif
-		return false;
-	}
-	
-	fprintf(stderr, "cb_out->sup: %s\n", printSS(cb_out->sup));
-	fprintf(stderr, "cb_out->sub: %s\n", printSS(cb_out->sub));
-	
+
 	switch(cb_out->lock_state) {
 	case DYSCO_CLOSED_LOCK:
 	case DYSCO_REQUEST_LOCK:
 		//If is there another locking request with other RA? TODO
-		cmsg->rhop--;
-
 		if(cmsg->rhop > 0) {
-#ifdef DEBUG
-			fprintf(stderr, "I'm not the RightAnchor.\n");
-#endif
-		
-#ifdef DEBUG
-			if(cb_out->is_signaler)
-				fprintf(stderr, "I'm the signaler.\n");
-			else
-				fprintf(stderr, "I'm not the signaler.\n");
-#endif
-		
 			Ethernet* eth = pkt->head_data<Ethernet*>();
 			eth->src_addr = cb_out->mac_sub.src_addr;
 			eth->dst_addr = cb_out->mac_sub.dst_addr;
@@ -1846,14 +1844,6 @@ bool DyscoAgentIn::processRequestLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoCont
 		
 			return false;
 		} else {
-#ifdef DEBUG
-			fprintf(stderr, "I'm the RightAnchor\n");
-			if(cb_out->is_signaler)
-				fprintf(stderr, "I'm the signaler\n");
-			else
-				fprintf(stderr, "I'm not the signaler\n");
-#endif
-			
 			Ethernet* eth = pkt->head_data<Ethernet*>();		
 			Ethernet::Address macswap = eth->dst_addr;
 			eth->dst_addr = eth->src_addr;
