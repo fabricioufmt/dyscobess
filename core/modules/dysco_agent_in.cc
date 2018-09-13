@@ -184,6 +184,9 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 				if(processAckLock(pkt, ip, tcp, cmsg, cb_in)) {
 					out_gates[1].add(pkt);
 					continue;
+				} else {
+					//for debug
+					out_gates[0].add(pkt);
 				}
 			} else if (cmsg->lock_state == DYSCO_NACK_LOCK) {
 				fprintf(stderr, "processing Nack Lock\n");
@@ -1874,39 +1877,6 @@ bool DyscoAgentIn::processRequestLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoCont
 }
 
 bool DyscoAgentIn::processAckLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoControlMessage* cmsg, DyscoHashIn* cb_in) {
-	/*
-	if(cb_in->dcb_out->lock_state != DYSCO_REQUEST_LOCK) {
-		Ethernet* eth = pkt->head_data<Ethernet*>();
-		Ethernet::Address macswap = eth->dst_addr;
-		eth->dst_addr = eth->src_addr;
-		eth->src_addr = macswap;
-						
-		ip->id = be16_t(rand());
-		ip->ttl = 53;
-		ip->checksum = 0;
-
-		be32_t ipswap = ip->src;
-		ip->src = ip->dst;
-		ip->dst = ipswap;
-
-		be16_t portswap = tcp->src_port;
-		tcp->src_port = tcp->dst_port;
-		tcp->dst_port = portswap;
-
-		be32_t seqswap = tcp->seq_num;
-		tcp->seq_num = be32_t(tcp->ack_num.value());
-		tcp->ack_num = be32_t(seqswap.value() + hasPayload(ip, tcp) + 1);
-		tcp->flags = Tcp::kAck;
-
-		cmsg->lock_state = DYSCO_NACK_LOCK;			
-		fix_csum(ip, tcp);
-		fprintf(stderr, "Changing lock_state field to DYSCO_NACK_LOCK\n");
-		cb_in->dcb_out->lock_state = DYSCO_NACK_LOCK;
-
-		return true;
-	}
-	*/
-
 	DyscoHashOut* cb_out;
 	
 	cmsg->lhop--;
@@ -1960,6 +1930,18 @@ bool DyscoAgentIn::processAckLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoControlM
 			*((uint32_t*)(&ip->src)) = cb_out->sub.sip;
 			*((uint32_t*)(&ip->dst)) = cb_out->sub.dip;
 			cmsg->my_sub = cb_out->sub;
+
+			if(cb_out->is_signaler) {
+				uint32_t* sc = reinterpret_cast<uint32_t*>(pkt->append(cb_out->sc_len * sizeof(uint32_t)));
+				if(!sc)
+					return false;
+
+				memcpy(sc, cb_out->sc, cb_out->sc_len * sizeof(uint32_t));
+#ifdef DEBUG
+				fprintf(stderr, "Going to append %d ip addresses.\n", cb_out->sc_len);
+#endif
+			}
+			
 			fix_csum(ip, tcp);
 			cb_out->lock_state = DYSCO_ACK_LOCK;
 			cb_in->dcb_out->lock_state = DYSCO_ACK_LOCK;
