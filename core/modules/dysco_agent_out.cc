@@ -77,40 +77,54 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 
 		tcpo = isLockSignalPacket(tcp);
 		if(tcpo) {
+#ifdef DEBUG
 			fprintf(stderr, "It's Locking Signal Packet.\n");
+#endif
 			if(!cb_out) {
+#ifdef DEBUG
 				fprintf(stderr, "There's not a entry on cb_out... dropping.\n");
+#endif
 				continue;
 			}
 
 			if(cb_out->lock_state != DYSCO_CLOSED_LOCK) {
+#ifdef DEBUG
 				fprintf(stderr, "Lock State: either REQUEST, ACK, or NACK... dropping.\n");
+#endif
 				continue;
 			}
 
-			fprintf(stderr, "Entry: %s.\n", printSS(cb_out->sub));
+#ifdef DEBUG
+			fprintf(stderr, "cb_out->sub: %s.\n", printSS(cb_out->sub));
+			fprintf(stderr, "cb_out->sup: %s.\n", printSS(cb_out->sup));
 			fprintf(stderr, "State: %d.\n", cb_out->state);
 			fprintf(stderr, "Lock State: %d.\n", cb_out->lock_state);
-			fprintf(stderr, "cb_out->sub: %s\n", printSS(cb_out->sub));
-			fprintf(stderr, "cb_out->dcb_in->sub: %s\n", printSS(cb_out->dcb_in->sub));
+#endif
 			
 			sc_sz = hasPayload(ip, tcp) - sizeof(DyscoControlMessage);
 			cmsg = reinterpret_cast<DyscoControlMessage*>(getPayload(tcp));
 
+#ifdef DEBUG
 			if(!cb_out->sc)
 				fprintf(stderr, "cb_out->sc is NULL\n");
 			else
-				fprintf(stderr, "cb_out->sc is NULL\n");
-
+				fprintf(stderr, "cb_out->sc is not NULL\n");
+#endif
+			
 			cb_out->is_signaler = 1;
 			cb_out->sc_len = sc_sz/sizeof(uint32_t);
-			cb_out->sc = reinterpret_cast<uint32_t*>(reinterpret_cast<char*>(cmsg) + sizeof(DyscoControlMessage));
+			cb_out->sc = reinterpret_cast<uint32_t*>(reinterpret_cast<uint8_t*>(cmsg) + sizeof(DyscoControlMessage));
+
+#ifdef DEBUG
+			fprintf(stderr, "setting up signaler and storing service chain\n");
+#endif
 			
 			if(isLeftAnchor(tcpo)) {
+#ifdef DEBUG
 				fprintf(stderr, "I'm the LeftAnchor.\n");
-				
-				cb_out->is_LA = 1;
 				fprintf(stderr, "Creating the Locking Packet.\n");
+#endif
+				cb_out->is_LA = 1;
 
 				pkt->trim(tcpo->len + sc_sz);
 				memcpy(tcpo, cmsg, sizeof(DyscoControlMessage));
@@ -120,7 +134,7 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 				ip->checksum = 0;
 				*((uint32_t*)(&ip->src)) = cb_out->sub.sip;
 				*((uint32_t*)(&ip->dst)) = cb_out->sub.dip;
-				ip->length = be16_t(ip->length.value()-tcpo->len-sc_sz);
+				ip->length = be16_t(ip->length.value()-tcpo->len - sc_sz);
 				
 				tcp->src_port = be16_t(rand());
 				tcp->dst_port = be16_t(rand());
@@ -137,15 +151,18 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 				cmsg->lock_state = DYSCO_REQUEST_LOCK;
 				
 				fix_csum(ip, tcp);
-				fprintf(stderr, "forwarding to %s\n",printSS(cb_out->sub));
+#ifdef DEBUG
+				fprintf(stderr, "forwardin to %s\n", printSS(cb_out->sub));
+#endif
 				out_gates[0].add(pkt);				
 				continue;
 			} else {
+#ifdef DEBUG
 				fprintf(stderr, "I'm not the LeftAnchor\n");
+				fprintf(stderr, "forwardin to %s\n", printSS(cb_out->sub));
+#endif
 				
 				hdr_rewrite_csum(ip, tcp, &cb_out->sub);
-				
-				fprintf(stderr, "forwarding to %s\n",printSS(cb_out->sub));
 				out_gates[0].add(pkt);
 				continue;
 			}

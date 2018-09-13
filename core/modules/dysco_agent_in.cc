@@ -1820,13 +1820,15 @@ bool DyscoAgentIn::processRequestLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoCont
 			cmsg->lhop++;
 			cmsg->my_sub = cb_out->sub;
 			fix_csum(ip, tcp);
-			cb_out->lock_state = DYSCO_REQUEST_LOCK;
 #ifdef DEBUG
 			if(cb_out->lock_state == DYSCO_CLOSED_LOCK) 
 				fprintf(stderr, "Changing lock_state field from DYSCO_CLOSED_LOCK to DYSCO_REQUEST_LOCK.\n");
 			else
 				fprintf(stderr, "Changing lock_state field from DYSCO_REQUEST_LOCK to DYSCO_REQUEST_LOCK.\n");
 #endif
+			
+			cb_out->lock_state = DYSCO_REQUEST_LOCK;
+			
 			PacketBatch out;
 			out.clear();
 			out.add(pkt);
