@@ -97,6 +97,10 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 #ifdef DEBUG
 			fprintf(stderr, "cb_out->sub: %s.\n", printSS(cb_out->sub));
 			fprintf(stderr, "cb_out->sup: %s.\n", printSS(cb_out->sup));
+			if(cb_out->dcb_in) {
+				fprintf(stderr, "cb_out->dcb_in->sub: %s.\n", printSS(cb_out->dcb_in->sub));
+				fprintf(stderr, "cb_out->dcb_in->sup: %s.\n", printSS(cb_out->dcb_in->sup));
+			}
 			fprintf(stderr, "State: %d.\n", cb_out->state);
 			fprintf(stderr, "Lock State: %d.\n", cb_out->lock_state);
 #endif
@@ -152,14 +156,14 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 				
 				fix_csum(ip, tcp);
 #ifdef DEBUG
-				fprintf(stderr, "forwardin to %s\n", printSS(cb_out->sub));
+				fprintf(stderr, "forwardin to %s\n\n", printSS(cb_out->sub));
 #endif
 				out_gates[0].add(pkt);				
 				continue;
 			} else {
 #ifdef DEBUG
 				fprintf(stderr, "I'm not the LeftAnchor\n");
-				fprintf(stderr, "forwardin to %s\n", printSS(cb_out->sub));
+				fprintf(stderr, "forwardin to %s\n\n", printSS(cb_out->sub));
 #endif
 				
 				hdr_rewrite_csum(ip, tcp, &cb_out->sub);
