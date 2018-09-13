@@ -99,7 +99,7 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 			fprintf(stderr, "cb_out->sup: %s.\n", printSS(cb_out->sup));
 			if(cb_out->dcb_in) {
 				fprintf(stderr, "cb_out->dcb_in->sub: %s.\n", printSS(cb_out->dcb_in->sub));
-				fprintf(stderr, "cb_out->dcb_in->sup: %s.\n", printSS(cb_out->dcb_in->sup));
+				fprintf(stderr, "cb_out->dcb_in->sup: %s.\n", printSS(cb_out->dcb_in->my_sup));
 			}
 			fprintf(stderr, "State: %d.\n", cb_out->state);
 			fprintf(stderr, "Lock State: %d.\n", cb_out->lock_state);
