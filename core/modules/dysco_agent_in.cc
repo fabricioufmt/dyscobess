@@ -1838,6 +1838,13 @@ bool DyscoAgentIn::processRequestLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoCont
 	} else {
 		//I'm the RightAnchor
 		fprintf(stderr, "I'm the RightAnchor\n");
+		if(cb_in->dcb_out) {
+			if(cb_in->dcb_out->is_signaler) {
+				fprintf(stderr, "I'm the signaler\n");
+			} else {
+				fprintf(stderr, "I'm not the signaler\n");
+			}
+		}
 		Ethernet* eth = pkt->head_data<Ethernet*>();		
 		Ethernet::Address macswap = eth->dst_addr;
 		eth->dst_addr = eth->src_addr;
@@ -1941,6 +1948,12 @@ bool DyscoAgentIn::processAckLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoControlM
 			fprintf(stderr, "cb_in: %p and cb_out: %p\n", cb_in->module, cb_out->module); 
 		}
 
+		if(cb_in->dcb_out->is_signaler) {
+			fprintf(stderr, "I'm the signaler\n");
+		} else {
+			fprintf(stderr, "I'm not the signaler\n");
+		}
+		
 		Ethernet* eth = pkt->head_data<Ethernet*>();
 		eth->src_addr = cb_out->mac_sub.src_addr;
 		eth->dst_addr = cb_out->mac_sub.dst_addr;
