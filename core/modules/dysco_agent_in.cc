@@ -1900,6 +1900,7 @@ bool DyscoAgentIn::processRequestLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoCont
 		return false;
 	case DYSCO_ACK_LOCK:
 		//should reply a NACK message?
+		return false;
 	}
 	
 	return false;
