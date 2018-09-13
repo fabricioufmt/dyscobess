@@ -132,13 +132,15 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 		}
 
 		if(isLockingPacket(ip, tcp)) {
-			fprintf(stderr, "[%s][DyscoAgentIn] receives LockingPacket (either SYN or SYN+ACK).\n", ns.c_str());
-			
 			cmsg = reinterpret_cast<DyscoControlMessage*>(getPayload(tcp));
 
+#ifdef DEBUG
+			fprintf(stderr, "[%s][DyscoAgentIn] receives Locking Packet.\n", ns.c_str());
 			fprintf(stderr, "looking input by: %s\n", printSS(cmsg->my_sub));
+#endif
 			cb_in = dc->lookup_input_by_ss(this->index, &cmsg->my_sub);
 
+			/*
 			if(!cb_in) {
 				fprintf(stderr, "[%s][DyscoAgentIn] does not found cb_in... looking for cb_out (LA case)\n", ns.c_str());
 
@@ -156,7 +158,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 					continue;
 				}
 			}
-
+			*/
 			if(!cb_in->dcb_out) {
 				fprintf(stderr, "[%s][DyscoAgentIn] does not found cb_in->dcb_out.\n", ns.c_str());
 				continue;
@@ -166,7 +168,8 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 			fprintf(stderr, "State: %d\n", cb_in->dcb_out->state);
 			fprintf(stderr, "Lock State(cb_in->dcb_out): %d\n",  cb_in->dcb_out->lock_state);
 
-			cb_out = dc->lookup_output_by_ss(this->index, &cb_in->my_sup);
+			//cb_out = dc->lookup_output_by_ss(this->index, &cb_in->my_sup);
+			cb_out = cb_in->dcb_out;
 			if(!cb_out) {
 				fprintf(stderr, "cb_out is NULL\n");
 			} else {
