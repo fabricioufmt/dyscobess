@@ -1784,113 +1784,124 @@ bool DyscoAgentIn::processRequestLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoCont
 	}
 	*/
 
-	cmsg->rhop--;
+	DyscoHashOut* cb_out = dc->lookup_output_by_ss(this->index, &cb_in->my_sup);
 
-	if(cmsg->rhop > 0) {
-		//I'm not the RightAnchor
+	switch(cb_out->lock_state) {
+	case DYSCO_CLOSED_LOCK:
+	case DYSCO_REQUEST_LOCK:
+		//If is there another locking request with other RA? TODO
+		cmsg->rhop--;
 
-		fprintf(stderr, "I'm not the RightAnchor\n");
-		fprintf(stderr, "cmsg->my_sub: %s\n", printSS(cmsg->my_sub));
+		if(cmsg->rhop > 0) {
+#ifdef DEBUG
+			fprintf(stderr, "I'm not the RightAnchor.\n");
+#endif
 		
-		fprintf(stderr, "cb_in->sub: %s\n", printSS(cb_in->sub));
-		fprintf(stderr, "cb_in->my_sup: %s\n", printSS(cb_in->my_sup));
-		fprintf(stderr, "cb_in->neigh_sup: %s\n", printSS(cb_in->neigh_sup));
-		fprintf(stderr, "cb_in->dcb_out->sub: %s\n", printSS(cb_in->dcb_out->sub));
-		fprintf(stderr, "cb_in->dcb_out->sup: %s\n", printSS(cb_in->dcb_out->sup));
-
-		//test
-		fprintf(stderr, "looking for output by %s...\n", printSS(cb_in->my_sup));
-		DyscoHashOut* cb_out = dc->lookup_output_by_ss(this->index, &cb_in->my_sup);
-		if(!cb_out) {
-			fprintf(stderr, "not found\n");
+			if(!cb_out) {
+#ifdef DEBUG
+				fprintf(stderr, "Can't find cb_out... dropping.\n");
+#endif
+				return false;
+			}
+		
+#ifdef DEBUG
+			fprintf(stderr, "cb_out is found.\n");
+			if(cb_out->is_signaler)
+				fprintf(stderr, "I'm the signaler.\n");
+			else
+				fprintf(stderr, "I'm not the signaler.\n");
+#endif
+		
+			Ethernet* eth = pkt->head_data<Ethernet*>();
+			eth->src_addr = cb_out->mac_sub.src_addr;
+			eth->dst_addr = cb_out->mac_sub.dst_addr;
+			*((uint32_t*)(&ip->src)) = cb_out->sub.sip;
+			*((uint32_t*)(&ip->dst)) = cb_out->sub.dip;
+			cmsg->lhop++;
+			cmsg->my_sub = cb_out->sub;
+			fix_csum(ip, tcp);
+			cb_out->lock_state = DYSCO_REQUEST_LOCK;
+#ifdef DEBUG
+			if(cb_out->lock_state == DYSCO_CLOSED_LOCK) 
+				fprintf(stderr, "Changing lock_state field from DYSCO_CLOSED_LOCK to DYSCO_REQUEST_LOCK.\n");
+			else
+				fprintf(stderr, "Changing lock_state field from DYSCO_REQUEST_LOCK to DYSCO_REQUEST_LOCK.\n");
+#endif
+			PacketBatch out;
+			out.clear();
+			out.add(pkt);
+			cb_out->module->RunChooseModule(1, &out);
+		
 			return false;
 		} else {
-			fprintf(stderr, "found\n");
-			fprintf(stderr, "cb_out->sub: %s\n", printSS(cb_out->sub));
-			fprintf(stderr, "cb_out->sup: %s\n", printSS(cb_out->sup));
-			fprintf(stderr, "cb_out->dcb_in->sub: %s\n", printSS(cb_out->dcb_in->sub));
-			fprintf(stderr, "cb_out->dcb_in->my_sup: %s\n", printSS(cb_out->dcb_in->my_sup));
-			fprintf(stderr, "cb_out->dcb_in->neigh_sup: %s\n", printSS(cb_out->dcb_in->neigh_sup));
-			fprintf(stderr, "cb_in: %p and cb_out: %p\n", cb_in->module, cb_out->module); 
-		}
-
-		if(cb_in->dcb_out) {
-			if(cb_in->dcb_out->is_signaler) {
+#ifdef DEBUG
+			fprintf(stderr, "I'm the RightAnchor\n");
+			if(cb_out->is_signaler)
 				fprintf(stderr, "I'm the signaler\n");
-			} else {
+			else
 				fprintf(stderr, "I'm not the signaler\n");
-			}
-		}
-		
-		Ethernet* eth = pkt->head_data<Ethernet*>();
-		eth->src_addr = cb_out->mac_sub.src_addr;
-		eth->dst_addr = cb_out->mac_sub.dst_addr;
-		fprintf(stderr, "MAC SRC: %s\n", eth->src_addr.ToString().c_str());
-		fprintf(stderr, "MAC DST: %s\n", eth->dst_addr.ToString().c_str());
-		*((uint32_t*)(&ip->src)) = cb_out->sub.sip;
-		*((uint32_t*)(&ip->dst)) = cb_out->sub.dip;
-		//hdr_rewrite(ip, tcp, &cb_out->sub);
-		cmsg->lhop++;
-		cmsg->my_sub = cb_out->sub;
-		fix_csum(ip, tcp);
-		cb_in->dcb_out->lock_state = DYSCO_REQUEST_LOCK;
-		cb_out->lock_state = DYSCO_REQUEST_LOCK;
-		fprintf(stderr, "Changing lock_state field from DYSCO_CLOSED_LOCK to DYSCO_REQUEST_LOCK\n");
-
-		PacketBatch out;
-		out.clear();
-		out.add(pkt);
-		cb_out->module->RunChooseModule(1, &out);
-		
-		return false;
-	} else {
-		//I'm the RightAnchor
-		fprintf(stderr, "I'm the RightAnchor\n");
-		if(cb_in->dcb_out) {
-			if(cb_in->dcb_out->is_signaler) {
-				fprintf(stderr, "I'm the signaler\n");
-			} else {
-				fprintf(stderr, "I'm not the signaler\n");
-			}
-		}
-		Ethernet* eth = pkt->head_data<Ethernet*>();		
-		Ethernet::Address macswap = eth->dst_addr;
-		eth->dst_addr = eth->src_addr;
-		eth->src_addr = macswap;
+#endif
+			
+			Ethernet* eth = pkt->head_data<Ethernet*>();		
+			Ethernet::Address macswap = eth->dst_addr;
+			eth->dst_addr = eth->src_addr;
+			eth->src_addr = macswap;
 						
-		ip->id = be16_t(rand());
-		ip->ttl = 53;
-		ip->checksum = 0;
+			ip->id = be16_t(rand());
+			ip->ttl = 53;
+			ip->checksum = 0;
 
-		be32_t ipswap = ip->src;
-		ip->src = ip->dst;
-		ip->dst = ipswap;
+			be32_t ipswap = ip->src;
+			ip->src = ip->dst;
+			ip->dst = ipswap;
 
-		be16_t portswap = tcp->src_port;
-		tcp->src_port = tcp->dst_port;
-		tcp->dst_port = portswap;
+			be16_t portswap = tcp->src_port;
+			tcp->src_port = tcp->dst_port;
+			tcp->dst_port = portswap;
 
-		tcp->ack_num = tcp->seq_num + be32_t(1) + be32_t(hasPayload(ip, tcp));
-		tcp->seq_num = be32_t(rand());
-		tcp->flags |= Tcp::kAck;
+			tcp->ack_num = tcp->seq_num + be32_t(1) + be32_t(hasPayload(ip, tcp));
+			tcp->seq_num = be32_t(rand());
+			tcp->flags |= Tcp::kAck;
 
-		cmsg->lock_state = DYSCO_ACK_LOCK;
-		DyscoTcpSession ss;
-		ss.sip = cmsg->my_sub.dip;
-		ss.dip = cmsg->my_sub.sip;
-		ss.sport = cmsg->my_sub.dport;
-		ss.dport = cmsg->my_sub.sport;
-		cmsg->my_sub = ss;
-		cmsg->lhop++;
-		fix_csum(ip, tcp);
-		fprintf(stderr, "Changing lock_state field from DYSCO_CLOSED_LOCK to DYSCO_ACK_LOCK\n");
+			cmsg->lock_state = DYSCO_ACK_LOCK;
+			DyscoTcpSession ss;
+			ss.sip = cmsg->my_sub.dip;
+			ss.dip = cmsg->my_sub.sip;
+			ss.sport = cmsg->my_sub.dport;
+			ss.dport = cmsg->my_sub.sport;
+			cmsg->my_sub = ss;
+			cmsg->lhop++;
+
+			if(cb_out->is_signaler) {
+				uint32_t* sc = reinterpret_cast<uint32_t*>(pkt->append(cb_out->sc_len * sizeof(uint32_t)));
+				if(!sc)
+					return false;
+
+				memcpy(sc, cb_out->sc, cb_out->sc_len * sizeof(uint32_t));
+#ifdef DEBUG
+				fprintf(stderr, "Going to append %d ip addresses.\n", cb_out->sc_len);
+#endif
+			}
+			
+			fix_csum(ip, tcp);
+#ifdef DEBUG
+			if(cb_out->lock_state == DYSCO_CLOSED_LOCK)
+				fprintf(stderr, "Changing lock_state field from DYSCO_CLOSED_LOCK to DYSCO_ACK_LOCK\n");
+			else
+				fprintf(stderr, "Changing lock_state field from DYSCO_REQUEST_LOCK to DYSCO_ACK_LOCK\n");	
+#endif 
 		
-		cb_in->dcb_out->is_RA = 1;
-		cb_in->dcb_out->lock_state = DYSCO_ACK_LOCK;
+			cb_out->is_RA = 1;
+			cb_out->lock_state = DYSCO_ACK_LOCK;
 
-		return true;
+			return true;
+		}
+
+		return false;
+	case DYSCO_ACK_LOCK:
+		//should reply a NACK message?
 	}
-
+	
 	return false;
 }
 
