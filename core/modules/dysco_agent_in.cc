@@ -199,7 +199,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 #ifdef DEBUG
 				fprintf(stderr, "processing Request Lock\n");
 #endif
-				if(processRequestLock(pkt, ip, tcp, cmsg, cb_in, cb_out)) {
+				if(processRequestLock(pkt, ip, tcp, cmsg, cb_out)) {
 					out_gates[1].add(pkt);
 					continue;
 				}
