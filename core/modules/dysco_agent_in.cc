@@ -1775,7 +1775,7 @@ bool DyscoAgentIn::isEstablished(Packet* pkt) {
 	return false;
 }
 
-bool DyscoAgentIn::processRequestLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoControlMessage* cmsg, DyscoHashIn* cb_in, DyscoHashOut* cb_out) {
+bool DyscoAgentIn::processRequestLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoControlMessage* cmsg, DyscoHashOut* cb_out) {
 	/*
 	if(cb_in->dcb_out->lock_state != DYSCO_CLOSED_LOCK) {
 		Ethernet* eth = pkt->head_data<Ethernet*>();
