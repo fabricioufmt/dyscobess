@@ -1841,6 +1841,7 @@ bool DyscoAgentIn::processRequestLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoCont
 #endif
 			
 			cb_out->lock_state = DYSCO_REQUEST_LOCK;
+			cb_in->dcb_out->lock_state = DYSCO_REQUEST_LOCK;
 			
 			PacketBatch out;
 			out.clear();
@@ -1900,7 +1901,7 @@ bool DyscoAgentIn::processRequestLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoCont
 		
 			cb_out->is_RA = 1;
 			cb_out->lock_state = DYSCO_ACK_LOCK;
-
+			
 			return true;
 		}
 
@@ -2003,6 +2004,7 @@ bool DyscoAgentIn::processAckLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoControlM
 			cmsg->lhop--;
 			fix_csum(ip, tcp);
 			cb_out->lock_state = DYSCO_ACK_LOCK;
+			cb_in->dcb_out->lock_state = DYSCO_ACK_LOCK;
 #ifdef DEBUG
 			fprintf(stderr, "Changing lock_state field from DYSCO_REQUEST_LOCK to DYSCO_ACK_LOCK\n");
 #endif
