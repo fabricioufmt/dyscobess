@@ -1940,6 +1940,8 @@ bool DyscoAgentIn::processAckLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoControlM
 				memcpy(sc, cb_out->sc, cb_out->sc_len * sizeof(uint32_t));
 #ifdef DEBUG
 				fprintf(stderr, "Going to append %d ip addresses.\n", cb_out->sc_len);
+				for(int i = 0; i < cb_out->sc_len; i++)
+					fprintf(stderr, "cb_out->sc[%d]=%s --- sc[%d]=%s\n", i, printIP(cb_out-sc[i]), i, printIP(sc[i]));
 #endif
 			}
 			
