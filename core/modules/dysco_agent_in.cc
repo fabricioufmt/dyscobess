@@ -1789,10 +1789,11 @@ bool DyscoAgentIn::processRequestLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoCont
 
 	//DyscoHashOut* cb_out = dc->lookup_output_by_ss(this->index, &cb_in->my_sup);
 	DyscoHashOut* cb_out = cb_in->dcb_out;
-	if(cb_out)
+	if(cb_out) {
+		fprintf(stderr, "is_RA=%u is_signaler=%u\n", cb_out->is_RA, cb_out->is_signaler);
 		if(!(cb_out->is_RA && cb_out->is_signaler))
 			cb_out = dc->lookup_output_by_ss(this->index, &cb_in->my_sup);
-
+	}
 	if(!cb_out)
 		return false;
 
