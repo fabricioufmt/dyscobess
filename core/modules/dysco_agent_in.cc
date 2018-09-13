@@ -168,6 +168,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 			fprintf(stderr, "State: %d\n", cb_in->dcb_out->state);
 			fprintf(stderr, "Lock State(cb_in->dcb_out): %d\n",  cb_in->dcb_out->lock_state);
 
+			/*
 			//cb_out = dc->lookup_output_by_ss(this->index, &cb_in->my_sup);
 			cb_out = cb_in->dcb_out;
 			if(!cb_out) {
@@ -176,7 +177,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 				fprintf(stderr, "cb_out->sup: %s\n", printSS(cb_out->sup));
 				fprintf(stderr, "cb_out->sub: %s\n", printSS(cb_out->sub));
 			}
-			
+			*/
 			if(cmsg->lock_state == DYSCO_REQUEST_LOCK) {
 				fprintf(stderr, "processing Request Lock\n");
 				if(processRequestLock(pkt, ip, tcp, cmsg, cb_in)) {
@@ -1789,14 +1790,17 @@ bool DyscoAgentIn::processRequestLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoCont
 
 	//DyscoHashOut* cb_out = dc->lookup_output_by_ss(this->index, &cb_in->my_sup);
 	DyscoHashOut* cb_out = cb_in->dcb_out;
-	if(cb_out) {
-		fprintf(stderr, "is_RA=%u is_signaler=%u\n", cb_out->is_RA, cb_out->is_signaler);
-		if(!(cb_out->is_RA && cb_out->is_signaler))
+	if(cb_out) 
+		if(!cb_out->is_signaler)
 			cb_out = dc->lookup_output_by_ss(this->index, &cb_in->my_sup);
-	}
-	if(!cb_out)
+	
+	if(!cb_out) {
+#ifdef DEBUG
+		fprintf(stderr, "Can't find cb_out... dropping.\n");
+#endif
 		return false;
-
+	}
+	
 	fprintf(stderr, "cb_out->sup: %s\n", printSS(cb_out->sup));
 	fprintf(stderr, "cb_out->sub: %s\n", printSS(cb_out->sub));
 	
@@ -1811,15 +1815,7 @@ bool DyscoAgentIn::processRequestLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoCont
 			fprintf(stderr, "I'm not the RightAnchor.\n");
 #endif
 		
-			if(!cb_out) {
 #ifdef DEBUG
-				fprintf(stderr, "Can't find cb_out... dropping.\n");
-#endif
-				return false;
-			}
-		
-#ifdef DEBUG
-			fprintf(stderr, "cb_out is found.\n");
 			if(cb_out->is_signaler)
 				fprintf(stderr, "I'm the signaler.\n");
 			else
