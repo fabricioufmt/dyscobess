@@ -1927,7 +1927,7 @@ CONTROL_RETURN DyscoAgentIn::processAckLock(Packet* pkt, Ipv4* ip, Tcp* tcp, Dys
 #ifdef DEBUG
 			fprintf(stderr, "I'm the LeftAnchor... starting reconfiguration\n");
 #endif
-			return SUCCESSFUL;
+			return LOCK_SUCCESSFUL;
 		} else {
 #ifdef DEBUG
 			fprintf(stderr, "I'm not the LeftAnchor... forwarding the ACK_LOCK\n");
