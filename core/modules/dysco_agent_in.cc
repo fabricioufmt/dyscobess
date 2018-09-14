@@ -147,27 +147,6 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 			fprintf(stderr, "looking input by: %s\n", printSS(cmsg->my_sub));
 #endif
 			cb_in = dc->lookup_input_by_ss(this->index, &cmsg->my_sub);
-
-			/*
-			if(!cb_in) {
-				fprintf(stderr, "[%s][DyscoAgentIn] does not found cb_in... looking for cb_out (LA case)\n", ns.c_str());
-
-				DyscoTcpSession subswap;
-				subswap.sip = cmsg->my_sub.dip;
-				subswap.dip = cmsg->my_sub.sip;
-				subswap.sport = cmsg->my_sub.dport;
-				subswap.dport = cmsg->my_sub.sport;
-
-				fprintf(stderr, "looking for %s\n", printSS(subswap));
-				
-				cb_in = dc->lookup_input_by_ss(this->index, &subswap);
-				if(!cb_in) {
-					fprintf(stderr, "[%s][DyscoAgentIn] cb_in is NULL\n", ns.c_str());
-					continue;
-				}
-			}
-			*/
-
 		
 			if(cmsg->lock_state == DYSCO_REQUEST_LOCK) {
 #ifdef DEBUG
@@ -1850,6 +1829,8 @@ bool DyscoAgentIn::processRequestLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoCont
 			cmsg->rightA = tcp->src_port.raw_value();
 
 #ifdef DEBUG
+			fprintf(stderr, "ip->src: %s\n", printIP(ip->src.raw_value()));
+			fprintf(stderr, "ip->dst: %s\n", printIP(ip->dst.raw_value());
 			fprintf(stderr, "cmsg->leftA: %s\n", printIP(cmsg->leftA));
 			fprintf(stderr, "cmsg->rightA: %s\n", printIP(cmsg->rightA));
 #endif
