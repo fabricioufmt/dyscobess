@@ -1972,7 +1972,7 @@ CONTROL_RETURN DyscoAgentIn::processAckLock(Packet* pkt, Ipv4* ip, Tcp* tcp, Dys
 	return ERROR;
 }
 
-void DyscoAgentIn::start_reconfiguration(Packet*, Ipv4* ip, Tcp* tcp, DyscoControlMessage* cmsg, DyscoHashIn* cb_in) {
+void DyscoAgentIn::start_reconfiguration(Packet*, Ipv4*, Tcp*, DyscoControlMessage* cmsg, DyscoHashIn* cb_in) {
 
 	//uint32_t* sc = reinterpret_cast<uint32_t*>(cmsg + 1);
 	//uint32_t sc_len = (hasPayload(ip, tcp) - sizeof(DyscoControlMessage))/sizeof(uint32_t);
