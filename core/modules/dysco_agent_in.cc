@@ -1830,7 +1830,7 @@ bool DyscoAgentIn::processRequestLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoCont
 
 #ifdef DEBUG
 			fprintf(stderr, "ip->src: %s\n", printIP(ip->src.raw_value()));
-			fprintf(stderr, "ip->dst: %s\n", printIP(ip->dst.raw_value());
+			fprintf(stderr, "ip->dst: %s\n", printIP(ip->dst.raw_value()));
 			fprintf(stderr, "cmsg->leftA: %s\n", printIP(cmsg->leftA));
 			fprintf(stderr, "cmsg->rightA: %s\n", printIP(cmsg->rightA));
 #endif
