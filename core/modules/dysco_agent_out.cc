@@ -107,16 +107,6 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 			
 			sc_sz = hasPayload(ip, tcp) - sizeof(DyscoControlMessage);
 			cmsg = reinterpret_cast<DyscoControlMessage*>(getPayload(tcp));
-
-#ifdef DEBUG
-			if(!cb_out->sc)
-				fprintf(stderr, "cb_out->sc is NULL\n");
-			else {
-				fprintf(stderr, "cb_out->sc is not NULL\n");
-				for(uint32_t j = 0; j < cb_out->sc_len; j++)
-					fprintf(stderr, "cb_out->sc[%u]=%s\n", j, printIP(cb_out->sc[j]));
-			}
-#endif
 			
 			cb_out->is_signaler = 1;
 			cb_out->sc_len = sc_sz/sizeof(uint32_t);
@@ -135,6 +125,10 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 
 				pkt->trim(tcpo->len + sc_sz);
 				memcpy(tcpo, cmsg, sizeof(DyscoControlMessage));
+
+				Ethernet* eth = pkt->head_data<Ethernet*>();
+				eth->src_addr = cb_out->mac_sub.src_addr;
+				eth->dst_addr = cb_out->mac_sub.dst_addr;
 				
 				ip->id = be16_t(rand());
 				ip->ttl = 53;
