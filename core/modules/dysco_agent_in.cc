@@ -166,9 +166,10 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 					continue;
 				case LOCK_SUCCESSFUL:
 					//out_gates[1].add(createAckLock(pkt, ip, tcp));
-					//start_reconfiguration...
-					out_gates[0].add(pkt);
 					out_gates[0].add(createAckLock(pkt, ip, tcp)); //debug
+					start_reconfiguration(pkt, ip, tcp, cb_in);
+					out_gates[0].add(pkt); //debug
+					
 					continue;
 				case NONE:
 				case ERROR:
@@ -1826,15 +1827,7 @@ bool DyscoAgentIn::processRequestLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoCont
 			tcp->seq_num = be32_t(rand());
 			tcp->flags |= Tcp::kAck;
 
-			cmsg->rightA = tcp->src_port.raw_value();
-
-#ifdef DEBUG
-			fprintf(stderr, "ip->src: %s\n", printIP(ip->src.raw_value()));
-			fprintf(stderr, "ip->dst: %s\n", printIP(ip->dst.raw_value()));
-			fprintf(stderr, "cmsg->leftA: %s\n", printIP(cmsg->leftA));
-			fprintf(stderr, "cmsg->rightA: %s\n", printIP(cmsg->rightA));
-#endif
-			
+			cmsg->rightA = ip->src.raw_value();
 			cmsg->lock_state = DYSCO_ACK_LOCK;
 			DyscoTcpSession ss;
 			ss.sip = cmsg->my_sub.dip;
@@ -1977,6 +1970,16 @@ CONTROL_RETURN DyscoAgentIn::processAckLock(Packet* pkt, Ipv4* ip, Tcp* tcp, Dys
 	}
 	
 	return ERROR;
+}
+
+void DyscoAgentIn::start_reconfiguration(Packet*, Ipv4*, Tcp*, DyscoControlMessage* cmsg, DyscoHashIn*) {
+	fprintf(stderr, "my_sub: %s\n", printSS(cmsg->my_sub));
+	fprintf(stderr, "super: %s\n", printSS(cmsg->super ));
+	fprintf(stderr, "leftSS: %s\n", printSS(cmsg->leftSS));
+	fprintf(stderr, "rightSS: %s\n", printSS(cmsg->rightSS));
+	fprintf(stderr, "leftA: %s\n", printIP(cmsg->leftA));
+	fprintf(stderr, "rightA: %s\n", printIP(cmsg->rightA));
+	fprintf(stderr, "type: %u\n", cmsg->type);
 }
 
 Packet* DyscoAgentIn::createAckLock(Packet* pkt, Ipv4* ip, Tcp* tcp) {
