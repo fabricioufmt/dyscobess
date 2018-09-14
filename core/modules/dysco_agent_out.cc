@@ -113,8 +113,8 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 				fprintf(stderr, "cb_out->sc is NULL\n");
 			else {
 				fprintf(stderr, "cb_out->sc is not NULL\n");
-				for(uint32_t i = 0; i < cb_out->sc_len; i++)
-					fprintf(stderr, "cb_out->sc[%u]=%s\n", printIP(cb_out->sc[i]));
+				for(uint32_t j = 0; j < cb_out->sc_len; j++)
+					fprintf(stderr, "cb_out->sc[%u]=%s\n", j, printIP(cb_out->sc[j]));
 			}
 #endif
 			
