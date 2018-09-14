@@ -1986,7 +1986,7 @@ void DyscoAgentIn::createAckLock(Packet* pkt, Ipv4* ip, Tcp* tcp) {
 	newip->type_of_service = 0;
 	newip->length = be16_t(sizeof(Ipv4) + sizeof(Tcp));
 	newip->id = be16_t(rand());
-	newip->fragment_offset = 0;
+	newip->fragment_offset = be16_t(0);
 	newip->ttl = 53;
 	newip->protocol = Ipv4::kTcp;
 	newip->checksum = 0;
