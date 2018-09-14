@@ -1933,11 +1933,13 @@ bool DyscoAgentIn::processAckLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoControlM
 			cmsg->my_sub = cb_out->sub;
 
 			if(cb_out->is_signaler) {
-				uint32_t* sc = reinterpret_cast<uint32_t*>(pkt->append(cb_out->sc_len * sizeof(uint32_t)));
+				uint32_t sc_sz = cb_out->sc_len * sizeof(uint32_t);
+				uint32_t* sc = reinterpret_cast<uint32_t*>(pkt->append(sc_sz));
 				if(!sc)
 					return false;
 
-				memcpy(sc, cb_out->sc, cb_out->sc_len * sizeof(uint32_t));
+				memcpy(sc, cb_out->sc, sc_sz);
+				ip->length += be16_t(sc_sz);
 #ifdef DEBUG
 				fprintf(stderr, "Going to append %d ip addresses.\n", cb_out->sc_len);
 				for(uint32_t i = 0; i < cb_out->sc_len; i++)
