@@ -111,8 +111,11 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 #ifdef DEBUG
 			if(!cb_out->sc)
 				fprintf(stderr, "cb_out->sc is NULL\n");
-			else
+			else {
 				fprintf(stderr, "cb_out->sc is not NULL\n");
+				for(uint32_t i = 0; i < cb_out->sc_len; i++)
+					fprintf(stderr, "cb_out->sc[%u]=%s\n", printIP(cb_out->sc[i]));
+			}
 #endif
 			
 			cb_out->is_signaler = 1;
