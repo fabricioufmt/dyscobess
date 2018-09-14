@@ -1933,6 +1933,7 @@ bool DyscoAgentIn::processAckLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoControlM
 			cmsg->my_sub = cb_out->sub;
 
 			if(cb_out->is_signaler) {
+				/*
 				uint32_t sc_sz = cb_out->sc_len * sizeof(uint32_t);
 				uint32_t* sc = reinterpret_cast<uint32_t*>(pkt->append(sc_sz));
 				if(!sc)
@@ -1945,6 +1946,7 @@ bool DyscoAgentIn::processAckLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoControlM
 				for(uint32_t i = 0; i < cb_out->sc_len; i++)
 					fprintf(stderr, "cb_out->sc[%u]=%s --- sc[%u]=%s\n", i, printIP(cb_out->sc[i]), i, printIP(sc[i]));
 #endif
+				*/
 			}
 			
 			fix_csum(ip, tcp);
