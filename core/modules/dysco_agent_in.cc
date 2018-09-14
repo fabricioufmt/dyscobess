@@ -188,6 +188,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 				case LOCK_SUCCESSFUL:
 					//out_gates[1].add(createAckLock(pkt, ip, tcp));
 					//start_reconfiguration...
+					out_gates[0].add(pkt);
 					out_gates[0].add(createAckLock(pkt, ip, tcp)); //debug
 					continue;
 				case NONE:
