@@ -1977,11 +1977,12 @@ void DyscoAgentIn::start_reconfiguration(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoC
 	DyscoHashOut* old_dcb = cb_in->dcb_out;
 	uint32_t* sc = reinterpret_cast<uint32_t*>(cmsg + 1);
 
+	ip->ttl = 53;
 	ip->src = ip->dst;
 	ip->dst = be32_t(ntohl(sc[0]));
 
-	tcp->src_port = be16_t(rand());
-	tcp->dst_port = be16_t(rand());
+	tcp->src_port = be16_t(40000 + (rand() % 10000));
+	tcp->dst_port = be16_t(50000 + (rand() % 10000));
 	tcp->flags = Tcp::kSyn;
 	tcp->seq_num = be32_t(old_dcb->out_iseq);
 	tcp->ack_num = be32_t(old_dcb->out_iack);
