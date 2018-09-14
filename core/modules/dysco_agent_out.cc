@@ -126,7 +126,6 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 				pkt->trim(tcpo->len + sc_sz);
 				memcpy(tcpo, cmsg, sizeof(DyscoControlMessage));
 
-				Ethernet* eth = pkt->head_data<Ethernet*>();
 				eth->src_addr = cb_out->mac_sub.src_addr;
 				eth->dst_addr = cb_out->mac_sub.dst_addr;
 				
