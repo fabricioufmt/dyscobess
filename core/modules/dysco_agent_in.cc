@@ -1969,6 +1969,9 @@ bool DyscoAgentIn::processAckLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoControlM
 }
 
 void DyscoAgentIn::createAckLock(Packet* pkt, Ipv4* ip, Tcp* tcp) {
+#ifdef DEBUG
+	fprintf(stderr, "Going to create an ACK for SYN+ACK (DYSCO_ACK_LOCK).\n");
+#endif
 	Packet* newpkt = Packet::Alloc();
 
 	newpkt->set_total_len(sizeof(Ethernet) + sizeof(Ipv4) + sizeof(Tcp));
