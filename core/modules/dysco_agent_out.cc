@@ -123,6 +123,7 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 #endif
 				cb_out->is_LA = 1;
 
+				ip->length = be16_t(ip->length.value() - tcpo->len - sc_sz);
 				pkt->trim(tcpo->len + sc_sz);
 				memcpy(tcpo, cmsg, sizeof(DyscoControlMessage));
 
@@ -134,7 +135,6 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 				ip->checksum = 0;
 				*((uint32_t*)(&ip->src)) = cb_out->sub.sip;
 				*((uint32_t*)(&ip->dst)) = cb_out->sub.dip;
-				ip->length = be16_t(ip->length.value()-tcpo->len - sc_sz);
 				
 				tcp->src_port = be16_t(rand());
 				tcp->dst_port = be16_t(rand());
