@@ -21,6 +21,7 @@ enum CONTROL_RETURN {
 	END,
 
 	//Locking
+	NONE,
 	LOCK_SUCCESSFUL,
 };
 

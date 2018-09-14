@@ -190,6 +190,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 					//start_reconfiguration...
 					out_gates[0].add(createAckLock(pkt, ip, tcp)); //debug
 					continue;
+				case NONE:
 				case ERROR:
 				default:
 					continue;
@@ -1960,10 +1961,13 @@ CONTROL_RETURN DyscoAgentIn::processAckLock(Packet* pkt, Ipv4* ip, Tcp* tcp, Dys
 				ss.dport = cb_in->my_sup.sport;
 				fprintf(stderr, "rightSS: %s\n", printSS(ss));
 
+				/*
 				ss.sip = cb_out->dcb_in->my_sup.dip;
 				ss.dip = cb_out->dcb_in->my_sup.sip;
 				ss.sport = cb_out->dcb_in->my_sup.dport;
 				ss.dport = cb_out->dcb_in->my_sup.sport;
+				*/
+				ss = cb_out->dcb_in->my_sup;
 				fprintf(stderr, "leftSS: %s\n", printSS(ss));				
 			}
 			
@@ -1974,7 +1978,12 @@ CONTROL_RETURN DyscoAgentIn::processAckLock(Packet* pkt, Ipv4* ip, Tcp* tcp, Dys
 			fprintf(stderr, "Changing lock_state field from DYSCO_REQUEST_LOCK to DYSCO_ACK_LOCK\n");
 #endif
 
-			return TO_GATE_1;
+			PacketBatch out;
+			out.clear();
+			out.add(pkt);
+			cb_out->module->RunChooseModule(1, &out);
+			
+			return NONE;
 		}
 	}
 	
