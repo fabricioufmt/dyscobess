@@ -1914,14 +1914,14 @@ bool DyscoAgentIn::processAckLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoControlM
 		return false;
 
 	case DYSCO_ACK_LOCK:
-		createAckLock(pkt, ip, tcp, cmsg, cb_in);
+		createAckLock(pkt, ip, tcp);
 			      
 	case DYSCO_REQUEST_LOCK:
 		if(cb_out->is_LA) {
 #ifdef DEBUG
 			fprintf(stderr, "I'm the LeftAnchor... starting reconfiguration\n");
 #endif
-			createAckLock(pkt, ip, tcp, cmsg, cb_in);
+			createAckLock(pkt, ip, tcp);
 		} else {
 #ifdef DEBUG
 			fprintf(stderr, "I'm not the LeftAnchor... forwarding the ACK_LOCK\n");
@@ -1978,7 +1978,7 @@ void DyscoAgentIn::createAckLock(Packet* pkt, Ipv4* ip, Tcp* tcp) {
 	Ethernet* neweth = newpkt->head_data<Ethernet*>();
 	neweth->dst_addr = eth->src_addr;
 	neweth->src_addr = eth->dst_addr;
-	neweth->ether_type = Ethernet::kIpv4;
+	neweth->ether_type = be16_t(Ethernet::Type::kIpv4);
 
 	Ipv4* newip = reinterpret_cast<Ipv4*>(neweth + 1);
 	newip->header_length = 5;
