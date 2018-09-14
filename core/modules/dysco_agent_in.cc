@@ -1848,6 +1848,12 @@ bool DyscoAgentIn::processRequestLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoCont
 			tcp->flags |= Tcp::kAck;
 
 			cmsg->rightA = tcp->src_port.raw_value();
+
+#ifdef DEBUG
+			fprintf(stderr, "cmsg->leftA: %s\n", printIP(cmsg->leftA));
+			fprintf(stderr, "cmsg->rightA: %s\n", printIP(cmsg->rightA));
+#endif
+			
 			cmsg->lock_state = DYSCO_ACK_LOCK;
 			DyscoTcpSession ss;
 			ss.sip = cmsg->my_sub.dip;
