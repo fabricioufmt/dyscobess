@@ -1623,6 +1623,10 @@ void DyscoAgentIn::createLockingPacket(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoTcp
 	cmsg->my_sub.dip = cb_in->sub.sip;
 	cmsg->my_sub.sport = cb_in->sub.dport;
 	cmsg->my_sub.dport = cb_in->sub.sport;
+	cmsg->super.sip = cb_in->my_sup.dip;
+	cmsg->super.dip = cb_in->my_sup.sip;
+	cmsg->super.sport = cb_in->my_sup.dport;
+	cmsg->super.dport = cb_in->my_sup.sport;
 	cmsg->lhop = rhop;
 	cmsg->rhop = rhop;
 
@@ -1959,16 +1963,12 @@ CONTROL_RETURN DyscoAgentIn::processAckLock(Packet* pkt, Ipv4* ip, Tcp* tcp, Dys
 				ss.dip = cb_in->my_sup.sip;
 				ss.sport = cb_in->my_sup.dport;
 				ss.dport = cb_in->my_sup.sport;
-				fprintf(stderr, "rightSS: %s\n", printSS(ss));
-
-				/*
-				ss.sip = cb_out->dcb_in->my_sup.dip;
-				ss.dip = cb_out->dcb_in->my_sup.sip;
-				ss.sport = cb_out->dcb_in->my_sup.dport;
-				ss.dport = cb_out->dcb_in->my_sup.sport;
-				*/
-				ss = cb_out->dcb_in->my_sup;
-				fprintf(stderr, "leftSS: %s\n", printSS(ss));				
+				cmsg->rightSS = ss;
+				cmsg->leftSS = cb_out->dcb_in->my_sup;
+#ifdef DEBUG
+				fprintf(stderr, "leftSS: %s\n", printSS(cmsg->leftSS));
+				fprintf(stderr, "rightSS: %s\n", printSS(cmsg->rightSS));
+#endif
 			}
 			
 			fix_csum(ip, tcp);
