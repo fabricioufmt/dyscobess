@@ -1910,16 +1910,18 @@ bool DyscoAgentIn::processAckLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoControlM
 	
 	switch(cb_out->lock_state) {
 	case DYSCO_CLOSED_LOCK:
-	case DYSCO_ACK_LOCK:
 	case DYSCO_NACK_LOCK:
 		return false;
 
+	case DYSCO_ACK_LOCK:
+		createAckLock(pkt, ip, tcp, cmsg, cb_in);
+			      
 	case DYSCO_REQUEST_LOCK:
 		if(cb_out->is_LA) {
 #ifdef DEBUG
 			fprintf(stderr, "I'm the LeftAnchor... starting reconfiguration\n");
 #endif
-			//should forward a ACK for SYN+ACK
+			createAckLock(pkt, ip, tcp, cmsg, cb_in);
 		} else {
 #ifdef DEBUG
 			fprintf(stderr, "I'm not the LeftAnchor... forwarding the ACK_LOCK\n");
@@ -1964,6 +1966,51 @@ bool DyscoAgentIn::processAckLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoControlM
 	}
 	
 	return false;
+}
+
+void DyscoAgentIn::createAckLock(Packet* pkt, Ipv4* ip, Tcp* tcp) {
+	Packet* newpkt = Packet::Alloc();
+
+	newpkt->set_total_len(sizeof(Ethernet) + sizeof(Ipv4) + sizeof(Tcp));
+	newpkt->set_data_len(sizeof(Ethernet) + sizeof(Ipv4) + sizeof(Tcp));
+	
+	Ethernet* eth = pkt->head_data<Ethernet*>();
+	Ethernet* neweth = newpkt->head_data<Ethernet*>();
+	neweth->dst_addr = eth->src_addr;
+	neweth->src_addr = eth->dst_addr;
+	neweth->ether_type = Ethernet::kIpv4;
+
+	Ipv4* newip = reinterpret_cast<Ipv4*>(neweth + 1);
+	newip->header_length = 5;
+	newip->version = 4;
+	newip->type_of_service = 0;
+	newip->length = be16_t(sizeof(Ipv4) + sizeof(Tcp));
+	newip->id = be16_t(rand());
+	newip->fragment_offset = 0;
+	newip->ttl = 53;
+	newip->protocol = Ipv4::kTcp;
+	newip->checksum = 0;
+	newip->src = ip->dst;
+	newip->dst = ip->src;
+
+	Tcp* newtcp = reinterpret_cast<Tcp*>(newip + 1);
+	newtcp->src_port = tcp->dst_port;
+	newtcp->dst_port = tcp->src_port;
+	newtcp->seq_num = tcp->ack_num;
+	newtcp->ack_num = tcp->seq_num + be32_t(hasPayload(ip, tcp) + 1);
+	newtcp->reserved = 0;
+	newtcp->offset = 5;
+	newtcp->flags = Tcp::kAck;
+	newtcp->window = tcp->window;
+	newtcp->checksum = 0;
+	newtcp->urgent_ptr = be16_t(0);
+
+	fix_csum(newip, newtcp);
+
+	PacketBatch out;
+	out.clear();
+	out.add(newpkt);
+	RunChooseModule(0, &out); //debug
 }
 
 ADD_MODULE(DyscoAgentIn, "dysco_agent_in", "processes packets incoming to host")
