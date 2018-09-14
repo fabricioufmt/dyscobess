@@ -18,7 +18,10 @@ enum CONTROL_RETURN {
 	IS_RETRANSMISSION,
 	MIDDLE,
 	ERROR,
-	END
+	END,
+
+	//Locking
+	LOCK_SUCCESSFUL,
 };
 
 class DyscoAgentIn final : public Module {
@@ -91,7 +94,7 @@ class DyscoAgentIn final : public Module {
 	void createFinAck(Packet*, Ipv4*, Tcp*);
 
 	void createLockingPacket(Packet*, Ipv4*, Tcp*, DyscoTcpOption*, DyscoHashIn*);
-	bool processAckLock(Packet*, Ipv4*, Tcp*, DyscoControlMessage*, DyscoHashIn*);
+	CONTROL_RETURN processAckLock(Packet*, Ipv4*, Tcp*, DyscoControlMessage*, DyscoHashIn*);
 	bool processRequestLock(Packet*, Ipv4*, Tcp*, DyscoControlMessage*, DyscoHashIn*);
 
 	void createAckLock(Packet*, Ipv4*, Tcp*);

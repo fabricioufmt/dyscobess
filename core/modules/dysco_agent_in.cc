@@ -177,17 +177,23 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 					out_gates[1].add(pkt);
 					continue;
 				}
-			} else if (cmsg->lock_state == DYSCO_ACK_LOCK) {
+			} else if(cmsg->lock_state == DYSCO_ACK_LOCK) {
 #ifdef DEBUG
 				fprintf(stderr, "processing Ack Lock\n");
 #endif
-				if(processAckLock(pkt, ip, tcp, cmsg, cb_in)) {
+				switch(processAckLock(pkt, ip, tcp, cmsg, cb_in)) {
+				case TO_GATE_1:
 					out_gates[1].add(pkt);
 					continue;
-				} else {
-					//for debug
-					out_gates[0].add(pkt);
+				case SUCCESSFUL:
+					//out_gates[1].add(createAckLock(pkt, ip, tcp));
+					//start_reconfiguration...
+					out_gates[0].add(createAckLock(pkt, ip, tcp)); //debug
 					continue;
+				case ERROR:
+				default:
+					continue;
+
 				}
 			} else if (cmsg->lock_state == DYSCO_NACK_LOCK) {
 				fprintf(stderr, "processing Nack Lock\n");
@@ -1835,6 +1841,7 @@ bool DyscoAgentIn::processRequestLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoCont
 			tcp->seq_num = be32_t(rand());
 			tcp->flags |= Tcp::kAck;
 
+			cmsg->rightA = tcp->src_port.raw_value();
 			cmsg->lock_state = DYSCO_ACK_LOCK;
 			DyscoTcpSession ss;
 			ss.sip = cmsg->my_sub.dip;
@@ -1844,6 +1851,7 @@ bool DyscoAgentIn::processRequestLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoCont
 			cmsg->my_sub = ss;
 
 			if(cb_out->is_signaler) {
+				//if I'm the signaler, I must know leftSS and rightSS.
 				uint32_t* sc = reinterpret_cast<uint32_t*>(pkt->append(cb_out->sc_len * sizeof(uint32_t)));
 				if(!sc)
 					return false;
@@ -1877,7 +1885,7 @@ bool DyscoAgentIn::processRequestLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoCont
 	return false;
 }
 
-bool DyscoAgentIn::processAckLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoControlMessage* cmsg, DyscoHashIn* cb_in) {
+CONTROL_RETURN DyscoAgentIn::processAckLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoControlMessage* cmsg, DyscoHashIn* cb_in) {
 	DyscoHashOut* cb_out;
 	
 	cmsg->lhop--;
@@ -1897,7 +1905,7 @@ bool DyscoAgentIn::processAckLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoControlM
 #ifdef DEBUG
 		fprintf(stderr, "cb_out not found.\n");
 #endif
-		return false;
+		return ERROR;
 	}
 
 #ifdef DEBUG
@@ -1911,17 +1919,15 @@ bool DyscoAgentIn::processAckLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoControlM
 	switch(cb_out->lock_state) {
 	case DYSCO_CLOSED_LOCK:
 	case DYSCO_NACK_LOCK:
-		return false;
+		return ERROR;
 
 	case DYSCO_ACK_LOCK:
-		createAckLock(pkt, ip, tcp);
-			      
 	case DYSCO_REQUEST_LOCK:
 		if(cb_out->is_LA) {
 #ifdef DEBUG
 			fprintf(stderr, "I'm the LeftAnchor... starting reconfiguration\n");
 #endif
-			createAckLock(pkt, ip, tcp);
+			return SUCCESSFUL;
 		} else {
 #ifdef DEBUG
 			fprintf(stderr, "I'm not the LeftAnchor... forwarding the ACK_LOCK\n");
@@ -1935,18 +1941,30 @@ bool DyscoAgentIn::processAckLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoControlM
 			cmsg->my_sub = cb_out->sub;
 
 			if(cb_out->is_signaler) {
+				//If I'm the signaler, I must know leftSS and rightSS
 				uint32_t sc_sz = cb_out->sc_len * sizeof(uint32_t);
 				uint32_t* sc = reinterpret_cast<uint32_t*>(pkt->append(sc_sz));
 				if(!sc)
-					return false;
+					return ERROR;
 
 				memcpy(sc, cb_out->sc, sc_sz);
 				ip->length = ip->length + be16_t(sc_sz);
 #ifdef DEBUG
 				fprintf(stderr, "Going to append %d ip addresses.\n", cb_out->sc_len);
-				for(uint32_t i = 0; i < cb_out->sc_len; i++)
-					fprintf(stderr, "cb_out->sc[%u]=%s --- sc[%u]=%s\n", i, printIP(cb_out->sc[i]), i, printIP(sc[i]));
 #endif
+
+				DyscoTcpSession ss;
+				ss.sip = cb_in->my_sup.dip;
+				ss.dip = cb_in->my_sup.sip;
+				ss.sport = cb_in->my_sup.dport;
+				ss.dport = cb_in->my_sup.sport;
+				fprintf(stderr, "rightSS: %s\n", printSS(ss));
+
+				ss.sip = cb_out->dcb_in->my_sup.dip;
+				ss.dip = cb_out->dcb_in->my_sup.sip;
+				ss.sport = cb_out->dcb_in->my_sup.dport;
+				ss.dport = cb_out->dcb_in->my_sup.sport;
+				fprintf(stderr, "leftSS: %s\n", printSS(ss));				
 			}
 			
 			fix_csum(ip, tcp);
@@ -1956,19 +1974,14 @@ bool DyscoAgentIn::processAckLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoControlM
 			fprintf(stderr, "Changing lock_state field from DYSCO_REQUEST_LOCK to DYSCO_ACK_LOCK\n");
 #endif
 
-			PacketBatch out;
-			out.clear();
-			out.add(pkt);
-			cb_out->module->RunChooseModule(1, &out);
-		
-			return false;
+			return TO_GATE_1;
 		}
 	}
 	
-	return false;
+	return ERROR;
 }
 
-void DyscoAgentIn::createAckLock(Packet* pkt, Ipv4* ip, Tcp* tcp) {
+Packet* DyscoAgentIn::createAckLock(Packet* pkt, Ipv4* ip, Tcp* tcp) {
 #ifdef DEBUG
 	fprintf(stderr, "Going to create an ACK for SYN+ACK (DYSCO_ACK_LOCK).\n");
 #endif
@@ -2010,10 +2023,7 @@ void DyscoAgentIn::createAckLock(Packet* pkt, Ipv4* ip, Tcp* tcp) {
 
 	fix_csum(newip, newtcp);
 
-	PacketBatch out;
-	out.clear();
-	out.add(newpkt);
-	RunChooseModule(0, &out); //debug
+	return newpkt;
 }
 
 ADD_MODULE(DyscoAgentIn, "dysco_agent_in", "processes packets incoming to host")
