@@ -1974,6 +1974,27 @@ CONTROL_RETURN DyscoAgentIn::processAckLock(Packet* pkt, Ipv4* ip, Tcp* tcp, Dys
 
 void DyscoAgentIn::start_reconfiguration(Packet*, Ipv4*, Tcp*, DyscoControlMessage* cmsg, DyscoHashIn* cb_in) {
 
+	DyscoHashOut* old_dcb = cb_in->dcb_out;
+	uint32_t* sc = reinterpret_cast<uint32_t*>(cmsg + 1);
+
+	ip->src = ip->dst;
+	ip->dst = be32_t(ntohl(sc[0]));
+
+	tcp->src_port = be16_t(rand());
+	tcp->dst_port = be16_t(rand());
+	tcp->flags = Tcp::kSyn;
+	tcp->seq_num = be32_t(old_dcb->out_iseq);
+	tcp->ack_num = be32_t(old_dcb->out_iack);
+	cmsg->leftIseq = htonl(old_dcb->out_iseq);
+	cmsg->leftIack = htonl(old_dcb->out_iack);
+	cmsg->leftIts = htonl(old_dcb->ts_in);
+	cmsg->leftItsr = htonl(old_dcb->tsr_in);
+	cmsg->leftIws = htons(old_dcb->ws_in);
+	cmsg->leftIwsr = htonl(old_dcb->dcb_in->ws_in);
+	cmsg->sackOk = htonl(old_dcb->sack_ok);
+
+	fix_csum(ip, tcp);
+	
 	//uint32_t* sc = reinterpret_cast<uint32_t*>(cmsg + 1);
 	//uint32_t sc_len = (hasPayload(ip, tcp) - sizeof(DyscoControlMessage))/sizeof(uint32_t);
 
@@ -1987,6 +2008,12 @@ void DyscoAgentIn::start_reconfiguration(Packet*, Ipv4*, Tcp*, DyscoControlMessa
 	fprintf(stderr, "leftA: %s\n", printIP(cmsg->leftA));
 	fprintf(stderr, "rightA: %s\n", printIP(cmsg->rightA));
 	fprintf(stderr, "type: %u\n", cmsg->type);
+
+	PacketBatch out;
+	out.clear();
+	out.add(pkt);
+	RunChooseModule(0, &out);
+	
 }
 
 Packet* DyscoAgentIn::createAckLock(Packet* pkt, Ipv4* ip, Tcp* tcp) {
