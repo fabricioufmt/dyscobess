@@ -1992,6 +1992,7 @@ void DyscoAgentIn::start_reconfiguration(Packet*, Ipv4*, Tcp*, DyscoControlMessa
 	cmsg->leftIws = htons(old_dcb->ws_in);
 	cmsg->leftIwsr = htonl(old_dcb->dcb_in->ws_in);
 	cmsg->sackOk = htonl(old_dcb->sack_ok);
+	cmsg->type = DYSCO_RECONFIG;
 
 	fix_csum(ip, tcp);
 	
