@@ -1999,6 +1999,12 @@ void DyscoAgentIn::start_reconfiguration(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoC
 	tcp->flags = Tcp::kSyn;
 	tcp->seq_num = be32_t(old_dcb->out_iseq);
 	tcp->ack_num = be32_t(old_dcb->out_iack);
+
+
+	cmsg->my_sub.sip = ip->src.raw_value();
+	cmsg->my_sub.dip = ip->dst.raw_value();
+	cmsg->my_sub.sport = tcp->src_port.raw_value();
+	cmsg->my_sub.dport = tcp->dst_port.raw_value();
 	cmsg->leftIseq = htonl(old_dcb->out_iseq);
 	cmsg->leftIack = htonl(old_dcb->out_iack);
 	cmsg->leftIts = htonl(old_dcb->ts_in);
@@ -2017,7 +2023,7 @@ void DyscoAgentIn::start_reconfiguration(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoC
 	fprintf(stderr, "cb_in->dcb_out->sub: %s\n", printSS(cb_in->dcb_out->sub));
 	
 	fprintf(stderr, "my_sub: %s\n", printSS(cmsg->my_sub));
-	fprintf(stderr, "super: %s\n", printSS(cmsg->super ));
+	fprintf(stderr, "super: %s\n", printSS(cmsg->super));
 	fprintf(stderr, "leftSS: %s\n", printSS(cmsg->leftSS));
 	fprintf(stderr, "rightSS: %s\n", printSS(cmsg->rightSS));
 	fprintf(stderr, "leftA: %s\n", printIP(cmsg->leftA));
