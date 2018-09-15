@@ -193,3 +193,5 @@ os.system('ip netns exec RA tcpdump -i RA-0 arp or icmp or tcp -n -XX -w /home/f
 os.system('ip netns exec RA tcpdump -i RA-1 arp or icmp or tcp -n -XX -w /home/fabricio/RA_1.pcap & 2> /dev/null')
 os.system('ip netns exec m1 tcpdump -i m1-0 arp or icmp or tcp -n -XX -w /home/fabricio/m1_0.pcap & 2> /dev/null')
 os.system('ip netns exec m1 tcpdump -i m1-1 arp or icmp or tcp -n -XX -w /home/fabricio/m1_1.pcap & 2> /dev/null')
+os.system('ip netns exec m2 tcpdump -i m2-0 arp or icmp or tcp -n -XX -w /home/fabricio/m2_0.pcap & 2> /dev/null')
+os.system('ip netns exec m2 tcpdump -i m2-1 arp or icmp or tcp -n -XX -w /home/fabricio/m2_1.pcap & 2> /dev/null')

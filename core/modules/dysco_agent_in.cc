@@ -258,10 +258,17 @@ bool DyscoAgentIn::isReconfigPacket(Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
 	if(isTCPSYN(tcp, true)) {
 		if(!cb_in) {
 			if(payload_len) {
+				/*
 				uint32_t tcp_hlen = tcp->offset << 2;
 				
 				if(((uint8_t*)tcp + tcp_hlen)[payload_len - 1] == 0xFF)
 					return true;
+				*/
+				DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>(((uint8_t*)tcp) + (tcp->offset << 2) + 1);
+				if(!cmsg)
+					return false;
+
+				return cmsg->type == DYSCO_RECONFIG;
 			}
 
 			return false;
@@ -1977,6 +1984,12 @@ void DyscoAgentIn::start_reconfiguration(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoC
 	DyscoHashOut* old_dcb = cb_in->dcb_out;
 	uint32_t* sc = reinterpret_cast<uint32_t*>(cmsg + 1);
 
+	//should ARP
+	Ethernet* eth = pkt->head_data<Ethernet*>();
+	Ethernet::Address addr = eth->dst_addr;
+	eth->dst_addr = eth->src_addr;
+	eth->src_addr = addr;
+	
 	ip->ttl = 53;
 	ip->src = ip->dst;
 	ip->dst = be32_t(ntohl(sc[0]));
@@ -2014,8 +2027,7 @@ void DyscoAgentIn::start_reconfiguration(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoC
 	PacketBatch out;
 	out.clear();
 	out.add(pkt);
-	RunChooseModule(0, &out);
-	
+	RunChooseModule(1, &out);	
 }
 
 Packet* DyscoAgentIn::createAckLock(Packet* pkt, Ipv4* ip, Tcp* tcp) {
