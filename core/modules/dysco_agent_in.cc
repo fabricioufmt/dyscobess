@@ -189,6 +189,9 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 			fprintf(stderr, "It isn't locking packet\n");
 		
 		if(!isReconfigPacket(ip, tcp, cb_in)) {
+#ifdef DEBUG
+			fprintf(stderr, "It isn't reconfig packet\n");
+#endif
 			switch(input(pkt, ip, tcp, cb_in)) {
 			case TO_GATE_0:
 				out_gates[0].add(pkt);
@@ -206,6 +209,9 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 #endif
 			
 		} else {
+#ifdef DEBUG
+			fprintf(stderr, "It is reconfig packet\n");
+#endif
 			switch(control_input(pkt, ip, tcp, cb_in)) {
 			case TO_GATE_0:
 				out_gates[0].add(pkt);
@@ -267,7 +273,9 @@ bool DyscoAgentIn::isReconfigPacket(Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
 				DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>(((uint8_t*)tcp) + (tcp->offset << 2) + 1);
 				if(!cmsg)
 					return false;
-
+#ifdef DEBUG
+				fprintf(stderr, "cmsg->type == %u\n", cmsg->type);
+#endif
 				return cmsg->type == DYSCO_RECONFIG;
 			}
 
