@@ -925,7 +925,7 @@ inline bool parse_tcp_syn_opt_r(Tcp* tcp, DyscoHashIn* cb_in) {
 	return true;
 }
 
-inline DyscoHashIn* insert_cb_out_reverse(DyscoHashOut* cb_out, uint8_t two_paths, DyscoControlMessage* cmsg) {
+inline DyscoHashIn* insert_cb_out_reverse(DyscoHashOut* cb_out, uint8_t two_paths, DyscoControlMessage* cmsg = 0) {
 	DyscoHashIn* cb_in = new DyscoHashIn();
 
 	cb_in->sub.sip = cb_out->sub.dip;
