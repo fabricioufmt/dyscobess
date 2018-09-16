@@ -118,14 +118,10 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 					continue;
 				}
 
-#ifdef DEBUG
-				fprintf(stderr, "cb_in: %p and cb_out: %p\n", cb_in->module, cb_out->module);
-#endif
-				
 				eth->src_addr = cb_out->mac_sub.src_addr;
 				eth->dst_addr = cb_out->mac_sub.dst_addr;
-				hdr_rewrite(ip, tcp, &cb_out->sub);
-				fix_csum(ip, tcp); //should be incremental checksum
+				hdr_rewrite_csum(ip, tcp, &cb_out->sub);
+				tcp->checksum++; //due (*lhop)--
 
 #ifdef DEBUG
 				fprintf(stderr, "forwarding to %s\n\n",printSS(cb_out->sub));
@@ -165,10 +161,10 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 					out_gates[1].add(pkt);
 					continue;
 				case LOCK_SUCCESSFUL:
-					out_gates[1].add(createAckLock(pkt, ip, tcp));
-					//out_gates[0].add(createAckLock(pkt, ip, tcp)); //debug
+					//out_gates[1].add(createAckLock(pkt, ip, tcp));
+					out_gates[0].add(createAckLock(pkt, ip, tcp)); //debug
 					start_reconfiguration(pkt, ip, tcp, cmsg, cb_in);
-					//out_gates[0].add(pkt); //debug
+					out_gates[0].add(pkt); //debug
 					
 					continue;
 				case NONE:
