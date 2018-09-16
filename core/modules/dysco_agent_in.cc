@@ -272,9 +272,7 @@ bool DyscoAgentIn::isReconfigPacket(Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
 				DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>(((uint8_t*)tcp) + tcp_hlen);
 				if(!cmsg)
 					return false;
-#ifdef DEBUG
-				fprintf(stderr, "cmsg->type == %u\n", cmsg->type);
-#endif
+				
 				return cmsg->type == DYSCO_RECONFIG;
 			}
 
@@ -800,10 +798,10 @@ DyscoCbReconfig* DyscoAgentIn::insert_rcb_control_input(Ipv4* ip, Tcp* tcp, Dysc
 	rcb->super = cmsg->rightSS;
 	rcb->leftSS = cmsg->leftSS;
 	rcb->rightSS = cmsg->rightSS;
-	rcb->sub_in.sip = htonl(ip->src.value());
-	rcb->sub_in.dip = htonl(ip->dst.value());
-	rcb->sub_in.sport = htons(tcp->src_port.value());
-	rcb->sub_in.dport = htons(tcp->dst_port.value());
+	rcb->sub_in.sip = ip->src.raw_value();
+	rcb->sub_in.dip = ip->dst.raw_value();
+	rcb->sub_in.sport = tcp->src_port.raw_value();
+	rcb->sub_in.dport = tcp->dst_port.raw_value();
 	rcb->sub_out.sip = 0;
 
 	rcb->leftIseq = ntohl(cmsg->leftIseq);
@@ -1130,8 +1128,7 @@ CONTROL_RETURN DyscoAgentIn::control_reconfig_in(bess::Packet* pkt, Ipv4* ip, Tc
 	cb_in->my_sup.sport = leftSS->sport;
 	cb_in->my_sup.dport = leftSS->dport;
 	
-	uint32_t sc_len = (payload_sz - 1 - sizeof(DyscoControlMessage))/sizeof(uint32_t);
-	//-1 is because 0xFF byte for reconfig tag
+	uint32_t sc_len = (payload_sz - sizeof(DyscoControlMessage))/sizeof(uint32_t);
 	
 	if(sc_len > 1) {
 #ifdef DEBUG
