@@ -925,4 +925,44 @@ inline bool parse_tcp_syn_opt_r(Tcp* tcp, DyscoHashIn* cb_in) {
 	return true;
 }
 
+inline DyscoHashIn* insert_cb_out_reverse(DyscoHashOut* cb_out, uint8_t two_paths, DyscoControlMessage* cmsg) {
+	DyscoHashIn* cb_in = new DyscoHashIn();
+
+	cb_in->sub.sip = cb_out->sub.dip;
+	cb_in->sub.dip = cb_out->sub.sip;
+	cb_in->sub.sport = cb_out->sub.dport;
+	cb_in->sub.dport = cb_out->sub.sport;
+
+	cb_in->my_sup.sip = cb_out->sup.dip;
+	cb_in->my_sup.dip = cb_out->sup.sip;
+	cb_in->my_sup.sport = cb_out->sup.dport;
+	cb_in->my_sup.dport = cb_out->sup.sport;
+
+	cb_in->in_iack = cb_in->out_iack = cb_out->out_iseq;
+	cb_in->in_iseq = cb_in->out_iseq = cb_out->out_iack;
+
+	cb_in->seq_delta = cb_in->ack_delta = 0;
+	cb_in->ts_ok = cb_out->ts_ok;
+	cb_in->ts_in = cb_in->ts_out = cb_out->tsr_in;
+	cb_in->ts_delta = 0;
+	cb_in->tsr_in = cb_in->tsr_out = cb_out->ts_in;
+	cb_in->tsr_delta = 0;
+	cb_in->ws_ok = cb_out->ws_ok;
+	cb_in->ws_in = cb_in->ws_out = cb_out->ws_in;
+	cb_in->ws_delta = 0;
+	cb_in->sack_ok = cb_out->sack_ok;
+	cb_in->two_paths = two_paths;
+
+	if(cmsg)
+		memcpy(&cb_in->cmsg, cmsg, sizeof(DyscoControlMessage));
+
+	if(two_paths == 1) {
+		cb_in->is_reconfiguration = 1;
+	}
+	
+	cb_in->dcb_out = cb_out;
+	
+	return cb_in;
+}
+
 #endif //BESS_MODULES_DYSCOUTIL_H_

@@ -584,6 +584,7 @@ bool DyscoAgentOut::output_syn(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb
 		}
 
 		cb_out->dcb_in = insert_cb_out_reverse(cb_out, 0);
+		dc->insert_hash_input(this->index, cb_out->dcb_in);
 	}
 	cb_out->module = this;
 	cb_out->seq_cutoff = tcp->seq_num.value();
@@ -658,6 +659,7 @@ bool DyscoAgentOut::output_mb(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_
 		return false;
 
 	cb_out->dcb_in = insert_cb_out_reverse(cb_out, 0);
+	dc->insert_hash_input(this->index, cb_out->dcb_in);
 	
 	hdr_rewrite(ip, tcp, &cb_out->sub);
 
@@ -765,7 +767,8 @@ bool DyscoAgentOut::control_insert_out(DyscoCbReconfig* rcb) {
 		return false;
 	}
 	
-	cb_out->dcb_in = insert_cb_out_reverse(cb_out, 0);	
+	cb_out->dcb_in = insert_cb_out_reverse(cb_out, 0);
+	dc->insert_hash_input(this->index, cb_out->dcb_in);
 
 	DyscoHashIn* cb_in = cb_out->dcb_in;
 	cb_in->ts_in = cb_in->ts_out = cb_out->tsr_out;
@@ -892,6 +895,7 @@ bool DyscoAgentOut::control_output(Ipv4* ip, Tcp* tcp) {
 		old_dcb->other_path = new_dcb;
 		new_dcb->other_path = old_dcb;
 		new_dcb->dcb_in = insert_cb_out_reverse(new_dcb, 1, cmsg);
+		dc->insert_hash_input(this->index, new_dcb->dcb_in);
 
 		if(new_dcb->dcb_in) {
 			new_dcb->dcb_in->is_reconfiguration = 1;
@@ -926,52 +930,6 @@ bool DyscoAgentOut::control_output(Ipv4* ip, Tcp* tcp) {
 
 	return true;
 }
-
-DyscoHashIn* DyscoAgentOut::insert_cb_out_reverse(DyscoHashOut* cb_out, uint8_t two_paths, DyscoControlMessage* cmsg) {
-	DyscoHashIn* cb_in = new DyscoHashIn();
-
-	cb_in->sub.sip = cb_out->sub.dip;
-	cb_in->sub.dip = cb_out->sub.sip;
-	cb_in->sub.sport = cb_out->sub.dport;
-	cb_in->sub.dport = cb_out->sub.sport;
-
-	cb_in->my_sup.sip = cb_out->sup.dip;
-	cb_in->my_sup.dip = cb_out->sup.sip;
-	cb_in->my_sup.sport = cb_out->sup.dport;
-	cb_in->my_sup.dport = cb_out->sup.sport;
-
-	cb_in->in_iack = cb_in->out_iack = cb_out->out_iseq;
-	cb_in->in_iseq = cb_in->out_iseq = cb_out->out_iack;
-
-	cb_in->seq_delta = cb_in->ack_delta = 0;
-	cb_in->ts_ok = cb_out->ts_ok;
-	cb_in->ts_in = cb_in->ts_out = cb_out->tsr_in;
-	cb_in->ts_delta = 0;
-	cb_in->tsr_in = cb_in->tsr_out = cb_out->ts_in;
-	cb_in->tsr_delta = 0;
-	cb_in->ws_ok = cb_out->ws_ok;
-	cb_in->ws_in = cb_in->ws_out = cb_out->ws_in;
-	cb_in->ws_delta = 0;
-	cb_in->sack_ok = cb_out->sack_ok;
-	cb_in->two_paths = two_paths;
-
-	if(cmsg)
-		memcpy(&cb_in->cmsg, cmsg, sizeof(DyscoControlMessage));
-
-	if(two_paths == 1) {
-		cb_in->is_reconfiguration = 1;
-	}
-	
-	cb_in->dcb_out = cb_out;
-
-	dc->insert_hash_input(this->index, cb_in);
-	
-	return cb_in;
-}
-
-
-
-
 
 ADD_MODULE(DyscoAgentOut, "dysco_agent_out", "processes packets outcoming from host")
 

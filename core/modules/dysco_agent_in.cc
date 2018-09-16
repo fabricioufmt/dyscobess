@@ -2004,7 +2004,6 @@ void DyscoAgentIn::start_reconfiguration(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoC
 	tcp->seq_num = be32_t(old_dcb->out_iseq);
 	tcp->ack_num = be32_t(old_dcb->out_iack);
 
-
 	cmsg->my_sub.sip = ip->src.raw_value();
 	cmsg->my_sub.dip = ip->dst.raw_value();
 	cmsg->my_sub.sport = tcp->src_port.raw_value();
@@ -2019,6 +2018,79 @@ void DyscoAgentIn::start_reconfiguration(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoC
 	cmsg->type = DYSCO_RECONFIG;
 
 	fix_csum(ip, tcp);
+
+	DyscoCbReconfig* rcb = new DyscoCbReconfig();
+
+	rcb->super = cmsg->super;
+	rcb->sub_out.sip = ip->src.raw_value();
+	rcb->sub_out.dip = ip->dst.raw_value();
+	rcb->sub_out.sport = tcp->src_port.raw_value();
+	rcb->sub_out.dport = tcp->dst_port.raw_value();
+	
+	rcb->leftIseq = old_dcb->out_iseq;
+	rcb->leftIack = old_dcb->out_iack;
+	rcb->leftIts = old_dcb->ts_in;
+	rcb->leftItsr = old_dcb->tsr_in;
+	rcb->leftIws = old_dcb->ws_in;
+	rcb->leftIwsr = old_dcb->dcb_in->ws_in;
+	rcb->sack_ok =old_dcb->sack_ok;
+
+	if(!dc->insert_hash_reconfig(this->index, rcb))
+		return;
+
+
+	DyscoHashOut* new_dcb = new DyscoHashOut();
+
+	rcb->old_dcb = old_dcb;
+	rcb->new_dcb = new_dcb;
+
+	new_dcb->sup = rcb->super;
+	new_dcb->sub = rcb->sub_out;
+
+	new_dcb->in_iack = old_dcb->in_iack;
+	new_dcb->out_iseq = old_dcb->out_iseq;
+	new_dcb->out_iack = old_dcb->out_iack;
+		
+	new_dcb->ts_out = new_dcb->ts_in = rcb->leftIts;
+	new_dcb->tsr_out = new_dcb->tsr_in = rcb->leftItsr;
+
+	new_dcb->ws_out = new_dcb->ws_in = rcb->leftIws;
+
+	new_dcb->ts_ok = rcb->leftIts? 1 : 0;
+	new_dcb->ws_ok = rcb->leftIws? 1 : 0;
+
+	new_dcb->sack_ok = rcb->sack_ok;
+
+	old_dcb->other_path = new_dcb;
+	new_dcb->other_path = old_dcb;
+	new_dcb->dcb_in = insert_cb_out_reverse(new_dcb, 1, cmsg);
+	dc->insert_hash_input(this->index, new_dcb->dcb_in);
+
+	new_dcb->dcb_in->is_reconfiguration = 1;
+		
+	memcpy(&new_dcb->cmsg, cmsg, sizeof(DyscoControlMessage));
+	new_dcb->is_reconfiguration = 1;
+
+	old_dcb->old_path = 1;
+	//TEST
+	if(old_dcb->dcb_in)
+		old_dcb->dcb_in->two_paths = 1;
+
+	if(ntohs(cmsg->semantic) == STATE_TRANSFER)
+		old_dcb->state_t = 1;
+
+	new_dcb->state = DYSCO_SYN_SENT;
+
+
+
+
+
+
+
+
+
+
+	
 	
 	//uint32_t* sc = reinterpret_cast<uint32_t*>(cmsg + 1);
 	//uint32_t sc_len = (hasPayload(ip, tcp) - sizeof(DyscoControlMessage))/sizeof(uint32_t);
