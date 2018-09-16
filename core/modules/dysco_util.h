@@ -133,7 +133,7 @@ enum {
 #define DYSCO_LAST_ACK                  DYSCO_FINISHING_OLD_PATH
 #define DYSCO_CLOSED                    DYSCO_CLOSED_OLD_PATH
 */
-#define DEBUG                           1 
+//#define DEBUG                           1 
 #define TTL                             32
 #define PORT_RANGE                      65536
 #define CNTLIMIT                        1
