@@ -57,7 +57,7 @@ int main(int argc, char** argv) {
 	}
 
 	printf("%s:%u -> %s:%s Connected.\n", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port), argv[1], argv[2]);
-
+	/*
 	struct tcp_session super;
 	super.sip = client_addr.sin_addr.s_addr;
 	super.dip = inet_addr(argv[1]);
@@ -80,7 +80,7 @@ int main(int argc, char** argv) {
 		}
 	} else
 		printf("Failed to create socket.\n");
-
+	*/
 	int val;
 	while(1) {
 		read(sockfd, &val, sizeof(int));
