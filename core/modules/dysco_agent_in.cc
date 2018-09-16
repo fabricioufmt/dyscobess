@@ -182,10 +182,6 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 			}
 			
 			break;
-		} else {
-#ifdef DEBUG
-			fprintf(stderr, "It isn't locking packet\n");
-#endif
 		}
 		
 		if(!isReconfigPacket(ip, tcp, cb_in)) {
