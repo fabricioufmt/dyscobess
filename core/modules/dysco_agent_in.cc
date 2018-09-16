@@ -92,8 +92,9 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 
 		tcpo = isLockSignalPacket(tcp);
 		if(tcpo && cb_in && cb_in->dcb_out) {
+#ifdef DEBUG
 			fprintf(stderr, "Receives Locking Signal Packet.\n");
-			
+#endif		
 			uint8_t* lhop = (uint8_t*)(&tcpo->padding) + 1;
 			(*lhop)--;
 			
@@ -181,8 +182,11 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 			}
 			
 			break;
-		} else
+		} else {
+#ifdef DEBUG
 			fprintf(stderr, "It isn't locking packet\n");
+#endif
+		}
 		
 		if(!isReconfigPacket(ip, tcp, cb_in)) {
 #ifdef DEBUG
@@ -465,10 +469,6 @@ bool DyscoAgentIn::rx_initiation_new(Packet* pkt, Ipv4* ip, Tcp* tcp, uint32_t p
 
 	memcpy(&cb_in->mac_sub, pkt->head_data<Ethernet*>(), sizeof(Ethernet));
 
-	fprintf(stderr, "copying MAC values(input)\n");
-	fprintf(stderr, "MAC SRC: %s\n", cb_in->mac_sub.src_addr.ToString().c_str());
-	fprintf(stderr, "MAC DST: %s\n", cb_in->mac_sub.dst_addr.ToString().c_str());
-	
 	DyscoTcpSession* neigh_supss = reinterpret_cast<DyscoTcpSession*>(payload);
 	DyscoTcpSession* neigh_subss = reinterpret_cast<DyscoTcpSession*>(payload + sizeof(DyscoTcpSession));
 
@@ -579,9 +579,6 @@ DyscoHashOut* DyscoAgentIn::insert_cb_in_reverse(DyscoHashIn* cb_in, Ipv4* ip, T
 
 	cb_out->mac_sub.src_addr = cb_in->mac_sub.dst_addr;
 	cb_out->mac_sub.dst_addr = cb_in->mac_sub.src_addr;
-	fprintf(stderr, "copying MAC values(output)\n");
-	fprintf(stderr, "MAC SRC: %s\n", cb_out->mac_sub.src_addr.ToString().c_str());
-	fprintf(stderr, "MAC DST: %s\n", cb_out->mac_sub.dst_addr.ToString().c_str());
 	
 	cb_out->in_iack = tcp->seq_num.value();
 	cb_out->out_iack = tcp->seq_num.value();
@@ -2092,9 +2089,9 @@ void DyscoAgentIn::start_reconfiguration(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoC
 	//uint32_t* sc = reinterpret_cast<uint32_t*>(cmsg + 1);
 	//uint32_t sc_len = (hasPayload(ip, tcp) - sizeof(DyscoControlMessage))/sizeof(uint32_t);
 
+#ifdef DEBUG
 	fprintf(stderr, "cb_in->dcb_out->sup: %s\n", printSS(cb_in->dcb_out->sup));
 	fprintf(stderr, "cb_in->dcb_out->sub: %s\n", printSS(cb_in->dcb_out->sub));
-	
 	fprintf(stderr, "my_sub: %s\n", printSS(cmsg->my_sub));
 	fprintf(stderr, "super: %s\n", printSS(cmsg->super));
 	fprintf(stderr, "leftSS: %s\n", printSS(cmsg->leftSS));
@@ -2102,7 +2099,8 @@ void DyscoAgentIn::start_reconfiguration(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoC
 	fprintf(stderr, "leftA: %s\n", printIP(cmsg->leftA));
 	fprintf(stderr, "rightA: %s\n", printIP(cmsg->rightA));
 	fprintf(stderr, "type: %u\n", cmsg->type);
-
+#endif
+	
 	PacketBatch out;
 	out.clear();
 	out.add(pkt);

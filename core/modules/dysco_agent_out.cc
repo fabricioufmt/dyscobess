@@ -572,10 +572,6 @@ bool DyscoAgentOut::output_syn(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb
 		}
 
 		memcpy(&cb_out->mac_sub, pkt->head_data<Ethernet*>(), sizeof(Ethernet));
-
-		fprintf(stderr, "copying MAC values\n");
-		fprintf(stderr, "MAC SRC: %s\n", cb_out->mac_sub.src_addr.ToString().c_str());
-		fprintf(stderr, "MAC DST: %s\n", cb_out->mac_sub.dst_addr.ToString().c_str());
 		
 		if(!dc->insert_hash_output(this->index, cb_out)) {
 			delete cb_out;
@@ -665,10 +661,6 @@ bool DyscoAgentOut::output_mb(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_
 
 	memcpy(&cb_out->mac_sub, pkt->head_data<Ethernet*>(), sizeof(Ethernet));
 
-	fprintf(stderr, "copying MAC values(output)\n");
-	fprintf(stderr, "MAC SRC: %s\n", cb_out->mac_sub.src_addr.ToString().c_str());
-	fprintf(stderr, "MAC DST: %s\n", cb_out->mac_sub.dst_addr.ToString().c_str());
-	
 	if(cb_out->tag_ok) {
 		remove_tag(pkt, ip, tcp);
 	}
