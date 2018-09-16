@@ -264,13 +264,12 @@ bool DyscoAgentIn::isReconfigPacket(Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
 	if(isTCPSYN(tcp, true)) {
 		if(!cb_in) {
 			if(payload_len) {
-				/*
 				uint32_t tcp_hlen = tcp->offset << 2;
-				
+				/*
 				if(((uint8_t*)tcp + tcp_hlen)[payload_len - 1] == 0xFF)
 					return true;
 				*/
-				DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>(((uint8_t*)tcp) + (tcp->offset << 2) + 1);
+				DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>(((uint8_t*)tcp) + tcp_hlen);
 				if(!cmsg)
 					return false;
 #ifdef DEBUG
