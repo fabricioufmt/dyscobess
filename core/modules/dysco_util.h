@@ -406,6 +406,9 @@ class DyscoHashOut {
 	uint32_t seq_cutoff;
 	uint32_t ack_cutoff;
 
+	uint32_t last_seq;
+	uint32_t last_ack;
+	
 	uint32_t* sc;
 	uint32_t sc_len;
 	DyscoHashOut* other_path;

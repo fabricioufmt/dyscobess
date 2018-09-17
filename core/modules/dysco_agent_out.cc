@@ -323,12 +323,15 @@ DyscoHashOut* DyscoAgentOut::pick_path_ack(Tcp* tcp, DyscoHashOut* cb_out) {
 }
 
 //L.585
-void DyscoAgentOut::out_translate(bess::Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) {
+void DyscoAgentOut::out_translate(Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) {
 	size_t ip_hlen = ip->header_length << 2;
 	size_t tcp_hlen = tcp->offset << 2;
 	uint32_t seg_sz = ip->length.value() - ip_hlen - tcp_hlen;
 	uint32_t seq = tcp->seq_num.value() + seg_sz;
 
+	cb_out->last_seq = tcp->seq_num.raw_value();
+	cb_out->last_ack = tcp->ack_num.raw_value();
+	
 	DyscoHashOut* cb = cb_out;
 	DyscoHashOut* other_path = cb_out->other_path;
 	if(!other_path) {
@@ -350,6 +353,9 @@ void DyscoAgentOut::out_translate(bess::Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOu
 		fprintf(stderr, "other_path\n");
 		fprintf(stderr, "other_path->state: %d\n", other_path->state);
 #endif
+		other_path->last_seq = tcp->seq_num.raw_value();
+		other_path->last_ack = tcp->ack_num.raw_value();
+		
 		if(other_path->state == DYSCO_ESTABLISHED) {
 			if(isTCPFIN(tcp))
 				other_path->state = DYSCO_FIN_WAIT_1;
@@ -498,6 +504,8 @@ bool DyscoAgentOut::output_syn(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb
 		dc->insert_hash_input(this->index, cb_out->dcb_in);
 	}
 	cb_out->module = this;
+	cb_out->last_seq = tcp->seq_num.raw_value();
+	cb_out->last_ack = tcp->ack_num.raw_value();
 	cb_out->seq_cutoff = tcp->seq_num.value();
 	parse_tcp_syn_opt_s(tcp, cb_out);
 	
@@ -583,6 +591,9 @@ bool DyscoAgentOut::output_mb(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_
 	add_sc(pkt, ip, tcp, cb_out);
 	fix_csum(ip, tcp);
 
+	cb_out->last_seq = tcp->seq_num.raw_value();
+	cb_out->last_ack = tcp->ack_num.raw_value();
+	
 	return true;
 }
 
@@ -917,10 +928,13 @@ bool DyscoAgentOut::processLockingSignalPacket(Packet* pkt, Ethernet* eth, Ipv4*
 	} else {
 #ifdef DEBUG
 		fprintf(stderr, "I'm not the LeftAnchor\n");
-		fprintf(stderr, "forwardin to %s\n\n", printSS(cb_out->sub));
+		fprintf(stderr, "Changing seq_num from %X to %X\n", tcp->seq_num.raw_value(), cb_out->last_seq);
+		fprintf(stderr, "Changing ack_num from %X to %X\n", tcp->ack_num.raw_value(), cb_out->last_ack);
+		fprintf(stderr, "Forwarding to %s\n\n", printSS(cb_out->sub));
 #endif
 				
 		hdr_rewrite_csum(ip, tcp, &cb_out->sub);
+		
 	}
 	
 	return true;	
