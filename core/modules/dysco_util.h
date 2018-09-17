@@ -652,7 +652,7 @@ inline void* getPayload(Tcp* tcp) {
 	return reinterpret_cast<void*>(reinterpret_cast<char*>(tcp) + (tcp->offset << 2));
 }
 
-inline bool isLockSignalPacket(Tcp* tcp) {
+inline bool isLockingSignalPacket(Tcp* tcp) {
 	if(tcp->offset < 6)
 		return false;
 

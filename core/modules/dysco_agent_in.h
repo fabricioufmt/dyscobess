@@ -101,7 +101,7 @@ class DyscoAgentIn final : public Module {
 	CONTROL_RETURN processRequestLocking(Packet*, Ipv4*, Tcp*, DyscoControlMessage*, DyscoHashIn*);
 
 	Packet* createAckLocking(Packet*, Ipv4*, Tcp*);
-	void startReconfiguration(Packet*, Ipv4*, Tcp*);
+	void startReconfiguration(Packet*, Ethernet*, Ipv4*, Tcp*);
 };
 
 #endif //BESS_MODULES_DYSCOAGENTIN_H_

@@ -94,7 +94,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 #ifdef DEBUG
 			fprintf(stderr, "Receives Locking Signal Packet.\n");
 #endif
-			if(processLockSignalPacket(pkt, eth, ip, tcp, cb_in)) {
+			if(processLockingSignalPacket(pkt, eth, ip, tcp, cb_in)) {
 				out_gates[1].add(pkt);
 				continue;
 			}
