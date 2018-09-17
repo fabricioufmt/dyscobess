@@ -71,7 +71,7 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 		fprintf(stderr, "[%s][DyscoAgentOut] receives %s [%X:%X]\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.value(), tcp->ack_num.value());
 #endif
 		cb_out = dc->lookup_output(this->index, ip, tcp);
-		removed = dc->processReceivedPacket(this->index, devip, pkt);
+		removed = dc->processReceivedPacket(this->index, devip, tcp);
 		
 		if(isLockingSignalPacket(tcp)) {
 #ifdef DEBUG
