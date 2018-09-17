@@ -1684,7 +1684,7 @@ bool DyscoAgentIn::processLockingSignalPacket(Packet* pkt, Ethernet* eth, Ipv4* 
 	if(!cb_in)
 		return false;
 
-	DyscoTcpOption* tcpo = reinterpret_cast<DyscoTcpOption*>(tcp + 1);
+	DyscoTcpOption* tcpo = reinterpret_cast<DyscoTcpOption*>((uint8_t*)tcp + 20);
 	uint8_t* lhop = (uint8_t*)(&tcpo->padding) + 1;
 	(*lhop)--;
 	tcp->checksum++;

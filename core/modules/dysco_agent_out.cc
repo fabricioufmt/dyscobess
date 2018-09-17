@@ -857,7 +857,7 @@ bool DyscoAgentOut::processLockingSignalPacket(Packet* pkt, Ethernet* eth, Ipv4*
 	fprintf(stderr, "State: %d.\n", cb_out->state);
 	fprintf(stderr, "Lock State: %d.\n", cb_out->lock_state);
 #endif
-			
+	DyscoTcpOption* tcpo = reinterpret_cast<DyscoTcpOption*>((uint8_t*)tcp + 20);	
 	uint32_t sc_sz = hasPayload(ip, tcp) - sizeof(DyscoControlMessage);
 	DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>(getPayload(tcp));
 			
