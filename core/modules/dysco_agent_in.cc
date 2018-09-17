@@ -1764,7 +1764,7 @@ CONTROL_RETURN DyscoAgentIn::processLockingPacket(Packet* pkt, Ethernet* eth, Ip
 
 
 
-bool DyscoAgentIn::processRequestLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoControlMessage* cmsg, DyscoHashIn* cb_in) {
+CONTROL_RETURN DyscoAgentIn::processRequestLocking(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoControlMessage* cmsg, DyscoHashIn* cb_in) {
 	DyscoHashOut* cb_out;
 	
 	cmsg->rhop--;
@@ -1784,7 +1784,7 @@ bool DyscoAgentIn::processRequestLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoCont
 #ifdef DEBUG
 		fprintf(stderr, "cb_out not found\n");
 #endif
-		return false;
+		return ERROR;
 	}
 
 #ifdef DEBUG
@@ -1822,7 +1822,7 @@ bool DyscoAgentIn::processRequestLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoCont
 			out.add(pkt);
 			cb_out->module->RunChooseModule(1, &out);
 		
-			return false;
+			return NONE;
 		} else {
 			Ethernet* eth = pkt->head_data<Ethernet*>();		
 			Ethernet::Address macswap = eth->dst_addr;
@@ -1858,7 +1858,7 @@ bool DyscoAgentIn::processRequestLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoCont
 				//if I'm the signaler, I must know leftSS and rightSS.
 				uint32_t* sc = reinterpret_cast<uint32_t*>(pkt->append(cb_out->sc_len * sizeof(uint32_t)));
 				if(!sc)
-					return false;
+					return ERROR;
 
 				memcpy(sc, cb_out->sc, cb_out->sc_len * sizeof(uint32_t));
 #ifdef DEBUG
@@ -1877,19 +1877,19 @@ bool DyscoAgentIn::processRequestLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoCont
 			cb_out->is_RA = 1;
 			cb_out->lock_state = DYSCO_ACK_LOCK;
 			
-			return true;
+			return TO_GATE_1;
 		}
 
-		return false;
+		return NONE;
 	case DYSCO_ACK_LOCK:
 		//should reply a NACK message?
-		return false;
+		return NONE;
 	}
 	
-	return false;
+	return NONE;
 }
 
-CONTROL_RETURN DyscoAgentIn::processAckLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoControlMessage* cmsg, DyscoHashIn* cb_in) {
+CONTROL_RETURN DyscoAgentIn::processAckLocking(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoControlMessage* cmsg, DyscoHashIn* cb_in) {
 	DyscoHashOut* cb_out;
 	
 	cmsg->lhop--;
@@ -2126,7 +2126,7 @@ void DyscoAgentIn::startReconfiguration(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 	RunChooseModule(1, &out);	
 }
 
-Packet* DyscoAgentIn::createAckLock(Packet* pkt, Ipv4* ip, Tcp* tcp) {
+Packet* DyscoAgentIn::createAckLocking(Packet* pkt, Ipv4* ip, Tcp* tcp) {
 #ifdef DEBUG
 	fprintf(stderr, "Going to create an ACK for SYN+ACK (DYSCO_ACK_LOCK).\n");
 #endif

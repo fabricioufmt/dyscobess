@@ -95,11 +95,13 @@ class DyscoAgentIn final : public Module {
 	void createFinAck(Packet*, Ipv4*, Tcp*);
 
 	void createLockingPacket(Packet*, Ipv4*, Tcp*, DyscoTcpOption*, DyscoHashIn*);
-	CONTROL_RETURN processAckLock(Packet*, Ipv4*, Tcp*, DyscoControlMessage*, DyscoHashIn*);
-	bool processRequestLock(Packet*, Ipv4*, Tcp*, DyscoControlMessage*, DyscoHashIn*);
+	CONTROL_RETURN processLockingPacket(Packet*, Ethernet*, Ipv4*, Tcp*);
+	CONTROL_RETURN processLockingSignalPacket(Packet*, Ethernet*, Ipv4*, Tcp*, DyscoHashIn*);
+	CONTROL_RETURN processAckLocking(Packet*, Ipv4*, Tcp*, DyscoControlMessage*, DyscoHashIn*);
+	CONTROL_RETURN processRequestLocking(Packet*, Ipv4*, Tcp*, DyscoControlMessage*, DyscoHashIn*);
 
-	Packet* createAckLock(Packet*, Ipv4*, Tcp*);
-	void start_reconfiguration(Packet*, Ipv4*, Tcp*, DyscoControlMessage*, DyscoHashIn*);
+	Packet* createAckLocking(Packet*, Ipv4*, Tcp*);
+	void startReconfiguration(Packet*, Ipv4*, Tcp*);
 };
 
 #endif //BESS_MODULES_DYSCOAGENTIN_H_
