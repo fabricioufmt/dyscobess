@@ -49,10 +49,6 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 	size_t ip_hlen;
 	DyscoHashOut* cb_out;
 
-	uint32_t sc_sz;
-	DyscoTcpOption* tcpo;
-	DyscoControlMessage* cmsg;
-
 	for(int i = 0; i < batch->cnt(); i++) {
 		pkt = batch->pkts()[i];
 		
@@ -920,14 +916,8 @@ bool DyscoAgentOut::processLockingSignalPacket(Packet* pkt, Ethernet* eth, Ipv4*
 				
 		hdr_rewrite_csum(ip, tcp, &cb_out->sub);
 	}
-
-	return true;
-}
-
-
-
-
 	
+	return true;	
 }
 
 ADD_MODULE(DyscoAgentOut, "dysco_agent_out", "processes packets outcoming from host")
