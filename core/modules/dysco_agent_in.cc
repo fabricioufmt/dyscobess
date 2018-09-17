@@ -1761,7 +1761,7 @@ CONTROL_RETURN DyscoAgentIn::processLockingPacket(Packet* pkt, Ethernet* eth, Ip
 
 
 
-CONTROL_RETURN DyscoAgentIn::processRequestLocking(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoControlMessage* cmsg, DyscoHashIn* cb_in) {
+CONTROL_RETURN DyscoAgentIn::processRequestLocking(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp, DyscoControlMessage* cmsg, DyscoHashIn* cb_in) {
 	DyscoHashOut* cb_out;
 	
 	cmsg->rhop--;
@@ -1884,7 +1884,7 @@ CONTROL_RETURN DyscoAgentIn::processRequestLocking(Packet* pkt, Ipv4* ip, Tcp* t
 	return NONE;
 }
 
-CONTROL_RETURN DyscoAgentIn::processAckLocking(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoControlMessage* cmsg, DyscoHashIn* cb_in) {
+CONTROL_RETURN DyscoAgentIn::processAckLocking(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp, DyscoControlMessage* cmsg, DyscoHashIn* cb_in) {
 	DyscoHashOut* cb_out;
 	
 	cmsg->lhop--;
