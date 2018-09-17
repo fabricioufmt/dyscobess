@@ -88,6 +88,10 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 
 		cb_in = dc->lookup_input(this->index, ip, tcp);
 		removed = dc->processReceivedPacket(this->index, devip, tcp);
+#ifdef DEBUG
+		if(removed)
+			fprintf(stderr, "Removed a packet from retransmission list\n");
+#endif
 		
 		if(isLockingSignalPacket(tcp)) {
 #ifdef DEBUG
