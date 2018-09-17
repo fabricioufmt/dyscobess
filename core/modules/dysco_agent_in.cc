@@ -62,9 +62,6 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 	Ethernet* eth;
 	size_t ip_hlen;
 	DyscoHashIn* cb_in;
-	DyscoHashOut* cb_out;
-	DyscoTcpOption* tcpo;
-	DyscoControlMessage* cmsg;
 	
 	for(int i = 0; i < batch->cnt(); i++) {
 		pkt = batch->pkts()[i];
