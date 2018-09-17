@@ -596,7 +596,7 @@ inline uint32_t hasPayload(Ipv4* ip, Tcp* tcp) {
 inline uint32_t getValueToAck(Packet* pkt) {
 	Ethernet* eth = pkt->head_data<Ethernet*>();
 	Ipv4* ip = reinterpret_cast<Ipv4*>(eth + 1);
-	Tcp* tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + (ip->header_length << 2));
+	Tcp* tcp = reinterpret_cast<Tcp*>((uint8_t*) ip + (ip->header_length << 2));
 
 	uint32_t toAck = tcp->seq_num.value() + hasPayload(ip, tcp);
 	if(isTCPSYN(tcp))

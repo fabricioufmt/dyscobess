@@ -406,6 +406,37 @@ DyscoPolicies::Filter* DyscoCenter::match_policy(uint32_t i, Packet* pkt) {
 /*
   TCP Retransmission methods
  */
+bool DyscoCenter::processReceivedPacket(uint32_t i, uint32_t devip, Tcp* tcp) {
+	uint32_t key = tcp->ack_num.value();
+	
+	mutex* mtx = getMutex(i, devip);
+	if(!mtx)
+		return false;
+	
+	mtx->lock();
+	
+	unordered_map<uint32_t, LNode<Packet>*>* hash_received = getHashReceived(i, devip);
+	if(!hash_received) {
+		mtx->unlock();
+		
+		return false;
+	}
+
+	LNode<Packet>* node = hash_received->operator[](key);
+	if(node) {
+		delete node;
+		hash_received->erase(key);
+			
+		mtx->unlock();
+		
+		return true;
+	}
+
+	mtx->unlock();
+	
+	return false;	
+}
+
 mutex* DyscoCenter::getMutex(uint32_t i, uint32_t devip) {
 	DyscoHashes* dh = get_hashes(i);
 	if(!dh)
@@ -414,7 +445,7 @@ mutex* DyscoCenter::getMutex(uint32_t i, uint32_t devip) {
 	return dh->mutexes[devip];
 }
 
-bool DyscoCenter::add_retransmission(uint32_t i, uint32_t devip, bess::Packet* pkt) {
+bool DyscoCenter::add_retransmission(uint32_t i, uint32_t devip, Packet* pkt) {
 	DyscoHashes* dh = get_hashes(i);
 	if(!dh)
 		return false;

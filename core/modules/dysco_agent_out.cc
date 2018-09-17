@@ -45,6 +45,7 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 	Tcp* tcp;
 	Ipv4* ip;
 	Packet* pkt;
+	bool removed;
 	Ethernet* eth;
 	size_t ip_hlen;
 	DyscoHashOut* cb_out;
@@ -70,14 +71,17 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 		fprintf(stderr, "[%s][DyscoAgentOut] receives %s [%X:%X]\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.value(), tcp->ack_num.value());
 #endif
 		cb_out = dc->lookup_output(this->index, ip, tcp);
-
+		removed = processReceivedPacket(this->index, devip, tcp);
+		
 		if(isLockingSignalPacket(tcp)) {
 #ifdef DEBUG
 			fprintf(stderr, "It's Locking Signal Packet.\n");
 #endif
 
 			if(processLockingSignalPacket(pkt, eth, ip, tcp, cb_out)) {
-				out_gates[1].add(pkt);
+				//how to acked this packet?
+				//out_gates[1].add(pkt);
+				dc->add_retransmission(this->index, devip, pkt);
 				continue;
 			}
 		} else if(isReconfigPacketOut(ip, tcp, cb_out)) {

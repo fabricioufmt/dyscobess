@@ -54,10 +54,11 @@ class DyscoCenter final : public Module {
 	  TCP Retransmission methods
 	 */
 	mutex* getMutex(uint32_t, uint32_t);
+	bool processReceivedPacket(uint32_t, uint32_t, Tcp*);
 	bool add_retransmission(uint32_t, uint32_t, Packet*);
 	LinkedList<Packet>* getRetransmissionList(uint32_t, uint32_t);
 	unordered_map<uint32_t, LNode<Packet>*>* getHashReceived(uint32_t, uint32_t);
-
+	
 	/*
 	  Locking methods
 	 */

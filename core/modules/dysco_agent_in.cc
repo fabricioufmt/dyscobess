@@ -59,6 +59,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 	Tcp* tcp;
 	Ipv4* ip;
 	Packet* pkt;
+	bool removed;
 	Ethernet* eth;
 	size_t ip_hlen;
 	DyscoHashIn* cb_in;
@@ -86,7 +87,8 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 #endif
 
 		cb_in = dc->lookup_input(this->index, ip, tcp);
-
+		removed = processReceivedPacket(this->index, devip, pkt);
+		
 		if(isLockingSignalPacket(tcp)) {
 #ifdef DEBUG
 			fprintf(stderr, "Receives Locking Signal Packet.\n");
@@ -114,7 +116,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 				break;
 			}
 			
-		} else if(isReconfigPacket(ip, tcp, cb_in)) {
+		} else if(isReconfigPacket(ip, tcp, cb_in, removed)) {
 #ifdef DEBUG
 			fprintf(stderr, "It is reconfig packet\n");
 #endif
@@ -179,9 +181,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 	RunChooseModule(1, &(out_gates[1]));
 }
 
-bool DyscoAgentIn::isReconfigPacket(Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
-	bool removed_from_retransmission = processReceivedPacket(tcp);
-
+bool DyscoAgentIn::isReconfigPacket(Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in, bool removed) {
 	if(ip->dst.raw_value() != devip)
 		return false;
 
@@ -248,7 +248,7 @@ bool DyscoAgentIn::isReconfigPacket(Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
 		}
 
 		if(cb_in->dcb_out->other_path && cb_in->dcb_out->other_path->state == DYSCO_ESTABLISHED) {
-			if(removed_from_retransmission)
+			if(removed)
 				return true;
 			
 			return false;
@@ -1619,37 +1619,6 @@ void DyscoAgentIn::retransmissionHandler() {
 #endif
 		RunChooseModule(1, batch);
 	}
-}
-
-bool DyscoAgentIn::processReceivedPacket(Tcp* tcp) {
-	uint32_t key = tcp->ack_num.value();
-	
-	mutex* mtx = dc->getMutex(this->index, devip);
-	if(!mtx)
-		return false;
-	
-	mtx->lock();
-	
-	unordered_map<uint32_t, LNode<Packet>*>* hash_received = dc->getHashReceived(this->index, devip);
-	if(!hash_received) {
-		mtx->unlock();
-		
-		return false;
-	}
-
-	LNode<bess::Packet>* node = hash_received->operator[](key);
-	if(node) {
-		delete node;
-		hash_received->erase(key);
-			
-		mtx->unlock();
-		
-		return true;
-	}
-
-	mtx->unlock();
-	
-	return false;
 }
 
 bool DyscoAgentIn::isEstablished(Packet* pkt) {
