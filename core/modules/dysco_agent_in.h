@@ -97,8 +97,8 @@ class DyscoAgentIn final : public Module {
 	void createLockingPacket(Packet*, Ipv4*, Tcp*, DyscoTcpOption*, DyscoHashIn*);
 	CONTROL_RETURN processLockingPacket(Packet*, Ethernet*, Ipv4*, Tcp*);
 	bool processLockingSignalPacket(Packet*, Ethernet*, Ipv4*, Tcp*, DyscoHashIn*);
-	CONTROL_RETURN processAckLocking(Packet*, Ipv4*, Tcp*, DyscoControlMessage*, DyscoHashIn*);
-	CONTROL_RETURN processRequestLocking(Packet*, Ipv4*, Tcp*, DyscoControlMessage*, DyscoHashIn*);
+	CONTROL_RETURN processAckLocking(Packet*, Ethernet*, Ipv4*, Tcp*, DyscoControlMessage*, DyscoHashIn*);
+	CONTROL_RETURN processRequestLocking(Packet*, Ethernet*, Ipv4*, Tcp*, DyscoControlMessage*, DyscoHashIn*);
 
 	Packet* createAckLocking(Packet*, Ipv4*, Tcp*);
 	void startReconfiguration(Packet*, Ethernet*, Ipv4*, Tcp*);

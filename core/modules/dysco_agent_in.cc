@@ -1740,13 +1740,13 @@ CONTROL_RETURN DyscoAgentIn::processLockingPacket(Packet* pkt, Ethernet* eth, Ip
 		fprintf(stderr, "processing Request Locking.\n");
 #endif
 
-		return processRequestLock(pkt, ip, tcp, cmsg, cb_in);
+		return processRequestLock(pkt, eth, ip, tcp, cmsg, cb_in);
 	} else if(cmsg->lock_state == DYSCO_ACK_LOCK) {
 #ifdef DEBUG
 		fprintf(stderr, "processing Ack Locking.\n");
 #endif
 
-		return processAckLock(pkt, ip , tcp, cmsg, cb_in);
+		return processAckLock(pkt, eth, ip, tcp, cmsg, cb_in);
 		
 	} else if(cmsg->lock_state == DYSCO_NACK_LOCK) {
 #ifdef DEBUG
@@ -1797,7 +1797,6 @@ CONTROL_RETURN DyscoAgentIn::processRequestLocking(Packet* pkt, Ipv4* ip, Tcp* t
 	case DYSCO_REQUEST_LOCK:
 		//If is there another locking request with other RA? TODO
 		if(cmsg->rhop > 0) {
-			Ethernet* eth = pkt->head_data<Ethernet*>();
 			eth->src_addr = cb_out->mac_sub.src_addr;
 			eth->dst_addr = cb_out->mac_sub.dst_addr;
 			*((uint32_t*)(&ip->src)) = cb_out->sub.sip;
@@ -1820,8 +1819,7 @@ CONTROL_RETURN DyscoAgentIn::processRequestLocking(Packet* pkt, Ipv4* ip, Tcp* t
 			cb_out->module->RunChooseModule(1, &out);
 		
 			return NONE;
-		} else {
-			Ethernet* eth = pkt->head_data<Ethernet*>();		
+		} else {		
 			Ethernet::Address macswap = eth->dst_addr;
 			eth->dst_addr = eth->src_addr;
 			eth->src_addr = macswap;
@@ -1935,7 +1933,6 @@ CONTROL_RETURN DyscoAgentIn::processAckLocking(Packet* pkt, Ipv4* ip, Tcp* tcp, 
 			fprintf(stderr, "I'm not the LeftAnchor... forwarding the ACK_LOCK\n");
 #endif
 
-			Ethernet* eth = pkt->head_data<Ethernet*>();
 			eth->src_addr = cb_out->mac_sub.src_addr;
 			eth->dst_addr = cb_out->mac_sub.dst_addr;
 			*((uint32_t*)(&ip->src)) = cb_out->sub.sip;
