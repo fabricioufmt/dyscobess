@@ -652,15 +652,13 @@ inline void* getPayload(Tcp* tcp) {
 	return reinterpret_cast<void*>(reinterpret_cast<char*>(tcp) + (tcp->offset << 2));
 }
 
-inline DyscoTcpOption* isLockSignalPacket(Tcp* tcp) {
+inline bool isLockSignalPacket(Tcp* tcp) {
 	if(tcp->offset < 6)
-		return 0;
+		return false;
 
-	DyscoTcpOption* tcpo = reinterpret_cast<DyscoTcpOption*>(reinterpret_cast<uint8_t*>(tcp) + 20);
-	if(tcpo->kind == LOCKING_OPTION)
-		return tcpo;
-
-	return 0;
+	DyscoTcpOption* tcpo = reinterpret_cast<DyscoTcpOption*>(tcp + 1);
+	
+	return tcpo->kind == LOCKING_OPTION;
 }
 
 inline bool isLockingPacket(Ipv4* ip, Tcp* tcp) {

@@ -90,101 +90,72 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 
 		cb_in = dc->lookup_input(this->index, ip, tcp);
 
-		tcpo = isLockSignalPacket(tcp);
-		if(tcpo && cb_in && cb_in->dcb_out) {
+		if(isLockingSignalPacket(tcp)) {
 #ifdef DEBUG
 			fprintf(stderr, "Receives Locking Signal Packet.\n");
-#endif		
-			uint8_t* lhop = (uint8_t*)(&tcpo->padding) + 1;
-			(*lhop)--;
-			
-			if(isLeftAnchor(tcpo)) {
-#ifdef DEBUG
-				fprintf(stderr, "I'm the LeftAnchor\n");
-#endif			
-				createLockingPacket(pkt, ip, tcp, tcpo, cb_in);
+#endif
+			if(processLockSignalPacket(pkt, eth, ip, tcp, cb_in)) {
 				out_gates[1].add(pkt);
 				continue;
-			} else {
-#ifdef DEBUG
-				fprintf(stderr, "I'm not the LeftAnchor\n");
-#endif
-
-				cb_out = dc->lookup_output_by_ss(this->index, &cb_in->my_sup);
-
-				if(!cb_out) {
-#ifdef DEBUG 
-					fprintf(stderr, "cb_out not found\n");
-#endif
-					continue;
-				}
-
-				eth->src_addr = cb_out->mac_sub.src_addr;
-				eth->dst_addr = cb_out->mac_sub.dst_addr;
-				hdr_rewrite_csum(ip, tcp, &cb_out->sub);
-				tcp->checksum++; //due (*lhop)--
-
-#ifdef DEBUG
-				fprintf(stderr, "forwarding to %s\n\n",printSS(cb_out->sub));
-#endif
-				PacketBatch out;
-				out.clear();
-				out.add(pkt);
-				cb_out->module->RunChooseModule(1, &out);
-				
-				continue;
-			}
-		}
-
-		if(isLockingPacket(ip, tcp)) {
-			cmsg = reinterpret_cast<DyscoControlMessage*>(getPayload(tcp));
-
-#ifdef DEBUG
-			fprintf(stderr, "[%s][DyscoAgentIn] receives Locking Packet.\n", ns.c_str());
-			fprintf(stderr, "looking input by: %s\n", printSS(cmsg->my_sub));
-#endif
-			cb_in = dc->lookup_input_by_ss(this->index, &cmsg->my_sub);
-		
-			if(cmsg->lock_state == DYSCO_REQUEST_LOCK) {
-#ifdef DEBUG
-				fprintf(stderr, "processing Request Lock\n");
-#endif
-				if(processRequestLock(pkt, ip, tcp, cmsg, cb_in)) {
-					out_gates[1].add(pkt);
-					continue;
-				}
-			} else if(cmsg->lock_state == DYSCO_ACK_LOCK) {
-#ifdef DEBUG
-				fprintf(stderr, "processing Ack Lock\n");
-#endif
-				switch(processAckLock(pkt, ip, tcp, cmsg, cb_in)) {
-				case TO_GATE_1:
-					out_gates[1].add(pkt);
-					continue;
-				case LOCK_SUCCESSFUL:
-					//out_gates[1].add(createAckLock(pkt, ip, tcp));
-					//out_gates[0].add(createAckLock(pkt, ip, tcp)); //debug
-					start_reconfiguration(pkt, ip, tcp, cmsg, cb_in);
-					//out_gates[0].add(pkt); //debug
-					
-					continue;
-				case NONE:
-				case ERROR:
-				default:
-					continue;
-
-				}
-			} else if (cmsg->lock_state == DYSCO_NACK_LOCK) {
-				fprintf(stderr, "processing Nack Lock\n");
-				//processNackLock(pkt, ip, tcp, cmsg, cb_in);
-			} else {
-				//nothing..
 			}
 			
-			break;
-		}
-		
-		if(!isReconfigPacket(ip, tcp, cb_in)) {
+		} else if(isLockingPacket(ip, tcp)) {
+#ifdef DEBUG
+			fprintf(stderr, "Receives Locking Packet.\n");
+#endif
+
+			switch(processLockingPacket(pkt, eth, ip, tcp)) {
+			case TO_GATE_1:
+				out_gates[1].add(pkt);
+				break;
+			case LOCK_SUCCESSFUL:
+				//out_gates[1].add(createAckLock(pkt, ip, tcp));
+				startReconfiguration(pkt, eth, ip, tcp);
+				break;
+			case ERROR:
+			default:
+				break;
+			}
+			
+		} else if(isReconfigPacket(ip, tcp, cb_in)) {
+#ifdef DEBUG
+			fprintf(stderr, "It is reconfig packet\n");
+#endif
+			switch(control_input(pkt, ip, tcp, cb_in)) {
+			case TO_GATE_0:
+				out_gates[0].add(pkt);
+#ifdef DEBUG
+				fprintf(stderr, "[%s][DyscoAgentIn-Control] forwards %s [%X:%X]\n\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.value(), tcp->ack_num.value());
+#endif
+				break;
+				
+			case TO_GATE_1:
+#ifdef DEBUG
+				fprintf(stderr, "[%s][DyscoAgentIn-Control] forwarding to toRetransmit %s [%X:%X]\n\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.value(), tcp->ack_num.value());
+#endif
+				dc->add_retransmission(this->index, devip, pkt);
+				break;
+
+			case IS_RETRANSMISSION:
+				//out_gates[1].add(pkt);
+				break;
+				
+			case END:
+#ifdef DEBUG
+				fprintf(stderr, "3-way from Reconfiguration Session is DONE.\n\n");
+				fprintf(stderr, "cb_in->dcb_out->other_path: %s %s\n", printSS(cb_in->dcb_out->other_path->sub), printSS(cb_in->dcb_out->other_path->sup));
+#endif
+				break;
+				
+			case ERROR:
+#ifdef DEBUG
+				fprintf(stderr, "ERROR on control_input\n");
+#endif
+			default:
+				break;
+			}
+
+		} else {
 #ifdef DEBUG
 			fprintf(stderr, "It isn't reconfig packet\n");
 #endif
@@ -203,44 +174,6 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 #ifdef DEBUG
 			fprintf(stderr, "[%s][DyscoAgentIn] forwards %s [%X:%X]\n\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.value(), tcp->ack_num.value());
 #endif
-			
-		} else {
-#ifdef DEBUG
-			fprintf(stderr, "It is reconfig packet\n");
-#endif
-			switch(control_input(pkt, ip, tcp, cb_in)) {
-			case TO_GATE_0:
-				out_gates[0].add(pkt);
-#ifdef DEBUG
-				fprintf(stderr, "[%s][DyscoAgentIn-Control] forwards %s [%X:%X]\n\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.value(), tcp->ack_num.value());
-#endif
-				break;
-			case TO_GATE_1:
-#ifdef DEBUG
-				fprintf(stderr, "[%s][DyscoAgentIn-Control] forwarding to toRetransmit %s [%X:%X]\n\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.value(), tcp->ack_num.value());
-#endif
-				dc->add_retransmission(this->index, devip, pkt);
-				break;
-
-			case IS_RETRANSMISSION:
-				//out_gates[1].add(pkt);
-				break;
-				
-			case END:
-#ifdef DEBUG
-				fprintf(stderr, "3-way from Reconfiguration Session is DONE.\n\n");
-				fprintf(stderr, "cb_in->dcb_out->other_path: %s %s\n", printSS(cb_in->dcb_out->other_path->sub), printSS(cb_in->dcb_out->other_path->sup));
-#endif
-
-				
-				break;
-			case ERROR:
-#ifdef DEBUG
-				fprintf(stderr, "ERROR on control_input\n");
-#endif
-			default:
-				break;
-			}
 		}
 	}
 	
@@ -1747,6 +1680,90 @@ bool DyscoAgentIn::isEstablished(Packet* pkt) {
 	return false;
 }
 
+/*
+ * Locking Signal methods
+ */
+bool DyscoAgentIn::processLockingSignalPacket(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
+	if(!cb_in)
+		return false;
+
+	DyscoTcpOption* tcpo = reinterpret_cast<DyscoTcpOption*>(tcp + 1);
+	uint8_t* lhop = (uint8_t*)(&tcpo->padding) + 1;
+	(*lhop)--;
+	tcp->checksum++;
+	
+	if(*lhop == 0) {
+#ifdef DEBUG
+		fprintf(stderr, "I'm the LeftAnchor\n");
+#endif			
+		createLockingPacket(pkt, ip, tcp, tcpo, cb_in);
+		
+		return true;
+	} else {
+#ifdef DEBUG
+		fprintf(stderr, "I'm not the LeftAnchor\n");
+#endif
+
+		DyscoHashOut* cb_out = dc->lookup_output_by_ss(this->index, &cb_in->my_sup);
+		if(!cb_out) {
+#ifdef DEBUG 
+			fprintf(stderr, "cb_out not found... dropping.\n");
+#endif
+			return false;
+		}
+
+		eth->src_addr = cb_out->mac_sub.src_addr;
+		eth->dst_addr = cb_out->mac_sub.dst_addr;
+		hdr_rewrite_csum(ip, tcp, &cb_out->sub);
+
+#ifdef DEBUG
+		fprintf(stderr, "forwarding to %s.\n\n", printSS(cb_out->sub));
+#endif
+		
+		PacketBatch out;
+		out.clear();
+		out.add(pkt);
+		cb_out->module->RunChooseModule(1, &out);
+	}
+
+	return false;
+}
+
+CONTROL_RETURN DyscoAgentIn::processLockingPacket(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp) {
+	DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>(getPayload(tcp));
+
+#ifdef DEBUG
+	fprintf(stderr, "looking for input by: %s.\n", printSS(cmsg->my_sub));
+#endif
+
+	DyscoHashIn* cb_in = dc->lookup_input_by_ss(this->index, &cmsg->my_sub);
+
+	if(cmsg->lock_state == DYSCO_REQUEST_LOCK) {
+#ifdef DEBUG
+		fprintf(stderr, "processing Request Locking.\n");
+#endif
+
+		return processRequestLock(pkt, ip, tcp, cmsg, cb_in);
+	} else if(cmsg->lock_state == DYSCO_ACK_LOCK) {
+#ifdef DEBUG
+		fprintf(stderr, "processing Ack Locking.\n");
+#endif
+
+		return processAckLock(pkt, ip , tcp, cmsg, cb_in);
+		
+	} else if(cmsg->lock_state == DYSCO_NACK_LOCK) {
+#ifdef DEBUG
+		fprintf(stderr, "processing Nack Locking.\n");
+#endif
+	}
+
+	return NONE;
+}
+
+
+
+
+
 bool DyscoAgentIn::processRequestLock(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoControlMessage* cmsg, DyscoHashIn* cb_in) {
 	DyscoHashOut* cb_out;
 	
@@ -1890,7 +1907,7 @@ CONTROL_RETURN DyscoAgentIn::processAckLock(Packet* pkt, Ipv4* ip, Tcp* tcp, Dys
 			
 	if(!cb_out) {
 #ifdef DEBUG
-		fprintf(stderr, "cb_out not found.\n");
+		fprintf(stderr, "cb_out not found... dropping.\n");
 #endif
 		return ERROR;
 	}
@@ -1973,13 +1990,19 @@ CONTROL_RETURN DyscoAgentIn::processAckLock(Packet* pkt, Ipv4* ip, Tcp* tcp, Dys
 	return ERROR;
 }
 
-void DyscoAgentIn::start_reconfiguration(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoControlMessage* cmsg, DyscoHashIn* cb_in) {
-
+void DyscoAgentIn::startReconfiguration(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp) {
+	DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>(getPayload(tcp));
+	if(!cmsg)
+		return;
+	
+	DyscoHashIn* cb_in = dc->lookup_input_by_ss(this->index, &cmsg->my_sub);
+	if(!cb_in)
+		return;
+	
 	DyscoHashOut* old_dcb = cb_in->dcb_out;
 	uint32_t* sc = reinterpret_cast<uint32_t*>(cmsg + 1);
 
 	//should ARP
-	Ethernet* eth = pkt->head_data<Ethernet*>();
 	Ethernet::Address addr = eth->dst_addr;
 	eth->dst_addr = eth->src_addr;
 	eth->src_addr = addr;
