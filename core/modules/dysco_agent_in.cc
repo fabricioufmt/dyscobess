@@ -1740,13 +1740,13 @@ CONTROL_RETURN DyscoAgentIn::processLockingPacket(Packet* pkt, Ethernet* eth, Ip
 		fprintf(stderr, "processing Request Locking.\n");
 #endif
 
-		return processRequestLock(pkt, eth, ip, tcp, cmsg, cb_in);
+		return processRequestLocking(pkt, eth, ip, tcp, cmsg, cb_in);
 	} else if(cmsg->lock_state == DYSCO_ACK_LOCK) {
 #ifdef DEBUG
 		fprintf(stderr, "processing Ack Locking.\n");
 #endif
 
-		return processAckLock(pkt, eth, ip, tcp, cmsg, cb_in);
+		return processAckLocking(pkt, eth, ip, tcp, cmsg, cb_in);
 		
 	} else if(cmsg->lock_state == DYSCO_NACK_LOCK) {
 #ifdef DEBUG

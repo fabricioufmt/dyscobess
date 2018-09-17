@@ -75,101 +75,16 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 #endif
 		cb_out = dc->lookup_output(this->index, ip, tcp);
 
-		tcpo = isLockSignalPacket(tcp);
-		if(tcpo) {
+		if(isLockingSignalPacket(tcp)) {
 #ifdef DEBUG
 			fprintf(stderr, "It's Locking Signal Packet.\n");
 #endif
-			if(!cb_out) {
-#ifdef DEBUG
-				fprintf(stderr, "There's not a entry on cb_out... dropping.\n");
-#endif
+
+			if(processLockingSignalPacket(pkt, eth, ip, tcp, cb_out)) {
+				out_gates[1].add(pkt);
 				continue;
 			}
-
-			if(cb_out->lock_state != DYSCO_CLOSED_LOCK) {
-#ifdef DEBUG
-				fprintf(stderr, "Lock State: either REQUEST, ACK, or NACK... dropping.\n");
-#endif
-				continue;
-			}
-
-#ifdef DEBUG
-			fprintf(stderr, "cb_out->sub: %s.\n", printSS(cb_out->sub));
-			fprintf(stderr, "cb_out->sup: %s.\n", printSS(cb_out->sup));
-			if(cb_out->dcb_in) {
-				fprintf(stderr, "cb_out->dcb_in->sub: %s.\n", printSS(cb_out->dcb_in->sub));
-				fprintf(stderr, "cb_out->dcb_in->sup: %s.\n", printSS(cb_out->dcb_in->my_sup));
-			}
-			fprintf(stderr, "State: %d.\n", cb_out->state);
-			fprintf(stderr, "Lock State: %d.\n", cb_out->lock_state);
-#endif
-			
-			sc_sz = hasPayload(ip, tcp) - sizeof(DyscoControlMessage);
-			cmsg = reinterpret_cast<DyscoControlMessage*>(getPayload(tcp));
-			
-			cb_out->is_signaler = 1;
-			cb_out->sc_len = sc_sz/sizeof(uint32_t);
-			cb_out->sc = reinterpret_cast<uint32_t*>(reinterpret_cast<uint8_t*>(cmsg) + sizeof(DyscoControlMessage));
-
-#ifdef DEBUG
-			fprintf(stderr, "setting up signaler and storing service chain\n");
-#endif
-			
-			if(isLeftAnchor(tcpo)) {
-#ifdef DEBUG
-				fprintf(stderr, "I'm the LeftAnchor.\n");
-				fprintf(stderr, "Creating the Locking Packet.\n");
-#endif
-				cb_out->is_LA = 1;
-
-				ip->length = be16_t(ip->length.value() - tcpo->len - sc_sz);
-				pkt->trim(tcpo->len + sc_sz);
-				memcpy(tcpo, cmsg, sizeof(DyscoControlMessage));
-
-				eth->src_addr = cb_out->mac_sub.src_addr;
-				eth->dst_addr = cb_out->mac_sub.dst_addr;
-				
-				ip->id = be16_t(rand());
-				ip->ttl = 53;
-				ip->checksum = 0;
-				*((uint32_t*)(&ip->src)) = cb_out->sub.sip;
-				*((uint32_t*)(&ip->dst)) = cb_out->sub.dip;
-				
-				tcp->src_port = be16_t(rand());
-				tcp->dst_port = be16_t(rand());
-				tcp->seq_num = be32_t(rand());
-				tcp->ack_num = be32_t(0);
-				tcp->offset = 5;
-				tcp->flags = Tcp::kSyn;
-				
-				cb_out->lock_state = DYSCO_REQUEST_LOCK;
-
-				cmsg = reinterpret_cast<DyscoControlMessage*>(getPayload(tcp));
-				cmsg->lhop = cmsg->rhop;
-				cmsg->type = DYSCO_LOCK;
-				cmsg->my_sub = cb_out->sub;
-				cmsg->lock_state = DYSCO_REQUEST_LOCK;
-				
-				fix_csum(ip, tcp);
-#ifdef DEBUG
-				fprintf(stderr, "forwardin to %s\n\n", printSS(cb_out->sub));
-#endif
-				out_gates[0].add(pkt);				
-				continue;
-			} else {
-#ifdef DEBUG
-				fprintf(stderr, "I'm not the LeftAnchor\n");
-				fprintf(stderr, "forwardin to %s\n\n", printSS(cb_out->sub));
-#endif
-				
-				hdr_rewrite_csum(ip, tcp, &cb_out->sub);
-				out_gates[0].add(pkt);
-				continue;
-			}
-		}
-		
-		if(isReconfigPacketOut(ip, tcp, cb_out)) {
+		} else if(isReconfigPacketOut(ip, tcp, cb_out)) {
 #ifdef DEBUG
 			fprintf(stderr, "It's reconfiguration packet, should be only SYN.\n");
 #endif
@@ -182,9 +97,7 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 			}
 			
 			continue;
-		}
-			
-		if(output(pkt, ip, tcp, cb_out)) {
+		} else if(output(pkt, ip, tcp, cb_out)) {
 			out_gates[1].add(pkt);
 		} else
 			out_gates[0].add(pkt);
@@ -921,6 +834,100 @@ bool DyscoAgentOut::control_output(Ipv4* ip, Tcp* tcp) {
 	control_insert_out(rcb);
 
 	return true;
+}
+
+bool DyscoAgentOut::processLockingSignalPacket(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) {
+	if(!cb_out) {
+#ifdef DEBUG
+		fprintf(stderr, "There's not a entry on cb_out... dropping.\n");
+#endif
+		return false;
+	}
+
+	if(cb_out->lock_state != DYSCO_CLOSED_LOCK) {
+#ifdef DEBUG
+		fprintf(stderr, "Lock State: either REQUEST, ACK, or NACK... dropping.\n");
+#endif
+		return false;
+	}
+
+#ifdef DEBUG
+	fprintf(stderr, "cb_out->sub: %s.\n", printSS(cb_out->sub));
+	fprintf(stderr, "cb_out->sup: %s.\n", printSS(cb_out->sup));
+	if(cb_out->dcb_in) {
+		fprintf(stderr, "cb_out->dcb_in->sub: %s.\n", printSS(cb_out->dcb_in->sub));
+		fprintf(stderr, "cb_out->dcb_in->sup: %s.\n", printSS(cb_out->dcb_in->my_sup));
+	}
+	fprintf(stderr, "State: %d.\n", cb_out->state);
+	fprintf(stderr, "Lock State: %d.\n", cb_out->lock_state);
+#endif
+			
+	uint32_t sc_sz = hasPayload(ip, tcp) - sizeof(DyscoControlMessage);
+	DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>(getPayload(tcp));
+			
+	cb_out->is_signaler = 1;
+	cb_out->sc_len = sc_sz/sizeof(uint32_t);
+	cb_out->sc = reinterpret_cast<uint32_t*>(cmsg + 1);
+
+#ifdef DEBUG
+	fprintf(stderr, "setting up signaler and storing service chain\n");
+#endif
+			
+	if(isLeftAnchor(tcpo)) {
+#ifdef DEBUG
+		fprintf(stderr, "I'm the LeftAnchor.\n");
+		fprintf(stderr, "Creating the Locking Packet.\n");
+#endif
+		cb_out->is_LA = 1;
+
+		ip->length = be16_t(ip->length.value() - tcpo->len - sc_sz);
+		pkt->trim(tcpo->len + sc_sz);
+		memcpy(tcpo, cmsg, sizeof(DyscoControlMessage));
+
+		eth->src_addr = cb_out->mac_sub.src_addr;
+		eth->dst_addr = cb_out->mac_sub.dst_addr;
+				
+		ip->id = be16_t(rand());
+		ip->ttl = 53;
+		ip->checksum = 0;
+		*((uint32_t*)(&ip->src)) = cb_out->sub.sip;
+		*((uint32_t*)(&ip->dst)) = cb_out->sub.dip;
+				
+		tcp->src_port = be16_t(rand());
+		tcp->dst_port = be16_t(rand());
+		tcp->seq_num = be32_t(rand());
+		tcp->ack_num = be32_t(0);
+		tcp->offset = 5;
+		tcp->flags = Tcp::kSyn;
+				
+		cb_out->lock_state = DYSCO_REQUEST_LOCK;
+
+		cmsg = reinterpret_cast<DyscoControlMessage*>(getPayload(tcp));
+		cmsg->lhop = cmsg->rhop;
+		cmsg->type = DYSCO_LOCK;
+		cmsg->my_sub = cb_out->sub;
+		cmsg->lock_state = DYSCO_REQUEST_LOCK;
+				
+		fix_csum(ip, tcp);
+#ifdef DEBUG
+		fprintf(stderr, "forwardin to %s\n\n", printSS(cb_out->sub));
+#endif
+	} else {
+#ifdef DEBUG
+		fprintf(stderr, "I'm not the LeftAnchor\n");
+		fprintf(stderr, "forwardin to %s\n\n", printSS(cb_out->sub));
+#endif
+				
+		hdr_rewrite_csum(ip, tcp, &cb_out->sub);
+	}
+
+	return true;
+}
+
+
+
+
+	
 }
 
 ADD_MODULE(DyscoAgentOut, "dysco_agent_out", "processes packets outcoming from host")
