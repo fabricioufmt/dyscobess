@@ -1619,7 +1619,7 @@ void DyscoAgentIn::retransmissionHandler() {
 
 	//mtx->unlock();
 
-	if(batch->cnt() != 0) {
+	if(batch->cnt()) {
 #ifdef DEBUG
 		fprintf(stderr, "Calling RunChooseModule with %u packets to retransmit.\n", batch->cnt());
 #endif
