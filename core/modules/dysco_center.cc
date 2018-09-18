@@ -445,7 +445,7 @@ mutex* DyscoCenter::getMutex(uint32_t i, uint32_t devip) {
 	return dh->mutexes[devip];
 }
 
-bool DyscoCenter::add_retransmission(uint32_t i, uint32_t devip, Packet* pkt, Module* agent) {
+bool DyscoCenter::add_retransmission(uint32_t i, uint32_t devip, Packet* pkt) {
 	DyscoHashes* dh = get_hashes(i);
 	if(!dh)
 		return false;
