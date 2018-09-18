@@ -97,6 +97,8 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 #ifdef DEBUG
 			fprintf(stderr, "Receives Locking Signal Packet.\n");
 #endif
+			//TEST
+			out_gates[0].add(Packet::copy(pkt));
 			if(processLockingSignalPacket(pkt, eth, ip, tcp, cb_in)) {
 				out_gates[1].add(pkt);
 				continue;
@@ -1575,17 +1577,10 @@ void DyscoAgentIn::retransmissionHandler() {
 	
 	LinkedList<Packet>* list = dc->getRetransmissionList(this->index, devip);
 	if(!list) {
-#ifdef DEBUG
-		fprintf(stderr, "list is empty\n");
-#endif
 		//mtx->unlock();
 		
 		return;
 	}
-
-#ifdef DEBUG
-	fprintf(stderr, "list isn't empty\n");
-#endif
 	
 	uint64_t now_ts = tsc_to_ns(rdtsc());
 	LNode<bess::Packet>* aux;
