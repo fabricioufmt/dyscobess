@@ -6,6 +6,7 @@
 #include <signal.h>
 #include <netinet/tcp.h>
 
+#include "dysco_util.h"
 #include "dysco_center.h"
 #include "dysco_port_out.h"
 
