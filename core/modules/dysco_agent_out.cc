@@ -943,8 +943,8 @@ bool DyscoAgentOut::processLockingSignalPacket(Packet* pkt, Ethernet* eth, Ipv4*
 		uint32_t cksum;
 		cksum  = ChecksumIncrement32(tcp->seq_num.raw_value(), cb_out->last_seq);
 		cksum += ChecksumIncrement32(tcp->ack_num.raw_value(), cb_out->last_ack);
-		tcp->seq_num = be32_t(cb_out->last_seq);
-		tcp->ack_num = be32_t(cb_out->last_ack);
+		tcp->seq_num = be32_t(ntohl(cb_out->last_seq));
+		tcp->ack_num = be32_t(ntohl(cb_out->last_ack));
 		tcp->checksum = UpdateChecksumWithIncrement(tcp->checksum, cksum);
 		
 		hdr_rewrite_csum(ip, tcp, &cb_out->sub);
