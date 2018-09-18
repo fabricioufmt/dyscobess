@@ -13,7 +13,7 @@ DyscoAgentOut::DyscoAgentOut() : Module() {
 //CommandResponse DyscoAgentOut::Init(const bess::pb::EmptyArg& arg) {
 //}
 
-CommandResponse DyscoAgentOut::CommandSetup(const bess::pb::DyscoAgentArg& arg) {
+CommandResponse DyscoAgentOut::CommandSetup(const bess::pb::DyscoAgentArg&) {
 	gate_idx_t igate_idx = 0;
 
 	if(!is_active_gate<bess::IGate>(igates(), igate_idx))
