@@ -44,14 +44,14 @@ CommandResponse DyscoAgentIn::CommandSetup(const bess::pb::DyscoAgentArg& arg) {
 	devip = dysco_vport->devip;
 	index = dc->get_index(ns, devip);
 	
-	auto& it = ModuleGraph::GetAllModules().find(DYSCOCENTER_MODULENAME);
-	if(it == ModuleGraph::GetAllModules().end())
+	const auto& it1 = ModuleGraph::GetAllModules().find(DYSCOCENTER_MODULENAME);
+	if(it1 == ModuleGraph::GetAllModules().end())
 		return CommandFailure(EINVAL, "ERROR: DyscoCenter is not available.");
 
 	dc = reinterpret_cast<DyscoCenter*>(it->second);
 
-	it = ModuleGraph::GetAllModules().find(arg.agent().c_str());
-	if(it == ModuleGraph::GetAllModules().end())
+	const auto& it2 = ModuleGraph::GetAllModules().find(arg.agent().c_str());
+	if(it2 == ModuleGraph::GetAllModules().end())
 		return CommandFailure(EINVAL, "ERROR: DyscoAgentIn is not available.");
 	
 	agent = reinterpret_cast<DyscoAgentOut*>(it->second);
