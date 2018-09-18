@@ -881,7 +881,7 @@ bool DyscoAgentOut::processLockingSignalPacket(Packet* pkt, Ethernet* eth, Ipv4*
 	fprintf(stderr, "State: %d.\n", cb_out->state);
 	fprintf(stderr, "Lock State: %d.\n", cb_out->lock_state);
 #endif
-	DyscoTcpOption* tcpo = reinterpret_cast<DyscoTcpOption*>((uint8_t*)tcp + 20);	
+	DyscoTcpOption* tcpo = reinterpret_cast<DyscoTcpOption*>(tcp + 1);	
 	uint32_t sc_sz = hasPayload(ip, tcp) - sizeof(DyscoControlMessage);
 	DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>(getPayload(tcp));
 			
@@ -939,7 +939,14 @@ bool DyscoAgentOut::processLockingSignalPacket(Packet* pkt, Ethernet* eth, Ipv4*
 		fprintf(stderr, "Changing ack_num from %X to %X\n", tcp->ack_num.raw_value(), cb_out->last_ack);
 		fprintf(stderr, "Forwarding to %s\n\n", printSS(cb_out->sub));
 #endif
-				
+
+		uint32_t cksum;
+		cksum  = ChecksumIncrement32(tcp->seq_num.raw_value(), cb_out->last_seq);
+		cksum += ChecksumIncrement32(tcp->ack_num.raw_value(), cb_out->last_ack);
+		tcp->seq_num = be32_t(cb_out->last_seq);
+		tcp->ack_num = be32_t(cb_out->last_ack);
+		tcp->checksum = UpdateChecksumWithIncrement(tcp->checksum, cksum);
+		
 		hdr_rewrite_csum(ip, tcp, &cb_out->sub);
 		
 	}
