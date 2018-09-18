@@ -1568,9 +1568,6 @@ void DyscoAgentIn::retransmissionHandler() {
 	batch->clear();
 
 	mutex* mtx = dc->getMutex(this->index, devip);
-#ifdef DEBUG
-	fprintf(stderr, "looking for mutex for %u %u\n", this->index, devip);
-#endif
 	if(!mtx)
 		return;
 	
@@ -1578,11 +1575,18 @@ void DyscoAgentIn::retransmissionHandler() {
 	
 	LinkedList<Packet>* list = dc->getRetransmissionList(this->index, devip);
 	if(!list) {
+#ifdef DEBUG
+		fprintf(stderr, "list is empty\n");
+#endif
 		//mtx->unlock();
 		
 		return;
 	}
 
+#ifdef DEBUG
+	fprintf(stderr, "list isn't empty\n");
+#endif
+	
 	uint64_t now_ts = tsc_to_ns(rdtsc());
 	LNode<bess::Packet>* aux;
 	LNode<bess::Packet>* node = (list->getHead())->next;
