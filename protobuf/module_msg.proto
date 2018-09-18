@@ -1149,26 +1149,8 @@ message DyscoCenterListArg {
 	string msg = 2;
 }
 
-/**
-	TODO: should be empty arg.
-*/
-message DyscoAgentInArg {
-	string dc = 1;
-}
-
-message DyscoAgentInReconfigArg {
-	string sssource = 1;
-	string ssdest = 2;
-	uint32 sc_len = 3;
-	repeated string chain = 4;
-}
-
-message DyscoAgentInMsg {
-	string msg = 1;
-}
-
-message DyscoAgentOutArg {
-	string dc = 1;
+message DyscoAgentArg {
+	string agent = 1;
 }
 
 message DyscoPortIncCommandSetBurstArg {
