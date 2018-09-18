@@ -1,7 +1,7 @@
 #include "dysco_agent_out.h"
 
 const Commands DyscoAgentOut::cmds = {
-	{"setup", "EmptyArg", MODULE_CMD_FUNC(&DyscoAgentOut::CommandSetup), Command::THREAD_UNSAFE}
+	{"setup", "DyscoAgentArg", MODULE_CMD_FUNC(&DyscoAgentOut::CommandSetup), Command::THREAD_UNSAFE}
 };
 
 DyscoAgentOut::DyscoAgentOut() : Module() {
@@ -10,31 +10,48 @@ DyscoAgentOut::DyscoAgentOut() : Module() {
 	index = 0;
 }
 
-CommandResponse DyscoAgentOut::Init(const bess::pb::DyscoAgentOutArg& arg) {
-	if(!arg.dc().length())
-		return CommandFailure(EINVAL, "'dc' must be given as string.");
+//CommandResponse DyscoAgentOut::Init(const bess::pb::EmptyArg& arg) {
+//}
 
-	const auto& it = ModuleGraph::GetAllModules().find(arg.dc().c_str());
+CommandResponse DyscoAgentOut::CommandSetup(const bess::pb::DyscoAgentArg& arg) {
+	gate_idx_t igate_idx = 0;
+
+	if(!is_active_gate<bess::IGate>(igates(), igate_idx))
+		return CommandFailure(EINVAL, "ERROR: Input gate 0 is not active.");
+
+	bess::IGate* igate = igates()[igate_idx];
+	DyscoPortInc* dysco_port_inc = reinterpret_cast<DyscoPortInc*>(igate->ogates_upstream()[0]->module());
+	if(!dysco_port_inc)
+		return CommandFailure(EINVAL, "ERROR: DyscoPortInc is not available.");
+	
+	DyscoVPort* dysco_vport = reinterpret_cast<DyscoVPort*>(dysco_port_inc->port_);
+	if(!dysco_vport)
+		return CommandFailure(EINVAL, "ERROR: DyscoVPort is not available.");
+
+	port = dysco_vport;
+	ns = dysco_vport->ns;
+	devip = dysco_vport->devip;
+	index = dc->get_index(ns, devip);
+
+	const auto& it = ModuleGraph::GetAllModules().find(DYSCOCENTER_MODULENAME);
 	if(it == ModuleGraph::GetAllModules().end())
-		return CommandFailure(ENODEV, "Module %s not found.", arg.dc().c_str());
+		return CommandFailure(EINVAL, "ERROR: DyscoCenter is not available.");
 
 	dc = reinterpret_cast<DyscoCenter*>(it->second);
-	if(!dc)
-		return CommandFailure(ENODEV, "DyscoCenter module is NULL.");
 
-	return CommandSuccess();
-}
-
-CommandResponse DyscoAgentOut::CommandSetup(const bess::pb::EmptyArg&) {
-	if(setup())
-		return CommandSuccess();
+	it = ModuleGraph::GetAllModules().find(arg.agent().c_str());
+	if(it == ModuleGraph::GetAllModules().end())
+		return CommandFailure(EINVAL, "ERROR: DyscoAgentIn is not available.");
 	
-	return CommandFailure(EINVAL, "ERROR: Port information.");
+	agent = reinterpret_cast<DyscoAgentIn*>(it->second);
+	
+	return CommandSuccess();
 }
 
 void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 	if(!dc) {
-		RunChooseModule(1, batch);
+		RunChooseModule(0, batch);
+		
 		return;
 	}
 
@@ -120,33 +137,6 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 	
 	RunChooseModule(0, &out_gates[0]);
 	RunChooseModule(1, &out_gates[1]);
-}
-
-bool DyscoAgentOut::setup() {
-	gate_idx_t igate_idx = 0; //always 1 input gate (DyscoPortInc)
-
-	if(!is_active_gate<bess::IGate>(igates(), igate_idx))
-		return false;
-
-	bess::IGate* igate = igates()[igate_idx];
-	if(!igate)
-		return false;
-
-	Module* m_prev = igate->ogates_upstream()[0]->module();
-	DyscoPortInc* dysco_port_inc = reinterpret_cast<DyscoPortInc*>(m_prev);
-	if(!dysco_port_inc)
-		return false;
-
-	DyscoVPort* dysco_vport = reinterpret_cast<DyscoVPort*>(dysco_port_inc->port_);
-	if(!dysco_vport)
-		return false;
-
-	port = dysco_vport;
-	ns = dysco_vport->ns;
-	devip = dysco_vport->devip;
-	index = dc->get_index(ns, devip);
-	
-	return true;
 }
 
 bool DyscoAgentOut::isReconfigPacketOut(Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) {

@@ -35,8 +35,8 @@ class DyscoAgentIn final : public Module {
 	DyscoAgentIn();
 	
 	void ProcessBatch(bess::PacketBatch*) override;
-	CommandResponse Init(const bess::pb::DyscoAgentInArg&);
-	CommandResponse CommandSetup(const bess::pb::EmptyArg&);
+	//CommandResponse Init(const bess::pb::DyscoAgentInArg&);
+	CommandResponse CommandSetup(const bess::pb::DyscoAgentArg&);
 
 	/*
 	  TCP Retransmission methods
@@ -51,6 +51,7 @@ class DyscoAgentIn final : public Module {
 	uint32_t index;
 	DyscoCenter* dc;
 	DyscoVPort* port;
+	DyscoAgentOut* agent;
 
 	/*
 	  Dysco methods

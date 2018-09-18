@@ -133,6 +133,7 @@ enum {
 #define DYSCO_LAST_ACK                  DYSCO_FINISHING_OLD_PATH
 #define DYSCO_CLOSED                    DYSCO_CLOSED_OLD_PATH
 */
+#define DYSCOCENTER_MODULENAME          "dyscocenter"
 #define DEBUG                           1 
 #define TTL                             32
 #define PORT_RANGE                      65536

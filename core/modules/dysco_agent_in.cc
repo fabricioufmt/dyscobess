@@ -24,26 +24,42 @@ DyscoAgentIn::DyscoAgentIn() : Module() {
 	timer = new thread(timer_worker, this);
 }
 
-CommandResponse DyscoAgentIn::Init(const bess::pb::DyscoAgentInArg& arg) {
-	if(!arg.dc().length())
-		return CommandFailure(EINVAL, "'dc' must be given as string.");
+//CommandResponse DyscoAgentIn::Init(const bess::pb::EmptyArg& arg) {
+//}
 
-	const auto& it = ModuleGraph::GetAllModules().find(arg.dc().c_str());
+CommandResponse DyscoAgentIn::CommandSetup(const bess::pb::DyscoAgentArg& arg) {
+	gate_idx_t ogate_idx = 0;
+
+	if(!is_active_gate<bess::OGate>(ogates(), ogate_idx))
+		return CommandFailure(EINVAL, "ERROR: Output gate 0 is not active.");
+
+	bess::OGate* ogate = ogates()[ogate_idx];
+	DyscoPortOut* dysco_port_out = reinterpret_cast<DyscoPortOut*>(ogate->next());
+	if(!dysco_port_out)
+		return CommandFailure(EINVAL, "ERROR: DyscoPortOut is not available.");
+	
+	DyscoVPort* dysco_vport = reinterpret_cast<DyscoVPort*>(dysco_port_out->port_);
+	if(!dysco_vport)
+		return CommandFailure(EINVAL, "ERROR: DyscoVPort is not available.");
+
+	port = dysco_vport;
+	ns = dysco_vport->ns;
+	devip = dysco_vport->devip;
+	index = dc->get_index(ns, devip);
+	
+	const auto& it = ModuleGraph::GetAllModules().find(DYSCOCENTER_MODULENAME);
 	if(it == ModuleGraph::GetAllModules().end())
-		return CommandFailure(ENODEV, "Module %s not found.", arg.dc().c_str());
+		return CommandFailure(EINVAL, "ERROR: DyscoCenter is not available.");
 
 	dc = reinterpret_cast<DyscoCenter*>(it->second);
-	if(!dc)
-		return CommandFailure(ENODEV, "DyscoCenter module is NULL.");
+
+	it = ModuleGraph::GetAllModules().find(arg.agent().c_str());
+	if(it == ModuleGraph::GetAllModules().end())
+		return CommandFailure(EINVAL, "ERROR: DyscoAgentIn is not available.");
+	
+	agent = reinterpret_cast<DyscoAgentOut*>(it->second);
 	
 	return CommandSuccess();
-}
-
-CommandResponse DyscoAgentIn::CommandSetup(const bess::pb::EmptyArg&) {
-	if(setup())
-		return CommandSuccess();
-	
-	return CommandFailure(EINVAL, "ERROR: Port information.");
 }
 
 void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
@@ -1388,34 +1404,6 @@ CONTROL_RETURN DyscoAgentIn::control_input(Packet* pkt, Ipv4* ip, Tcp* tcp, Dysc
 /*
   Auxiliary methods
  */
-bool DyscoAgentIn::setup() {
-	gate_idx_t ogate_idx = 0;
-
-	if(!is_active_gate<bess::OGate>(ogates(), ogate_idx))
-		return false;
-
-	bess::OGate* ogate = ogates()[ogate_idx];
-	if(!ogate)
-		return false;
-
-	Module* m_next = ogate->next();
-	DyscoPortOut* dysco_port_out = reinterpret_cast<DyscoPortOut*>(m_next);
-	if(!dysco_port_out)
-		return false;
-	
-	DyscoVPort* dysco_vport = reinterpret_cast<DyscoVPort*>(dysco_port_out->port_);
-	if(!dysco_vport)
-		return false;
-
-	ns = dysco_vport->ns;
-	devip = dysco_vport->devip;
-	index = dc->get_index(ns, devip);
-	
-	port = dysco_vport;
-	
-	return true;
-}
-
 void DyscoAgentIn::createAck(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
 	Ethernet* eth = pkt->head_data<Ethernet*>();
 	Ethernet::Address macswap = eth->dst_addr;

@@ -4,8 +4,6 @@
 #include "dysco_util.h"
 #include "dysco_center.h"
 
-#define DYSCO_MAC "00:00:00:00:00:00"
-
 class DyscoAgentOut final : public Module {
  public:
 	static const Commands cmds;
@@ -14,8 +12,8 @@ class DyscoAgentOut final : public Module {
 
 	DyscoAgentOut();
 
-	CommandResponse Init(const bess::pb::DyscoAgentOutArg&);
-	CommandResponse CommandSetup(const bess::pb::EmptyArg&);
+	//CommandResponse Init(const bess::pb::EmptyArg&);
+	CommandResponse CommandSetup(const bess::pb::DyscoAgentArg&);
 
 	void ProcessBatch(PacketBatch*) override;
 	
@@ -25,6 +23,7 @@ class DyscoAgentOut final : public Module {
 	uint32_t index;
 	DyscoCenter* dc;
 	DyscoVPort* port;
+	DyscoAgentIn* agent;
 
 	/*
 	  Dysco methods
