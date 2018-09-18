@@ -1,6 +1,3 @@
-#include <netinet/tcp.h>
-
-#include "dysco_port_out.h"
 #include "dysco_agent_in.h"
 
 uint64_t DyscoAgentIn::timeout;
