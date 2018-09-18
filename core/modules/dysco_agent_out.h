@@ -3,9 +3,6 @@
 
 #include "dysco_util.h"
 #include "dysco_center.h"
-#include "dysco_agent_in.h"
-
-class DyscoAgentIn;
 
 class DyscoAgentOut final : public Module {
  public:
@@ -26,7 +23,6 @@ class DyscoAgentOut final : public Module {
 	uint32_t index;
 	DyscoCenter* dc;
 	DyscoVPort* port;
-	DyscoAgentIn* agent;
 
 	/*
 	  Dysco methods
