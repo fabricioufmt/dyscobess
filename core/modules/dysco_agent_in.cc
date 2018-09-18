@@ -1568,6 +1568,9 @@ void DyscoAgentIn::retransmissionHandler() {
 	batch->clear();
 
 	mutex* mtx = dc->getMutex(this->index, devip);
+#ifdef DEBUG
+	fprintf(stderr, "looking for mutex for %u %u\n", this->index, devip);
+#endif
 	if(!mtx)
 		return;
 	

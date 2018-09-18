@@ -79,11 +79,18 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 			if(processLockingSignalPacket(pkt, eth, ip, tcp, cb_out)) {
 				//how to acked this packet?
 				//out_gates[1].add(pkt);
+#ifdef DEBUG
+				fprintf(stderr, "Inserting retransmission list: %u %u\n", this->index, devip);
+#endif
 				if(!dc->add_retransmission(this->index, devip, pkt)) {
 #ifdef DEBUG
 					fprintf(stderr, "Can't add this packet to retransmission list\n");
 #endif
 				}
+#ifdef DEBUG
+				else
+					fprintf(stderr, "Can add this packet to retransmission list\n");
+#endif
 				continue;
 			}
 		} else if(isReconfigPacketOut(ip, tcp, cb_out)) {
