@@ -32,6 +32,8 @@
 #include "dysco_policies.h"
 #include "dysco_port_inc.h"
 #include "dysco_port_out.h"
+#include "dysco_agent_in.h"
+#include "dysco_agent_out.h"
 
 using std::mutex;
 using std::string;

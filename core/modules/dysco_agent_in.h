@@ -8,7 +8,6 @@
 
 #include "dysco_center.h"
 #include "dysco_port_out.h"
-#include "dysco_agent_out.h"
 
 #include "../port.h"
 #include "../module.h"
