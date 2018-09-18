@@ -44,7 +44,7 @@ CommandResponse DyscoAgentIn::CommandSetup(const bess::pb::DyscoAgentArg& arg) {
 	devip = dysco_vport->devip;
 	index = dc->get_index(ns, devip);
 	
-	const auto& it = ModuleGraph::GetAllModules().find(DYSCOCENTER_MODULENAME);
+	auto& it = ModuleGraph::GetAllModules().find(DYSCOCENTER_MODULENAME);
 	if(it == ModuleGraph::GetAllModules().end())
 		return CommandFailure(EINVAL, "ERROR: DyscoCenter is not available.");
 
