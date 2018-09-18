@@ -48,13 +48,13 @@ CommandResponse DyscoAgentIn::CommandSetup(const bess::pb::DyscoAgentArg& arg) {
 	if(it1 == ModuleGraph::GetAllModules().end())
 		return CommandFailure(EINVAL, "ERROR: DyscoCenter is not available.");
 
-	dc = reinterpret_cast<DyscoCenter*>(it->second);
+	dc = reinterpret_cast<DyscoCenter*>(it1->second);
 
 	const auto& it2 = ModuleGraph::GetAllModules().find(arg.agent().c_str());
 	if(it2 == ModuleGraph::GetAllModules().end())
 		return CommandFailure(EINVAL, "ERROR: DyscoAgentIn is not available.");
 	
-	agent = reinterpret_cast<DyscoAgentOut*>(it->second);
+	agent = reinterpret_cast<DyscoAgentOut*>(it2->second);
 	
 	return CommandSuccess();
 }
