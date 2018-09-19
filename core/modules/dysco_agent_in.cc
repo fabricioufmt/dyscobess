@@ -1566,7 +1566,7 @@ void DyscoAgentIn::retransmissionHandler() {
 				//should remove in hashtable
 				continue;
 			}
-
+			/*
 #ifdef DEBUG
 			fprintf(stderr, "[%s][DyscoAgentIn-Retransmission] %lu - %lu = %lu (TIMEOUT: %lu).\n", ns.c_str(), now_ts, node->ts, now_ts-node->ts, DyscoAgentIn::timeout);
 #endif
@@ -1576,6 +1576,7 @@ void DyscoAgentIn::retransmissionHandler() {
 				batch->add(&node->element);
 				node->ts = now_ts;
 			}
+			*/
 		}
 		
 		node = node->next;
