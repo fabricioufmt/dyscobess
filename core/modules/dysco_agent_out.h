@@ -27,7 +27,7 @@ public:
 		return ns.c_str();
 	}
 
-	inline LinkedList<Packet> getRetransmissionList() {
+	inline LinkedList<Packet>* getRetransmissionList() {
 		return retransmission_list;
 	}
 	
@@ -38,7 +38,7 @@ public:
 	uint32_t index;
 	DyscoCenter* dc;
 	DyscoVPort* port;
-	LinkedList<Packet> retransmission_list;
+	LinkedList<Packet>* retransmission_list;
 
 	/*
 	  Dysco methods

@@ -993,7 +993,7 @@ bool DyscoAgentOut::processLockingSignalPacket(Packet* pkt, Ethernet* eth, Ipv4*
 	return true;	
 }
 
-LinkedList<Packet> DyscoAgentOut::getRetransmissionList() {
+LinkedList<Packet>* DyscoAgentOut::getRetransmissionList() {
 	return retransmission_list;
 }
 
