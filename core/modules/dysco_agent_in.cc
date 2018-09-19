@@ -1766,7 +1766,7 @@ bool DyscoAgentIn::processRequestLocking(Packet* pkt, Ethernet* eth, Ipv4* ip, T
 			out.add(pkt);
 			cb_out->module->RunChooseModule(1, &out);
 
-			return false
+			return false;
 		} else {		
 			Ethernet::Address macswap = eth->dst_addr;
 			eth->dst_addr = eth->src_addr;
