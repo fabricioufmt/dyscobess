@@ -64,7 +64,7 @@ DyscoAgentOut::DyscoAgentOut() : Module() {
 	devip = 0;
 	index = 0;
 	timeout = DEFAULT_TIMEOUT;
-	timer = new thread(timer_workder, this);
+	timer = new thread(timer_worker, this);
 }
 
 CommandResponse DyscoAgentOut::CommandSetup(const bess::pb::EmptyArg&) {

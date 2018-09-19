@@ -23,7 +23,7 @@ public:
 	
 	void ProcessBatch(PacketBatch*) override;
 	bool forward(Packet*, bool = false);
-	inline char* getNs() {
+	inline const char* getNs() {
 		return ns.c_str();
 	}
 	
