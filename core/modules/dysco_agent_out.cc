@@ -28,16 +28,17 @@ CommandResponse DyscoAgentOut::CommandSetup(const bess::pb::EmptyArg&) {
 	if(!dysco_vport)
 		return CommandFailure(EINVAL, "ERROR: DyscoVPort is not available.");
 
-	port = dysco_vport;
-	ns = dysco_vport->ns;
-	devip = dysco_vport->devip;
-	index = dc->get_index(ns, devip);
-
 	const auto& it = ModuleGraph::GetAllModules().find(DYSCOCENTER_MODULENAME);
 	if(it == ModuleGraph::GetAllModules().end())
 		return CommandFailure(EINVAL, "ERROR: DyscoCenter is not available.");
 
 	dc = reinterpret_cast<DyscoCenter*>(it->second);
+	
+	port = dysco_vport;
+	ns = dysco_vport->ns;
+	devip = dysco_vport->devip;
+	index = dc->get_index(ns, devip);
+	
 	/*
 	it = ModuleGraph::GetAllModules().find(arg.agent().c_str());
 	if(it == ModuleGraph::GetAllModules().end())

@@ -38,11 +38,6 @@ CommandResponse DyscoAgentIn::CommandSetup(const bess::pb::DyscoAgentArg& arg) {
 	DyscoVPort* dysco_vport = reinterpret_cast<DyscoVPort*>(dysco_port_out->port_);
 	if(!dysco_vport)
 		return CommandFailure(EINVAL, "ERROR: DyscoVPort is not available.");
-
-	port = dysco_vport;
-	ns = dysco_vport->ns;
-	devip = dysco_vport->devip;
-	index = dc->get_index(ns, devip);
 	
 	const auto& it1 = ModuleGraph::GetAllModules().find(DYSCOCENTER_MODULENAME);
 	if(it1 == ModuleGraph::GetAllModules().end())
@@ -55,6 +50,11 @@ CommandResponse DyscoAgentIn::CommandSetup(const bess::pb::DyscoAgentArg& arg) {
 		return CommandFailure(EINVAL, "ERROR: DyscoAgentIn is not available.");
 	
 	agent = reinterpret_cast<DyscoAgentOut*>(it2->second);
+
+	port = dysco_vport;
+	ns = dysco_vport->ns;
+	devip = dysco_vport->devip;
+	index = dc->get_index(ns, devip);
 	
 	return CommandSuccess();
 }
