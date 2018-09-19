@@ -1,28 +1,14 @@
 #include "dysco_agent_in.h"
 
-uint64_t DyscoAgentIn::timeout;
-
 const Commands DyscoAgentIn::cmds = {
 	{"setup", "DyscoAgentArg", MODULE_CMD_FUNC(&DyscoAgentIn::CommandSetup), Command::THREAD_UNSAFE}
 };
-
-void timer_worker(DyscoAgentIn* agent) {
-	while(1) {
-		usleep(SLEEPTIME);
-		agent->retransmissionHandler();
-	}
-}
 
 DyscoAgentIn::DyscoAgentIn() : Module() {
 	dc = 0;
 	devip = 0;
 	index = 0;
-	timeout = DEFAULT_TIMEOUT;
-	timer = new thread(timer_worker, this);
 }
-
-//CommandResponse DyscoAgentIn::Init(const bess::pb::EmptyArg& arg) {
-//}
 
 CommandResponse DyscoAgentIn::CommandSetup(const bess::pb::DyscoAgentArg& arg) {
 	gate_idx_t ogate_idx = 0;
@@ -141,7 +127,8 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 #ifdef DEBUG
 				fprintf(stderr, "[%s][DyscoAgentIn-Control] forwarding to toRetransmit %s [%X:%X]\n\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.value(), tcp->ack_num.value());
 #endif
-				dc->add_retransmission(this->index, devip, pkt);
+				//dc->add_retransmission(this->index, devip, pkt);
+				agent->forward(pkt);
 				break;
 
 			case IS_RETRANSMISSION:

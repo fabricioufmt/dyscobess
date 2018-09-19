@@ -1,24 +1,35 @@
 #ifndef BESS_MODULES_DYSCOAGENTOUT_H_
 #define BESS_MODULES_DYSCOAGENTOUT_H_
 
+#include <stdio.h>
+#include <unistd.h>
+#include <signal.h>
+#include <netinet/tcp.h>
+
 #include "dysco_util.h"
 #include "dysco_center.h"
 
 class DyscoAgentOut final : public Module {
- public:
+public:
+	static uint64_t timeout;
 	static const Commands cmds;
 	static const gate_idx_t kNumIGates = 1;
 	static const gate_idx_t kNumOGates = 2;
-
+	
 	DyscoAgentOut();
-
+	
 	//CommandResponse Init(const bess::pb::EmptyArg&);
 	CommandResponse CommandSetup(const bess::pb::EmptyArg&);
-
+	
 	void ProcessBatch(PacketBatch*) override;
 	bool forward(Packet*, bool = false);
+	inline char* getNs() {
+		return ns.c_str();
+	}
+	
  private:
 	string ns;
+	thread* timer;
 	uint32_t devip;
 	uint32_t index;
 	DyscoCenter* dc;

@@ -1,17 +1,71 @@
 #include "dysco_agent_out.h"
 
+uint64_t DyscoAgentOut::timeout;
+
 const Commands DyscoAgentOut::cmds = {
 	{"setup", "EmptyArg", MODULE_CMD_FUNC(&DyscoAgentOut::CommandSetup), Command::THREAD_UNSAFE}
 };
+
+void timer_worker(DyscoAgentOut* agent) {
+	uint64_t now_ts;
+	LNode<Packet>* aux;
+	LNode<Packet>* node;
+	LNode<Packet>* tail;
+	LinkedList<Packet>* list;
+	PacketBatch* batch = new PacketBatch();
+	
+	while(1) {
+		batch->clear();
+		usleep(SLEEPTIME);
+		
+		list = agent->getRetransmissionList();
+		if(!list)
+			continue;
+
+		tail = list->getTail();
+		now_ts = tsc_to_ns(rdtsc());
+		node = list->getHead()->next;
+
+		while(node != tail) {
+			if(node->cnt == 0) {
+				node->cnt++;
+				batch->add(&node->element);
+				node->ts = now_ts;
+			} else {
+				if(isEstablished(&node->element) || node->cnt > CNTLIMIT) {
+					aux = node->next;
+					list->remove(node);
+					node = aux;
+					
+					continue;
+				}
+			
+				if(now_ts - node->ts > DyscoAgentOut::timeout) {
+					node->cnt++;
+					batch->add(&node->element);
+					node->ts = now_ts;
+				}
+			}
+		
+			node = node->next;
+		}
+
+		if(batch->cnt()) {
+#ifdef DEBUG
+			fprintf(stderr, "[%s][DyscoAgentOut] is going to retransmit %u packets.\n", agent->getNs(), batch->cnt());
+			agent->RunChooseModule(1, batch);
+#endif
+		}
+	}
+}
 
 DyscoAgentOut::DyscoAgentOut() : Module() {
 	dc = 0;
 	devip = 0;
 	index = 0;
+	timeout = DEFAULT_TIMEOUT;
+	timer = new thread(timer_workder, this);
 }
-
-//CommandResponse DyscoAgentOut::Init(const bess::pb::EmptyArg& arg) {
-//}
 
 CommandResponse DyscoAgentOut::CommandSetup(const bess::pb::EmptyArg&) {
 	gate_idx_t igate_idx = 0;
@@ -39,13 +93,6 @@ CommandResponse DyscoAgentOut::CommandSetup(const bess::pb::EmptyArg&) {
 	devip = dysco_vport->devip;
 	index = dc->get_index(ns, devip);
 	
-	/*
-	it = ModuleGraph::GetAllModules().find(arg.agent().c_str());
-	if(it == ModuleGraph::GetAllModules().end())
-		return CommandFailure(EINVAL, "ERROR: DyscoAgentIn is not available.");
-	
-	agent = reinterpret_cast<DyscoAgentIn*>(it->second);
-	*/
 	return CommandSuccess();
 }
 

@@ -8,13 +8,13 @@
 
 #include "dysco_util.h"
 #include "dysco_center.h"
-#include "dysco_port_out.h"
+//#include "dysco_port_out.h"
 #include "dysco_agent_out.h"
 
-#include "../port.h"
-#include "../module.h"
-#include "../pb/module_msg.pb.h"
-#include "../drivers/dysco_vport.h"
+//#include "../port.h"
+//#include "../module.h"
+//#include "../pb/module_msg.pb.h"
+//#include "../drivers/dysco_vport.h"
 
 enum CONTROL_RETURN {
 	TO_GATE_0,
