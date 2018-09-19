@@ -32,7 +32,7 @@ void timer_worker(DyscoAgentOut* agent) {
 				batch->add(&node->element);
 				node->ts = now_ts;
 			} else {
-				if(isEstablished(&node->element) || node->cnt > CNTLIMIT) {
+				if(node->cnt > CNTLIMIT) {
 					aux = node->next;
 					list->remove(node);
 					node = aux;
