@@ -180,10 +180,10 @@ l2_7:1 -> din9
 l2_8:0 -> PortOut(port=R_6)
 l2_8:1 -> din10
 
-dc.add(priority=1, sc_len=4, chain=['10.0.1.1', '10.0.5.2', '10.0.4.2', '10.0.2.2'], filter='dst port 5001', ns='/var/run/netns/c1')
-#dc.add(priority=1, sc_len=3, chain=['10.0.5.2', '10.0.4.2', '10.0.2.2'], filter='dst port 5001', ns='/var/run/netns/LA')
+dyscocenter.add(priority=1, sc_len=4, chain=['10.0.1.1', '10.0.5.2', '10.0.4.2', '10.0.2.2'], filter='dst port 5001', ns='/var/run/netns/c1')
+#dyscocenter.add(priority=1, sc_len=3, chain=['10.0.5.2', '10.0.4.2', '10.0.2.2'], filter='dst port 5001', ns='/var/run/netns/LA')
 
-dc.add(priority=1, sc_len=2, chain=['10.0.4.2', '10.0.2.2'], filter='dst port 5001', ns='/var/run/netns/m1')
+dyscocenter.add(priority=1, sc_len=2, chain=['10.0.4.2', '10.0.2.2'], filter='dst port 5001', ns='/var/run/netns/m1')
 
 #os.system('ip netns exec c1 tcpdump -i c1-0 arp or icmp or tcp -n -XX -w /home/fabricio/c1_0.pcap & 2> /dev/null')
 #os.system('ip netns exec s1 tcpdump -i s1-0 arp or icmp or tcp -n -XX -w /home/fabricio/s1_0.pcap & 2> /dev/null')
