@@ -125,7 +125,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 				agent->forward(pkt);
 				continue;
 			}
-		} else if(isReconfigPacket(ip, tcp, cb_in, removed)) {
+		} else if(isReconfigPacket(ip, tcp, cb_in, false)) { //false = removed
 #ifdef DEBUG
 			fprintf(stderr, "It is reconfig packet\n");
 #endif
