@@ -148,6 +148,9 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 #endif
 
 			if(processLockingSignalPacket(pkt, eth, ip, tcp, cb_out)) {
+				forward(pkt, true);
+				/*
+				
 				//how to acked this packet?
 				//out_gates[1].add(pkt);
 #ifdef DEBUG
@@ -162,6 +165,7 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 				else
 					fprintf(stderr, "Can add this packet to retransmission list\n");
 #endif
+				*/
 				continue;
 			}
 		} else if(isReconfigPacketOut(ip, tcp, cb_out)) {
