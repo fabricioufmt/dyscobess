@@ -22,6 +22,11 @@ void timer_worker(DyscoAgentOut* agent) {
 		if(!list)
 			continue;
 
+#ifdef DEBUG
+		if(list->size())
+			fprintf(stderr, "Retransmission List size: %u\n" list->size());
+#endif
+		
 		tail = list->getTail();
 		now_ts = tsc_to_ns(rdtsc());
 		node = list->getHead()->next;

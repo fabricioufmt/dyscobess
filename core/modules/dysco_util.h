@@ -229,11 +229,13 @@ public:
 template <typename T>
 class LinkedList {
 private:
+	uint32_t n;
 	LNode<T>* head;
 	LNode<T>* tail;
 
 public:
 	LinkedList() {
+		n = 0;
 		head = new LNode<T>();
 		tail = new LNode<T>();
 
@@ -257,6 +259,8 @@ public:
 	}
 	
 	void clear() {
+		n = 0;
+		
 		while(tail->prev != head) {
 			LNode<T>* toRemove = tail->prev;
 			tail->prev = toRemove->prev;
@@ -269,6 +273,7 @@ public:
 		if(!node)
 			return false;
 
+		n--;
 		delete node;
 
 		return true;
@@ -282,6 +287,7 @@ public:
 		node->prev = head;
 		head->next = node;
 
+		n++;
 		node->setTs(ts);
 		
 		return node;
@@ -295,9 +301,14 @@ public:
 		node->next = tail;
 		tail->prev = node;
 
+		n++;
 		node->setTs(ts);
 		
 		return node;
+	}
+
+	const uint32_t size() {
+		return n;
 	}
 };
 
