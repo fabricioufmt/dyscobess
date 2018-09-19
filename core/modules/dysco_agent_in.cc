@@ -3,7 +3,7 @@
 uint64_t DyscoAgentIn::timeout;
 
 const Commands DyscoAgentIn::cmds = {
-	{"setup", "EmptyArg", MODULE_CMD_FUNC(&DyscoAgentIn::CommandSetup), Command::THREAD_UNSAFE}
+	{"setup", "DyscoAgentArg", MODULE_CMD_FUNC(&DyscoAgentIn::CommandSetup), Command::THREAD_UNSAFE}
 };
 
 void timer_worker(DyscoAgentIn* agent) {

@@ -1,7 +1,7 @@
 #include "dysco_agent_out.h"
 
 const Commands DyscoAgentOut::cmds = {
-	{"setup", "DyscoAgentArg", MODULE_CMD_FUNC(&DyscoAgentOut::CommandSetup), Command::THREAD_UNSAFE}
+	{"setup", "EmptyArg", MODULE_CMD_FUNC(&DyscoAgentOut::CommandSetup), Command::THREAD_UNSAFE}
 };
 
 DyscoAgentOut::DyscoAgentOut() : Module() {
@@ -13,7 +13,7 @@ DyscoAgentOut::DyscoAgentOut() : Module() {
 //CommandResponse DyscoAgentOut::Init(const bess::pb::EmptyArg& arg) {
 //}
 
-CommandResponse DyscoAgentOut::CommandSetup(const bess::pb::DyscoAgentArg&) {
+CommandResponse DyscoAgentOut::CommandSetup(const bess::pb::EmptyArg&) {
 	gate_idx_t igate_idx = 0;
 
 	if(!is_active_gate<bess::IGate>(igates(), igate_idx))
