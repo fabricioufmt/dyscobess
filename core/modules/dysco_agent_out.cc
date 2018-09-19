@@ -65,6 +65,7 @@ DyscoAgentOut::DyscoAgentOut() : Module() {
 	index = 0;
 	timeout = DEFAULT_TIMEOUT;
 	timer = new thread(timer_worker, this);
+	retransmission_list = new LinkedList<Packet>();
 }
 
 CommandResponse DyscoAgentOut::CommandSetup(const bess::pb::EmptyArg&) {
@@ -992,9 +993,12 @@ bool DyscoAgentOut::processLockingSignalPacket(Packet* pkt, Ethernet* eth, Ipv4*
 	return true;	
 }
 
+LinkedList<Packet> DyscoAgentOut::getRetransmissionList() {
+	return retransmission_list;
+}
 
-bool DyscoAgentOut::forward(Packet* pkt, bool shouldRetransmit) {
-	if(!shouldRetransmit) {
+bool DyscoAgentOut::forward(Packet* pkt, bool reliable) {
+	if(!reliable) {
 		PacketBatch out;
 		out.clear();
 		out.add(pkt);

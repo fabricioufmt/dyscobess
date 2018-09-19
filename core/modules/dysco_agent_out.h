@@ -26,6 +26,10 @@ public:
 	inline const char* getNs() {
 		return ns.c_str();
 	}
+
+	inline LinkedList<Packet> getRetransmissionList() {
+		return retransmission_list;
+	}
 	
  private:
 	string ns;
@@ -34,6 +38,7 @@ public:
 	uint32_t index;
 	DyscoCenter* dc;
 	DyscoVPort* port;
+	LinkedList<Packet> retransmission_list;
 
 	/*
 	  Dysco methods
