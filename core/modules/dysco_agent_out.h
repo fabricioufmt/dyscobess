@@ -56,6 +56,8 @@ class DyscoAgentOut final : public Module {
 	bool isReconfigPacketOut(Ipv4*, Tcp*, DyscoHashOut*);
 
 	bool processLockingSignalPacket(Packet*, Ethernet*, Ipv4*, Tcp*, DyscoHashOut*);
+
+	bool forward(Packet*, bool);
 };
 
 #endif //BESS_MODULES_DYSCOAGENTOUT_H_

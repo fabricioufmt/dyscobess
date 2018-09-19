@@ -944,6 +944,18 @@ bool DyscoAgentOut::processLockingSignalPacket(Packet* pkt, Ethernet* eth, Ipv4*
 	return true;	
 }
 
+
+bool DyscoAgentOut::forward(Packet* pkt, bool shouldRetransmit = false) {
+	if(!shouldRetransmit) {
+		PacketBatch out;
+		out.clear();
+		out.add(pkt);
+		RunChooseModule(1, &out);
+	}
+
+	return true;
+}
+
 ADD_MODULE(DyscoAgentOut, "dysco_agent_out", "processes packets outcoming from host")
 
 
