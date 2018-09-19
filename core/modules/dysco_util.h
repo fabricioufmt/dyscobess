@@ -307,7 +307,7 @@ public:
 		return node;
 	}
 
-	const uint32_t size() {
+	uint32_t size() const {
 		return n;
 	}
 };
