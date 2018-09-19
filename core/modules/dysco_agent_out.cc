@@ -993,18 +993,18 @@ bool DyscoAgentOut::processLockingSignalPacket(Packet* pkt, Ethernet* eth, Ipv4*
 	return true;	
 }
 
-LinkedList<Packet>* DyscoAgentOut::getRetransmissionList() {
-	return retransmission_list;
-}
-
 bool DyscoAgentOut::forward(Packet* pkt, bool reliable) {
 	if(!reliable) {
 		PacketBatch out;
 		out.clear();
 		out.add(pkt);
 		RunChooseModule(1, &out);
+
+		return true;
 	}
 
+	retransmission_list->insertTail(*pkt, tsc_to_ns(rdtsc())); 
+	
 	return true;
 }
 
