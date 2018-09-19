@@ -24,7 +24,7 @@ void timer_worker(DyscoAgentOut* agent) {
 
 #ifdef DEBUG
 		if(list->size())
-			fprintf(stderr, "Retransmission List size: %u\n" list->size());
+			fprintf(stderr, "Retransmission List size: %u\n", list->size());
 #endif
 		
 		tail = list->getTail();
