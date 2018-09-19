@@ -97,7 +97,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 #endif
 			out.add(Packet::copy(pkt)); //debug
 			if(processLockingSignalPacket(pkt, eth, ip, tcp, cb_in)) {
-				agent->forward(pkt);
+				agent->forward(pkt, true);
 				//out_gates[1].add(pkt);
 				continue;
 			}
@@ -108,7 +108,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 
 			out.add(Packet::copy(pkt)); //debug
 			if(processLockingPacket(pkt, eth, ip, tcp)) {
-				agent->forward(pkt);
+				agent->forward(pkt, true);
 				continue;
 			}
 		} else if(isReconfigPacket(ip, tcp, cb_in, false)) { //false = removed
@@ -128,7 +128,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 				fprintf(stderr, "[%s][DyscoAgentIn-Control] forwarding to toRetransmit %s [%X:%X]\n\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.value(), tcp->ack_num.value());
 #endif
 				//dc->add_retransmission(this->index, devip, pkt);
-				agent->forward(pkt);
+				agent->forward(pkt, true);
 				break;
 
 			case IS_RETRANSMISSION:
