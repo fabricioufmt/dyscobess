@@ -16,7 +16,7 @@ class DyscoAgentOut final : public Module {
 	CommandResponse CommandSetup(const bess::pb::DyscoAgentArg&);
 
 	void ProcessBatch(PacketBatch*) override;
-	
+	bool forward(Packet*, bool = false);
  private:
 	string ns;
 	uint32_t devip;
@@ -56,8 +56,6 @@ class DyscoAgentOut final : public Module {
 	bool isReconfigPacketOut(Ipv4*, Tcp*, DyscoHashOut*);
 
 	bool processLockingSignalPacket(Packet*, Ethernet*, Ipv4*, Tcp*, DyscoHashOut*);
-
-	bool forward(Packet*, bool = false);
 };
 
 #endif //BESS_MODULES_DYSCOAGENTOUT_H_

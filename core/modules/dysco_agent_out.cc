@@ -945,7 +945,7 @@ bool DyscoAgentOut::processLockingSignalPacket(Packet* pkt, Ethernet* eth, Ipv4*
 }
 
 
-bool DyscoAgentOut::forward(Packet* pkt, bool shouldRetransmit = false) {
+bool DyscoAgentOut::forward(Packet* pkt, bool shouldRetransmit) {
 	if(!shouldRetransmit) {
 		PacketBatch out;
 		out.clear();
