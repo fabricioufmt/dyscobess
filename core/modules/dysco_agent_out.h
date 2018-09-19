@@ -13,7 +13,7 @@ class DyscoAgentOut final : public Module {
 	DyscoAgentOut();
 
 	//CommandResponse Init(const bess::pb::EmptyArg&);
-	CommandResponse CommandSetup(const bess::pb::DyscoAgentArg&);
+	CommandResponse CommandSetup(const bess::pb::EmptyArg&);
 
 	void ProcessBatch(PacketBatch*) override;
 	bool forward(Packet*, bool = false);
