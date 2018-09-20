@@ -29,6 +29,8 @@ enum CONTROL_RETURN {
 	LOCK_SUCCESSFUL,
 };
 
+class DyscoAgentOut;
+
 class DyscoAgentIn final : public Module {
  public:
 	static uint64_t timeout;
