@@ -59,7 +59,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 	Ipv4* ip;
 	Packet* pkt;
 	Packet* newpkt;
-	//bool removed;
+	bool removed;
 	Ethernet* eth;
 	size_t ip_hlen;
 	DyscoHashIn* cb_in;
@@ -87,7 +87,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 #endif
 
 		cb_in = dc->lookup_input(this->index, ip, tcp);
-		processReceivedPacket(tcp);
+		removed = processReceivedPacket(tcp);
 		/*removed = dc->processReceivedPacket(this->index, devip, tcp);
 #ifdef DEBUG
 		if(removed)
@@ -163,6 +163,13 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 #ifdef DEBUG
 			fprintf(stderr, "It isn't reconfig packet\n");
 #endif
+			if(removed) {
+#ifdef DEBUG
+				fprintf(stderr, "dropping..\n");
+#endif
+				continue;
+			}
+			
 			switch(input(pkt, ip, tcp, cb_in)) {
 			case TO_GATE_0:
 				out.add(pkt);
