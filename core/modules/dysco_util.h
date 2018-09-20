@@ -141,7 +141,7 @@ enum {
 #define PORT_RANGE                      65536
 #define CNTLIMIT                        3
 #define SLEEPTIME                       250000  /* usec */  // 250 ms
-#define DEFAULT_TIMEOUT                 1000000 /* usec */  // 1000 ms
+#define DEFAULT_TIMEOUT                 1000000000 /* nsec */  // 1 s
 
 /*********************************************************************
  *

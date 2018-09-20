@@ -114,7 +114,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 			fprintf(stderr, "Receives Locking Packet.\n");
 #endif
 
-			out.add(Packet::copy(pkt)); //debug
+			//out.add(Packet::copy(pkt)); //debug
 			if(processLockingPacket(pkt, eth, ip, tcp)) {
 				agent->forward(pkt, true);
 				continue;
