@@ -2123,7 +2123,8 @@ bool DyscoAgentIn::processReceivedPacket(Tcp* tcp) {
 #ifdef DEBUG
 		fprintf(stderr, "I found the packet and I'm going to remove it\n");
 #endif
-		delete node;
+		//delete node;
+		agent->getRetransmissionList()->remove(node);
 		received_hash->erase(key);
 
 		return true;
