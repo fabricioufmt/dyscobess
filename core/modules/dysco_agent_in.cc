@@ -58,6 +58,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 	Tcp* tcp;
 	Ipv4* ip;
 	Packet* pkt;
+	Packet* newpkt;
 	//bool removed;
 	Ethernet* eth;
 	size_t ip_hlen;
@@ -97,9 +98,11 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 #ifdef DEBUG
 			fprintf(stderr, "Receives Locking Signal Packet.\n");
 #endif
-			out.add(Packet::copy(pkt)); //debug
-			if(processLockingSignalPacket(pkt, eth, ip, tcp, cb_in)) {
-				agent->forward(pkt, true);
+			newpkt = processLockingSignalPacket(pkt, eth, ip, tcp, cb_in);
+			if(newpkt) {
+				agent->forward(newpkt, true);
+				createAckLockingSignalPacket(pkt, eth, ip, tcp);
+				agent->forward(pkt);
 				//out_gates[1].add(pkt);
 				continue;
 			}
@@ -1464,45 +1467,52 @@ void DyscoAgentIn::createFinAck(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
   - remove TCP Option
   - increase Packet buffer (sizeof(DyscoControlMessage))
  */
-void DyscoAgentIn::createLockingPacket(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoTcpOption* tcpo, DyscoHashIn* cb_in) {
+Packet* DyscoAgentIn::createLockingPacket(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoTcpOption* tcpo, DyscoHashIn* cb_in) {
 #ifdef DEBUG
 	fprintf(stderr, "creating Locking Packet\n");
 #endif
+
+	Packet* newpkt = Packet::Alloc();
+
+	newpkt->set_total_len(sizeof(Ethernet) + sizeof(Ipv4) + sizeof(Tcp) + sizeof(DyscoControlMessage));
+	newpkt->set_data_len(sizeof(Ethernet) + sizeof(Ipv4) + sizeof(Tcp) + sizeof(DyscoControlMessage));
 	
 	uint8_t rhop = tcpo->padding & 0xff;
 	
-	pkt->trim(tcpo->len + hasPayload(ip, tcp));
-	DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>(pkt->append(sizeof(DyscoControlMessage)));
+	//pkt->trim(tcpo->len + hasPayload(ip, tcp));
+	//DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>(pkt->append(sizeof(DyscoControlMessage)));
 
 	Ethernet* eth = pkt->head_data<Ethernet*>();
-	Ethernet::Address macswap = eth->dst_addr;
-	eth->dst_addr = eth->src_addr;
-	eth->src_addr = macswap;
-	
-	ip->id = be16_t(rand());
-	ip->ttl = 53;
-	ip->checksum = 0;
+	Ethernet* neweth = newpkt->head_data<Ethernet*>();
 
-	be32_t ipswap = ip->src;
-	ip->src = ip->dst;
-	ip->dst = ipswap;
-	
-	ip->length = be16_t(ip->length.value() - tcpo->len - hasPayload(ip, tcp) + sizeof(DyscoControlMessage));
-	memset(cmsg, 0, sizeof(DyscoControlMessage));
+	neweth->dst_addr = eth->src_addr;
+	neweth->src_addr = eth->dst_addr;
 
-	tcp->src_port = be16_t(rand());
-	tcp->dst_port = be16_t(rand());
-	tcp->seq_num = be32_t(rand());
-	tcp->ack_num = be32_t(0);
-	tcp->offset = 5;
-	tcp->flags = Tcp::kSyn;
+	Ipv4* newip = reinterpret_cast<Ipv4*>(neweth + 1);
+	newip->id = be16_t(rand());
+	newip->ttl = 53;
+	newip->checksum = 0;
+	newip->src = ip->dst;
+	newip->dst = ip->src
+	newip->length = be16_t(sizeof(Ipv4) + sizeof(Tcp) + sizeof(DyscoControlMessage));
+	
+	Tcp* newtcp = reinterpret_cast<Tcp*>(newip + 1);
+
+	newtcp->src_port = be16_t(rand());
+	newtcp->dst_port = be16_t(rand());
+	newtcp->seq_num = be32_t(rand());
+	newtcp->ack_num = be32_t(0);
+	newtcp->offset = 5;
+	newtcp->flags = Tcp::kSyn;
 
 	cb_in->dcb_out->is_LA = 1;
 	cb_in->dcb_out->lock_state = DYSCO_REQUEST_LOCK;
-	
+
+	DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>(newtcp + 1);
+	memset(cmsg, 0, sizeof(DyscoControlMessage));	
 	cmsg->type = DYSCO_LOCK;
 	cmsg->lock_state = DYSCO_REQUEST_LOCK;
-	cmsg->leftA = ip->src.raw_value();
+	cmsg->leftA = newip->src.raw_value();
 	cmsg->my_sub.sip = cb_in->sub.dip;
 	cmsg->my_sub.dip = cb_in->sub.sip;
 	cmsg->my_sub.sport = cb_in->sub.dport;
@@ -1522,7 +1532,9 @@ void DyscoAgentIn::createLockingPacket(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoTcp
 	fprintf(stderr, "cb_in->dcb_out->sup: %s\n", printSS(cb_in->dcb_out->sup));
 #endif
 	
-	fix_csum(ip, tcp);
+	fix_csum(newip, newtcp);
+
+	return newpkt;
 }
 
 /*
@@ -1622,9 +1634,9 @@ bool DyscoAgentIn::isEstablished(Packet* pkt) {
 /*
  * Locking Signal methods
  */
-bool DyscoAgentIn::processLockingSignalPacket(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
+Packet* DyscoAgentIn::processLockingSignalPacket(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
 	if(!cb_in)
-		return false;
+		return 0;
 
 	DyscoTcpOption* tcpo = reinterpret_cast<DyscoTcpOption*>((uint8_t*)tcp + 20);
 	uint8_t* lhop = (uint8_t*)(&tcpo->padding) + 1;
@@ -1635,9 +1647,7 @@ bool DyscoAgentIn::processLockingSignalPacket(Packet* pkt, Ethernet* eth, Ipv4* 
 #ifdef DEBUG
 		fprintf(stderr, "I'm the LeftAnchor\n");
 #endif			
-		createLockingPacket(pkt, ip, tcp, tcpo, cb_in);
-		
-		return true;
+		return createLockingPacket(pkt, ip, tcp, tcpo, cb_in);
 	} else {
 #ifdef DEBUG
 		fprintf(stderr, "I'm not the LeftAnchor\n");
@@ -1648,7 +1658,7 @@ bool DyscoAgentIn::processLockingSignalPacket(Packet* pkt, Ethernet* eth, Ipv4* 
 #ifdef DEBUG 
 			fprintf(stderr, "cb_out not found... dropping.\n");
 #endif
-			return false;
+			return 0;
 		}
 
 		eth->src_addr = cb_out->mac_sub.src_addr;
@@ -1665,7 +1675,7 @@ bool DyscoAgentIn::processLockingSignalPacket(Packet* pkt, Ethernet* eth, Ipv4* 
 		cb_out->module->RunChooseModule(1, &out);
 	}
 
-	return false;
+	return 0;
 }
 
 bool DyscoAgentIn::processLockingPacket(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp) {
@@ -2105,6 +2115,9 @@ bool DyscoAgentIn::processReceivedPacket(Tcp* tcp) {
 
 	LNode<Packet>* node = received_hash->operator[](key);
 	if(node) {
+#ifdef DEBUG
+		fprintf(stderr, "I found the packet and I'm going to remove it\n");
+#endif
 		delete node;
 		received_hash->erase(key);
 
@@ -2112,6 +2125,37 @@ bool DyscoAgentIn::processReceivedPacket(Tcp* tcp) {
 	}
 
 	return false;
+}
+
+bool DyscoAgentIn::createAckLockingSignalPacket(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp) {
+	DyscoTcpOption* tcpo = reinterpret_cast<DyscoTcpOption*>((uint8_t*)tcp + 20);
+	uint32_t payload_len = hasPayload(ip, tcp);
+
+	pkt->trim(tcpo->len + payload_len);
+
+	Ethernet::Address macswap = eth->src_addr;
+	eth->src_addr = eth->dst_addr;
+	eth->dst_addr = macswap;
+
+	ip->header_length = 5;
+	ip->length = be16_t(sizeof(Ipv4) + sizeof(Tcp));
+	ip->id = be16_t(rand());
+	ip->ttl = 53;
+	be32_t ipswap = ip->src;
+	ip->src = ip->dst;
+	ip->dst = ipswap;
+
+	be16_t portswap = tcp->src_port;
+	tcp->src_port = tcp->dst_port;
+	tcp->dst_port = portswap;
+	be32_t toAcked = tcp->seq_num + be32_t(payload_len);
+	tcp->seq_num = tcp->ack_num;
+	tcp->ack_num = toAcked;
+	tcp->flags = Tcp::kAck;
+
+	fix_csum(ip, tcp);
+
+	return true;
 }
 
 ADD_MODULE(DyscoAgentIn, "dysco_agent_in", "processes packets incoming to host")
