@@ -73,7 +73,7 @@ DyscoAgentOut::DyscoAgentOut() : Module() {
 	retransmission_list = new LinkedList<Packet>();
 }
 
-CommandResponse DyscoAgentOut::CommandSetup(const bess::pb::DyscoAgentArg&) {
+CommandResponse DyscoAgentOut::CommandSetup(const bess::pb::DyscoAgentArg& arg) {
 	gate_idx_t igate_idx = 0;
 
 	if(!is_active_gate<bess::IGate>(igates(), igate_idx))
