@@ -102,9 +102,9 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 			if(newpkt) {
 				out.add(Packet::copy(newpkt));
 				agent->forward(newpkt, true);
-				createAckLockingSignalPacket(pkt, eth, ip, tcp);
-				out.add(Packet::copy(pkt));
-				agent->forward(pkt);
+				//createAckLockingSignalPacket(pkt, eth, ip, tcp);
+				//out.add(Packet::copy(pkt));
+				//agent->forward(pkt);
 				
 				continue;
 			}
