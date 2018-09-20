@@ -1010,6 +1010,7 @@ bool DyscoAgentOut::forward(Packet* pkt, bool reliable) {
 	if(received_hash) {
 #ifdef DEBUG
 		fprintf(stderr, "node=%p, i=%u, received_hash=%p\n", node, i, received_hash);
+		fprintf(stderr, "I expected to received a packet with %X ACK\n", i);
 #endif
 		received_hash->operator[](i) = node;
 	} else {
