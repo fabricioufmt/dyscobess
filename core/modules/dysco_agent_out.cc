@@ -999,7 +999,21 @@ bool DyscoAgentOut::forward(Packet* pkt, bool reliable, unordered_map<uint32_t, 
 
 	LNode<Packet>* node = retransmission_list->insertTail(*pkt, tsc_to_ns(rdtsc()));
 	uint32_t i = getValueToAck(pkt);
-	received_hash->operator[](i) = node;
+#ifdef DEBUG
+	fprintf(stderr, "node=%p, i=%u\n");
+#endif
+	if(received_hash) {
+#ifdef DEBUG
+		fprintf(stderr, "node=%p, i=%u, received_hash=%p\n");
+#endif
+		received_hash->operator[](i) = node;
+	} else {
+#ifdef DEBUG
+		fprintf(stderr, "node=%p, i=%u\n");
+		return false;
+#endif
+	}
+	
 	
 	return true;
 }
