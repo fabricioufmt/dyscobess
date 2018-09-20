@@ -3,7 +3,7 @@
 uint64_t DyscoAgentOut::timeout;
 
 const Commands DyscoAgentOut::cmds = {
-	{"setup", "EmptyArg", MODULE_CMD_FUNC(&DyscoAgentOut::CommandSetup), Command::THREAD_UNSAFE}
+	{"setup", "DyscoAgentArg", MODULE_CMD_FUNC(&DyscoAgentOut::CommandSetup), Command::THREAD_UNSAFE}
 };
 
 void timer_worker(DyscoAgentOut* agent) {
@@ -73,7 +73,7 @@ DyscoAgentOut::DyscoAgentOut() : Module() {
 	retransmission_list = new LinkedList<Packet>();
 }
 
-CommandResponse DyscoAgentOut::CommandSetup(const bess::pb::EmptyArg&) {
+CommandResponse DyscoAgentOut::CommandSetup(const bess::pb::DyscoAgentArg&) {
 	gate_idx_t igate_idx = 0;
 
 	if(!is_active_gate<bess::IGate>(igates(), igate_idx))
@@ -88,11 +88,17 @@ CommandResponse DyscoAgentOut::CommandSetup(const bess::pb::EmptyArg&) {
 	if(!dysco_vport)
 		return CommandFailure(EINVAL, "ERROR: DyscoVPort is not available.");
 
-	const auto& it = ModuleGraph::GetAllModules().find(DYSCOCENTER_MODULENAME);
-	if(it == ModuleGraph::GetAllModules().end())
+	const auto& it1 = ModuleGraph::GetAllModules().find(DYSCOCENTER_MODULENAME);
+	if(it1 == ModuleGraph::GetAllModules().end())
 		return CommandFailure(EINVAL, "ERROR: DyscoCenter is not available.");
 
-	dc = reinterpret_cast<DyscoCenter*>(it->second);
+	dc = reinterpret_cast<DyscoCenter*>(it1->second);
+
+	const auto& it2 = ModuleGraph::GetAllModules().find(arg.agent().c_str());
+	if(it2 == ModuleGraph::GetAllModules().end())
+		return CommandFailure(EINVAL, "ERROR: DyscoAgentIn is not available.");
+	
+	agent = reinterpret_cast<DyscoAgentIn*>(it2->second);
 	
 	port = dysco_vport;
 	ns = dysco_vport->ns;
@@ -987,7 +993,7 @@ bool DyscoAgentOut::processLockingSignalPacket(Packet* pkt, Ethernet* eth, Ipv4*
 	return true;	
 }
 
-bool DyscoAgentOut::forward(Packet* pkt, bool reliable, unordered_map<uint32_t, LNode<Packet>*>* received_hash) {
+bool DyscoAgentOut::forward(Packet* pkt, bool reliable) {
 	if(!reliable) {
 		PacketBatch out;
 		out.clear();
@@ -999,7 +1005,8 @@ bool DyscoAgentOut::forward(Packet* pkt, bool reliable, unordered_map<uint32_t, 
 
 	LNode<Packet>* node = retransmission_list->insertTail(*pkt, tsc_to_ns(rdtsc()));
 	uint32_t i = getValueToAck(pkt);
-
+	unordered_map<uint32_t, LNode<Packet>*>* received_hash = agent->getReceivedHash();
+	
 	if(received_hash) {
 #ifdef DEBUG
 		fprintf(stderr, "node=%p, i=%u, received_hash=%p\n", node, i, received_hash);

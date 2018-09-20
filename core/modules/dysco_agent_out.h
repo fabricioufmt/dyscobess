@@ -19,10 +19,10 @@ public:
 	DyscoAgentOut();
 	
 	//CommandResponse Init(const bess::pb::EmptyArg&);
-	CommandResponse CommandSetup(const bess::pb::EmptyArg&);
+	CommandResponse CommandSetup(const bess::pb::DyscoAgentArg&);
 	
 	void ProcessBatch(PacketBatch*) override;
-	bool forward(Packet*, bool = false, unordered_map<uint32_t, LNode<Packet>*>* = 0);
+	bool forward(Packet*, bool = false);
 	inline const char* getNs() {
 		return ns.c_str();
 	}
@@ -38,6 +38,7 @@ public:
 	uint32_t index;
 	DyscoCenter* dc;
 	DyscoVPort* port;
+	DyscoAgentIn* agent;
 	LinkedList<Packet>* retransmission_list;
 
 	/*

@@ -46,6 +46,10 @@ class DyscoAgentIn final : public Module {
 	  TCP Retransmission methods
 	*/
 	void retransmissionHandler();
+
+	inline unordered_map<uint32_t, LNode<Packet>*>* getReceivedHash() {
+		return received_hash;
+	}
 	
  private:
 	string ns;
