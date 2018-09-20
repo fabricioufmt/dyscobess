@@ -568,6 +568,13 @@ inline char* printPacketSS(Ipv4* ip, Tcp* tcp) {
 	return buf;
 }
 
+inline char* printPacket(Packet* pkt) {
+	Ipv4* ip = reinterpret_cast<Ipv4*>(pkt->head_data<Ethernet*>() + 1);
+	Tcp* tcp = reinterpret_cast<Tcp*>(ip + 1);
+
+	return printPacketSS(ip, tcp);
+}
+
 /*********************************************************************
  *
  *	Auxiliary methods
