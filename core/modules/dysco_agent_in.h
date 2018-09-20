@@ -56,6 +56,7 @@ class DyscoAgentIn final : public Module {
 	DyscoCenter* dc;
 	DyscoVPort* port;
 	DyscoAgentOut* agent;
+	unordered_map<uint32_t, LNode<Packet>*>* received_hash;
 
 	/*
 	  Dysco methods
@@ -113,6 +114,8 @@ class DyscoAgentIn final : public Module {
 	bool processAckLocking(Packet*, Ethernet*, Ipv4*, Tcp*, DyscoControlMessage*, DyscoHashIn*);
 	Packet* createAckLocking(Packet*, Ipv4*, Tcp*);
 	void startReconfiguration(Packet*, Ethernet*, Ipv4*, Tcp*);
+
+	bool processReceivedPacket(Tcp*);
 };
 
 #endif //BESS_MODULES_DYSCOAGENTIN_H_

@@ -987,7 +987,7 @@ bool DyscoAgentOut::processLockingSignalPacket(Packet* pkt, Ethernet* eth, Ipv4*
 	return true;	
 }
 
-bool DyscoAgentOut::forward(Packet* pkt, bool reliable) {
+bool DyscoAgentOut::forward(Packet* pkt, bool reliable, unordered_map<uint32_t, LNode<Packet>*>* received_hash) {
 	if(!reliable) {
 		PacketBatch out;
 		out.clear();
@@ -997,9 +997,15 @@ bool DyscoAgentOut::forward(Packet* pkt, bool reliable) {
 		return true;
 	}
 
-	retransmission_list->insertTail(*pkt, tsc_to_ns(rdtsc())); 
+	LNode<Packet>* node = retransmission_list->insertTail(*pkt, tsc_to_ns(rdtsc()));
+	uint32_t index = getValueToAck(pkt);
+	received_hash->operator[](index) = node;
 	
 	return true;
+}
+
+bool DyscoAgentOut::removeFromList(Packet* pkt) {
+	
 }
 
 ADD_MODULE(DyscoAgentOut, "dysco_agent_out", "processes packets outcoming from host")

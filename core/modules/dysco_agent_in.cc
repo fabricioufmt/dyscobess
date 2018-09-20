@@ -8,6 +8,7 @@ DyscoAgentIn::DyscoAgentIn() : Module() {
 	dc = 0;
 	devip = 0;
 	index = 0;
+	received_hash = new unordered_map<uint32_t, LNode<Packet>*>();
 }
 
 CommandResponse DyscoAgentIn::CommandSetup(const bess::pb::DyscoAgentArg& arg) {
@@ -57,7 +58,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 	Tcp* tcp;
 	Ipv4* ip;
 	Packet* pkt;
-	//bool removed;
+	bool removed;
 	Ethernet* eth;
 	size_t ip_hlen;
 	DyscoHashIn* cb_in;
@@ -85,6 +86,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 #endif
 
 		cb_in = dc->lookup_input(this->index, ip, tcp);
+		removed = processReceivedPacket(tcp);
 		/*removed = dc->processReceivedPacket(this->index, devip, tcp);
 #ifdef DEBUG
 		if(removed)
@@ -97,7 +99,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 #endif
 			out.add(Packet::copy(pkt)); //debug
 			if(processLockingSignalPacket(pkt, eth, ip, tcp, cb_in)) {
-				agent->forward(pkt, true);
+				agent->forward(pkt, true, received_hash);
 				//out_gates[1].add(pkt);
 				continue;
 			}
@@ -108,7 +110,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 
 			out.add(Packet::copy(pkt)); //debug
 			if(processLockingPacket(pkt, eth, ip, tcp)) {
-				agent->forward(pkt, true);
+				agent->forward(pkt, true, received_hash);
 				continue;
 			}
 		} else if(isReconfigPacket(ip, tcp, cb_in, false)) { //false = removed
@@ -128,7 +130,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 				fprintf(stderr, "[%s][DyscoAgentIn-Control] forwarding to toRetransmit %s [%X:%X]\n\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.value(), tcp->ack_num.value());
 #endif
 				//dc->add_retransmission(this->index, devip, pkt);
-				agent->forward(pkt, true);
+				agent->forward(pkt, true, received_hash);
 				break;
 
 			case IS_RETRANSMISSION:
@@ -2096,6 +2098,20 @@ Packet* DyscoAgentIn::createAckLocking(Packet* pkt, Ipv4* ip, Tcp* tcp) {
 	fix_csum(newip, newtcp);
 
 	return newpkt;
+}
+
+bool DyscoAgentIn::processReceivedPacket(Tcp* tcp) {
+	uint32_t key = tcp->ack_num.value();
+
+	LNode<Packet>* node = received_hash->operator[](key);
+	if(node) {
+		delete node;
+		received_hash->erase(key);
+
+		return true;
+	}
+
+	return false;
 }
 
 ADD_MODULE(DyscoAgentIn, "dysco_agent_in", "processes packets incoming to host")
