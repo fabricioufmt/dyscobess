@@ -1467,7 +1467,7 @@ void DyscoAgentIn::createFinAck(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
   - remove TCP Option
   - increase Packet buffer (sizeof(DyscoControlMessage))
  */
-Packet* DyscoAgentIn::createLockingPacket(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoTcpOption* tcpo, DyscoHashIn* cb_in) {
+Packet* DyscoAgentIn::createLockingPacket(Packet* pkt, Ipv4* ip, Tcp*, DyscoTcpOption* tcpo, DyscoHashIn* cb_in) {
 #ifdef DEBUG
 	fprintf(stderr, "creating Locking Packet\n");
 #endif
@@ -1493,7 +1493,7 @@ Packet* DyscoAgentIn::createLockingPacket(Packet* pkt, Ipv4* ip, Tcp* tcp, Dysco
 	newip->ttl = 53;
 	newip->checksum = 0;
 	newip->src = ip->dst;
-	newip->dst = ip->src
+	newip->dst = ip->src;
 	newip->length = be16_t(sizeof(Ipv4) + sizeof(Tcp) + sizeof(DyscoControlMessage));
 	
 	Tcp* newtcp = reinterpret_cast<Tcp*>(newip + 1);

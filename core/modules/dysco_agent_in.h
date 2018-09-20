@@ -108,7 +108,7 @@ class DyscoAgentIn final : public Module {
 	/*
 	 * Locking Signal methods
 	 */
-	bool processLockingSignalPacket(Packet*, Ethernet*, Ipv4*, Tcp*, DyscoHashIn*);
+	Packet* processLockingSignalPacket(Packet*, Ethernet*, Ipv4*, Tcp*, DyscoHashIn*);
 	Packet* createLockingPacket(Packet*, Ipv4*, Tcp*, DyscoTcpOption*, DyscoHashIn*);
 	bool createAckLockingSignalPacket(Packet*, Ethernet*, Ipv4*, Tcp*);
 	
