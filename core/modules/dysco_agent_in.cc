@@ -105,6 +105,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 				agent->forward(newpkt, true);
 				createAckLockingSignalPacket(pkt, eth, ip, tcp);
 				//out.add(Packet::copy(pkt)); //debug
+				fprintf(stderr, "the pkt(ACK) is forward to %s\n", printPacket(pkt));
 				agent->forward(pkt);
 				
 				continue;
