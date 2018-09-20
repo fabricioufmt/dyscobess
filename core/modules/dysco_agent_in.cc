@@ -2133,6 +2133,10 @@ bool DyscoAgentIn::createAckLockingSignalPacket(Packet* pkt, Ethernet* eth, Ipv4
 	DyscoTcpOption* tcpo = reinterpret_cast<DyscoTcpOption*>((uint8_t*)tcp + 20);
 	uint32_t payload_len = hasPayload(ip, tcp);
 
+#ifdef DEBUG
+	fprintf(stderr, "removing %u bytes\n", tcpo->len + payload_len);
+#endif
+	
 	pkt->trim(tcpo->len + payload_len);
 
 	Ethernet::Address macswap = eth->src_addr;
