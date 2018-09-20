@@ -997,8 +997,7 @@ bool DyscoAgentOut::forward(Packet* pkt, bool reliable) {
 		return true;
 	}
 
-	if(!retransmission_list->contains(*pkt))
-		retransmission_list->insertTail(*pkt, tsc_to_ns(rdtsc())); 
+	retransmission_list->insertTail(*pkt, tsc_to_ns(rdtsc())); 
 	
 	return true;
 }
