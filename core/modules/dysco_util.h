@@ -196,7 +196,7 @@ class DyscoTcpTs {
  *	Retransmission classes
  *
  *********************************************************************/
-
+//Ronaldo: weak comparator
 inline bool TCPComparator(Packet* p1, Packet* p2) {
 	Ipv4* ip1 = reinterpret_cast<Ipv4*>(p1->head_data<Ethernet*>() + 1);
 	Ipv4* ip2 = reinterpret_cast<Ipv4*>(p2->head_data<Ethernet*>() + 1);
@@ -325,7 +325,7 @@ public:
 		
 		return node;
 	}
-
+	
 	uint32_t size() const {
 		return n;
 	}

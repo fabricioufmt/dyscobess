@@ -157,7 +157,8 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 			fprintf(stderr, "It's reconfiguration packet, should be only SYN.\n");
 #endif
 			if(control_output(ip, tcp)) {
-				dc->add_retransmission(this->index, devip, pkt);
+				forward(pkt, true);
+				//dc->add_retransmission(this->index, devip, pkt);
 			
 #ifdef DEBUG
 				fprintf(stderr, "[%s][DyscoAgentOut-Control] forwards to Retransmission %s [%X:%X]\n\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.value(), tcp->ack_num.value());
@@ -996,7 +997,8 @@ bool DyscoAgentOut::forward(Packet* pkt, bool reliable) {
 		return true;
 	}
 
-	retransmission_list->insertTail(*pkt, tsc_to_ns(rdtsc())); 
+	if(!retransmission_list->contains(*pkt))
+		retransmission_list->insertTail(*pkt, tsc_to_ns(rdtsc())); 
 	
 	return true;
 }

@@ -1859,6 +1859,7 @@ bool DyscoAgentIn::processAckLocking(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* 
 #endif
 			tcp->checksum++; //due cmsg->lhop-- above
 			//create a ACK into pkt and forward to dyscoagentout
+			startReconfiguration(pkt, eth, ip, tcp);
 			return true;
 		} else {
 #ifdef DEBUG
