@@ -22,7 +22,7 @@ public:
 	CommandResponse CommandSetup(const bess::pb::EmptyArg&);
 	
 	void ProcessBatch(PacketBatch*) override;
-	bool forward(Packet*, bool = false);
+	bool forward(Packet*, bool = false, unordered_map<uint32_t, LNode<Packet>*>* = 0);
 	inline const char* getNs() {
 		return ns.c_str();
 	}
