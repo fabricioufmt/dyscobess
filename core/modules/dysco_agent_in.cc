@@ -2160,6 +2160,7 @@ bool DyscoAgentIn::createAckLockingSignalPacket(Packet* pkt, Ethernet* eth, Ipv4
 	be32_t toAcked = tcp->seq_num + be32_t(payload_len);
 	tcp->seq_num = tcp->ack_num;
 	tcp->ack_num = toAcked;
+	tcp->offset = 5;
 	tcp->flags = Tcp::kAck;
 
 	fix_csum(ip, tcp);
