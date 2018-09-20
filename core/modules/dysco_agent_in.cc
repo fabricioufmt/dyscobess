@@ -1477,7 +1477,7 @@ void DyscoAgentIn::createFinAck(bess::Packet* pkt, Ipv4* ip, Tcp* tcp) {
   - remove TCP Option
   - increase Packet buffer (sizeof(DyscoControlMessage))
  */
-Packet* DyscoAgentIn::createLockingPacket(Packet* pkt, Ipv4* ip, Tcp*, DyscoTcpOption* tcpo, DyscoHashIn* cb_in) {
+Packet* DyscoAgentIn::createLockingPacket(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoTcpOption* tcpo, DyscoHashIn* cb_in) {
 #ifdef DEBUG
 	fprintf(stderr, "creating Locking Packet\n");
 #endif
@@ -1494,26 +1494,31 @@ Packet* DyscoAgentIn::createLockingPacket(Packet* pkt, Ipv4* ip, Tcp*, DyscoTcpO
 
 	Ethernet* eth = pkt->head_data<Ethernet*>();
 	Ethernet* neweth = newpkt->head_data<Ethernet*>();
-
 	neweth->dst_addr = eth->src_addr;
 	neweth->src_addr = eth->dst_addr;
+	neweth->ether_type = be16_t(Ethernet::Type::kIpv4);
 
 	Ipv4* newip = reinterpret_cast<Ipv4*>(neweth + 1);
+	newip->version = 4;
+	newip->header_length = 5;
+	newip->type_of_service = 0;
+	newip->length = be16_t(sizeof(Ipv4) + sizeof(Tcp) + sizeof(DyscoControlMessage));
 	newip->id = be16_t(rand());
+	newip->fragment_offset = be16_t(0);
 	newip->ttl = 53;
-	newip->checksum = 0;
+	newip->protocol = Ipv4::kTcp;
 	newip->src = ip->dst;
 	newip->dst = ip->src;
-	newip->length = be16_t(sizeof(Ipv4) + sizeof(Tcp) + sizeof(DyscoControlMessage));
 	
 	Tcp* newtcp = reinterpret_cast<Tcp*>(newip + 1);
-
 	newtcp->src_port = be16_t(rand());
 	newtcp->dst_port = be16_t(rand());
 	newtcp->seq_num = be32_t(rand());
 	newtcp->ack_num = be32_t(0);
 	newtcp->offset = 5;
 	newtcp->flags = Tcp::kSyn;
+	newtcp->window = tcp->window;
+	newtcp->urgent_ptr = be16_t(0);
 
 	cb_in->dcb_out->is_LA = 1;
 	cb_in->dcb_out->lock_state = DYSCO_REQUEST_LOCK;
