@@ -44,8 +44,11 @@ void timer_worker(DyscoAgentOut* agent) {
 					
 					continue;
 				}
-			
+				
 				if(now_ts - node->ts > DyscoAgentOut::timeout) {
+#ifdef DEBUG
+					fprintf(stderr, "%lu - %lu = %lu > %lu\n", now_ts, node->ts, now_ts-node->ts, DyscoAgentOut::timeout);
+#endif
 					node->cnt++;
 					batch->add(&node->element);
 					node->ts = now_ts;
