@@ -998,8 +998,8 @@ bool DyscoAgentOut::forward(Packet* pkt, bool reliable, unordered_map<uint32_t, 
 	}
 
 	LNode<Packet>* node = retransmission_list->insertTail(*pkt, tsc_to_ns(rdtsc()));
-	uint32_t index = getValueToAck(pkt);
-	received_hash->operator[](index) = node;
+	uint32_t i = getValueToAck(pkt);
+	received_hash->operator[](i) = node;
 	
 	return true;
 }
