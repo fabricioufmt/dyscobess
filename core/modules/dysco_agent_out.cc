@@ -1004,10 +1004,6 @@ bool DyscoAgentOut::forward(Packet* pkt, bool reliable, unordered_map<uint32_t, 
 	return true;
 }
 
-bool DyscoAgentOut::removeFromList(Packet* pkt) {
-	
-}
-
 ADD_MODULE(DyscoAgentOut, "dysco_agent_out", "processes packets outcoming from host")
 
 

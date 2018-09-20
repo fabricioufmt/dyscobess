@@ -58,7 +58,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 	Tcp* tcp;
 	Ipv4* ip;
 	Packet* pkt;
-	bool removed;
+	//bool removed;
 	Ethernet* eth;
 	size_t ip_hlen;
 	DyscoHashIn* cb_in;
@@ -86,7 +86,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 #endif
 
 		cb_in = dc->lookup_input(this->index, ip, tcp);
-		removed = processReceivedPacket(tcp);
+		processReceivedPacket(tcp);
 		/*removed = dc->processReceivedPacket(this->index, devip, tcp);
 #ifdef DEBUG
 		if(removed)
