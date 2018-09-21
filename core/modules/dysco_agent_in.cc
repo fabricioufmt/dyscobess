@@ -100,12 +100,8 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 #endif
 			newpkt = processLockingSignalPacket(pkt, eth, ip, tcp, cb_in);
 			if(newpkt) {
-				fprintf(stderr, "the newpkt is forward to %s\n", printPacket(newpkt));
-				//out.add(Packet::copy(newpkt)); //debug
 				agent->forward(newpkt, true);
 				createAckLockingSignalPacket(pkt, eth, ip, tcp);
-				//out.add(Packet::copy(pkt)); //debug
-				fprintf(stderr, "the pkt(ACK) is forward to %s\n", printPacket(pkt));
 				agent->forward(pkt);
 				
 				continue;
@@ -115,7 +111,6 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 			fprintf(stderr, "Receives Locking Packet.\n");
 #endif
 
-			//out.add(Packet::copy(pkt)); //debug
 			if(processLockingPacket(pkt, eth, ip, tcp)) {
 				agent->forward(pkt, true);
 				continue;
@@ -195,7 +190,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 	//RunChooseModule(1, &(out_gates[1]));
 }
 
-bool DyscoAgentIn::isReconfigPacket(Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in, bool removed) {
+bool DyscoAgentIn::isReconfigPacket(Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in, bool) {
 	if(ip->dst.raw_value() != devip)
 		return false;
 
@@ -219,7 +214,7 @@ bool DyscoAgentIn::isReconfigPacket(Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in, bool
 			return false;
 		}
 
-		if(cb_in->dcb_out == 0) {
+		if(!cb_in->dcb_out) {
 #ifdef DEBUG
 			fprintf(stderr, "isReconfigPacket: cb_in->dcb_out is NULL\n");
 #endif
@@ -262,8 +257,8 @@ bool DyscoAgentIn::isReconfigPacket(Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in, bool
 		}
 
 		if(cb_in->dcb_out->other_path && cb_in->dcb_out->other_path->state == DYSCO_ESTABLISHED) {
-			if(removed)
-				return true;
+			//	if(removed)
+			//	return true;
 			
 			return false;
 		}
