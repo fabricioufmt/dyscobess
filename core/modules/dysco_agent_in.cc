@@ -107,7 +107,12 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 #endif
 			newpkt = processLockingPacket(pkt, eth, ip, tcp);
 			if(newpkt) {
-				out.add(Packet::copy(newpkt));
+
+				Ethernet* neth = newpkt->head_data<Ethernet*>();
+				fprintf(stderr, "%s -> %s (ether: %X\n", neth->src_addr.ToString().c_str(), neth->dst_addr.ToString().c_str(), neth->ether_type.value());
+
+				
+				//out.add(Packet::copy(newpkt));
 				//agent->forward(newpkt, true);
 				//out.add(newpkt);
 #ifdef DEBUG
