@@ -1021,7 +1021,7 @@ bool DyscoAgentOut::forward(Packet* pkt, bool reliable) {
 	return true;
 }
 
-bool DyscoAgentOut::remove(LNode<Packet>* node) {
+void DyscoAgentOut::remove(LNode<Packet>* node) {
 	retransmission_list->remove(node);
 	if(!retransmission_list->size()) {
 		delete timer;
