@@ -1684,7 +1684,7 @@ Packet* DyscoAgentIn::processLockingSignalPacket(Packet* pkt, Ethernet* eth, Ipv
 
 
 
-Packet* DyscoAgentIn::createSynReconfig(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp, DyscoControlMessage* cmsg) {
+Packet* DyscoAgentIn::createSynReconfig(Packet*, Ethernet* eth, Ipv4* ip, Tcp* tcp, DyscoControlMessage* cmsg) {
 #ifdef DEBUG
 	fprintf(stderr, "I'm going to create a SYN for a reconfiguration.\n");
 #endif
@@ -1748,7 +1748,7 @@ Packet* DyscoAgentIn::createSynReconfig(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 	newcmsg->type = DYSCO_RECONFIG;
 
 	uint32_t* newsc = reinterpret_cast<uint32_t*>(newcmsg + 1);
-	for(int i = 0; i < sc_len; i++)
+	for(uint32_t i = 0; i < sc_len; i++)
 		newsc[i] = sc[i];
 
 	fix_csum(newip, newtcp);
