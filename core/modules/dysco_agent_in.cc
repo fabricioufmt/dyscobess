@@ -1477,8 +1477,10 @@ Packet* DyscoAgentIn::createLockingPacket(Packet* pkt, Ipv4* ip, Tcp* tcp, Dysco
 
 	Packet* newpkt = Packet::Alloc();
 
-	newpkt->set_total_len(sizeof(Ethernet) + sizeof(Ipv4) + sizeof(Tcp) + sizeof(DyscoControlMessage));
-	newpkt->set_data_len(sizeof(Ethernet) + sizeof(Ipv4) + sizeof(Tcp) + sizeof(DyscoControlMessage));
+	uint32_t len = sizeof(Ethernet) + sizeof(Ipv4) + sizeof(Tcp) + sizeof(DyscoControlMessage);
+	
+	newpkt->set_total_len(len);
+	newpkt->set_data_len(len);
 	
 	uint8_t rhop = tcpo->padding & 0xff;
 	
@@ -1495,7 +1497,7 @@ Packet* DyscoAgentIn::createLockingPacket(Packet* pkt, Ipv4* ip, Tcp* tcp, Dysco
 	newip->version = 4;
 	newip->header_length = 5;
 	newip->type_of_service = 0;
-	newip->length = be16_t(sizeof(Ipv4) + sizeof(Tcp) + sizeof(DyscoControlMessage));
+	newip->length = be16_t(len - sizeof(Ethernet));
 	newip->id = be16_t(rand());
 	newip->fragment_offset = be16_t(0);
 	newip->ttl = 53;
@@ -1720,7 +1722,7 @@ Packet* DyscoAgentIn::createSynReconfig(Packet*, Ethernet* eth, Ipv4* ip, Tcp* t
 	newip->header_length = 5;
 	newip->version = 4;
 	newip->type_of_service = 0;
-	newip->length = be16_t(len);
+	newip->length = be16_t(len - sizeof(Ethernet));
 	newip->id = be16_t(rand());
 	newip->fragment_offset = be16_t(0);
 	newip->ttl = 53;
