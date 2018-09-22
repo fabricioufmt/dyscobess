@@ -1705,7 +1705,14 @@ Packet* DyscoAgentIn::createSynReconfig(Packet*, Ethernet* eth, Ipv4* ip, Tcp* t
 	newpkt->set_total_len(len);
 	newpkt->set_data_len(len);
 
-	DyscoHashIn* cb_in = dc->lookup_input_by_ss(this->index, &cmsg->my_sub);
+	DyscoTcpSession ss;
+	ss.sip = cmsg->my_sub.dip;
+	ss.dip = cmsg->my_sub.sip;
+	ss.sport = cmsg->my_sub.dport;
+	ss.dport = cmsg->my_sub.sport;
+
+	DyscoHashIn* cb_in = dc->lookup_input_by_ss(this->index, &ss);
+	
 	if(!cb_in) {
 #ifdef DEBUG
 		fprintf(stderr, "looking %s not found cb_in... dropping\n", printSS(cmsg->my_sub));
@@ -1745,10 +1752,10 @@ Packet* DyscoAgentIn::createSynReconfig(Packet*, Ethernet* eth, Ipv4* ip, Tcp* t
 	newtcp->urgent_ptr = be16_t(0);
 
 	DyscoControlMessage* newcmsg = reinterpret_cast<DyscoControlMessage*>(newtcp + 1);
-	newcmsg->my_sub.sip = ip->src.raw_value();
-	newcmsg->my_sub.dip = ip->dst.raw_value();
-	newcmsg->my_sub.sport = tcp->src_port.raw_value();
-	newcmsg->my_sub.dport = tcp->dst_port.raw_value();
+	newcmsg->my_sub.sip = newip->src.raw_value();
+	newcmsg->my_sub.dip = newip->dst.raw_value();
+	newcmsg->my_sub.sport = newtcp->src_port.raw_value();
+	newcmsg->my_sub.dport = newtcp->dst_port.raw_value();
 	newcmsg->leftIseq = htonl(old_dcb->out_iseq);
 	newcmsg->leftIack = htonl(old_dcb->out_iack);
 	newcmsg->leftIts = htonl(old_dcb->ts_in);
