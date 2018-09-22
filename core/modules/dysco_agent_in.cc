@@ -114,6 +114,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 				fprintf(stderr, "Forwarding to: %s\n", printPacket(newpkt));
 #endif
 				PacketBatch o;
+				o.clear();
 				o.add(newpkt);
 				RunChooseModule(1, &o);
 				continue;
