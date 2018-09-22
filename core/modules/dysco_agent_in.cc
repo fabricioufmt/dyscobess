@@ -2177,11 +2177,27 @@ Packet* DyscoAgentIn::processAckLocking(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 			out.clear();
 			out.add(pkt);
 			cb_out->module->RunChooseModule(1, &out);
-		} /*else {
+		} else {
 			if(!cb_out->is_signaler) {
+				uint32_t key = tcp->ack_num.value() - cmsg->lhop * sizeof(uint32_t);
+
+#ifdef DEBUG
+				fprintf(stderr, "Trying to remove with key=%X\n", key);
+#endif
 				
+				LNode<Packet>* node = received_hash->operator[](key);
+				if(node) {
+#ifdef DEBUG
+					fprintf(stderr, "I found the packet and I'm going to remove it\n");
+#endif
+					//delete node;
+					agent->getRetransmissionList()->remove(node);
+					received_hash->erase(key);
+
+					return true;
+				}	
 			}
-			}*/
+		}
 	}
 
 	return 0;
@@ -2277,6 +2293,7 @@ void DyscoAgentIn::createAckLocking(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* t
 	tcp->offset = 5;
 	tcp->flags = Tcp::kAck;
 
+	cmsg->lhop = cmsg->rhop;
 	cmsg->lock_state = DYSCO_ACK_LOCK;
 	DyscoTcpSession ss;
 	ss.sip = cmsg->my_sub.dip;
