@@ -715,6 +715,13 @@ inline bool isLockingPacket(Ipv4* ip, Tcp* tcp) {
 		}
 	}
 
+	if(isTCPACK(tcp, true) && payload_len) {
+		if(payload_len >= sizeof(DyscoControlMessage)) {
+			DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>(tcp + 1);
+			return cmsg->type == DYSCO_LOCK && cmsg->lock_state == DYSCO_ACK_LOCK;
+		}
+	}
+
 	return false;
 }
 
