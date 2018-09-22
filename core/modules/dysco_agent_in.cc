@@ -107,7 +107,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 #endif
 			newpkt = processLockingPacket(pkt, eth, ip, tcp);
 			if(newpkt) {
-				//out.add(Packet::copy(newpkt));
+				out.add(Packet::copy(newpkt));
 				//agent->forward(newpkt, true);
 				//out.add(newpkt);
 #ifdef DEBUG
