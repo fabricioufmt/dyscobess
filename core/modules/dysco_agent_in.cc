@@ -107,21 +107,13 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 #endif
 			newpkt = processLockingPacket(pkt, eth, ip, tcp);
 			if(newpkt) {
-
-				Ethernet* neth = newpkt->head_data<Ethernet*>();
-				fprintf(stderr, "%s -> %s (ether: %X\n", neth->src_addr.ToString().c_str(), neth->dst_addr.ToString().c_str(), neth->ether_type.value());
-
-				
-				//out.add(Packet::copy(newpkt));
-				//agent->forward(newpkt, true);
+				out.add(Packet::copy(newpkt));
+				agent->forward(newpkt, true);
 				//out.add(newpkt);
 #ifdef DEBUG
 				fprintf(stderr, "Forwarding to: %s\n", printPacket(newpkt));
 #endif
-				PacketBatch o;
-				o.clear();
-				o.add(newpkt);
-				RunChooseModule(1, &o);
+				
 				continue;
 			}
 		} else if(isReconfigPacket(ip, tcp, cb_in, false)) { //false = removed
