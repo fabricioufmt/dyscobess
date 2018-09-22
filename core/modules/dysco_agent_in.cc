@@ -2224,6 +2224,8 @@ Packet* DyscoAgentIn::createRequestAckLocking(Packet*, Ethernet* eth, Ipv4* ip, 
 
 	DyscoControlMessage* newcmsg = reinterpret_cast<DyscoControlMessage*>(newtcp + 1);
 	newcmsg->rightA = ip->dst.raw_value();
+	newcmsg->lhop = cmsg->lhop;
+	newcmsg->rhop = cmsg->lhop;
 	newcmsg->type = DYSCO_LOCK;
 	newcmsg->lock_state = DYSCO_REQUEST_ACK_LOCK;
 	newcmsg->my_sub.sip = cmsg->my_sub.dip;
