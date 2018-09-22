@@ -2149,6 +2149,8 @@ Packet* DyscoAgentIn::processAckLocking(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 	}
 
 #ifdef DEBUG
+	fprintf(stderr, "cmsg->lhop: %u\n", cmsg->lhop);
+	fprintf(stderr, "cmsg->rhop: %u\n", cmsg->rhop);
 	fprintf(stderr, "State: %d\n", cb_out->state);
 	fprintf(stderr, "Lock State: %d\n",  cb_out->lock_state);
 	fprintf(stderr, "cb_out->sup: %s\n", printSS(cb_out->sup));
@@ -2175,7 +2177,11 @@ Packet* DyscoAgentIn::processAckLocking(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 			out.clear();
 			out.add(pkt);
 			cb_out->module->RunChooseModule(1, &out);
-		}
+		} /*else {
+			if(!cb_out->is_signaler) {
+				
+			}
+			}*/
 	}
 
 	return 0;
