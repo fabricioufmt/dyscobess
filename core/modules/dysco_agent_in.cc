@@ -2066,11 +2066,9 @@ Packet* DyscoAgentIn::processRequestAckLocking(Packet* pkt, Ethernet* eth, Ipv4*
 			fprintf(stderr, "Changing lock_state field from DYSCO_REQUEST_LOCK to DYSCO_ACK_LOCK\n");
 #endif
 			createAckLocking(pkt, eth, ip, tcp, cmsg);
-#ifdef DEBUG
-			fprintf(stderr, "Forward a AckLocking to %s\n", printPacket(pkt));
-#endif
-			//return createSynReconfig(pkt, eth, ip, tcp, cmsg);
-			return 0;
+
+			return createSynReconfig(pkt, eth, ip, tcp, cmsg);
+			//return 0;
 		} else {
 #ifdef DEBUG
 			fprintf(stderr, "I'm not the LeftAnchor... forwarding the DYSCO_REQUEST_ACK_LOCK\n");
