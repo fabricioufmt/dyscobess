@@ -1023,12 +1023,12 @@ bool DyscoAgentOut::forward(Packet* pkt, bool reliable) {
 
 void DyscoAgentOut::remove(LNode<Packet>* node) {
 	retransmission_list->remove(node);
-	if(!retransmission_list->size()) {
+	/*if(!retransmission_list->size()) {
 		if(timer) {
 			delete timer;
 			timer = 0;
 		}
-	}
+		}*/
 }
 
 ADD_MODULE(DyscoAgentOut, "dysco_agent_out", "processes packets outcoming from host")
