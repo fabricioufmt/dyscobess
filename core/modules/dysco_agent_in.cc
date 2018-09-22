@@ -2184,7 +2184,7 @@ Packet* DyscoAgentIn::createRequestAckLocking(Packet*, Ethernet* eth, Ipv4* ip, 
 	newip->header_length = 5;
 	newip->version = 4;
 	newip->type_of_service = 0;
-	newip->length = be16_t(len);
+	newip->length = be16_t(len - sizeof(Ethernet));
 	newip->id = be16_t(rand());
 	newip->fragment_offset = be16_t(0);
 	newip->ttl = 53;
