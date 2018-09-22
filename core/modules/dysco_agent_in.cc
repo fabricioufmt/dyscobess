@@ -1966,6 +1966,8 @@ Packet* DyscoAgentIn::processRequestLocking(Packet* pkt, Ethernet* eth, Ipv4* ip
 	}
 
 #ifdef DEBUG
+	fprintf(stderr, "cmsg->lhop: %u\n", cmsg->lhop);
+	fprintf(stderr, "cmsg->rhop: %u\n", cmsg->rhop);
 	fprintf(stderr, "State: %d\n", cb_out->state);
 	fprintf(stderr, "Lock State: %d\n",  cb_out->lock_state);
 	fprintf(stderr, "cb_out->sup: %s\n", printSS(cb_out->sup));
@@ -1999,6 +2001,13 @@ Packet* DyscoAgentIn::processRequestLocking(Packet* pkt, Ethernet* eth, Ipv4* ip
 
 			return 0;
 		} else {
+			cb_out->is_RA = 1;
+			cb_out->lock_state = DYSCO_REQUEST_ACK_LOCK;
+
+#ifdef DEBUG
+			fprintf(stderr, "Changing lock_state field from DYSCO_CLOSED_LOCK to DYSCO_REQUEST_ACK_LOCK.\n");
+#endif
+			
 			return createRequestAckLocking(pkt, eth, ip, tcp, cmsg, cb_out);
 		}
 	}
@@ -2030,6 +2039,8 @@ Packet* DyscoAgentIn::processRequestAckLocking(Packet* pkt, Ethernet* eth, Ipv4*
 	}
 
 #ifdef DEBUG
+	fprintf(stderr, "cmsg->lhop: %u\n", cmsg->lhop);
+	fprintf(stderr, "cmsg->rhop: %u\n", cmsg->rhop);
 	fprintf(stderr, "State: %d\n", cb_out->state);
 	fprintf(stderr, "Lock State: %d\n",  cb_out->lock_state);
 	fprintf(stderr, "cb_out->sup: %s\n", printSS(cb_out->sup));
@@ -2040,16 +2051,22 @@ Packet* DyscoAgentIn::processRequestAckLocking(Packet* pkt, Ethernet* eth, Ipv4*
 	switch(cb_out->lock_state) {
 	case DYSCO_CLOSED_LOCK:
 	case DYSCO_NACK_LOCK:
-		return 0;
-
 	case DYSCO_ACK_LOCK:
+		return 0;
+		
 	case DYSCO_REQUEST_LOCK:
 		if(cb_out->is_LA) {
 #ifdef DEBUG
 			fprintf(stderr, "I'm the LeftAnchor... starting reconfiguration\n");
 #endif
 			tcp->checksum++; //due cmsg->lhop--
+			cb_out->lock_state = DYSCO_ACK_LOCK;
+			cb_in->dcb_out->lock_state = DYSCO_ACK_LOCK;
+#ifdef DEBUG
+			fprintf(stderr, "Changing lock_state field from DYSCO_REQUEST_LOCK to DYSCO_ACK_LOCK\n");
+#endif
 			createAckLocking(pkt, eth, ip, tcp, cmsg);
+			
 			return createSynReconfig(pkt, eth, ip, tcp, cmsg);
 		} else {
 #ifdef DEBUG
@@ -2089,10 +2106,10 @@ Packet* DyscoAgentIn::processRequestAckLocking(Packet* pkt, Ethernet* eth, Ipv4*
 			}
 			
 			fix_csum(ip, tcp);
-			cb_out->lock_state = DYSCO_ACK_LOCK;
-			cb_in->dcb_out->lock_state = DYSCO_ACK_LOCK;
+			cb_out->lock_state = DYSCO_REQUEST_ACK_LOCK;
+			cb_in->dcb_out->lock_state = DYSCO_REQUEST_ACK_LOCK;
 #ifdef DEBUG
-			fprintf(stderr, "Changing lock_state field from DYSCO_REQUEST_LOCK to DYSCO_ACK_LOCK\n");
+			fprintf(stderr, "Changing lock_state field from DYSCO_REQUEST_LOCK to DYSCO_REQUEST_ACK_LOCK\n");
 #endif
 
 			PacketBatch out;
@@ -2221,10 +2238,7 @@ Packet* DyscoAgentIn::createRequestAckLocking(Packet*, Ethernet* eth, Ipv4* ip, 
 		fprintf(stderr, "I'm going to append %u ip addresses.\n", cb_out->sc_len);
 #endif
 	}
-
-	cb_out->is_RA = 1;
-	cb_out->lock_state = DYSCO_REQUEST_ACK_LOCK;
-
+	
 	fix_csum(newip, newtcp);
 
 	return newpkt;
