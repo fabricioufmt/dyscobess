@@ -150,9 +150,6 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 			}
 
 		} else {
-#ifdef DEBUG
-			fprintf(stderr, "It isn't reconfig packet\n");
-#endif
 			if(removed) {
 #ifdef DEBUG
 				fprintf(stderr, "dropping..\n");

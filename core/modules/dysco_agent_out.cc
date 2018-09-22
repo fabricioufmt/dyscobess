@@ -384,9 +384,6 @@ void DyscoAgentOut::out_translate(Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_
 	DyscoHashOut* cb = cb_out;
 	DyscoHashOut* other_path = cb_out->other_path;
 	if(!other_path) {
-#ifdef DEBUG
-		fprintf(stderr, "!other_path\n");
-#endif
 		if(isTCPACK(tcp))
 			if(cb->state == DYSCO_SYN_SENT)
 				cb->state = DYSCO_ESTABLISHED;
@@ -398,10 +395,6 @@ void DyscoAgentOut::out_translate(Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_
 		if(seg_sz > 0 && after(seq, cb_out->seq_cutoff))
 			cb_out->seq_cutoff = seq;
 	} else {
-#ifdef DEBUG
-		fprintf(stderr, "other_path\n");
-		fprintf(stderr, "other_path->state: %d\n", other_path->state);
-#endif
 		other_path->last_seq = tcp->seq_num.raw_value();
 		other_path->last_ack = tcp->ack_num.raw_value();
 		
@@ -1016,17 +1009,11 @@ bool DyscoAgentOut::forward(Packet* pkt, bool reliable) {
 	
 	if(received_hash) {
 #ifdef DEBUG
-		fprintf(stderr, "node=%p, i=%u, received_hash=%p\n", node, i, received_hash);
 		fprintf(stderr, "I expected to received a packet with %X ACK\n", i);
 #endif
 		received_hash->operator[](i) = node;
-	} else {
-#ifdef DEBUG
-		fprintf(stderr, "node=%p, i=%u\n", node, i);
+	} else
 		return false;
-#endif
-	}
-	
 	
 	return true;
 }
