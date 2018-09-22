@@ -561,9 +561,9 @@ inline char* printSS(DyscoTcpSession ss) {
 
 inline char* printPacketSS(Ipv4* ip, Tcp* tcp) {
 	char* buf = (char*) malloc(64);
-	sprintf(buf, "%s:%u -> %s:%u",
+	sprintf(buf, "%s:%u -> %s:%u [flag: %X]",
 		printIP(ip->src.value()), tcp->src_port.value(),
-		printIP(ip->dst.value()), tcp->dst_port.value());
+		printIP(ip->dst.value()), tcp->dst_port.value(), tcp->flags);
 
 	return buf;
 }

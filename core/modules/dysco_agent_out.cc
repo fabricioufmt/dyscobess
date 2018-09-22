@@ -942,6 +942,9 @@ bool DyscoAgentOut::processLockingSignalPacket(Packet* pkt, Ethernet* eth, Ipv4*
 #endif
 		cb_out->is_LA = 1;
 
+		uint8_t oldRhop = cmsg->rhop;
+		DyscoTcpSession oldRightSS = cmsg->rightSS;
+
 		ip->length = be16_t(ip->length.value() - tcpo->len - sc_sz);
 		pkt->trim(tcpo->len + sc_sz);
 		memcpy(tcpo, cmsg, sizeof(DyscoControlMessage));
@@ -965,9 +968,10 @@ bool DyscoAgentOut::processLockingSignalPacket(Packet* pkt, Ethernet* eth, Ipv4*
 		cb_out->lock_state = DYSCO_REQUEST_LOCK;
 
 		cmsg = reinterpret_cast<DyscoControlMessage*>(getPayload(tcp));
-		cmsg->lhop = cmsg->rhop;
+		cmsg->lhop = oldRhop;
 		cmsg->type = DYSCO_LOCK;
 		cmsg->my_sub = cb_out->sub;
+		cmsg->rightSS = oldRightSS;
 		cmsg->lock_state = DYSCO_REQUEST_LOCK;
 				
 		fix_csum(ip, tcp);

@@ -20,7 +20,7 @@
 #include <linux/if_packet.h>
 #include <linux/rtnetlink.h>
 
-#define MIN_ARGC 7
+#define MIN_ARGC 11
 #define BUFSIZE 2048
 #define OPT_KIND 254
 #define OPT_LENGTH 4
@@ -85,7 +85,7 @@ struct tcpopt {
 
 /*
  * This application implements locking protocol for Dysco
- * @args= <SIP> <SP> <DIP> <DP> <left_hop> <right_hop> <service chain>
+ * @args= <SIP> <SP> <DIP> <DP> <SIP> <SP> <DIP> <DP> <left_hop> <right_hop> <service chain>
  */
 
 uint16_t csum(uint16_t*, uint32_t);
@@ -108,7 +108,7 @@ int main(int argc, char** argv) {
 	struct reconfig_message* cmsg;
 	
 	if(argc < MIN_ARGC) {
-		fprintf(stderr, "Usage: %s <SIP> <SP> <DIP> <DP> <left_hop> <right_hop> [service chain].\n", argv[0]);
+		fprintf(stderr, "Usage: %s <SIP> <SP> <DIP> <DP> <SIP> <SP> <DIP> <DP> <left_hop> <right_hop> [service chain].\n", argv[0]);
 		exit(EXIT_FAILURE);
 	}
 
@@ -145,10 +145,15 @@ int main(int argc, char** argv) {
 
 	memcpy(buffer + packet_len, sc, sc_len * sizeof(uint32_t));
 	packet_len += sc_len * sizeof(uint32_t);
+
+	cmsg->rightSS.sip = inet_addr(argv[5]);
+	cmsg->rightSS.dip = inet_addr(argv[7]);
+	cmsg->rightSS.sport = htons(atoi(argv[6]));
+	cmsg->rightSS.dport = htons(atoi(argv[8]));
 	
 	create_datagram(iph, inet_addr(argv[1]), inet_addr(argv[3]), packet_len);
-	create_segment(iph, tcph, htons(atoi(argv[2])), htons(atoi(argv[4])), tcpo, atoi(argv[5]), atoi(argv[6]), cmsg, sc_len, sc);
-
+	create_segment(iph, tcph, htons(atoi(argv[2])), htons(atoi(argv[4])), tcpo, atoi(argv[9]), atoi(argv[10]), cmsg, sc_len, sc);
+	
 	if((n = sendto(sockfd, buffer, ntohs(iph->tot_len), 0, (struct sockaddr*) &sin, sizeof(sin))) < 0) {
 		fprintf(stderr, "ERROR: %s.\n", strerror(errno));
 		exit(EXIT_FAILURE);

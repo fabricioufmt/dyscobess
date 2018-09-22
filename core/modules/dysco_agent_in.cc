@@ -83,17 +83,12 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 		tcp = reinterpret_cast<Tcp*>((uint8_t*)ip + ip_hlen);
 
 #ifdef DEBUG
-		fprintf(stderr, "[%s][DyscoAgentIn] receives %s [%X:%X].\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.value(), tcp->ack_num.value());
+		fprintf(stderr, "[%s][DyscoAgentIn] receives %s [%X:%X] (len: %u).\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.value(), tcp->ack_num.value(), hasPayload(ip, tcp));
 #endif
 
 		cb_in = dc->lookup_input(this->index, ip, tcp);
 		removed = processReceivedPacket(tcp);
-		/*removed = dc->processReceivedPacket(this->index, devip, tcp);
-#ifdef DEBUG
-		if(removed)
-			fprintf(stderr, "Removed a packet from retransmission list\n");
-#endif
-		*/		
+		
 		if(isLockingSignalPacket(tcp)) {
 #ifdef DEBUG
 			fprintf(stderr, "Receives Locking Signal Packet.\n");
@@ -117,7 +112,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 			}
 		} else if(isReconfigPacket(ip, tcp, cb_in, false)) { //false = removed
 #ifdef DEBUG
-			fprintf(stderr, "It is reconfig packet\n");
+			fprintf(stderr, "Receives Reconfig Packet.\n");
 #endif
 			switch(control_input(pkt, ip, tcp, cb_in)) {
 			case TO_GATE_0:
