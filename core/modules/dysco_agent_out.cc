@@ -72,7 +72,7 @@ DyscoAgentOut::DyscoAgentOut() : Module() {
 	devip = 0;
 	index = 0;
 	timeout = DEFAULT_TIMEOUT;
-	timer = new thread(timer_worker, this);
+	timer = 0;
 	retransmission_list = new LinkedList<Packet>();
 }
 
@@ -1003,6 +1003,9 @@ bool DyscoAgentOut::forward(Packet* pkt, bool reliable) {
 		return true;
 	}
 
+	if(!timer)
+		timer = new thread(timer_worker, this);
+
 	LNode<Packet>* node = retransmission_list->insertTail(*pkt, tsc_to_ns(rdtsc()));
 	uint32_t i = getValueToAck(pkt);
 	unordered_map<uint32_t, LNode<Packet>*>* received_hash = agent->getReceivedHash();
@@ -1016,6 +1019,14 @@ bool DyscoAgentOut::forward(Packet* pkt, bool reliable) {
 		return false;
 	
 	return true;
+}
+
+bool DyscoAgentOut::remove(LNode<Packet>* node) {
+	retransmission_list->remove(node);
+	if(!retransmission_list->size()) {
+		delete timer;
+		timer = 0;
+	}
 }
 
 ADD_MODULE(DyscoAgentOut, "dysco_agent_out", "processes packets outcoming from host")
