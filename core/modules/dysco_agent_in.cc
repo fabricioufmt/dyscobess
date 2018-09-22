@@ -108,6 +108,9 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 			newpkt = processLockingPacket(pkt, eth, ip, tcp);
 			if(newpkt) {
 				agent->forward(newpkt, true);
+#ifdef DEBUG
+				fprintf(stderr, "Forwarding to: %s\n", printPacket(newpkt));
+#endif
 				continue;
 			}
 		} else if(isReconfigPacket(ip, tcp, cb_in, false)) { //false = removed
