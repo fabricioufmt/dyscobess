@@ -2193,8 +2193,6 @@ Packet* DyscoAgentIn::processAckLocking(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 					//delete node;
 					agent->getRetransmissionList()->remove(node);
 					received_hash->erase(key);
-
-					return true;
 				}	
 			}
 		}
