@@ -30,6 +30,10 @@ public:
 		return ns.c_str();
 	}
 
+	inline LinkedList<Packet>* getRetransmissionList() {
+		return retransmission_list;
+	}
+	
 	bool remove(LNode<Packet>*);
 	
  private:
