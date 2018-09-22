@@ -1835,13 +1835,13 @@ Packet* DyscoAgentIn::createSynReconfig(Packet*, Ethernet* eth, Ipv4* ip, Tcp* t
 #ifdef DEBUG
 	fprintf(stderr, "cb_in->dcb_out->sup: %s\n", printSS(cb_in->dcb_out->sup));
 	fprintf(stderr, "cb_in->dcb_out->sub: %s\n", printSS(cb_in->dcb_out->sub));
-	fprintf(stderr, "my_sub: %s\n", printSS(newcmsg->my_sub));
-	fprintf(stderr, "super: %s\n", printSS(newcmsg->super));
-	fprintf(stderr, "leftSS: %s\n", printSS(newcmsg->leftSS));
-	fprintf(stderr, "rightSS: %s\n", printSS(newcmsg->rightSS));
-	fprintf(stderr, "leftA: %s\n", printIP(newcmsg->leftA));
-	fprintf(stderr, "rightA: %s\n", printIP(newcmsg->rightA));
-	fprintf(stderr, "type: %u\n", newcmsg->type);
+	fprintf(stderr, "my_sub: %s\n", printSS(cmsg->my_sub));
+	fprintf(stderr, "super: %s\n", printSS(cmsg->super));
+	fprintf(stderr, "leftSS: %s\n", printSS(cmsg->leftSS));
+	fprintf(stderr, "rightSS: %s\n", printSS(cmsg->rightSS));
+	fprintf(stderr, "leftA: %s\n", printIP(cmsg->leftA));
+	fprintf(stderr, "rightA: %s\n", printIP(cmsg->rightA));
+	fprintf(stderr, "type: %u\n", cmsg->type);
 #endif
 
 	return newpkt;
@@ -2076,10 +2076,10 @@ Packet* DyscoAgentIn::processRequestAckLocking(Packet* pkt, Ethernet* eth, Ipv4*
 #ifdef DEBUG
 			fprintf(stderr, "Changing lock_state field from DYSCO_REQUEST_LOCK to DYSCO_ACK_LOCK\n");
 #endif
+			Packet* newpkt = createSynReconfig(pkt, eth, ip, tcp, cmsg);
 			createAckLocking(pkt, eth, ip, tcp, cmsg);
 
-			return createSynReconfig(pkt, eth, ip, tcp, cmsg);
-			//return 0;
+			return newpkt;
 		} else {
 #ifdef DEBUG
 			fprintf(stderr, "I'm not the LeftAnchor... forwarding the DYSCO_REQUEST_ACK_LOCK\n");
