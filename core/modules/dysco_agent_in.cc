@@ -1708,7 +1708,7 @@ Packet* DyscoAgentIn::createSynReconfig(Packet*, Ethernet* eth, Ipv4* ip, Tcp* t
 	DyscoHashIn* cb_in = dc->lookup_input_by_ss(this->index, &cmsg->my_sub);
 	if(!cb_in) {
 #ifdef DEBUG
-		fprintf(stderr, "looking %s not found cb_in... dropping\n", printPacketSS(cmsg->my_sub));
+		fprintf(stderr, "looking %s not found cb_in... dropping\n", printSS(cmsg->my_sub));
 #endif
 		return 0;
 	}
