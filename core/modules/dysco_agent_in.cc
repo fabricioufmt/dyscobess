@@ -1705,13 +1705,7 @@ Packet* DyscoAgentIn::createSynReconfig(Packet*, Ethernet* eth, Ipv4* ip, Tcp* t
 	newpkt->set_total_len(len);
 	newpkt->set_data_len(len);
 
-	DyscoTcpSession ss;
-	ss.sip = cmsg->my_sub.dip;
-	ss.dip = cmsg->my_sub.sip;
-	ss.sport = cmsg->my_sub.dport;
-	ss.dport = cmsg->my_sub.sport;
-
-	DyscoHashIn* cb_in = dc->lookup_input_by_ss(this->index, &ss);
+	DyscoHashIn* cb_in = dc->lookup_input_by_ss(this->index, &cmsg->my_sub);
 	
 	if(!cb_in) {
 #ifdef DEBUG
