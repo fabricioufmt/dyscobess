@@ -34,7 +34,7 @@ public:
 		return retransmission_list;
 	}
 	
-	bool remove(LNode<Packet>*);
+	void remove(LNode<Packet>*);
 	
  private:
 	string ns;
