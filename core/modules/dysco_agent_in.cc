@@ -2272,6 +2272,12 @@ void DyscoAgentIn::createAckLocking(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* t
 	tcp->flags = Tcp::kAck;
 
 	cmsg->lock_state = DYSCO_ACK_LOCK;
+	DyscoTcpSession ss;
+	ss.sip = cmsg->my_sub.dip;
+	ss.dip = cmsg->my_sub.sip;
+	ss.sport = cmsg->my_sub.dport;
+	ss.dport = cmsg->my_sub.sport;
+	cmsg->my_sub = ss;
 	
 	fix_csum(ip, tcp);
 
