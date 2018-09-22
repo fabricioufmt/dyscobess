@@ -1706,8 +1706,12 @@ Packet* DyscoAgentIn::createSynReconfig(Packet*, Ethernet* eth, Ipv4* ip, Tcp* t
 	newpkt->set_data_len(len);
 
 	DyscoHashIn* cb_in = dc->lookup_input_by_ss(this->index, &cmsg->my_sub);
-	if(!cb_in)
+	if(!cb_in) {
+#ifdef DEBUG
+		fprintf(stderr, "looking %s not found cb_in... dropping\n", printPacketSS(cmsg->my_sub));
+#endif
 		return 0;
+	}
 	
 	DyscoHashOut* old_dcb = cb_in->dcb_out;
 	uint32_t* sc = reinterpret_cast<uint32_t*>(cmsg + 1);
