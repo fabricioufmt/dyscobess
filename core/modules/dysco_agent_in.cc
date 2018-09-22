@@ -1904,8 +1904,14 @@ bool DyscoAgentIn::createAckLockingSignalPacket(Packet* pkt, Ethernet* eth, Ipv4
 Packet* DyscoAgentIn::processLockingPacket(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp) {
 	DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>(getPayload(tcp));
 
+#ifdef DEBUG
+	fprintf(stderr, "I'm looking for by %s on inputhash\n", printSS(cmsg->my_sub));
+#endif
+	
 	DyscoHashIn* cb_in = dc->lookup_input_by_ss(this->index, &cmsg->my_sub);
-
+	if(!cb_in)
+		return 0;
+	
 	if(cmsg->lock_state == DYSCO_REQUEST_LOCK) {
 #ifdef DEBUG
 		fprintf(stderr, "processing Request Locking.\n");
