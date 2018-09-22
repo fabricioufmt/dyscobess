@@ -122,8 +122,10 @@ class DyscoAgentIn final : public Module {
 	Packet* createRequestAckLocking(Packet*, Ethernet*, Ipv4*, Tcp*, DyscoControlMessage*, DyscoHashOut*);
 	void createAckLocking(Packet*, Ethernet*, Ipv4*, Tcp*, DyscoControlMessage*);
 
-	
-	void startReconfiguration(Packet*, Ethernet*, Ipv4*, Tcp*);
+	/*
+	 * Reconfig methods
+	 */
+	Packet* createSynReconfig(Packet*, Ethernet*, Ipv4*, Tcp*, DyscoControlMessage*);
 
 	bool processReceivedPacket(Tcp*);
 };
