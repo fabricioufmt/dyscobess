@@ -2114,13 +2114,15 @@ Packet* DyscoAgentIn::processRequestAckLocking(Packet* pkt, Ethernet* eth, Ipv4*
 #endif
 			Packet* newpkt = createSynReconfig(pkt, eth, ip, tcp, cmsg);
 			createAckLocking(pkt, eth, ip, tcp, cmsg);
-			
+			/*
 			PacketBatch no;
 			no.clear();
 			no.add(newpkt);
 			RunChooseModule(0, &no);
 			return 0;
-			
+			*/
+			agent->forward(newpkt);
+			return 0;
 			//return newpkt;
 		} else {
 #ifdef DEBUG
