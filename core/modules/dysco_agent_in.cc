@@ -1849,8 +1849,12 @@ Packet* DyscoAgentIn::createSynReconfig(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 #endif
 
 	LNode<Packet>* node = agent->getRetransmissionList()->insertTail(*newpkt, tsc_to_ns(rdtsc()));
-	if(!node)
+	if(!node) {
+#ifdef DEBUG
+		fprintf(stderr, "error to insert into retransmission list... dropping\n");
+#endif
 		return 0;
+	}
 
 	uint32_t j = newtcp->seq_num.value() + 1;
 	received_hash->operator[](j) = node;
