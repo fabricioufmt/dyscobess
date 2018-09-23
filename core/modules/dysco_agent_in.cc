@@ -1852,11 +1852,11 @@ Packet* DyscoAgentIn::createSynReconfig(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 	if(!node)
 		return 0;
 
-	uint32_t index = newtcp->seq_num.value() + 1
-	received_hash->operator[](index) = node;
+	uint32_t j = newtcp->seq_num.value() + 1
+	received_hash->operator[](j) = node;
 
 #ifdef DEBUG
-	fprintf(stderr, "I expected to received a packet with %X ACK\n", index);
+	fprintf(stderr, "I expected to received a packet with %X ACK\n", j);
 #endif
 	
 	return newpkt;
