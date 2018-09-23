@@ -140,29 +140,6 @@ PortInc(port=R_5) -> l2_7
 dout10 -> l2_8
 PortInc(port=R_6) -> l2_8
 
-din1:1 -> l2_1
-dout1:1 -> l2_1
-din3:1 -> l2_1
-dout3:1 -> l2_1
-
-din2:1 -> l2_2
-dout2:1 -> l2_2
-din4:1 -> l2_2
-dout4:1 -> l2_2
-
-din5:1 -> l2_3
-dout5:1 -> l2_3
-din6:1 -> l2_4
-dout6:1 -> l2_4
-din7:1 -> UpdateMac(mac_addr='00:00:00:00:00:51') -> l2_5
-dout7:1 -> l2_5
-din8:1 -> l2_6
-dout8:1 -> l2_6
-din9:1 -> l2_7
-dout9:1 -> l2_7
-din10:1 -> l2_8
-dout10:1 -> l2_8
-
 l2_1:0 -> din3
 l2_1:1 -> din1
 l2_2:0 -> din4
