@@ -511,6 +511,13 @@ class DyscoCbReconfig {
 	uint8_t sack_ok;
 };
 
+class DyscoLockingReconfig {
+	DyscoHashOut* cb_out_left;
+	DyscoHashOut* cb_out_right;
+	DyscoTcpSession leftSS;
+	DyscoTcpSession rightSS;
+}
+
 /* Dysco classes */
 
 class DyscoHashes {
@@ -525,6 +532,7 @@ class DyscoHashes {
 	unordered_map<DyscoTcpSession, DyscoHashOut*, DyscoTcpSessionHash> hash_out;
 	unordered_map<DyscoTcpSession, DyscoHashOut*, DyscoTcpSessionHash> hash_pen;
 	unordered_map<DyscoTcpSession, DyscoCbReconfig*, DyscoTcpSessionHash> hash_reconfig;
+	unordered_map<DyscoTcpSession, DyscoLokcingReconfig*, DyscoTcpSessionHash> hash_locking_reconfig;
 
 	//by devip
 	unordered_map<uint32_t, mutex*> mutexes;

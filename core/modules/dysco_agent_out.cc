@@ -987,7 +987,20 @@ bool DyscoAgentOut::processLockingSignalPacket(Packet* pkt, Ethernet* eth, Ipv4*
 		tcp->checksum = UpdateChecksumWithIncrement(tcp->checksum, cksum);
 		
 		hdr_rewrite_csum(ip, tcp, &cb_out->sub);
+
+		DyscoLockingReconfig* dysco_locking = new DyscoLockingReconfig();
+		dysco_locking->cb_out_left = cb_out;
+		dysco_locking->cb_out_right = dc->lookup_output(this->index, &cmsg->rightSS);
+#ifdef DEBUG
+		if(dysco_locking->cb_out_right)
+			fprintf(stderr, "Looking output for %s... found\n", printSS(cmsg->rightSS));
+		else
+			fprintf(stderr, "Looking output for %s... not found\n", printSS(cmsg->rightSS));		
+#endif
+		dysco_locking->leftSS = cmsg->leftSS;
+		dysco_locking->rightSS = cmsg->rightSS;
 		
+		dc->insert_locking_reconfig(this->index, dysco_locking);
 	}
 	
 	return true;	

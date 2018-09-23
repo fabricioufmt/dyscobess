@@ -241,8 +241,6 @@ DyscoHashOut* DyscoCenter::lookup_pending_tag_by_tag(uint32_t i, uint32_t tag) {
 		return it->second;
 	
 	return 0;
-
-	//return dh->hash_pen_tag[tag];
 }
 
 
@@ -256,14 +254,19 @@ DyscoCbReconfig* DyscoCenter::lookup_reconfig_by_ss(uint32_t i, DyscoTcpSession*
 		return it->second;
 	
 	return 0;
-
-	//return dh->hash_reconfig[*ss];
 }
 
+DyscoLockingReconfig* DyscoCenter::lookup_locking_reconfig_by_ss(uint32_t i, DyscoTcpSession* ss) {
+	DyscoHashes* dh = get_hashes(i);
+	if(!dh)
+		return 0;
 
-
-
-
+	unordered_map<DyscoTcpSession, DyscoLockingReconfig*, DyscoTcpSessionHash, DyscoTcpSessionEqualTo>::iterator it = dh->hash_locking_reconfig.find(*ss);
+	if(it != dh->hash_locking_reconfig.end())
+		return it->second;
+	
+	return 0;
+}
 
 
 
@@ -321,6 +324,17 @@ bool DyscoCenter::insert_pending_reconfig(uint32_t i, DyscoHashOut* cb_out) {
 	return true;
 }
 
+bool DyscoCenter::insert_locking_reconfig(uint32_t i, DyscoLockingReconfig* cb_locking) {
+	DyscoHashes* dh = get_hashes(i);
+	if(!dh)
+		return false;
+	
+	dh->hash_locking_reconfig.insert(std::pair<DyscoTcpSession, DyscoHashOut*>(cb_locking->leftSS, cb_out));
+	dh->hash_locking_reconfig.insert(std::pair<DyscoTcpSession, DyscoHashOut*>(cb_locking->rightSS, cb_out));
+
+	return true;
+}
+
 bool DyscoCenter::remove_hash_input(uint32_t i, DyscoHashIn* cb_in) {
 	DyscoHashes* dh = get_hashes(i);
 	if(!dh)
@@ -363,35 +377,6 @@ bool DyscoCenter::remove_hash_pen(uint32_t i, DyscoHashOut* cb_out) {
 }
 
 
-
-
-
-
-/************************************************************************
- *
- *
- * DyscoControl methods
- *
- *
- ************************************************************************/
-
-
-
-
-
-/************************************************************************/
-/************************************************************************/
-/*
-  Dysco methods (OUTPUT)
-*/
-
-
-
-/************************************************************************/
-/************************************************************************/
-/*
-  Dysco methods (CONTROL INPUT)
-*/
 
 
 DyscoPolicies::Filter* DyscoCenter::match_policy(uint32_t i, Packet* pkt) {
@@ -487,21 +472,5 @@ unordered_map<uint32_t, LNode<Packet>*>* DyscoCenter::getHashReceived(uint32_t i
 
 	return dh->received_hash[devip];
 }
-
-bool DyscoCenter::save_sc(uint32_t, Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) {
-	//should save sc...
-	//for test, i'm just removing...
-
-	uint32_t payload_sz = hasPayload(ip, tcp);
-	if(!payload_sz)
-		return false;
-
-	cb_out->lock_state = DYSCO_REQUEST_LOCK;
-	pkt->trim(payload_sz);
-	ip->length = ip->length - be16_t(payload_sz);
-
-	return true;
-}
-
 
 ADD_MODULE(DyscoCenter, "dysco_center", "Dysco center")

@@ -146,6 +146,11 @@ int main(int argc, char** argv) {
 	memcpy(buffer + packet_len, sc, sc_len * sizeof(uint32_t));
 	packet_len += sc_len * sizeof(uint32_t);
 
+	cmsg->leftSS.sip = inet_addr(argv[1]);
+	cmsg->leftSS.dip = inet_addr(argv[3]);
+	cmsg->leftSS.sport = htons(atoi(argv[2]));
+	cmsg->leftSS.dport = htons(atoi(argv[4]));
+
 	cmsg->rightSS.sip = inet_addr(argv[5]);
 	cmsg->rightSS.dip = inet_addr(argv[7]);
 	cmsg->rightSS.sport = htons(atoi(argv[6]));
