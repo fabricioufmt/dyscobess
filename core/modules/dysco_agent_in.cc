@@ -2045,6 +2045,19 @@ Packet* DyscoAgentIn::processRequestAckLocking(Packet* pkt, Ethernet* eth, Ipv4*
 		fprintf(stderr, "I'm not the LeftAnchor.\n");
 #endif
 		cb_out = dc->lookup_output_by_ss(this->index, &cb_in->my_sup);
+		if(!cb_out) {
+			DyscoLockingReconfig* dysco_locking = dc->lookup_locking_reconfig_by_ss(this->index, &cmsg->rightSS);
+			if(!dysco_locking) {
+#ifdef DEBUG
+				fprintf(stderr, "Not found cb_out neither lookup_output nor lookup_locking_reconfig\n");
+#endif
+			} else {
+#ifdef DEBUG
+				fprintf(stderr, "cb_out found on lookup_locking_reconfig\n");
+#endif
+				cb_out = dysco_locking->cb_out_left;
+			}
+		}
 	} else {
 #ifdef DEBUG
 		fprintf(stderr, "I'm the LeftAnchor.\n");
@@ -2155,6 +2168,19 @@ Packet* DyscoAgentIn::processAckLocking(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 		fprintf(stderr, "I'm not the RightAnchor.\n");
 #endif
 		cb_out = dc->lookup_output_by_ss(this->index, &cb_in->my_sup);
+		if(!cb_out) {
+			DyscoLockingReconfig* dysco_locking = dc->lookup_locking_reconfig_by_ss(this->index, &cmsg->leftSS);
+			if(!dysco_locking) {
+#ifdef DEBUG
+				fprintf(stderr, "Not found cb_out neither lookup_output nor lookup_locking_reconfig\n");
+#endif
+			} else {
+#ifdef DEBUG
+				fprintf(stderr, "cb_out found on lookup_locking_reconfig\n");
+#endif
+				cb_out = dysco_locking->cb_out_right;
+			}
+		}
 	} else {
 #ifdef DEBUG
 		fprintf(stderr, "I'm the RightAnchor.\n");
