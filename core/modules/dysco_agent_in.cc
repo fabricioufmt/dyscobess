@@ -1709,6 +1709,7 @@ Packet* DyscoAgentIn::createSynReconfig(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 	*/
 
 	Packet* newpkt = pkt;
+	uint32_t sc_len = (hasPayload(ip, tcp) - sizeof(DyscoControlMessage))/sizeof(uint32_t);
 	
 	DyscoHashIn* cb_in = dc->lookup_input_by_ss(this->index, &cmsg->my_sub);
 	
@@ -1732,7 +1733,7 @@ Packet* DyscoAgentIn::createSynReconfig(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 	newip->header_length = 5;
 	newip->version = 4;
 	newip->type_of_service = 0;
-	newip->length = be16_t(len - sizeof(Ethernet));
+	//newip->length = be16_t(len - sizeof(Ethernet));
 	newip->id = be16_t(rand());
 	newip->fragment_offset = be16_t(0);
 	newip->ttl = 53;
