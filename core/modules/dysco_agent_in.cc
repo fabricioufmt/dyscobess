@@ -1395,7 +1395,7 @@ bool DyscoAgentIn::control_input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp,
 /*
   Auxiliary methods
  */
-void DyscoAgentIn::createAck(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp) {
+void DyscoAgentIn::createAck(Packet*, Ethernet* eth, Ipv4* ip, Tcp* tcp) {
 	Ethernet::Address macswap = eth->dst_addr;
 	eth->dst_addr = eth->src_addr;
 	eth->src_addr = macswap;
