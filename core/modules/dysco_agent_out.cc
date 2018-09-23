@@ -990,7 +990,7 @@ bool DyscoAgentOut::processLockingSignalPacket(Packet* pkt, Ethernet* eth, Ipv4*
 
 		DyscoLockingReconfig* dysco_locking = new DyscoLockingReconfig();
 		dysco_locking->cb_out_left = cb_out;
-		dysco_locking->cb_out_right = dc->lookup_output(this->index, &cmsg->rightSS);
+		dysco_locking->cb_out_right = dc->lookup_output_by_ss(this->index, &cmsg->rightSS);
 #ifdef DEBUG
 		if(dysco_locking->cb_out_right)
 			fprintf(stderr, "Looking output for %s... found\n", printSS(cmsg->rightSS));

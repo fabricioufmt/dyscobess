@@ -329,8 +329,8 @@ bool DyscoCenter::insert_locking_reconfig(uint32_t i, DyscoLockingReconfig* cb_l
 	if(!dh)
 		return false;
 	
-	dh->hash_locking_reconfig.insert(std::pair<DyscoTcpSession, DyscoHashOut*>(cb_locking->leftSS, cb_out));
-	dh->hash_locking_reconfig.insert(std::pair<DyscoTcpSession, DyscoHashOut*>(cb_locking->rightSS, cb_out));
+	dh->hash_locking_reconfig.insert(std::pair<DyscoTcpSession, DyscoLockingReconfig*>(cb_locking->leftSS, cb_locking));
+	dh->hash_locking_reconfig.insert(std::pair<DyscoTcpSession, DyscoLockingReconfig*>(cb_locking->rightSS, cb_locking));
 
 	return true;
 }
