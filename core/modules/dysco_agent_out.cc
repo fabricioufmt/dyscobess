@@ -998,7 +998,7 @@ bool DyscoAgentOut::processLockingSignalPacket(Packet* pkt, Ethernet* eth, Ipv4*
 			fprintf(stderr, "Looking output for %s... not found\n", printSS(cmsg->rightSS));
 
 		fprintf(stderr, "cmsg->leftSS: %s\n", printSS(cmsg->leftSS));
-		fprintf(stderr, "cmsg->leftSS: %s\n", printSS(cmsg->rightSS));
+		fprintf(stderr, "cmsg->rightSS: %s\n", printSS(cmsg->rightSS));
 #endif
 		dysco_locking->leftSS = cmsg->leftSS;
 		dysco_locking->rightSS = cmsg->rightSS;
