@@ -93,16 +93,16 @@ class DyscoAgentIn final : public Module {
 	bool compute_deltas_in(DyscoHashIn*, DyscoHashOut*, DyscoCbReconfig*);
 	bool compute_deltas_out(DyscoHashOut*, DyscoHashOut*, DyscoCbReconfig*);
 	bool control_config_rightA(DyscoCbReconfig*, DyscoControlMessage*, DyscoHashIn*, DyscoHashOut*);
-	CONTROL_RETURN control_reconfig_in(Packet*, Ipv4*, Tcp*, uint8_t*, DyscoCbReconfig*, DyscoControlMessage*);
-	CONTROL_RETURN control_input(Packet*, Ipv4*, Tcp*, DyscoHashIn*);
+	bool control_reconfig_in(Packet*, Ethernet*, Ipv4*, Tcp*, uint8_t*, DyscoCbReconfig*, DyscoControlMessage*);
+	bool control_input(Packet*, Ethernet*, Ipv4*, Tcp*, DyscoHashIn*);
 
 	/*
 	  Auxiliary methods
 	 */
 	bool setup();
 	bool isEstablished(Packet*);
-	void createAck(Packet*, Ipv4*, Tcp*);
-	void createSynAck(Packet*, Ipv4*, Tcp*, uint32_t);
+	void createAck(Packet*, Ethernet*, Ipv4*, Tcp*);
+	void createSynAck(Packet*, Ethernet*, Ipv4*, Tcp*, uint32_t);
 	void createFinAck(Packet*, Ipv4*, Tcp*);
 
 	/*
