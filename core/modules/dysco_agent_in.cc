@@ -1641,17 +1641,7 @@ Packet* DyscoAgentIn::createSynReconfig(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 #ifdef DEBUG
 	fprintf(stderr, "I'm going to create a SYN for a reconfiguration.\n");
 #endif
-	/*
-	Packet* newpkt = Packet::Alloc();
-
-	uint32_t sc_len = (hasPayload(ip, tcp) - sizeof(DyscoControlMessage))/sizeof(uint32_t);
 	
-	uint32_t len = sizeof(Ethernet) + sizeof(Ipv4) + sizeof(Tcp) + hasPayload(ip, tcp);
-	
-	newpkt->set_total_len(len);
-	newpkt->set_data_len(len);
-	*/
-
 	Packet* newpkt = Packet::copy(pkt);
 	if(!newpkt)
 		return 0;
@@ -1690,8 +1680,10 @@ Packet* DyscoAgentIn::createSynReconfig(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 	Tcp* newtcp = reinterpret_cast<Tcp*>(newip + 1);
 	newtcp->src_port = be16_t(40000 + (rand() % 10000));
 	newtcp->dst_port = be16_t(50000 + (rand() % 10000));
-	newtcp->seq_num = be32_t(old_dcb->out_iseq);
-	newtcp->ack_num = be32_t(old_dcb->out_iack);
+	//newtcp->seq_num = be32_t(old_dcb->out_iseq);
+	//newtcp->ack_num = be32_t(old_dcb->out_iack);
+	newtcp->seq_num = be32_t(old_dcb->last_seq);
+	newtcp->ack_num = be32_t(old_dcb->last_ack);
 	//newtcp->reserved = 0;
 	//newtcp->offset = 5;
 	newtcp->flags = Tcp::kSyn;
