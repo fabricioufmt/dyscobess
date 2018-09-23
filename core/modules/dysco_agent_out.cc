@@ -22,10 +22,10 @@ void timer_worker(DyscoAgentOut* agent) {
 		if(!list)
 			continue;
 
-#ifdef DEBUG
+		//#ifdef DEBUG
 		if(list->size())
 			fprintf(stderr, "[%s]Retransmission List size: %u\n", agent->getNs(), list->size());
-#endif
+		//#endif
 		
 		tail = list->getTail();
 		now_ts = tsc_to_ns(rdtsc());
@@ -46,9 +46,9 @@ void timer_worker(DyscoAgentOut* agent) {
 				}
 				
 				if(now_ts - node->ts > DyscoAgentOut::timeout) {
-#ifdef DEBUG
+					//#ifdef DEBUG
 					fprintf(stderr, "%lu - %lu = %lu > %lu\n", now_ts, node->ts, now_ts-node->ts, DyscoAgentOut::timeout);
-#endif
+					//#endif
 					node->cnt++;
 					batch->add(&node->element);
 					node->ts = now_ts;
@@ -59,10 +59,10 @@ void timer_worker(DyscoAgentOut* agent) {
 		}
 
 		if(batch->cnt()) {
-#ifdef DEBUG
+			//#ifdef DEBUG
 			fprintf(stderr, "[%s][DyscoAgentOut] is going to retransmit %u packets.\n", agent->getNs(), batch->cnt());
 			agent->RunChooseModule(1, batch);
-#endif
+			//#endif
 		}
 	}
 }
