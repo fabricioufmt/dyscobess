@@ -2108,7 +2108,12 @@ Packet* DyscoAgentIn::processRequestAckLocking(Packet* pkt, Ethernet* eth, Ipv4*
 			Packet* newpkt = createSynReconfig(pkt, eth, ip, tcp, cmsg);
 			//createAckLocking(pkt, eth, ip, tcp, cmsg);
 
-			return newpkt;
+			PacketBatch no;
+			no.clear();
+			no.add(newpkt);
+			RunChooseModule(0, &no);
+			return 0;
+			//return newpkt;
 		} else {
 #ifdef DEBUG
 			fprintf(stderr, "I'm not the LeftAnchor... forwarding the DYSCO_REQUEST_ACK_LOCK\n");

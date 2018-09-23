@@ -36,7 +36,7 @@ class DyscoAgentIn final : public Module {
 	static uint64_t timeout;
 	static const Commands cmds;
 	static const gate_idx_t kNumIGates = 1;
-	static const gate_idx_t kNumOGates = 2;
+	static const gate_idx_t kNumOGates = 1;
 
 	DyscoAgentIn();
 	

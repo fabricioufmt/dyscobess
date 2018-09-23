@@ -175,8 +175,8 @@ dyscocenter.add(priority=1, sc_len=2, chain=['10.0.4.2', '10.0.2.2'], filter='ds
 
 #os.system('ip netns exec c1 tcpdump -i c1-0 arp or icmp or tcp -n -XX -w /home/fabricio/c1_0.pcap & 2> /dev/null')
 #os.system('ip netns exec s1 tcpdump -i s1-0 arp or icmp or tcp -n -XX -w /home/fabricio/s1_0.pcap & 2> /dev/null')
-#os.system('ip netns exec LA tcpdump -i LA-0 arp or icmp or tcp -n -XX -w /home/fabricio/LA_0.pcap & 2> /dev/null')
-#os.system('ip netns exec LA tcpdump -i LA-1 arp or icmp or tcp -n -XX -w /home/fabricio/LA_1.pcap & 2> /dev/null')
+os.system('ip netns exec LA tcpdump -i LA-0 arp or icmp or tcp -n -XX -w /home/fabricio/LA_0.pcap & 2> /dev/null')
+os.system('ip netns exec LA tcpdump -i LA-1 arp or icmp or tcp -n -XX -w /home/fabricio/LA_1.pcap & 2> /dev/null')
 #os.system('ip netns exec RA tcpdump -i RA-0 arp or icmp or tcp -n -XX -w /home/fabricio/RA_0.pcap & 2> /dev/null')
 #os.system('ip netns exec RA tcpdump -i RA-1 arp or icmp or tcp -n -XX -w /home/fabricio/RA_1.pcap & 2> /dev/null')
 #os.system('ip netns exec m1 tcpdump -i m1-0 arp or icmp or tcp -n -XX -w /home/fabricio/m1_0.pcap & 2> /dev/null')
