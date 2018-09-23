@@ -2106,7 +2106,7 @@ Packet* DyscoAgentIn::processRequestAckLocking(Packet* pkt, Ethernet* eth, Ipv4*
 			fprintf(stderr, "Changing lock_state field from DYSCO_REQUEST_LOCK to DYSCO_ACK_LOCK\n");
 #endif
 			Packet* newpkt = createSynReconfig(pkt, eth, ip, tcp, cmsg);
-			createAckLocking(pkt, eth, ip, tcp, cmsg);
+			//createAckLocking(pkt, eth, ip, tcp, cmsg);
 
 			return newpkt;
 		} else {
