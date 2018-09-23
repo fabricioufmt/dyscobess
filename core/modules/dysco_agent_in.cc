@@ -122,7 +122,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 
 
 
-			
+			/*
 			switch(control_input(pkt, ip, tcp, cb_in)) {
 			case TO_GATE_0:
 				out.add(pkt);
@@ -157,7 +157,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 			default:
 				break;
 			}
-
+			*/
 		} else {
 			if(removed) {
 #ifdef DEBUG
@@ -1200,7 +1200,7 @@ bool DyscoAgentIn::control_input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp,
 			return false;
 		}
 
-		return control_reconfig_in(pkt, ip, tcp, payload, rcb, cmsg);
+		return control_reconfig_in(pkt, eth, ip, tcp, payload, rcb, cmsg);
 		
 	} else if(isTCPSYN(tcp) && isTCPACK(tcp)) {
 #ifdef DEBUG
