@@ -1762,6 +1762,7 @@ Packet* DyscoAgentIn::createSynReconfig(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 	newcmsg->my_sub.dip = newip->dst.raw_value();
 	newcmsg->my_sub.sport = newtcp->src_port.raw_value();
 	newcmsg->my_sub.dport = newtcp->dst_port.raw_value();
+	newcmsg->super = newcmsg->leftSS;
 	newcmsg->leftIseq = htonl(old_dcb->out_iseq);
 	newcmsg->leftIack = htonl(old_dcb->out_iack);
 	newcmsg->leftIts = htonl(old_dcb->ts_in);
@@ -1842,13 +1843,13 @@ Packet* DyscoAgentIn::createSynReconfig(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 #ifdef DEBUG
 	fprintf(stderr, "cb_in->dcb_out->sup: %s\n", printSS(cb_in->dcb_out->sup));
 	fprintf(stderr, "cb_in->dcb_out->sub: %s\n", printSS(cb_in->dcb_out->sub));
-	fprintf(stderr, "my_sub: %s\n", printSS(cmsg->my_sub));
-	fprintf(stderr, "super: %s\n", printSS(cmsg->super));
-	fprintf(stderr, "leftSS: %s\n", printSS(cmsg->leftSS));
-	fprintf(stderr, "rightSS: %s\n", printSS(cmsg->rightSS));
-	fprintf(stderr, "leftA: %s\n", printIP(cmsg->leftA));
-	fprintf(stderr, "rightA: %s\n", printIP(cmsg->rightA));
-	fprintf(stderr, "type: %u\n", cmsg->type);
+	fprintf(stderr, "my_sub: %s\n", printSS(newcmsg->my_sub));
+	fprintf(stderr, "super: %s\n", printSS(newcmsg->super));
+	fprintf(stderr, "leftSS: %s\n", printSS(newcmsg->leftSS));
+	fprintf(stderr, "rightSS: %s\n", printSS(newcmsg->rightSS));
+	fprintf(stderr, "leftA: %s\n", printIP(newcmsg->leftA));
+	fprintf(stderr, "rightA: %s\n", printIP(newcmsg->rightA));
+	fprintf(stderr, "type: %u\n", newcmsg->type);
 #endif
 
 	LNode<Packet>* node = agent->getRetransmissionList()->insertTail(*newpkt, tsc_to_ns(rdtsc()));
