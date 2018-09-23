@@ -1862,7 +1862,7 @@ Packet* DyscoAgentIn::createSynReconfig(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 	fprintf(stderr, "I expected to received a packet with %X ACK\n", j);
 #endif
 	
-	return newpkt;
+	return 0;
 }
 
 bool DyscoAgentIn::processReceivedPacket(Tcp* tcp) {
