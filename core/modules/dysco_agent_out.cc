@@ -995,10 +995,14 @@ bool DyscoAgentOut::processLockingSignalPacket(Packet* pkt, Ethernet* eth, Ipv4*
 		if(dysco_locking->cb_out_right)
 			fprintf(stderr, "Looking output for %s... found\n", printSS(cmsg->rightSS));
 		else
-			fprintf(stderr, "Looking output for %s... not found\n", printSS(cmsg->rightSS));		
+			fprintf(stderr, "Looking output for %s... not found\n", printSS(cmsg->rightSS));
+
+		fprintf(stderr, "cmsg->leftSS: %s\n", printSS(cmsg->leftSS));
+		fprintf(stderr, "cmsg->leftSS: %s\n", printSS(cmsg->rightSS));
 #endif
 		dysco_locking->leftSS = cmsg->leftSS;
 		dysco_locking->rightSS = cmsg->rightSS;
+
 		
 		dc->insert_locking_reconfig(this->index, dysco_locking);
 	}
