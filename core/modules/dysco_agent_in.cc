@@ -1960,7 +1960,7 @@ Packet* DyscoAgentIn::processRequestLocking(Packet* pkt, Ethernet* eth, Ipv4* ip
 #endif
 		cb_out = dc->lookup_output_by_ss(this->index, &cb_in->my_sup);
 		if(!cb_out) {
-			DyscoLockingReconfig* dysco_locking = dc->lookup_locking_reconfig_by_ss(this->index, cmsg->leftSS);
+			DyscoLockingReconfig* dysco_locking = dc->lookup_locking_reconfig_by_ss(this->index, &cmsg->leftSS);
 			if(!dysco_locking) {
 #ifdef DEBUG
 				fprintf(stderr, "Not found cb_out neither lookup_output nor lookup_locking_reconfig\n");
