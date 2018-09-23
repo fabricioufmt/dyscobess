@@ -1300,11 +1300,6 @@ bool DyscoAgentIn::control_input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp,
 			fprintf(stderr, "It's the right anchor.\n");
 #endif
 			
-#ifdef DEBUG
-			fprintf(stderr, "Looking for %s in hash_reconfig.\n", printSS(cb_in->my_sup));
-			fprintf(stderr, "Or should be neigh_sup: %s ?.\n", printSS(cb_in->neigh_sup));
-#endif
-			
 			rcb = dc->lookup_reconfig_by_ss(this->index, &cb_in->my_sup);
 			if(!rcb) {
 #ifdef DEBUG
