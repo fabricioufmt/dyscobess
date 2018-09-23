@@ -1852,7 +1852,7 @@ Packet* DyscoAgentIn::createSynReconfig(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 	if(!node)
 		return 0;
 
-	uint32_t j = newtcp->seq_num.value() + 1
+	uint32_t j = newtcp->seq_num.value() + 1;
 	received_hash->operator[](j) = node;
 
 #ifdef DEBUG
@@ -2124,7 +2124,7 @@ Packet* DyscoAgentIn::processRequestAckLocking(Packet* pkt, Ethernet* eth, Ipv4*
 #ifdef DEBUG
 			fprintf(stderr, "Changing lock_state field from DYSCO_REQUEST_LOCK to DYSCO_ACK_LOCK\n");
 #endif
-			Packet* newpkt = createSynReconfig(pkt, eth, ip, tcp, cmsg);
+			createSynReconfig(pkt, eth, ip, tcp, cmsg);
 			createAckLocking(pkt, eth, ip, tcp, cmsg);
 
 			return 0;
