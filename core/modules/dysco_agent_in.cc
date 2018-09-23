@@ -1436,8 +1436,8 @@ void DyscoAgentIn::createSynAck(bess::Packet* pkt, Ipv4* ip, Tcp* tcp, uint32_t)
 	be32_t seqswap = tcp->seq_num;
 	tcp->seq_num = tcp->ack_num;
 	//tcp->seq_num = be32_t(ISN);
-	//tcp->ack_num = seqswap + be32_t(1) + be32_t(payload_len);
-	tcp->ack_num = seqswap + be32_t(1);
+	tcp->ack_num = seqswap + be32_t(payload_len + 1);
+	//tcp->ack_num = seqswap + be32_t(1);
 	tcp->flags |= Tcp::kAck;
 	pkt->trim(payload_len);
 
