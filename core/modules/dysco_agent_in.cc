@@ -1682,14 +1682,19 @@ Packet* DyscoAgentIn::createSynReconfig(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 	newtcp->dst_port = be16_t(50000 + (rand() % 10000));
 	//newtcp->seq_num = be32_t(old_dcb->out_iseq);
 	//newtcp->ack_num = be32_t(old_dcb->out_iack);
-	*((uint32_t*)(&newtcp->seq_num)) = htonl(old_dcb->last_seq);
-	*((uint32_t*)(&newtcp->ack_num)) = htonl(old_dcb->last_ack);
+	newtcp->seq_num = be32_t(old_dcb->last_seq);
+	newtcp->ack_num = be32_t(old_dcb->last_ack);
 	//newtcp->reserved = 0;
 	//newtcp->offset = 5;
 	newtcp->flags = Tcp::kSyn;
 	newtcp->window = tcp->window;
 	//newtcp->urgent_ptr = be16_t(0);
 
+#ifdef DEBUG
+	fprintf(stderr, "out_iseq=%X last_seq=%X\n", old_dcb->out_iseq, old_dcb->last_seq);
+	fprintf(stderr, "out_iack=%X last_ack=%X\n", old_dcb->out_iack, old_dcb->last_ack);
+#endif
+	
 	DyscoControlMessage* newcmsg = reinterpret_cast<DyscoControlMessage*>(newtcp + 1);
 	newcmsg->my_sub.sip = newip->src.raw_value();
 	newcmsg->my_sub.dip = newip->dst.raw_value();
