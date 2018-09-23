@@ -683,7 +683,7 @@ inline void hdr_rewrite_full_csum(Ipv4* ip, Tcp* tcp, DyscoTcpSession* ss) {
 }
 
 inline void* getPayload(Tcp* tcp) {
-	return reinterpret_cast<void*>((uint8_t)tcp + (tcp->offset << 2));
+	return reinterpret_cast<void*>((uint8_t*)tcp + (tcp->offset << 2));
 }
 
 inline bool isLockingSignalPacket(Tcp* tcp) {

@@ -78,7 +78,7 @@ class DyscoAgentIn final : public Module {
 	
 	bool in_two_paths_ack(Tcp*, DyscoHashIn*);
 	bool in_two_paths_data_seg(Tcp*, DyscoHashIn*, uint32_t);
-	CONTROL_RETURN input(Packet*, Ipv4*, Tcp*, DyscoHashIn*);
+	bool input(Packet*, Ipv4*, Tcp*, DyscoHashIn*);
 	bool set_ack_number_out(Tcp*, DyscoHashIn*);
 	void insert_tag(Packet*, Ipv4*, Tcp*);
 
