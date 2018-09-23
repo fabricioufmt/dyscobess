@@ -1959,6 +1959,19 @@ Packet* DyscoAgentIn::processRequestLocking(Packet* pkt, Ethernet* eth, Ipv4* ip
 		fprintf(stderr, "I'm not the RightAnchor.\n");
 #endif
 		cb_out = dc->lookup_output_by_ss(this->index, &cb_in->my_sup);
+		if(!cb_out) {
+			DyscoLockingReconfig* dysco_locking = dc->lookup_locking_reconfig(this->index, cmsg->leftSS);
+			if(!dysco_locking) {
+#ifdef DEBUG
+				fprintf(stderr, "Not found cb_out neither lookup_output nor lookup_locking_reconfig\n");
+#endif
+			} else {
+#ifdef DEBUG
+				fprintf(stderr, "cb_out found on lookup_locking_reconfig\n");
+#endif
+				cb_out = dysco_locking->cb_out_right;
+			}
+		}
 	} else {
 #ifdef DEBUG
 		fprintf(stderr, "I'm the RightAnchor.\n");
