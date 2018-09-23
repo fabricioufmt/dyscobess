@@ -1606,7 +1606,6 @@ Packet* DyscoAgentIn::createLockingPacket(Packet* pkt, Ethernet* eth, Ipv4* ip, 
 	cb_in->dcb_out->is_LA = 1;
 	cb_in->dcb_out->lock_state = DYSCO_REQUEST_LOCK;
 
-	DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>(newtcp + 1);
 	memset(cmsg, 0, sizeof(DyscoControlMessage));	
 	cmsg->type = DYSCO_LOCK;
 	cmsg->lock_state = DYSCO_REQUEST_LOCK;
