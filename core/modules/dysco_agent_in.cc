@@ -1708,7 +1708,10 @@ Packet* DyscoAgentIn::createSynReconfig(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 	newpkt->set_data_len(len);
 	*/
 
-	Packet* newpkt = pkt;
+	Packet* newpkt = Packet::copy(pkt);
+	if(!newpkt)
+		return 0;
+	
 	uint32_t sc_len = (hasPayload(ip, tcp) - sizeof(DyscoControlMessage))/sizeof(uint32_t);
 	
 	DyscoHashIn* cb_in = dc->lookup_input_by_ss(this->index, &cmsg->my_sub);
@@ -1727,15 +1730,15 @@ Packet* DyscoAgentIn::createSynReconfig(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 	Ethernet* neweth = newpkt->head_data<Ethernet*>();
 	neweth->src_addr = eth->dst_addr;
 	neweth->dst_addr = eth->src_addr;
-	neweth->ether_type = eth->ether_type;
+	//neweth->ether_type = eth->ether_type;
 
 	Ipv4* newip = reinterpret_cast<Ipv4*>(neweth + 1);
-	newip->header_length = 5;
-	newip->version = 4;
-	newip->type_of_service = 0;
+	//newip->header_length = 5;
+	//newip->version = 4;
+	//newip->type_of_service = 0;
 	//newip->length = be16_t(len - sizeof(Ethernet));
 	newip->id = be16_t(rand());
-	newip->fragment_offset = be16_t(0);
+	//newip->fragment_offset = be16_t(0);
 	newip->ttl = 53;
 	newip->src = ip->dst;
 	newip->dst = be32_t(ntohl(sc[0]));
@@ -1745,11 +1748,11 @@ Packet* DyscoAgentIn::createSynReconfig(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 	newtcp->dst_port = be16_t(50000 + (rand() % 10000));
 	newtcp->seq_num = be32_t(old_dcb->out_iseq);
 	newtcp->ack_num = be32_t(old_dcb->out_iack);
-	newtcp->reserved = 0;
-	newtcp->offset = 5;
+	//newtcp->reserved = 0;
+	//newtcp->offset = 5;
 	newtcp->flags = Tcp::kSyn;
 	newtcp->window = tcp->window;
-	newtcp->urgent_ptr = be16_t(0);
+	//newtcp->urgent_ptr = be16_t(0);
 
 	DyscoControlMessage* newcmsg = reinterpret_cast<DyscoControlMessage*>(newtcp + 1);
 	newcmsg->my_sub.sip = newip->src.raw_value();
@@ -2110,14 +2113,15 @@ Packet* DyscoAgentIn::processRequestAckLocking(Packet* pkt, Ethernet* eth, Ipv4*
 			fprintf(stderr, "Changing lock_state field from DYSCO_REQUEST_LOCK to DYSCO_ACK_LOCK\n");
 #endif
 			Packet* newpkt = createSynReconfig(pkt, eth, ip, tcp, cmsg);
-			//createAckLocking(pkt, eth, ip, tcp, cmsg);
-
+			createAckLocking(pkt, eth, ip, tcp, cmsg);
+			/*
 			PacketBatch no;
 			no.clear();
 			no.add(newpkt);
 			RunChooseModule(0, &no);
 			return 0;
-			//return newpkt;
+			*/
+			return newpkt;
 		} else {
 #ifdef DEBUG
 			fprintf(stderr, "I'm not the LeftAnchor... forwarding the DYSCO_REQUEST_ACK_LOCK\n");
