@@ -1848,6 +1848,17 @@ Packet* DyscoAgentIn::createSynReconfig(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 	fprintf(stderr, "type: %u\n", cmsg->type);
 #endif
 
+	LNode<Packet>* node = agent->getRetransmissionList()->insertTail(*newpkt, tsc_to_ns(rdtsc()));
+	if(!node)
+		return 0;
+
+	uint32_t index = newtcp->seq_num.value() + 1
+	received_hash->operator[](index) = node;
+
+#ifdef DEBUG
+	fprintf(stderr, "I expected to received a packet with %X ACK\n", index);
+#endif
+	
 	return newpkt;
 }
 
@@ -2115,16 +2126,8 @@ Packet* DyscoAgentIn::processRequestAckLocking(Packet* pkt, Ethernet* eth, Ipv4*
 #endif
 			Packet* newpkt = createSynReconfig(pkt, eth, ip, tcp, cmsg);
 			createAckLocking(pkt, eth, ip, tcp, cmsg);
-			/*
-			PacketBatch no;
-			no.clear();
-			no.add(newpkt);
-			RunChooseModule(0, &no);
+
 			return 0;
-			*/
-			agent->forward(newpkt, true);
-			return 0;
-			//return newpkt;
 		} else {
 #ifdef DEBUG
 			fprintf(stderr, "I'm not the LeftAnchor... forwarding the DYSCO_REQUEST_ACK_LOCK\n");
