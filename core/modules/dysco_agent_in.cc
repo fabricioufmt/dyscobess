@@ -1767,6 +1767,7 @@ Packet* DyscoAgentIn::createSynReconfig(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 	newcmsg->leftIwsr = htonl(old_dcb->dcb_in->ws_in);
 	newcmsg->sackOk = htonl(old_dcb->sack_ok);
 	newcmsg->type = DYSCO_RECONFIG;
+	newcmsg->leftA = ip->dst.raw_value();
 
 	uint32_t* newsc = reinterpret_cast<uint32_t*>(newcmsg + 1);
 	for(uint32_t i = 0; i < sc_len; i++)
@@ -2121,7 +2122,7 @@ Packet* DyscoAgentIn::processRequestAckLocking(Packet* pkt, Ethernet* eth, Ipv4*
 			RunChooseModule(0, &no);
 			return 0;
 			*/
-			agent->forward(newpkt);
+			agent->forward(newpkt, true);
 			return 0;
 			//return newpkt;
 		} else {
