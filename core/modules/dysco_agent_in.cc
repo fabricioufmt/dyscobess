@@ -1693,11 +1693,11 @@ Packet* DyscoAgentIn::processLockingSignalPacket(Packet* pkt, Ethernet* eth, Ipv
 
 
 
-Packet* DyscoAgentIn::createSynReconfig(Packet*, Ethernet* eth, Ipv4* ip, Tcp* tcp, DyscoControlMessage* cmsg) {
+Packet* DyscoAgentIn::createSynReconfig(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp, DyscoControlMessage* cmsg) {
 #ifdef DEBUG
 	fprintf(stderr, "I'm going to create a SYN for a reconfiguration.\n");
 #endif
-
+	/*
 	Packet* newpkt = Packet::Alloc();
 
 	uint32_t sc_len = (hasPayload(ip, tcp) - sizeof(DyscoControlMessage))/sizeof(uint32_t);
@@ -1706,7 +1706,10 @@ Packet* DyscoAgentIn::createSynReconfig(Packet*, Ethernet* eth, Ipv4* ip, Tcp* t
 	
 	newpkt->set_total_len(len);
 	newpkt->set_data_len(len);
+	*/
 
+	Packet* newpkt = pkt;
+	
 	DyscoHashIn* cb_in = dc->lookup_input_by_ss(this->index, &cmsg->my_sub);
 	
 	if(!cb_in) {
@@ -1781,7 +1784,7 @@ Packet* DyscoAgentIn::createSynReconfig(Packet*, Ethernet* eth, Ipv4* ip, Tcp* t
 	rcb->leftItsr = old_dcb->tsr_in;
 	rcb->leftIws = old_dcb->ws_in;
 	rcb->leftIwsr = old_dcb->dcb_in->ws_in;
-	rcb->sack_ok =old_dcb->sack_ok;
+	rcb->sack_ok = old_dcb->sack_ok;
 
 	if(!dc->insert_hash_reconfig(this->index, rcb))
 		return 0;
