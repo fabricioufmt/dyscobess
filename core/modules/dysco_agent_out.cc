@@ -916,13 +916,15 @@ bool DyscoAgentOut::processLockingSignalPacket(Packet* pkt, Ethernet* eth, Ipv4*
 	fprintf(stderr, "State: %d.\n", cb_out->state);
 	fprintf(stderr, "Lock State: %d.\n", cb_out->lock_state);
 #endif
-	DyscoTcpOption* tcpo = reinterpret_cast<DyscoTcpOption*>(tcp + 1);	
-	uint32_t sc_sz = hasPayload(ip, tcp) - sizeof(DyscoControlMessage);
+	DyscoTcpOption* tcpo = reinterpret_cast<DyscoTcpOption*>(tcp + 1);
+	uint32_t payload_len = hasPayload(ip, tcp);
+	uint32_t sc_sz = payload_len - sizeof(DyscoControlMessage);
 	DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>(getPayload(tcp));
 			
 	cb_out->is_signaler = 1;
 	cb_out->sc_len = sc_sz/sizeof(uint32_t);
-	cb_out->sc = reinterpret_cast<uint32_t*>(cmsg + 1);
+	cb_out->sc = new uint32_t[cb_out->sc_len];
+	memcpy(cb_out->sc, reinterpret_cast<uint32_t*>(cmsg + 1), sc_sz);
 
 #ifdef DEBUG
 	fprintf(stderr, "setting up signaler and storing service chain\n");
@@ -936,6 +938,7 @@ bool DyscoAgentOut::processLockingSignalPacket(Packet* pkt, Ethernet* eth, Ipv4*
 		cb_out->is_LA = 1;
 
 		uint8_t oldRhop = cmsg->rhop;
+		DyscoTcpSession oldLeftSS = cmsg->leftSS;
 		DyscoTcpSession oldRightSS = cmsg->rightSS;
 
 		ip->length = be16_t(ip->length.value() - tcpo->len - sc_sz);
@@ -964,29 +967,31 @@ bool DyscoAgentOut::processLockingSignalPacket(Packet* pkt, Ethernet* eth, Ipv4*
 		cmsg->lhop = oldRhop;
 		cmsg->type = DYSCO_LOCK;
 		cmsg->my_sub = cb_out->sub;
+		cmsg->leftSS = oldLeftSS;
 		cmsg->rightSS = oldRightSS;
 		cmsg->lock_state = DYSCO_REQUEST_LOCK;
 				
 		fix_csum(ip, tcp);
 #ifdef DEBUG
-		fprintf(stderr, "forwardin to %s\n\n", printSS(cb_out->sub));
+		fprintf(stderr, "Forwarding to %s.\n\n", printSS(cb_out->sub));
 #endif
 	} else {
 #ifdef DEBUG
-		fprintf(stderr, "I'm not the LeftAnchor\n");
-		fprintf(stderr, "Changing seq_num from %X to %X\n", tcp->seq_num.raw_value(), cb_out->last_seq);
-		fprintf(stderr, "Changing ack_num from %X to %X\n", tcp->ack_num.raw_value(), cb_out->last_ack);
-		fprintf(stderr, "Forwarding to %s\n\n", printSS(cb_out->sub));
+		fprintf(stderr, "I'm not the LeftAnchor.\n");
+		fprintf(stderr, "Changing seq_num from %X to %X.\n", tcp->seq_num.raw_value(), cb_out->last_seq);
+		fprintf(stderr, "Changing ack_num from %X to %X.\n", tcp->ack_num.raw_value(), cb_out->last_ack);
+		fprintf(stderr, "Removing and storing the payload.\n");
+		fprintf(stderr, "Forwarding to %s.\n\n", printSS(cb_out->sub));
 #endif
 
-		uint32_t cksum;
-		cksum  = ChecksumIncrement32(tcp->seq_num.raw_value(), cb_out->last_seq);
-		cksum += ChecksumIncrement32(tcp->ack_num.raw_value(), cb_out->last_ack);
 		tcp->seq_num = be32_t(ntohl(cb_out->last_seq));
 		tcp->ack_num = be32_t(ntohl(cb_out->last_ack));
-		tcp->checksum = UpdateChecksumWithIncrement(tcp->checksum, cksum);
-		
-		hdr_rewrite_csum(ip, tcp, &cb_out->sub);
+		hdr_rewrite(ip, tcp, &cb_out->sub);
+
+		pkt->trim(payload_len);
+		ip->length = ip->length - be16_t(payload_len);
+
+		fix_csum(ip, tcp);
 
 		DyscoLockingReconfig* dysco_locking = new DyscoLockingReconfig();
 		dysco_locking->cb_out_left = cb_out;

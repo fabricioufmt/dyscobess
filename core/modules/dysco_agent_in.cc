@@ -111,53 +111,15 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 				
 				continue;
 			}
-		} else if(isReconfigPacket(ip, tcp, cb_in, false)) { //false = removed
+		} else if(isReconfigPacket(ip, tcp, cb_in)) {
 #ifdef DEBUG
 			fprintf(stderr, "Receives Reconfig Packet.\n");
 #endif
 
 			if(control_input(pkt, eth, ip, tcp, cb_in)) {
 				out.add(pkt);
-			} 
-
-
-
-			/*
-			switch(control_input(pkt, ip, tcp, cb_in)) {
-			case TO_GATE_0:
-				out.add(pkt);
-#ifdef DEBUG
-				fprintf(stderr, "[%s][DyscoAgentIn-Control] forwards %s [%X:%X]\n\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.raw_value(), tcp->ack_num.raw_value());
-#endif
-				break;
-				
-			case TO_GATE_1:
-#ifdef DEBUG
-				fprintf(stderr, "[%s][DyscoAgentIn-Control] forwarding to toRetransmit %s [%X:%X]\n\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.raw_value(), tcp->ack_num.raw_value());
-#endif
-				//dc->add_retransmission(this->index, devip, pkt);
-				agent->forward(pkt, true);
-				break;
-
-			case IS_RETRANSMISSION:
-				//out_gates[1].add(pkt);
-				break;
-				
-			case END:
-#ifdef DEBUG
-				fprintf(stderr, "3-way from Reconfiguration Session is DONE.\n\n");
-				fprintf(stderr, "cb_in->dcb_out->other_path: %s %s\n", printSS(cb_in->dcb_out->other_path->sub), printSS(cb_in->dcb_out->other_path->sup));
-#endif
-				break;
-				
-			case ERROR:
-#ifdef DEBUG
-				fprintf(stderr, "ERROR on control_input\n");
-#endif
-			default:
-				break;
 			}
-			*/
+			
 		} else {
 			if(removed) {
 #ifdef DEBUG
@@ -166,18 +128,8 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 				continue;
 			}
 			
-			switch(input(pkt, ip, tcp, cb_in)) {
-			case TO_GATE_0:
+			if(input(pkt, ip, tcp, cb_in)) {
 				out.add(pkt);
-				break;
-				
-			case TO_GATE_1:
-				agent->forward(pkt);
-				//out_gates[1].add(pkt);
-				break;
-				
-			default:
-				break;
 			}
 #ifdef DEBUG
 			fprintf(stderr, "[%s][DyscoAgentIn] forwards %s [%X:%X]\n\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.raw_value(), tcp->ack_num.raw_value());
@@ -187,27 +139,51 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 	
 	batch->clear();
 	RunChooseModule(0, &out);
-	//RunChooseModule(0, &(out_gates[0]));
-	//RunChooseModule(1, &(out_gates[1]));
 }
 
-bool DyscoAgentIn::isReconfigPacket(Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in, bool) {
-	if(ip->dst.raw_value() != devip)
+bool DyscoAgentIn::processReceivedPacket(Tcp* tcp) {
+	uint32_t key = tcp->ack_num.value();
+
+	LNode<Packet>* node = received_hash->operator[](key);
+	if(node) {
+#ifdef DEBUG
+		fprintf(stderr, "I found the packet and I'm going to remove it.\n");
+#endif
+		agent->remove(node);
+		received_hash->erase(key);
+
+		return true;
+	}
+
+	return false;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+bool DyscoAgentIn::isReconfigPacket(Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
+	if(ip->dst.raw_value() != devip) {
 		return false;
+	}
 
 	uint32_t payload_len = hasPayload(ip, tcp);
 	
 	if(isTCPSYN(tcp, true)) {
 		if(!cb_in) {
 			if(payload_len) {
-				uint32_t tcp_hlen = tcp->offset << 2;
-				/*
-				if(((uint8_t*)tcp + tcp_hlen)[payload_len - 1] == 0xFF)
-					return true;
-				*/
-				DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>(((uint8_t*)tcp) + tcp_hlen);
-				if(!cmsg)
-					return false;
+				DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>(getPayload(tcp));
 				
 				return cmsg->type == DYSCO_RECONFIG;
 			}
@@ -216,21 +192,16 @@ bool DyscoAgentIn::isReconfigPacket(Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in, bool
 		}
 
 		if(!cb_in->dcb_out) {
-#ifdef DEBUG
-			fprintf(stderr, "isReconfigPacket: cb_in->dcb_out is NULL\n");
-#endif
 			return false;
 		}
 
+		if(cb_in->dcb_out->lock_state != DYSCO_ACK_LOCK) {
+			return false;
+		}
+		
 		if(cb_in->dcb_out->state == DYSCO_SYN_RECEIVED && payload_len > 0) {
-#ifdef DEBUG
-			fprintf(stderr, "isReconfigPacket: SYN_RECEIVED and hasPayload == TRUE\n");
-#endif
 			return true;
 		}
-#ifdef DEBUG
-		fprintf(stderr, "isReconfigPacket: FALSE\n");
-#endif
 		
 		return false;
 	}
@@ -240,9 +211,6 @@ bool DyscoAgentIn::isReconfigPacket(Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in, bool
 
 	if(isTCPSYN(tcp) && isTCPACK(tcp)) {
 		if(cb_in->is_reconfiguration) {
-#ifdef DEBUG
-			fprintf(stderr, "is SYN+ACK reconfiguration Packet.\n");
-#endif
 			return true;
 		}
 
@@ -258,9 +226,6 @@ bool DyscoAgentIn::isReconfigPacket(Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in, bool
 		}
 
 		if(cb_in->dcb_out->other_path && cb_in->dcb_out->other_path->state == DYSCO_ESTABLISHED) {
-			//	if(removed)
-			//	return true;
-			
 			return false;
 		}
 	}
@@ -648,21 +613,21 @@ bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in, uint32_t 
 }
 
 //L.753
-CONTROL_RETURN DyscoAgentIn::input(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
+bool DyscoAgentIn::input(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
 	uint32_t payload_sz = hasPayload(ip, tcp);
 	
 	if(!cb_in) {
 		if(isTCPSYN(tcp, true) && payload_sz)
 			rx_initiation_new(pkt, ip, tcp, payload_sz);
 		
-		return TO_GATE_0;
+		return true;
 	}
 
 	if(isTCPACK(tcp, true)) {
 		if(cb_in->dcb_out->old_path && cb_in->dcb_out->state == DYSCO_LAST_ACK) {
 			cb_in->dcb_out->state = DYSCO_CLOSED;
 
-			return ERROR;
+			return false;
 		} else if(cb_in->dcb_out->state == DYSCO_SYN_RECEIVED)
 			cb_in->dcb_out->state = DYSCO_ESTABLISHED;
 
@@ -690,29 +655,20 @@ CONTROL_RETURN DyscoAgentIn::input(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashIn*
 			}
 		}
 		
-		return TO_GATE_0;
+		return true;
 	}
-
-	if(isTCPFIN(tcp)) {
-		if(cb_in->dcb_out->old_path && cb_in->dcb_out->other_path->state == DYSCO_ESTABLISHED) {
-			createFinAck(pkt, ip, tcp);
-			cb_in->dcb_out->state = DYSCO_LAST_ACK;
-
-			return TO_GATE_1;
-		}
-	}
-
+	
 	if(cb_in->two_paths) {
 		if(!payload_sz)
 			in_two_paths_ack(tcp, cb_in);
 		else if(!in_two_paths_data_seg(tcp, cb_in, payload_sz))
-			return TO_GATE_0;
+			return true;
 			
 	}
 	
 	in_hdr_rewrite_csum(ip, tcp, cb_in);
 
-	return TO_GATE_0;
+	return true;
 }
 
 /************************************************************************/
@@ -1470,82 +1426,7 @@ void DyscoAgentIn::createFinAck(Packet* pkt, Ipv4* ip, Tcp* tcp) {
   - remove TCP Option
   - increase Packet buffer (sizeof(DyscoControlMessage))
  */
-Packet* DyscoAgentIn::createLockingPacket(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoTcpOption* tcpo, DyscoHashIn* cb_in) {
-#ifdef DEBUG
-	fprintf(stderr, "creating Locking Packet\n");
-#endif
 
-	Packet* newpkt = Packet::Alloc();
-
-	uint32_t len = sizeof(Ethernet) + sizeof(Ipv4) + sizeof(Tcp) + sizeof(DyscoControlMessage);
-	
-	newpkt->set_total_len(len);
-	newpkt->set_data_len(len);
-	
-	uint8_t rhop = tcpo->padding & 0xff;
-	
-	//pkt->trim(tcpo->len + hasPayload(ip, tcp));
-	//DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>(pkt->append(sizeof(DyscoControlMessage)));
-
-	Ethernet* eth = pkt->head_data<Ethernet*>();
-	Ethernet* neweth = newpkt->head_data<Ethernet*>();
-	neweth->dst_addr = eth->src_addr;
-	neweth->src_addr = eth->dst_addr;
-	neweth->ether_type = be16_t(Ethernet::Type::kIpv4);
-
-	Ipv4* newip = reinterpret_cast<Ipv4*>(neweth + 1);
-	newip->version = 4;
-	newip->header_length = 5;
-	newip->type_of_service = 0;
-	newip->length = be16_t(len - sizeof(Ethernet));
-	newip->id = be16_t(rand());
-	newip->fragment_offset = be16_t(0);
-	newip->ttl = 53;
-	newip->protocol = Ipv4::kTcp;
-	newip->src = ip->dst;
-	newip->dst = ip->src;
-	
-	Tcp* newtcp = reinterpret_cast<Tcp*>(newip + 1);
-	newtcp->src_port = be16_t(rand());
-	newtcp->dst_port = be16_t(rand());
-	newtcp->seq_num = be32_t(rand());
-	newtcp->ack_num = be32_t(0);
-	newtcp->offset = 5;
-	newtcp->flags = Tcp::kSyn;
-	newtcp->window = tcp->window;
-	newtcp->urgent_ptr = be16_t(0);
-
-	cb_in->dcb_out->is_LA = 1;
-	cb_in->dcb_out->lock_state = DYSCO_REQUEST_LOCK;
-
-	DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>(newtcp + 1);
-	memset(cmsg, 0, sizeof(DyscoControlMessage));	
-	cmsg->type = DYSCO_LOCK;
-	cmsg->lock_state = DYSCO_REQUEST_LOCK;
-	cmsg->leftA = newip->src.raw_value();
-	cmsg->my_sub.sip = cb_in->sub.dip;
-	cmsg->my_sub.dip = cb_in->sub.sip;
-	cmsg->my_sub.sport = cb_in->sub.dport;
-	cmsg->my_sub.dport = cb_in->sub.sport;
-	cmsg->super.sip = cb_in->my_sup.dip;
-	cmsg->super.dip = cb_in->my_sup.sip;
-	cmsg->super.sport = cb_in->my_sup.dport;
-	cmsg->super.dport = cb_in->my_sup.sport;
-	cmsg->lhop = rhop;
-	cmsg->rhop = rhop;
-
-#ifdef DEBUG
-	fprintf(stderr, "cb_in->sub: %s\n", printSS(cb_in->sub));
-	fprintf(stderr, "cb_in->my_sup: %s\n", printSS(cb_in->my_sup));
-	fprintf(stderr, "cb_in->neigh_sup: %s\n", printSS(cb_in->neigh_sup));
-	fprintf(stderr, "cb_in->dcb_out->sub: %s\n", printSS(cb_in->dcb_out->sub));
-	fprintf(stderr, "cb_in->dcb_out->sup: %s\n", printSS(cb_in->dcb_out->sup));
-#endif
-	
-	fix_csum(newip, newtcp);
-
-	return newpkt;
-}
 
 /*
   TCP Retransmission methods
@@ -1648,7 +1529,7 @@ Packet* DyscoAgentIn::processLockingSignalPacket(Packet* pkt, Ethernet* eth, Ipv
 	if(!cb_in)
 		return 0;
 
-	DyscoTcpOption* tcpo = reinterpret_cast<DyscoTcpOption*>((uint8_t*)tcp + 20);
+	DyscoTcpOption* tcpo = reinterpret_cast<DyscoTcpOption*>((uint8_t*)tcp + sizeof(Tcp));
 	uint8_t* lhop = (uint8_t*)(&tcpo->padding) + 1;
 	(*lhop)--;
 	tcp->checksum++;
@@ -1657,7 +1538,7 @@ Packet* DyscoAgentIn::processLockingSignalPacket(Packet* pkt, Ethernet* eth, Ipv
 #ifdef DEBUG
 		fprintf(stderr, "I'm the LeftAnchor\n");
 #endif			
-		return createLockingPacket(pkt, ip, tcp, tcpo, cb_in);
+		return createLockingPacket(pkt, eth, ip, tcp, tcpo, cb_in);
 	} else {
 #ifdef DEBUG
 		fprintf(stderr, "I'm not the LeftAnchor\n");
@@ -1676,7 +1557,7 @@ Packet* DyscoAgentIn::processLockingSignalPacket(Packet* pkt, Ethernet* eth, Ipv
 		hdr_rewrite_csum(ip, tcp, &cb_out->sub);
 
 #ifdef DEBUG
-		fprintf(stderr, "forwarding to %s.\n\n", printSS(cb_out->sub));
+		fprintf(stderr, "I'm going to forward to %s.\n\n", printSS(cb_out->sub));
 #endif
 		
 		PacketBatch out;
@@ -1686,6 +1567,72 @@ Packet* DyscoAgentIn::processLockingSignalPacket(Packet* pkt, Ethernet* eth, Ipv
 	}
 
 	return 0;
+}
+
+Packet* DyscoAgentIn::createLockingPacket(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp, DyscoTcpOption* tcpo, DyscoHashIn* cb_in) {
+#ifdef DEBUG
+	fprintf(stderr, "\tCreating Locking Packet.\n");
+#endif
+
+	Packet* newpkt = Packet::copy(pkt);
+	
+	uint8_t rhop = tcpo->padding & 0xff;
+	
+	newpkt->trim(tcpo->len);
+	DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>(newpkt->append(sizeof(DyscoControlMessage)));
+
+	Ethernet* neweth = newpkt->head_data<Ethernet*>();
+	neweth->dst_addr = eth->src_addr;
+	neweth->src_addr = eth->dst_addr;
+	neweth->ether_type = be16_t(Ethernet::Type::kIpv4);
+
+	Ipv4* newip = reinterpret_cast<Ipv4*>(neweth + 1);
+	newip->length = ip->length - be16_t(tcpo->len) + be16_t(sizeof(DyscoControlMessage));
+	newip->id = be16_t(rand());
+	newip->ttl = 53;
+	newip->protocol = Ipv4::kTcp;
+	newip->src = ip->dst;
+	newip->dst = ip->src;
+	
+	Tcp* newtcp = reinterpret_cast<Tcp*>(newip + 1);
+	newtcp->src_port = be16_t(rand());
+	newtcp->dst_port = be16_t(rand());
+	newtcp->seq_num = be32_t(rand());
+	newtcp->ack_num = be32_t(0);
+	newtcp->offset = 5;
+	newtcp->flags = Tcp::kSyn;
+	newtcp->window = tcp->window;
+
+	cb_in->dcb_out->is_LA = 1;
+	cb_in->dcb_out->lock_state = DYSCO_REQUEST_LOCK;
+
+	DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>(newtcp + 1);
+	memset(cmsg, 0, sizeof(DyscoControlMessage));	
+	cmsg->type = DYSCO_LOCK;
+	cmsg->lock_state = DYSCO_REQUEST_LOCK;
+	cmsg->leftA = newip->src.raw_value();
+	cmsg->my_sub.sip = cb_in->sub.dip;
+	cmsg->my_sub.dip = cb_in->sub.sip;
+	cmsg->my_sub.sport = cb_in->sub.dport;
+	cmsg->my_sub.dport = cb_in->sub.sport;
+	cmsg->super.sip = cb_in->my_sup.dip;
+	cmsg->super.dip = cb_in->my_sup.sip;
+	cmsg->super.sport = cb_in->my_sup.dport;
+	cmsg->super.dport = cb_in->my_sup.sport;
+	cmsg->lhop = rhop;
+	cmsg->rhop = rhop;
+
+#ifdef DEBUG
+	fprintf(stderr, "cb_in->sub: %s\n", printSS(cb_in->sub));
+	fprintf(stderr, "cb_in->my_sup: %s\n", printSS(cb_in->my_sup));
+	fprintf(stderr, "cb_in->neigh_sup: %s\n", printSS(cb_in->neigh_sup));
+	fprintf(stderr, "cb_in->dcb_out->sub: %s\n", printSS(cb_in->dcb_out->sub));
+	fprintf(stderr, "cb_in->dcb_out->sup: %s\n", printSS(cb_in->dcb_out->sup));
+#endif
+	
+	fix_csum(newip, newtcp);
+
+	return newpkt;
 }
 
 
@@ -1863,25 +1810,6 @@ Packet* DyscoAgentIn::createSynReconfig(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 #endif
 	
 	return 0;
-}
-
-bool DyscoAgentIn::processReceivedPacket(Tcp* tcp) {
-	uint32_t key = tcp->ack_num.value();
-
-	LNode<Packet>* node = received_hash->operator[](key);
-	if(node) {
-#ifdef DEBUG
-		fprintf(stderr, "I found the packet and I'm going to remove it\n");
-#endif
-		//delete node;
-		agent->remove(node);
-		//agent->getRetransmissionList()->remove(node);
-		received_hash->erase(key);
-
-		return true;
-	}
-
-	return false;
 }
 
 bool DyscoAgentIn::createAckLockingSignalPacket(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp) {

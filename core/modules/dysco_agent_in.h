@@ -87,7 +87,7 @@ class DyscoAgentIn final : public Module {
 	/*
 	  Dysco control methods
 	 */
-	bool isReconfigPacket(Ipv4*, Tcp*, DyscoHashIn*, bool);
+	bool isReconfigPacket(Ipv4*, Tcp*, DyscoHashIn*);
 	DyscoHashOut* build_cb_in_reverse(Ipv4*, DyscoCbReconfig*);
 	DyscoCbReconfig* insert_rcb_control_input(Ipv4*, Tcp*, DyscoControlMessage*);
 	bool compute_deltas_in(DyscoHashIn*, DyscoHashOut*, DyscoCbReconfig*);
@@ -109,7 +109,7 @@ class DyscoAgentIn final : public Module {
 	 * Locking Signal methods
 	 */
 	Packet* processLockingSignalPacket(Packet*, Ethernet*, Ipv4*, Tcp*, DyscoHashIn*);
-	Packet* createLockingPacket(Packet*, Ipv4*, Tcp*, DyscoTcpOption*, DyscoHashIn*);
+	Packet* createLockingPacket(Packet*, Ethernet*, Ipv4*, Tcp*, DyscoTcpOption*, DyscoHashIn*);
 	bool createAckLockingSignalPacket(Packet*, Ethernet*, Ipv4*, Tcp*);
 	
 	/*

@@ -137,7 +137,7 @@ enum {
 #define DYSCO_CLOSED                    DYSCO_CLOSED_OLD_PATH
 */
 #define DYSCOCENTER_MODULENAME          "dyscocenter"
-//#define DEBUG                           1 
+#define DEBUG                           1 
 #define TTL                             32
 #define PORT_RANGE                      65536
 #define CNTLIMIT                        3
@@ -197,25 +197,6 @@ class DyscoTcpTs {
  *	Retransmission classes
  *
  *********************************************************************/
-//Ronaldo: weak comparator
-inline bool TCPComparator(Packet* p1, Packet* p2) {
-	Ipv4* ip1 = reinterpret_cast<Ipv4*>(p1->head_data<Ethernet*>() + 1);
-	Ipv4* ip2 = reinterpret_cast<Ipv4*>(p2->head_data<Ethernet*>() + 1);
-
-	if(ip1->dst != ip2->dst || ip1->src != ip2->src || ip1->length != ip2->length)
-		return false;
-
-	Tcp* tcp1 = reinterpret_cast<Tcp*>((uint8_t*)ip1 + (ip1->header_length << 2));
-	Tcp* tcp2 = reinterpret_cast<Tcp*>((uint8_t*)ip2 + (ip2->header_length << 2));
-
-	if(tcp1->offset != tcp2->offset)
-		return false;
-	
-	uint16_t segsize = ip1->length.value() - (ip1->header_length << 2) - (tcp1->offset << 2);
-	
-	return memcmp(tcp1, tcp2, segsize) == 0;
-}
-
 template <typename T>
 class LNode {
 public:
@@ -702,7 +683,7 @@ inline void hdr_rewrite_full_csum(Ipv4* ip, Tcp* tcp, DyscoTcpSession* ss) {
 }
 
 inline void* getPayload(Tcp* tcp) {
-	return reinterpret_cast<void*>(reinterpret_cast<char*>(tcp) + (tcp->offset << 2));
+	return reinterpret_cast<void*>((uint8_t)tcp + (tcp->offset << 2));
 }
 
 inline bool isLockingSignalPacket(Tcp* tcp) {
