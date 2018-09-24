@@ -1728,7 +1728,7 @@ Packet* DyscoAgentIn::createSynReconfig(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 	DyscoCbReconfig* rcb = new DyscoCbReconfig();
 
 	//rcb->super = newcmsg->super;
-	rcb->super = cb_in->my_sup;
+	rcb->super = cb_in->dcb_out->my_sup;
 	rcb->sub_out.sip = newip->src.raw_value();
 	rcb->sub_out.dip = newip->dst.raw_value();
 	rcb->sub_out.sport = newtcp->src_port.raw_value();
