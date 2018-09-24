@@ -1860,14 +1860,35 @@ bool DyscoAgentIn::createAckLockingSignalPacket(Packet* pkt, Ethernet* eth, Ipv4
  */
 Packet* DyscoAgentIn::processLockingPacket(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp) {
 	DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>(getPayload(tcp));
-
-#ifdef DEBUG
-	fprintf(stderr, "I'm looking for by %s on inputhash\n", printSS(cmsg->my_sub));
-#endif
 	
 	DyscoHashIn* cb_in = dc->lookup_input_by_ss(this->index, &cmsg->my_sub);
-	if(!cb_in)
-		return 0;
+	if(!cb_in) {
+#ifdef DEBUG
+		fprintf(stderr, "I'm looking for %s on inputhash... not found... maybe NAT?\n", printSS(cmsg->my_sub));
+#endif
+
+		DyscoTcpSession ss;
+		ss.sip = ip->src.raw_value();
+		ss.dip = ip->dst.raw_value();
+		ss.sport = tcp->src_port.raw_value();
+		ss.dport = tcp->dst_port.raw_value();
+
+#ifdef DEBUG
+		if(ss == cmsg->my_sub)
+			fprintf(stderr, "not NAT\n");
+		else
+			fprintf(stderr, "NAT crossed\n");
+#endif
+		
+		cb_in = dc->lookup_input_by_ss(this->index, &ss);
+
+		if(!cb_in) {
+#ifdef DEBUG
+			fprintf(stderr, "I'm looking for %s on inputhash... not found... maybe NAT?\n", printSS(ss));
+#endif
+			return 0;
+		}
+	}
 	
 	if(cmsg->lock_state == DYSCO_REQUEST_LOCK) {
 #ifdef DEBUG
