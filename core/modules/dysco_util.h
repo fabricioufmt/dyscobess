@@ -127,7 +127,7 @@ enum {
 #define TCPOLEN_SACK_PERBLOCK           8
 
 #define LOCKING_OPTION                  254
-#define LOCKING_OPTION_LEN              4
+#define LOCKING_OPTION_LEN              12
 
 /*
 #define DYSCO_SYN_SENT			DYSCO_ADDING_NEW_PATH
@@ -180,8 +180,10 @@ class DyscoTcpOption {
  public:
 	uint8_t kind;
 	uint8_t len;
-	uint16_t padding;
-	uint32_t tag;
+	uint16_t padding; //lhop and //rhop
+	uint32_t tag;     //ip from nat
+	uint16_t sport;   //port from nat
+	uint16_t padding2;//padding
 };
 
 class DyscoTcpTs {
@@ -326,6 +328,7 @@ class DyscoControlMessage {
 	DyscoTcpSession super;
 	DyscoTcpSession leftSS;
 	DyscoTcpSession rightSS;
+	DyscoTcpSession neigh_sub;
 	uint32_t leftA;
 	uint32_t rightA;
 

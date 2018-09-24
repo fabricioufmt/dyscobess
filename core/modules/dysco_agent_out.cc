@@ -990,7 +990,9 @@ bool DyscoAgentOut::processLockingSignalPacket(Packet* pkt, Ethernet* eth, Ipv4*
 
 		pkt->trim(payload_len);
 		ip->length = ip->length - be16_t(payload_len);
-
+		tcpo->tag = cb_out->sub.dip;
+		tcpo->sport = cb_out->sub.dport;
+		
 		fix_csum(ip, tcp);
 
 		DyscoLockingReconfig* dysco_locking = new DyscoLockingReconfig();

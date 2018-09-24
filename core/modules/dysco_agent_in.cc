@@ -1614,6 +1614,10 @@ Packet* DyscoAgentIn::createLockingPacket(Packet* pkt, Ethernet* eth, Ipv4* ip, 
 	cmsg->super.dip = cb_in->my_sup.sip;
 	cmsg->super.sport = cb_in->my_sup.dport;
 	cmsg->super.dport = cb_in->my_sup.sport;
+	cmsg->neigh_sub.sip = tcpo->tag;
+	cmsg->neigh_sub.sport = tcpo->sport;
+	cmsg->neigh_sub.dip = cb_in->my_sup.dip;
+	cmsg->neigh_sub.dport = cb_in->my_sup.dport;
 	cmsg->lhop = rhop;
 	cmsg->rhop = rhop;
 
@@ -1867,24 +1871,18 @@ Packet* DyscoAgentIn::processLockingPacket(Packet* pkt, Ethernet* eth, Ipv4* ip,
 		fprintf(stderr, "I'm looking for %s on inputhash... not found... maybe NAT?\n", printSS(cmsg->my_sub));
 #endif
 
-		DyscoTcpSession ss;
-		ss.sip = ip->src.raw_value();
-		ss.dip = cmsg->my_sub.dip;
-		ss.sport = tcp->src_port.raw_value();
-		ss.dport = cmsg->my_sub.dport;
-
 #ifdef DEBUG
-		if(ss == cmsg->my_sub)
+		if(cmsg->neigh_sub == cmsg->my_sub)
 			fprintf(stderr, "not NAT\n");
 		else
 			fprintf(stderr, "NAT crossed\n");
 #endif
 		
-		cb_in = dc->lookup_input_by_ss(this->index, &ss);
+		cb_in = dc->lookup_input_by_ss(this->index, &cmsg->neigh_sub);
 
 		if(!cb_in) {
 #ifdef DEBUG
-			fprintf(stderr, "I'm looking for %s on inputhash... not found\n", printSS(ss));
+			fprintf(stderr, "I'm looking for %s on inputhash... not found\n", printSS(cmsg->neigh_sub));
 #endif
 			return 0;
 		}

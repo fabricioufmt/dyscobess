@@ -23,7 +23,7 @@
 #define MIN_ARGC 11
 #define BUFSIZE 2048
 #define OPT_KIND 254
-#define OPT_LENGTH 4
+#define OPT_LENGTH 12
 
 struct tcp_session {
 	uint32_t sip;
@@ -37,6 +37,7 @@ struct reconfig_message {
 	struct tcp_session	super;
 	struct tcp_session	leftSS;
 	struct tcp_session	rightSS;
+	struct tcp_session	neigh_sub;
 	uint32_t		leftA;
 	uint32_t		rightA;
 	
@@ -81,6 +82,9 @@ struct tcpopt {
 	uint8_t kind;
 	uint8_t len;
 	uint16_t padding;
+	uint32_t tag;
+	uint16_t sport;
+	uint16_t padding2;
 };
 
 /*
