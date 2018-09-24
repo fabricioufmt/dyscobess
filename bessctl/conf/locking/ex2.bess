@@ -59,6 +59,9 @@ os.system('ip netns exec m1 route add default gw 10.0.6.1 > /dev/null')
 os.system('ip netns exec m2 route add -net 10.0.1.0/24 gw 10.0.7.1 > /dev/null')
 os.system('ip netns exec m2 route add default gw 10.0.8.1 > /dev/null')
 
+os.system('ip netns exec m2 route add -host 10.0.0.1 gw 10.0.7.1 > /dev/null')
+os.system('ip netns exec m2 route add -host 10.0.0.2 gw 10.0.8.1 > /dev/null')
+
 os.system('ip netns exec R route add -net 10.0.0.0/24 gw 10.0.5.2 > /dev/null')
 os.system('ip netns exec nat route add default gw 10.0.5.1 > /dev/null')
 os.system('ip netns exec nat iptables -t nat -A POSTROUTING -o nat-ext -j MASQUERADE > /dev/null')
