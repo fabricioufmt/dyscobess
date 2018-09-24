@@ -1728,7 +1728,7 @@ Packet* DyscoAgentIn::createSynReconfig(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 	DyscoCbReconfig* rcb = new DyscoCbReconfig();
 
 	//rcb->super = newcmsg->super;
-	rcb->super = cb_in->dcb_out->my_sup;
+	rcb->super = cb_in->dcb_out->sup;
 	rcb->sub_out.sip = newip->src.raw_value();
 	rcb->sub_out.dip = newip->dst.raw_value();
 	rcb->sub_out.sport = newtcp->src_port.raw_value();
@@ -1788,7 +1788,7 @@ Packet* DyscoAgentIn::createSynReconfig(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 	new_dcb->state = DYSCO_SYN_SENT;
 
 #ifdef DEBUG
-	fprintf(stderr, "cb_in->my_sup: %s\n", printSS(cb_in->dcb_out->sup));
+	fprintf(stderr, "cb_in->my_sup: %s\n", printSS(cb_in->my_sup));
 	fprintf(stderr, "cb_in->dcb_out->sup: %s\n", printSS(cb_in->dcb_out->sup));
 	fprintf(stderr, "cb_in->dcb_out->sub: %s\n", printSS(cb_in->dcb_out->sub));
 	fprintf(stderr, "my_sub: %s\n", printSS(newcmsg->my_sub));
