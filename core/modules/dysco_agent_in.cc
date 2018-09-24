@@ -1708,7 +1708,7 @@ Packet* DyscoAgentIn::createSynReconfig(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 	newcmsg->my_sub.dip = newip->dst.raw_value();
 	newcmsg->my_sub.sport = newtcp->src_port.raw_value();
 	newcmsg->my_sub.dport = newtcp->dst_port.raw_value();
-	newcmsg->super = newcmsg->leftSS;
+	newcmsg->super = cmsg->leftSS;
 	newcmsg->leftIseq = htonl(old_dcb->out_iseq);
 	newcmsg->leftIack = htonl(old_dcb->out_iack);
 	newcmsg->leftIts = htonl(old_dcb->ts_in);
