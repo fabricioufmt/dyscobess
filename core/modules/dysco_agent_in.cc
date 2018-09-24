@@ -1869,9 +1869,9 @@ Packet* DyscoAgentIn::processLockingPacket(Packet* pkt, Ethernet* eth, Ipv4* ip,
 
 		DyscoTcpSession ss;
 		ss.sip = ip->src.raw_value();
-		ss.dip = ip->dst.raw_value();
+		ss.dip = cmsg->my_sub.dip;
 		ss.sport = tcp->src_port.raw_value();
-		ss.dport = tcp->dst_port.raw_value();
+		ss.dport = cmsg->my_sub.dport;
 
 #ifdef DEBUG
 		if(ss == cmsg->my_sub)
@@ -1884,7 +1884,7 @@ Packet* DyscoAgentIn::processLockingPacket(Packet* pkt, Ethernet* eth, Ipv4* ip,
 
 		if(!cb_in) {
 #ifdef DEBUG
-			fprintf(stderr, "I'm looking for %s on inputhash... not found... maybe NAT?\n", printSS(ss));
+			fprintf(stderr, "I'm looking for %s on inputhash... not found\n", printSS(ss));
 #endif
 			return 0;
 		}
