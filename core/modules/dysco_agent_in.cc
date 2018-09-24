@@ -1618,6 +1618,7 @@ Packet* DyscoAgentIn::createLockingPacket(Packet* pkt, Ethernet* eth, Ipv4* ip, 
 	cmsg->neigh_sub.sport = tcpo->sport;
 	cmsg->neigh_sub.dip = cb_in->sub.sip;
 	cmsg->neigh_sub.dport = cb_in->sub.sport;
+	cb_in->neigh_sub = cmsg->neigh_sub;
 	cmsg->lhop = rhop;
 	cmsg->rhop = rhop;
 
@@ -1887,6 +1888,8 @@ Packet* DyscoAgentIn::processLockingPacket(Packet* pkt, Ethernet* eth, Ipv4* ip,
 			return 0;
 		}
 	}
+
+	cb_in->neigh_sub = cmsg->sub;
 	
 	if(cmsg->lock_state == DYSCO_REQUEST_LOCK) {
 #ifdef DEBUG
@@ -2106,6 +2109,12 @@ Packet* DyscoAgentIn::processRequestAckLocking(Packet* pkt, Ethernet* eth, Ipv4*
 				fprintf(stderr, "rightSS: %s\n", printSS(cmsg->rightSS));
 #endif
 			}
+
+			DyscoTcpSession neigh_sub = cb_out->dcb_in->neigh_sub;
+			cmsg->neigh_sub.sip = neigh_sub.dip;
+			cmsg->neigh_sub.dip = neigh_sub.sip;
+			cmsg->neigh_sub.sport = neigh_sub.dport;
+			cmsg->neigh_sub.dport = neigh_sub.sport;
 			
 			fix_csum(ip, tcp);
 			cb_out->lock_state = DYSCO_REQUEST_ACK_LOCK;

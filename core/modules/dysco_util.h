@@ -368,6 +368,7 @@ class DyscoHashIn {
 	DyscoTcpSession sub;
 	DyscoTcpSession my_sup;
 	DyscoTcpSession neigh_sup;
+	DyscoTcpSession neigh_sub;
 
 	Ethernet mac_sub;
 	
