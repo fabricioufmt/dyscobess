@@ -1787,6 +1787,7 @@ Packet* DyscoAgentIn::createSynReconfig(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 	new_dcb->state = DYSCO_SYN_SENT;
 
 #ifdef DEBUG
+	fprintf(stderr, "cb_in->my_sup: %s\n", printSS(cb_in->dcb_out->sup));
 	fprintf(stderr, "cb_in->dcb_out->sup: %s\n", printSS(cb_in->dcb_out->sup));
 	fprintf(stderr, "cb_in->dcb_out->sub: %s\n", printSS(cb_in->dcb_out->sub));
 	fprintf(stderr, "my_sub: %s\n", printSS(newcmsg->my_sub));
