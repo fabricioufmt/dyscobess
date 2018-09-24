@@ -1240,13 +1240,6 @@ bool DyscoAgentIn::control_input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp,
 		fprintf(stderr, "DYSCO_ACK message.\n");
 #endif
 
-		if(!cb_in) {
-#ifdef DEBUG
-			fprintf(stderr, "cb_in ERROR\n");
-#endif
-			return false;
-		}
-
 		cmsg = &cb_in->cmsg;
 		if(!cmsg) {
 #ifdef DEBUG
@@ -1254,6 +1247,7 @@ bool DyscoAgentIn::control_input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp,
 #endif
 			return false;
 		}
+		cb_in->is_reconfiguration = 0;
 		
 		if(isToRightAnchor(ip, cmsg)) {
 #ifdef DEBUG
@@ -1273,8 +1267,6 @@ bool DyscoAgentIn::control_input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp,
 					return false;
 				}
 			}
-			
-			cb_in->is_reconfiguration = 0;
 			
 			DyscoHashOut* old_out;
 			DyscoHashOut* new_out;
