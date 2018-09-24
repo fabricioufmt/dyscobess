@@ -1616,8 +1616,8 @@ Packet* DyscoAgentIn::createLockingPacket(Packet* pkt, Ethernet* eth, Ipv4* ip, 
 	cmsg->super.dport = cb_in->my_sup.sport;
 	cmsg->neigh_sub.sip = tcpo->tag;
 	cmsg->neigh_sub.sport = tcpo->sport;
-	cmsg->neigh_sub.dip = cb_in->my_sup.sip;
-	cmsg->neigh_sub.dport = cb_in->my_sup.sport;
+	cmsg->neigh_sub.dip = cb_in->sub.dip;
+	cmsg->neigh_sub.dport = cb_in->sub.dport;
 	cmsg->lhop = rhop;
 	cmsg->rhop = rhop;
 
