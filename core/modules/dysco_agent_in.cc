@@ -938,14 +938,16 @@ bool DyscoAgentIn::control_reconfig_in(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp
 		cb_in = new DyscoHashIn();
 		cb_in->module = this;
 		cb_in->sub = rcb->sub_in;
+		cb_in->out_iseq = rcb->leftIack;
+		cb_in->out_iack = rcb->leftIseq;
 		//cb_in->out_iseq = rcb->leftIseq;
 		//cb_in->out_iack = rcb->leftIack;
-		cb_in->out_iseq = tcp->ack_num.value();
-		cb_in->out_iack = tcp->seq_num.value();;
 		cb_in->seq_delta = cb_in->ack_delta = 0;
 
-		cb_in->in_iseq = tcp->seq_num.value();
-		cb_in->in_iack = tcp->ack_num.value();
+		cb_in->in_iseq = rcb->leftIack;
+		cb_in->in_iack = rcb->leftIseq;
+		//cb_in->in_iseq = tcp->seq_num.value();
+		//cb_in->in_iack = tcp->ack_num.value();
 				
 		cb_in->is_reconfiguration = 1;
 		memcpy(&cb_in->cmsg, cmsg, sizeof(DyscoControlMessage));
