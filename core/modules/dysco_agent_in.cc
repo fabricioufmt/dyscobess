@@ -1889,7 +1889,7 @@ Packet* DyscoAgentIn::processLockingPacket(Packet* pkt, Ethernet* eth, Ipv4* ip,
 		}
 	}
 
-	cb_in->neigh_sub = cmsg->sub;
+	cb_in->neigh_sub = cmsg->my_sub;
 	
 	if(cmsg->lock_state == DYSCO_REQUEST_LOCK) {
 #ifdef DEBUG
