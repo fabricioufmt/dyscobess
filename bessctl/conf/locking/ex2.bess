@@ -189,7 +189,7 @@ l2_7:1 -> din9
 l2_8:0 -> PortOut(port=R_6)
 l2_8:1 -> din10
 
-dyscocenter.add(priority=1, sc_len=4, chain=['10.0.1.1', '10.0.5.2', '10.0.4.2', '10.0.2.2'], filter='dst port 5001', ns='/var/run/netns/c1')
+#dyscocenter.add(priority=1, sc_len=4, chain=['10.0.1.1', '10.0.5.2', '10.0.4.2', '10.0.2.2'], filter='dst port 5001', ns='/var/run/netns/c1')
 dyscocenter.add(priority=1, sc_len=4, chain=['10.0.1.1', '10.0.0.2', '10.0.4.2', '10.0.2.2'], filter='dst port 5001', ns='/var/run/netns/c1')
 #dyscocenter.add(priority=1, sc_len=3, chain=['10.0.5.2', '10.0.4.2', '10.0.2.2'], filter='dst port 5001', ns='/var/run/netns/LA')
 
