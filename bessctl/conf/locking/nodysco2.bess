@@ -13,5 +13,12 @@ m2_0::VPort(ifname='m2-0', netns='/var/run/netns/m2', mac_addr='00:00:00:00:00:5
 os.system('ip netns exec m1 ifconfig lo up > /dev/null')
 os.system('ip netns exec m2 ifconfig lo up > /dev/null')
 
-PortInc(port=m1_0) -> PortOut(port=m2_0)
-PortInc(port=m2_0) -> PortOut(port=m1_0)
+l2_fwd::L2FWD()
+l2_fwd.add(mac_addr='00:00:00:00:00:52', gate=0)
+l2_fwd.add(mac_addr='00:00:00:00:00:53', gate=1)
+
+PortInc(port=m1_0) -> l2_fwd
+PortInc(port=m2_0) -> l2_fwd
+
+l2_fwd:0 -> PortOut(port=m1_0)
+l2_fwd:1 -> PortOut(port=m2_0)
