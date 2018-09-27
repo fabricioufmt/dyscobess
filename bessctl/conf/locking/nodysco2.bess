@@ -11,13 +11,14 @@ m1_0::VPort(ifname='m1-0', netns='/var/run/netns/m1', mac_addr='00:00:00:00:00:5
 m2_0::VPort(ifname='m2-0', netns='/var/run/netns/m2', mac_addr='00:00:00:00:00:53', ip_addrs=['10.0.5.3/24'])
 
 os.system('ip netns exec m1 ifconfig lo up > /dev/null')
+os.system('ip netns exec m1 arp -s 10.0.5.3 00:00:00:00:00:53 > /dev/null')
 os.system('ip netns exec m2 ifconfig lo up > /dev/null')
+os.system('ip netns exec m2 arp -s 10.0.5.2 00:00:00:00:00:52 > /dev/null')
 
 fib::L2Forward()
 fib.add(entries=[
 	{'addr': '00:00:00:00:00:52', 'gate': 0},
 	{'addr': '00:00:00:00:00:53', 'gate': 1},	
-	{'addr': 'FF:FF:FF:FF:FF:FF', 'gate': 2},
 	])
 
 PortInc(port=m1_0) -> fib
@@ -25,10 +26,5 @@ PortInc(port=m2_0) -> fib
 pm1_0_out::PortOut(port=m1_0)
 pm2_0_out::PortOut(port=m2_0)
 
-repl::Replicate()
-repl:0 -> pm1_0_out
-repl:1 -> pm2_0_out
-
 fib:0 -> pm1_0_out
 fib:1 -> pm2_0_out
-fib:2 -> repl
