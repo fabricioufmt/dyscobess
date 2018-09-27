@@ -1,0 +1,17 @@
+import os
+import scapy.all as scapy
+
+os.system('ip netns del m1 > /dev/null')
+os.system('ip netns del m2 > /dev/null')
+os.system('ip netns add m1 > /dev/null')
+os.system('ip netns add m2 > /dev/null')
+os.system('echo 1 > /proc/sys/net/ipv4/ip_forward')
+
+m1_0::VPort(ifname='m1-0', netns='/var/run/netns/m1', mac_addr='00:00:00:00:00:52', ip_addrs=['10.0.5.2/24'])
+m2_0::VPort(ifname='m2-0', netns='/var/run/netns/m2', mac_addr='00:00:00:00:00:53', ip_addrs=['10.0.5.3/24'])
+
+os.system('ip netns exec m1 ifconfig lo up > /dev/null')
+os.system('ip netns exec m2 ifconfig lo up > /dev/null')
+
+PortInc(port=m1_0) -> PortOut(port=m2_0)
+PortInc(port=m2_0) -> PortOut(port=m1_0)
