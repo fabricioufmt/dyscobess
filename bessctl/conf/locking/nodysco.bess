@@ -80,7 +80,7 @@ l2_8.add(mac_addr='00:00:00:00:00:82', gate=1)
 
 PortInc(port=c1_0) -> l2_1
 PortInc(port=LA_0) -> l2_1
-PortInc(port=c1_0) -> l2_2
+PortInc(port=s1_0) -> l2_2
 PortInc(port=RA_0) -> l2_2
 PortInc(port=LA_1) -> l2_3
 PortInc(port=R_1) -> l2_3
