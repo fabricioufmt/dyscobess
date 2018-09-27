@@ -23,8 +23,5 @@ fib.add(entries=[
 
 PortInc(port=m1_0) -> fib
 PortInc(port=m2_0) -> fib
-pm1_0_out::PortOut(port=m1_0)
-pm2_0_out::PortOut(port=m2_0)
-
-fib:0 -> pm1_0_out
-fib:1 -> pm2_0_out
+fib:0 -> PortOut(port=m1_0)
+fib:1 -> PortOut(port=m2_0)
