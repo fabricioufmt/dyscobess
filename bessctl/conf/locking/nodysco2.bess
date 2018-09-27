@@ -31,3 +31,4 @@ repl:1 -> pm2_0_out
 
 fib:0 -> pm1_0_out
 fib:1 -> pm2_0_out
+fib:2 -> repl
