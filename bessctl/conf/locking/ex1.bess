@@ -30,3 +30,5 @@ dout1:0 -> din2
 dout1:1 -> din2
 dout2:0 -> din1
 dout2:1 -> din1
+
+dyscocenter.add(priority=1, sc_len=1, chain=['10.0.2.2'], filter='dst port 5001', ns='/var/run/netns/c1')
