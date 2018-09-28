@@ -131,4 +131,11 @@ dout9:1 -> r7
 dout10:0 -> r8::DyscoPortOut(port=R_8)
 dout10:1 -> r8
 
+DyscoPortInc(port=R_3) -> din5
+DyscoPortInc(port=R_4) -> din6
+DyscoPortInc(port=R_5) -> din7
+DyscoPortInc(port=R_6) -> din8
+DyscoPortInc(port=R_7) -> din9
+DyscoPortInc(port=R_8) -> din10
+
 dyscocenter.add(priority=1, sc_len=4, chain=['10.0.1.1', '10.0.5.2', '10.0.4.2', '10.0.2.2'], filter='dst port 5001', ns='/var/run/netns/c1')
