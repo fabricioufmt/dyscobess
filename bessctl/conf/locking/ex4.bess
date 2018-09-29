@@ -157,8 +157,8 @@ DyscoPortInc(port=R_8) -> fib
 
 fib:0 -> din3
 fib:1 -> din1
-fib:2 -> din2
-fib:3 -> din4
+fib:2 -> din4
+fib:3 -> din2
 fib:4 -> DyscoPortOut(port=R_3)
 fib:5 -> din5
 fib:6 -> DyscoPortOut(port=R_4)
