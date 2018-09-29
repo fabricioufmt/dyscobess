@@ -64,6 +64,7 @@ os.system('ip netns exec R arp -s 10.0.7.2 00:00:00:00:00:72 > /dev/null')
 os.system('ip netns exec R arp -s 10.0.8.2 00:00:00:00:00:82 > /dev/null')
 os.system('ip netns exec R route add -net 10.0.1.0/24 gw 10.0.3.2 > /dev/null')
 os.system('ip netns exec R route add -net 10.0.2.0/24 gw 10.0.4.2 > /dev/null')
+os.system('ip netns exec R sh disable_rp_filter.sh > /dev/null')
 
 dyscocenter::DyscoCenter()
 
