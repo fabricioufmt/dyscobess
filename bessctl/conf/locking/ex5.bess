@@ -79,7 +79,8 @@ os.system('ip netns exec nat arp -s 10.0.3.1 00:00:00:00:00:31 > /dev/null')
 os.system('ip netns exec nat route add default gw 10.0.3.1 > /dev/null')
 os.system('ip netns exec nat route add -net 10.0.1.0/24 gw 10.0.0.2 > /dev/null')
 os.system('ip netns exec nat iptables -t nat -A POSTROUTING -o nat-ext -j MASQUERADE > /dev/null')
-os.system('ip netns exec nat iptables -t filter -A FORWARD -i nat-int -j ACCEPT > /dev/null')
+os.system('ip netns exec nat iptables -t filter -A FORWARD -i nat-ext -o nat-int -m state --state RELATED,ESTABLISHED -j ACCEPT > /dev/null')
+os.system('ip netns exec nat iptables -t filter -A FORWARD -i nat-int -o nat-ext -j ACCEPT > /dev/null')
 
 dyscocenter::DyscoCenter()
 
