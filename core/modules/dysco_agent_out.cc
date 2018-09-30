@@ -12,10 +12,11 @@ void timer_worker(DyscoAgentOut* agent) {
 	LNode<Packet>* node;
 	LNode<Packet>* tail;
 	LinkedList<Packet>* list;
-	PacketBatch* batch = new PacketBatch();
+	PacketBatch batch;
+	//PacketBatch* batch = new PacketBatch();
 	
 	while(1) {
-		batch->clear();
+		batch.clear();
 		usleep(SLEEPTIME);
 		
 		list = agent->getRetransmissionList();
@@ -34,7 +35,7 @@ void timer_worker(DyscoAgentOut* agent) {
 		while(node != tail) {
 			if(node->cnt == 0) {
 				node->cnt++;
-				batch->add(&node->element);
+				batch.add(&node->element);
 				node->ts = now_ts;
 			} else {
 				if(node->cnt > CNTLIMIT) {
@@ -50,7 +51,7 @@ void timer_worker(DyscoAgentOut* agent) {
 					fprintf(stderr, "%lu - %lu = %lu > %lu\n", now_ts, node->ts, now_ts-node->ts, DyscoAgentOut::timeout);
 #endif
 					node->cnt++;
-					batch->add(&node->element);
+					batch.add(&node->element);
 					node->ts = now_ts;
 				}
 			}
@@ -58,10 +59,10 @@ void timer_worker(DyscoAgentOut* agent) {
 			node = node->next;
 		}
 
-		if(batch->cnt()) {
+		if(batch.cnt()) {
 #ifdef DEBUG
-			fprintf(stderr, "[%s][DyscoAgentOut] is going to retransmit %u packets.\n", agent->getNs(), batch->cnt());
-			agent->RunChooseModule(1, batch);
+			fprintf(stderr, "[%s][DyscoAgentOut] is going to retransmit %u packets.\n", agent->getNs(), batch.cnt());
+			agent->RunChooseModule(1, &batch);
 #endif
 		}
 	}
