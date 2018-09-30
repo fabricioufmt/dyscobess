@@ -201,9 +201,9 @@ fib:15 -> din10
 fib:16 -> PortOut(port=nat_int)
 fib:17 -> din5
 
-#dyscocenter.add(priority=1, sc_len=2, chain=['10.0.1.1', '10.0.5.2'], filter='dst port 5001', ns='/var/run/netns/c1')
-#dyscocenter.add(priority=1, sc_len=2, chain=['10.0.4.2', '10.0.2.2'], filter='dst port 5001', ns='/var/run/netns/m1')
-dyscocenter.add(priority=1, sc_len=4, chain=['10.0.1.1', '10.0.5.2', '10.0.4.2', '10.0.2.2'], filter='dst port 5001', ns='/var/run/netns/c1')
+dyscocenter.add(priority=1, sc_len=2, chain=['10.0.1.1', '10.0.5.2'], filter='dst port 5002', ns='/var/run/netns/c1')
+dyscocenter.add(priority=1, sc_len=2, chain=['10.0.4.2', '10.0.2.2'], filter='dst port 5002', ns='/var/run/netns/m1')
+dyscocenter.add(priority=2, sc_len=4, chain=['10.0.1.1', '10.0.5.2', '10.0.4.2', '10.0.2.2'], filter='dst port 5001', ns='/var/run/netns/c1')
 
 #os.system('rm /home/fabricio/*.pcap 1>/dev/null')
 #os.system('ip netns exec m1 tcpdump -i m1-0 -w /home/fabricio/m1-0.pcap & 2>/dev/null')
