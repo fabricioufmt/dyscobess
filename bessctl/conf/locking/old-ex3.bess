@@ -203,7 +203,7 @@ fib:8 -> r5::DyscoPortOut(port=R_5)
 fib:9 -> PortOut(port=nat_int)
 fib:10 -> r6::DyscoPortOut(port=R_6)
 fib:11 -> din8
-fib:12 -> r6::DyscoPortOut(port=R_7)
+fib:12 -> r7::DyscoPortOut(port=R_7)
 fib:13 -> din9
 fib:14 -> r8::DyscoPortOut(port=R_8)
 fib:15 -> din10
