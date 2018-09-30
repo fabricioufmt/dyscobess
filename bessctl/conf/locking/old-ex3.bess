@@ -194,18 +194,18 @@ fib:0 -> din3
 fib:1 -> din1
 fib:2 -> din4
 fib:3 -> din2
-fib:4 -> DyscoPortOut(port=R_3)
+fib:4 -> r3::DyscoPortOut(port=R_3)
 fib:5 -> din5
-fib:6 -> DyscoPortOut(port=R_4)
+fib:6 -> r4::DyscoPortOut(port=R_4)
 fib:7 -> din6
 fib:8 -> r5::DyscoPortOut(port=R_5)
 # fib:9 -> din7 for NAT
 fib:9 -> PortOut(port=nat_int)
-fib:10 -> DyscoPortOut(port=R_6)
+fib:10 -> r6::DyscoPortOut(port=R_6)
 fib:11 -> din8
-fib:12 -> DyscoPortOut(port=R_7)
+fib:12 -> r6::DyscoPortOut(port=R_7)
 fib:13 -> din9
-fib:14 -> DyscoPortOut(port=R_8)
+fib:14 -> r8::DyscoPortOut(port=R_8)
 fib:15 -> din10
 # for NAT
 #fib:16 -> PortOut(port=nat_ext)
