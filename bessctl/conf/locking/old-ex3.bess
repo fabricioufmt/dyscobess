@@ -152,6 +152,10 @@ din8.setup(agent="dout8")
 din9.setup(agent="dout9")
 din10.setup(agent="dout10")
 
+l2_0::L2FWD()
+l2_0.add(mac_addr='00:00:00:00:00:01', gate=0)
+l2_0.add(mac_addr='00:00:00:00:00:02', gate=1)
+
 dout1:0 -> fib
 dout1:1 -> fib
 dout2:0 -> fib
@@ -164,8 +168,10 @@ dout5:0 -> fib
 dout5:1 -> fib
 dout6:0 -> fib
 dout6:1 -> fib
-dout7:0 -> fib
-dout7:1 -> fib
+#dout7:0 -> fib
+#dout7:1 -> fib
+dout7:0 -> l2_0
+dout7:1 -> l2_0
 dout8:0 -> fib
 dout8:1 -> fib
 dout9:0 -> fib
@@ -179,8 +185,10 @@ DyscoPortInc(port=R_6) -> fib
 DyscoPortInc(port=R_7) -> fib
 DyscoPortInc(port=R_8) -> fib
 # for NAT
+#PortInc(port=nat_int) -> fib
+#PortInc(port=nat_ext) -> fib
 PortInc(port=nat_int) -> fib
-PortInc(port=nat_ext) -> fib
+PortInc(port=nat_ext) -> l2_0
 
 fib:0 -> din3
 fib:1 -> din1
@@ -200,8 +208,10 @@ fib:13 -> din9
 fib:14 -> DyscoPortOut(port=R_8)
 fib:15 -> din10
 # for NAT
-fib:16 -> PortOut(port=nat_ext)
-fib:17 -> din7
+#fib:16 -> PortOut(port=nat_ext)
+#fib:17 -> din7
+l2_0:0 -> PortOut(port=nat_ext)
+l2_0:1 -> din7
 
 #dyscocenter.add(priority=1, sc_len=4, chain=['10.0.1.1', '10.0.5.2', '10.0.4.2', '10.0.2.2'], filter='dst port 5001', ns='/var/run/netns/c1')
 dyscocenter.add(priority=1, sc_len=4, chain=['10.0.1.1', '10.0.0.2', '10.0.4.2', '10.0.2.2'], filter='dst port 5001', ns='/var/run/netns/c1')
