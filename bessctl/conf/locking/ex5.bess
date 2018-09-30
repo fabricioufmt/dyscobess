@@ -1,0 +1,202 @@
+import os
+import scapy.all as scapy
+
+os.system('ip netns del R > /dev/null')
+os.system('ip netns del LA > /dev/null')
+os.system('ip netns del RA > /dev/null')
+os.system('ip netns del c1 > /dev/null')
+os.system('ip netns del s1 > /dev/null')
+os.system('ip netns del m1 > /dev/null')
+os.system('ip netns del m2 > /dev/null')
+os.system('ip netns del nat > /dev/null')
+os.system('ip netns add R > /dev/null')
+os.system('ip netns add LA > /dev/null')
+os.system('ip netns add RA > /dev/null')
+os.system('ip netns add c1 > /dev/null')
+os.system('ip netns add s1 > /dev/null')
+os.system('ip netns add m1 > /dev/null')
+os.system('ip netns add m2 > /dev/null')
+os.system('ip netns add nat > /dev/null')
+os.system('echo 1 > /proc/sys/net/ipv4/ip_forward')
+
+nat_int::DyscoVPort(ifname='nat-ext', netns='/var/run/netns/nat', mac_addr='00:00:00:00:00:01', ip_addrs=['10.0.0.1/24'])
+nat_ext::DyscoVPort(ifname='nat-int', netns='/var/run/netns/nat', mac_addr='00:00:00:00:00:32', ip_addrs=['10.0.3.2/24'])
+
+LA_1::DyscoVPort(ifname='LA-1', netns='/var/run/netns/LA', mac_addr='00:00:00:00:00:02', ip_addrs=['10.0.0.2/24'])
+RA_1::DyscoVPort(ifname='RA-1', netns='/var/run/netns/RA', mac_addr='00:00:00:00:00:42', ip_addrs=['10.0.4.2/24'])
+m1_0::DyscoVPort(ifname='m1-0', netns='/var/run/netns/m1', mac_addr='00:00:00:00:00:52', ip_addrs=['10.0.5.2/24'])
+m1_1::DyscoVPort(ifname='m1-1', netns='/var/run/netns/m1', mac_addr='00:00:00:00:00:62', ip_addrs=['10.0.6.2/24'])
+m2_0::DyscoVPort(ifname='m2-0', netns='/var/run/netns/m2', mac_addr='00:00:00:00:00:72', ip_addrs=['10.0.7.2/24'])
+m2_1::DyscoVPort(ifname='m2-1', netns='/var/run/netns/m2', mac_addr='00:00:00:00:00:82', ip_addrs=['10.0.8.2/24'])
+
+c1_0::DyscoVPort(ifname='c1-0', netns='/var/run/netns/c1', mac_addr='00:00:00:00:00:12', ip_addrs=['10.0.1.2/24'])
+s1_0::DyscoVPort(ifname='s1-0', netns='/var/run/netns/s1', mac_addr='00:00:00:00:00:22', ip_addrs=['10.0.2.2/24'])
+LA_0::DyscoVPort(ifname='LA-0', netns='/var/run/netns/LA', mac_addr='00:00:00:00:00:11', ip_addrs=['10.0.1.1/24'])
+RA_0::DyscoVPort(ifname='RA-0', netns='/var/run/netns/RA', mac_addr='00:00:00:00:00:21', ip_addrs=['10.0.2.1/24'])
+
+R_3::DyscoVPort(ifname='R-3', netns='/var/run/netns/R', mac_addr='00:00:00:00:00:31', ip_addrs=['10.0.3.1/24'])
+R_4::DyscoVPort(ifname='R-4', netns='/var/run/netns/R', mac_addr='00:00:00:00:00:41', ip_addrs=['10.0.4.1/24'])
+R_5::DyscoVPort(ifname='R-5', netns='/var/run/netns/R', mac_addr='00:00:00:00:00:51', ip_addrs=['10.0.5.1/24'])
+R_6::DyscoVPort(ifname='R-6', netns='/var/run/netns/R', mac_addr='00:00:00:00:00:61', ip_addrs=['10.0.6.1/24'])
+R_7::DyscoVPort(ifname='R-7', netns='/var/run/netns/R', mac_addr='00:00:00:00:00:71', ip_addrs=['10.0.7.1/24'])
+R_8::DyscoVPort(ifname='R-8', netns='/var/run/netns/R', mac_addr='00:00:00:00:00:81', ip_addrs=['10.0.8.1/24'])
+
+os.system('ip netns exec c1 route add default gw 10.0.1.1 > /dev/null')
+os.system('ip netns exec c1 arp -s 10.0.1.1 00:00:00:00:00:11 > /dev/null')
+os.system('ip netns exec s1 route add default gw 10.0.2.1 > /dev/null')
+os.system('ip netns exec s1 arp -s 10.0.2.1 00:00:00:00:00:21 > /dev/null')
+os.system('ip netns exec LA route add default gw 10.0.3.1 > /dev/null')
+os.system('ip netns exec LA arp -s 10.0.1.2 00:00:00:00:00:12 > /dev/null')
+os.system('ip netns exec LA arp -s 10.0.3.1 00:00:00:00:00:31 > /dev/null')
+os.system('ip netns exec RA route add default gw 10.0.4.1 > /dev/null')
+os.system('ip netns exec RA arp -s 10.0.2.2 00:00:00:00:00:22 > /dev/null')
+os.system('ip netns exec RA arp -s 10.0.4.1 00:00:00:00:00:41 > /dev/null')
+os.system('ip netns exec m1 route add -net 10.0.1.0/24 gw 10.0.5.1 > /dev/null')
+os.system('ip netns exec m1 route add -net 10.0.3.0/24 gw 10.0.5.1 > /dev/null')
+os.system('ip netns exec m1 route add default gw 10.0.6.1 > /dev/null')
+os.system('ip netns exec m1 arp -s 10.0.5.1 00:00:00:00:00:51 > /dev/null')
+os.system('ip netns exec m1 arp -s 10.0.6.1 00:00:00:00:00:61 > /dev/null')
+os.system('ip netns exec m2 route add -net 10.0.1.0/24 gw 10.0.7.1 > /dev/null')
+os.system('ip netns exec m2 route add default gw 10.0.8.1 > /dev/null')
+os.system('ip netns exec m2 arp -s 10.0.7.1 00:00:00:00:00:71 > /dev/null')
+os.system('ip netns exec m2 arp -s 10.0.8.1 00:00:00:00:00:81 > /dev/null')
+
+os.system('ip netns exec R arp -s 10.0.3.2 00:00:00:00:00:32 > /dev/null')
+os.system('ip netns exec R arp -s 10.0.4.2 00:00:00:00:00:42 > /dev/null')
+os.system('ip netns exec R arp -s 10.0.5.2 00:00:00:00:00:52 > /dev/null')
+os.system('ip netns exec R arp -s 10.0.6.2 00:00:00:00:00:62 > /dev/null')
+os.system('ip netns exec R arp -s 10.0.7.2 00:00:00:00:00:72 > /dev/null')
+os.system('ip netns exec R arp -s 10.0.8.2 00:00:00:00:00:82 > /dev/null')
+os.system('ip netns exec R route add -net 10.0.1.0/24 gw 10.0.3.2 > /dev/null')
+os.system('ip netns exec R route add -net 10.0.2.0/24 gw 10.0.4.2 > /dev/null')
+os.system('ip netns exec R sh disable_rp_filter.sh > /dev/null')
+
+# for NAT
+os.system('ip netns exec R route add -net 10.0.0.0/24 gw 10.0.3.2 > /dev/null')
+os.system('ip netns exec nat arp -s 10.0.0.2 00:00:00:00:00:02 > /dev/null')
+os.system('ip netns exec nat arp -s 10.0.3.1 00:00:00:00:00:31 > /dev/null')
+os.system('ip netns exec nat route add default gw 10.0.3.1 > /dev/null')
+os.system('ip netns exec nat route add -net 10.0.1.0/24 gw 10.0.0.2 > /dev/null')
+os.system('ip netns exec nat iptables -t nat -A POSTROUTING -o nat-ext -j MASQUERADE > /dev/null')
+os.system('ip netns exec nat iptables -t filter -A FORWARD -i nat-int -j ACCEPT > /dev/null')
+
+dyscocenter::DyscoCenter()
+
+fib::L2Forward()
+fib.add(entries=[
+	{'addr': '00:00:00:00:00:11', 'gate': 0},
+	{'addr': '00:00:00:00:00:12', 'gate': 1},
+	{'addr': '00:00:00:00:00:21', 'gate': 2},
+	{'addr': '00:00:00:00:00:22', 'gate': 3},
+	{'addr': '00:00:00:00:00:31', 'gate': 4},
+	{'addr': '00:00:00:00:00:32', 'gate': 5},
+	{'addr': '00:00:00:00:00:41', 'gate': 6},
+	{'addr': '00:00:00:00:00:42', 'gate': 7},
+	{'addr': '00:00:00:00:00:51', 'gate': 8},
+	{'addr': '00:00:00:00:00:52', 'gate': 9},
+	{'addr': '00:00:00:00:00:61', 'gate': 10},
+	{'addr': '00:00:00:00:00:62', 'gate': 11},	
+	{'addr': '00:00:00:00:00:71', 'gate': 12},
+	{'addr': '00:00:00:00:00:72', 'gate': 13},
+	{'addr': '00:00:00:00:00:81', 'gate': 14},
+	{'addr': '00:00:00:00:00:82', 'gate': 15},	
+	# for NAT
+	{'addr': '00:00:00:00:00:01', 'gate': 16},
+	{'addr': '00:00:00:00:00:02', 'gate': 17},	
+])
+
+din1::DyscoAgentIn() -> DyscoPortOut(port=c1_0)
+din2::DyscoAgentIn() -> DyscoPortOut(port=s1_0)
+din3::DyscoAgentIn() -> DyscoPortOut(port=LA_0)
+din4::DyscoAgentIn() -> DyscoPortOut(port=RA_0)
+din5::DyscoAgentIn() -> DyscoPortOut(port=LA_1)
+din6::DyscoAgentIn() -> DyscoPortOut(port=RA_1)
+din7::DyscoAgentIn() -> DyscoPortOut(port=m1_0)
+din8::DyscoAgentIn() -> DyscoPortOut(port=m1_1)
+din9::DyscoAgentIn() -> DyscoPortOut(port=m2_0)
+din10::DyscoAgentIn() -> DyscoPortOut(port=m2_1)
+
+DyscoPortInc(port=c1_0) -> dout1::DyscoAgentOut()
+DyscoPortInc(port=s1_0) -> dout2::DyscoAgentOut()
+DyscoPortInc(port=LA_0) -> dout3::DyscoAgentOut()
+DyscoPortInc(port=RA_0) -> dout4::DyscoAgentOut()
+DyscoPortInc(port=LA_1) -> dout5::DyscoAgentOut()
+DyscoPortInc(port=RA_1) -> dout6::DyscoAgentOut()
+DyscoPortInc(port=m1_0) -> dout7::DyscoAgentOut()
+DyscoPortInc(port=m1_1) -> dout8::DyscoAgentOut()
+DyscoPortInc(port=m2_0) -> dout9::DyscoAgentOut()
+DyscoPortInc(port=m2_1) -> dout10::DyscoAgentOut()
+
+dout1.setup(agent="din1")
+dout2.setup(agent="din2")
+dout3.setup(agent="din3")
+dout4.setup(agent="din4")
+dout5.setup(agent="din5")
+dout6.setup(agent="din6")
+dout7.setup(agent="din7")
+dout8.setup(agent="din8")
+dout9.setup(agent="din9")
+dout10.setup(agent="din10")
+din1.setup(agent="dout1")
+din2.setup(agent="dout2")
+din3.setup(agent="dout3")
+din4.setup(agent="dout4")
+din5.setup(agent="dout5")
+din6.setup(agent="dout6")
+din7.setup(agent="dout7")
+din8.setup(agent="dout8")
+din9.setup(agent="dout9")
+din10.setup(agent="dout10")
+
+dout1:0 -> fib
+dout1:1 -> fib
+dout2:0 -> fib
+dout2:1 -> fib
+dout3:0 -> fib
+dout3:1 -> fib
+dout4:0 -> fib
+dout4:1 -> fib
+dout5:0 -> fib
+dout5:1 -> fib
+dout6:0 -> fib
+dout6:1 -> fib
+dout7:0 -> fib
+dout7:1 -> fib
+dout8:0 -> fib
+dout8:1 -> fib
+dout9:0 -> fib
+dout9:1 -> fib
+dout10:0 -> fib
+dout10:1 -> fib
+DyscoPortInc(port=R_3) -> fib
+DyscoPortInc(port=R_4) -> fib
+DyscoPortInc(port=R_5) -> fib
+DyscoPortInc(port=R_6) -> fib
+DyscoPortInc(port=R_7) -> fib
+DyscoPortInc(port=R_8) -> fib
+# for NAT
+PortInc(port=nat_int) -> fib
+PortInc(port=nat_ext) -> fib
+
+fib:0 -> din3
+fib:1 -> din1
+fib:2 -> din4
+fib:3 -> din2
+fib:4 -> DyscoPortOut(port=R_3)
+#fib:5 -> din5 for NAT
+fib:5 -> PortOut(port=nat_ext) #NAT
+fib:6 -> DyscoPortOut(port=R_4)
+fib:7 -> din6
+fib:8 -> DyscoPortOut(port=R_5)
+fib:9 -> din7
+fib:10 -> DyscoPortOut(port=R_6)
+fib:11 -> din8
+fib:12 -> DyscoPortOut(port=R_7)
+fib:13 -> din9
+fib:14 -> DyscoPortOut(port=R_8)
+fib:15 -> din10
+# for NAT
+fib:16 -> PortOut(port=nat_int)
+fib:17 -> din5
+
+#dyscocenter.add(priority=1, sc_len=4, chain=['10.0.1.1', '10.0.5.2', '10.0.4.2', '10.0.2.2'], filter='dst port 5001', ns='/var/run/netns/c1')
