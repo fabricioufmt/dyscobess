@@ -34,12 +34,12 @@ s1_0::DyscoVPort(ifname='s1-0', netns='/var/run/netns/s1', mac_addr='00:00:00:00
 LA_0::DyscoVPort(ifname='LA-0', netns='/var/run/netns/LA', mac_addr='00:00:00:00:00:11', ip_addrs=['10.0.1.1/24'])
 RA_0::DyscoVPort(ifname='RA-0', netns='/var/run/netns/RA', mac_addr='00:00:00:00:00:21', ip_addrs=['10.0.2.1/24'])
 
-R_1::DyscoVPort(ifname='R-1', netns='/var/run/netns/R', mac_addr='00:00:00:00:00:31', ip_addrs=['10.0.3.1/24'])
-R_2::DyscoVPort(ifname='R-2', netns='/var/run/netns/R', mac_addr='00:00:00:00:00:41', ip_addrs=['10.0.4.1/24'])
-R_3::DyscoVPort(ifname='R-3', netns='/var/run/netns/R', mac_addr='00:00:00:00:00:51', ip_addrs=['10.0.5.1/24'])
-R_4::DyscoVPort(ifname='R-4', netns='/var/run/netns/R', mac_addr='00:00:00:00:00:61', ip_addrs=['10.0.6.1/24'])
-R_5::DyscoVPort(ifname='R-5', netns='/var/run/netns/R', mac_addr='00:00:00:00:00:71', ip_addrs=['10.0.7.1/24'])
-R_6::DyscoVPort(ifname='R-6', netns='/var/run/netns/R', mac_addr='00:00:00:00:00:81', ip_addrs=['10.0.8.1/24'])
+R_3::DyscoVPort(ifname='R-3', netns='/var/run/netns/R', mac_addr='00:00:00:00:00:31', ip_addrs=['10.0.3.1/24'])
+R_4::DyscoVPort(ifname='R-4', netns='/var/run/netns/R', mac_addr='00:00:00:00:00:41', ip_addrs=['10.0.4.1/24'])
+R_5::DyscoVPort(ifname='R-5', netns='/var/run/netns/R', mac_addr='00:00:00:00:00:51', ip_addrs=['10.0.5.1/24'])
+R_6::DyscoVPort(ifname='R-6', netns='/var/run/netns/R', mac_addr='00:00:00:00:00:61', ip_addrs=['10.0.6.1/24'])
+R_7::DyscoVPort(ifname='R-7', netns='/var/run/netns/R', mac_addr='00:00:00:00:00:71', ip_addrs=['10.0.7.1/24'])
+R_8::DyscoVPort(ifname='R-8', netns='/var/run/netns/R', mac_addr='00:00:00:00:00:81', ip_addrs=['10.0.8.1/24'])
 
 os.system('ip netns exec R ifconfig lo up > /dev/null')
 os.system('ip netns exec LA ifconfig lo up > /dev/null')
