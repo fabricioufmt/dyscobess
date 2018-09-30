@@ -78,7 +78,8 @@ int main(int argc, char *argv[]) {
 
   // TODO(barath): Make these DPDK calls generic, so as to not be so tied to
   // DPDK.
-  init_dpdk(argv[0], FLAGS_m, 0, false);
+  //init_dpdk(argv[0], 1024, 0, false);
+  //init_dpdk(argv[0], FLAGS_m, 0, false);
   //init_dpdk(argv[0], FLAGS_m, FLAGS_a, false);
   //init_dpdk(argv[0], FLAGS_m, FLAGS_a, FLAGS_no_huge);
   bess::init_mempool();
