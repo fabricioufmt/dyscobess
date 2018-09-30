@@ -982,7 +982,10 @@ bool DyscoAgentOut::processLockingSignalPacket(Packet* pkt, Ethernet* eth, Ipv4*
 		fprintf(stderr, "Changing seq_num from %X to %X.\n", tcp->seq_num.value(), cb_out->last_seq);
 		fprintf(stderr, "Changing ack_num from %X to %X.\n", tcp->ack_num.value(), cb_out->last_ack);
 		fprintf(stderr, "Removing and storing the payload.\n");
-		fprintf(stderr, "Forwarding to %s.\n\n", printSS(cb_out->sub));
+		fprintf(stderr, "Forwarding to %s.\n", printSS(cb_out->sub));
+		fprintf(stderr, "MAC DST: %s, MAC SRC: %s\n\n", eth->dst_addr.ToString().c_str(), eth->src_addr.ToString().c_str());
+		
+		
 #endif
 
 		tcp->seq_num = be32_t(cb_out->last_seq);
