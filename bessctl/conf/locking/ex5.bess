@@ -72,6 +72,7 @@ os.system('ip netns exec R route add -net 10.0.2.0/24 gw 10.0.4.2 > /dev/null')
 os.system('ip netns exec R sh disable_rp_filter.sh > /dev/null')
 
 # for NAT
+os.system('ip netns exec nat ifconfig lo up > /dev/null')
 os.system('ip netns exec R route add -net 10.0.0.0/24 gw 10.0.3.2 > /dev/null')
 os.system('ip netns exec nat arp -s 10.0.0.2 00:00:00:00:00:02 > /dev/null')
 os.system('ip netns exec nat arp -s 10.0.3.1 00:00:00:00:00:31 > /dev/null')
