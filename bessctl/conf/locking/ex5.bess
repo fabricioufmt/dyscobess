@@ -19,8 +19,8 @@ os.system('ip netns add m2 > /dev/null')
 os.system('ip netns add nat > /dev/null')
 os.system('echo 1 > /proc/sys/net/ipv4/ip_forward')
 
-nat_int::DyscoVPort(ifname='nat-int', netns='/var/run/netns/nat', mac_addr='00:00:00:00:00:01', ip_addrs=['10.0.0.1/24'])
-nat_ext::DyscoVPort(ifname='nat-ext', netns='/var/run/netns/nat', mac_addr='00:00:00:00:00:32', ip_addrs=['10.0.3.2/24'])
+nat_int::VPort(ifname='nat-int', netns='/var/run/netns/nat', mac_addr='00:00:00:00:00:01', ip_addrs=['10.0.0.1/24'])
+nat_ext::VPort(ifname='nat-ext', netns='/var/run/netns/nat', mac_addr='00:00:00:00:00:32', ip_addrs=['10.0.3.2/24'])
 
 LA_1::DyscoVPort(ifname='LA-1', netns='/var/run/netns/LA', mac_addr='00:00:00:00:00:02', ip_addrs=['10.0.0.2/24'])
 RA_1::DyscoVPort(ifname='RA-1', netns='/var/run/netns/RA', mac_addr='00:00:00:00:00:42', ip_addrs=['10.0.4.2/24'])
