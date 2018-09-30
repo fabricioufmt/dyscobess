@@ -189,7 +189,7 @@ fib:4 -> DyscoPortOut(port=R_3)
 fib:5 -> PortOut(port=nat_ext) #NAT
 fib:6 -> DyscoPortOut(port=R_4)
 fib:7 -> din6
-fib:8 -> DyscoPortOut(port=R_5)
+fib:8 -> r5::DyscoPortOut(port=R_5)
 fib:9 -> din7
 fib:10 -> DyscoPortOut(port=R_6)
 fib:11 -> din8
