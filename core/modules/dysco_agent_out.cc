@@ -106,7 +106,8 @@ CommandResponse DyscoAgentOut::CommandSetup(const bess::pb::DyscoAgentArg& arg) 
 	if(it2 == ModuleGraph::GetAllModules().end())
 		return CommandFailure(EINVAL, "ERROR: DyscoAgentIn is not available.");
 	
-	agent = reinterpret_cast<DyscoAgentIn*>(it2->second);
+	//agent = reinterpret_cast<DyscoAgentIn*>(it2->second);
+	agent = 0;
 	
 	port = dysco_vport;
 	ns = dysco_vport->ns;
@@ -1048,7 +1049,7 @@ bool DyscoAgentOut::forward(Packet* pkt, bool reliable) {
 	
 	uint32_t i = getValueToAck(pkt);
 
-	bool update = true;
+	bool updated = true;
 	//bool updated = agent->updateReceivedHash(i, node);
 
 #ifdef DEBUG
