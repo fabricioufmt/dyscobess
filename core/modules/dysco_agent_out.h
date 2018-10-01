@@ -4,16 +4,20 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <signal.h>
+#include <mutex.h>
 #include <netinet/tcp.h>
 
 #include "dysco_util.h"
 #include "dysco_center.h"
 #include "dysco_agent_in.h"
 
+using std::mutex;
+
 class DyscoAgentIn;
 
 class DyscoAgentOut final : public Module {
 public:
+	mutex mtx;
 	static uint64_t timeout;
 	static const Commands cmds;
 	static const gate_idx_t kNumIGates = 1;

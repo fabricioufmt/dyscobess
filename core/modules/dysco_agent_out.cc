@@ -18,10 +18,13 @@ void timer_worker(DyscoAgentOut* agent) {
 	while(1) {
 		batch.clear();
 		usleep(SLEEPTIME);
-		
+
+		agent->mutex.lock();
 		list = agent->getRetransmissionList();
-		if(!list)
+		if(!list) {
+			agent->mutex.unlock();
 			continue;
+		}
 
 #ifdef DEBUG
 		if(list->size())
@@ -65,6 +68,7 @@ void timer_worker(DyscoAgentOut* agent) {
 			agent->RunChooseModule(1, &batch);
 #endif
 		}
+		agent->mutex.unlock();
 	}
 }
 
@@ -1034,7 +1038,9 @@ bool DyscoAgentOut::forward(Packet* pkt, bool reliable) {
 	if(!timer)
 		timer = new thread(timer_worker, this);
 
+	mtx.lock();
 	LNode<Packet>* node = retransmission_list->insertTail(*pkt, tsc_to_ns(rdtsc()));
+	mtx.unlock();
 	uint32_t i = getValueToAck(pkt);
 	unordered_map<uint32_t, LNode<Packet>*>* received_hash = agent->getReceivedHash();
 
@@ -1053,13 +1059,9 @@ bool DyscoAgentOut::forward(Packet* pkt, bool reliable) {
 }
 
 void DyscoAgentOut::remove(LNode<Packet>* node) {
+	mtx.lock();
 	retransmission_list->remove(node);
-	/*if(!retransmission_list->size()) {
-		if(timer) {
-			delete timer;
-			timer = 0;
-		}
-		}*/
+	mtx.unlock();
 }
 
 ADD_MODULE(DyscoAgentOut, "dysco_agent_out", "processes packets outcoming from host")
