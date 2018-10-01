@@ -2171,7 +2171,7 @@ Packet* DyscoAgentIn::processAckLocking(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 	return 0;
 }
 
-Packet* DyscoAgentIn::createRequestAckLocking(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp, DyscoControlMessage* cmsg, DyscoHashOut* cb_out) {
+Packet* DyscoAgentIn::createRequestAckLocking(Packet*, Ethernet* eth, Ipv4* ip, Tcp* tcp, DyscoControlMessage* cmsg, DyscoHashOut* cb_out) {
 #ifdef DEBUG
 	fprintf(stderr, "I'm going to create a SYN+ACK for SYN (DYSCO_REQUEST_LOCK).\n");
 #endif
