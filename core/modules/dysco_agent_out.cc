@@ -1065,7 +1065,7 @@ void DyscoAgentOut::remove(LNode<Packet>* node) {
 	mtx.unlock();
 }
 
-LinkedList<Packet>* DyscoAgentOut::getRetransmissionList() {
+inline LinkedList<Packet>* DyscoAgentOut::getRetransmissionList() {
 	return retransmission_list;
 }
 
