@@ -2159,7 +2159,7 @@ Packet* DyscoAgentIn::processAckLocking(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 #ifdef DEBUG
 					fprintf(stderr, "I found the packet and I'm going to remove it\n");
 #endif
-					agent->remove(node);
+					//agent->remove(node);
 					mtx.lock();
 					received_hash->erase(key);
 					mtx.unlock();
@@ -2237,7 +2237,7 @@ Packet* DyscoAgentIn::createRequestAckLocking(Packet*, Ethernet* eth, Ipv4* ip, 
 	return newpkt;
 }
 
-void DyscoAgentIn::createAckLocking(Packet*, Ethernet* eth, Ipv4* ip, Tcp* tcp, DyscoControlMessage* cmsg) {
+void DyscoAgentIn::createAckLocking(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp, DyscoControlMessage* cmsg) {
 #ifdef DEBUG
 	fprintf(stderr, "I'm going to create an ACK for SYN+ACK (DYSCO_REQUEST_ACK_LOCK).\n");
 #endif
@@ -2272,7 +2272,7 @@ void DyscoAgentIn::createAckLocking(Packet*, Ethernet* eth, Ipv4* ip, Tcp* tcp, 
 	
 	fix_csum(ip, tcp);
 
-	//agent->forward(pkt);
+	agent->forward(pkt);
 }
 
 bool DyscoAgentIn::updateReceivedHash(uint32_t i, LNode<Packet>* node) {
