@@ -1040,22 +1040,24 @@ bool DyscoAgentOut::forward(Packet* pkt, bool reliable) {
 
 	mtx.lock();
 	LNode<Packet>* node = retransmission_list->insertTail(*pkt, tsc_to_ns(rdtsc()));
-	mtx.unlock();
-	uint32_t i = getValueToAck(pkt);
-	unordered_map<uint32_t, LNode<Packet>*>* received_hash = agent->getReceivedHash();
-
-	if(!node)
+	if(!node) {
+		mtx.unlock();
+		
 		return false;
+	}
 	
-	if(received_hash) {
+	uint32_t i = getValueToAck(pkt);
+
+	bool updated = agent->updateReceivedHash(i, node);
+
 #ifdef DEBUG
+	if(updated)
 		fprintf(stderr, "I expected to received a packet with %X ACK\n", i);
 #endif
-		received_hash->operator[](i) = node;
-	} else
-		return false;
+
+	mtx.unlock();
 	
-	return true;
+	return updated;
 }
 
 void DyscoAgentOut::remove(LNode<Packet>* node) {

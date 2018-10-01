@@ -1,6 +1,7 @@
 #ifndef BESS_MODULES_DYSCOAGENTIN_H_
 #define BESS_MODULES_DYSCOAGENTIN_H_
 
+#include <mutex>
 #include <stdio.h>
 #include <unistd.h>
 #include <signal.h>
@@ -29,6 +30,8 @@ enum CONTROL_RETURN {
 	LOCK_SUCCESSFUL,
 };
 
+using std::mutex;
+
 class DyscoAgentOut;
 
 class DyscoAgentIn final : public Module {
@@ -49,11 +52,10 @@ class DyscoAgentIn final : public Module {
 	*/
 	void retransmissionHandler();
 
-	inline unordered_map<uint32_t, LNode<Packet>*>* getReceivedHash() {
-		return received_hash;
-	}
+	bool updateReceivedHash(uint32_t, LNode<Packet>*);
 	
  private:
+	mutex mtx;
 	string ns;
 	thread* timer;
 	uint32_t devip;
