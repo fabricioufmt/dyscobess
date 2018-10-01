@@ -1732,7 +1732,6 @@ Packet* DyscoAgentIn::createSynReconfig(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 	fprintf(stderr, "type: %u\n", newcmsg->type);
 #endif
 
-	//LNode<Packet>* node = 0;
 	LNode<Packet>* node = agent->getRetransmissionList()->insertTail(*newpkt, tsc_to_ns(rdtsc()));
 	if(!node) {
 #ifdef DEBUG
@@ -2160,7 +2159,7 @@ Packet* DyscoAgentIn::processAckLocking(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 #ifdef DEBUG
 					fprintf(stderr, "I found the packet and I'm going to remove it\n");
 #endif
-					//agent->remove(node);
+					agent->remove(node);
 					mtx.lock();
 					received_hash->erase(key);
 					mtx.unlock();
