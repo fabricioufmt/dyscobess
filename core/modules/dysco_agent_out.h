@@ -14,7 +14,7 @@ class DyscoAgentIn;
 
 class DyscoAgentOut final : public Module {
 public:
-	mutex mtx;
+	//mutex mtx;
 	static uint64_t timeout;
 	static const Commands cmds;
 	static const gate_idx_t kNumIGates = 1;
@@ -27,6 +27,7 @@ public:
 	
 	void ProcessBatch(PacketBatch*) override;
 	bool forward(Packet*, bool = false);
+	
 	inline const char* getNs() {
 		return ns.c_str();
 	}

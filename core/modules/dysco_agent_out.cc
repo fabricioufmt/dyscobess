@@ -19,10 +19,10 @@ void timer_worker(DyscoAgentOut* agent) {
 		batch.clear();
 		usleep(SLEEPTIME);
 
-		agent->mtx.lock();
+		//agent->mtx.lock();
 		list = agent->getRetransmissionList();
 		if(!list) {
-			agent->mtx.unlock();
+			//agent->mtx.unlock();
 			continue;
 		}
 
@@ -45,7 +45,7 @@ void timer_worker(DyscoAgentOut* agent) {
 					aux = node->next;
 					list->remove(node);
 					node = aux;
-					
+					//agent->mtx.unlock();
 					continue;
 				}
 				
@@ -60,6 +60,7 @@ void timer_worker(DyscoAgentOut* agent) {
 			}
 		
 			node = node->next;
+			//agent->mtx.unlock();
 		}
 
 		if(batch.cnt()) {
@@ -68,7 +69,6 @@ void timer_worker(DyscoAgentOut* agent) {
 			agent->RunChooseModule(1, &batch);
 #endif
 		}
-		agent->mtx.unlock();
 	}
 }
 
@@ -1038,10 +1038,10 @@ bool DyscoAgentOut::forward(Packet* pkt, bool reliable) {
 	if(!timer)
 		timer = new thread(timer_worker, this);
 
-	mtx.lock();
+	//mtx.lock();
 	LNode<Packet>* node = retransmission_list->insertTail(*pkt, tsc_to_ns(rdtsc()));
 	if(!node) {
-		mtx.unlock();
+		//mtx.unlock();
 		
 		return false;
 	}
@@ -1055,15 +1055,15 @@ bool DyscoAgentOut::forward(Packet* pkt, bool reliable) {
 		fprintf(stderr, "I expected to received a packet with %X ACK\n", i);
 #endif
 
-	mtx.unlock();
+	//mtx.unlock();
 	
 	return updated;
 }
 
 void DyscoAgentOut::remove(LNode<Packet>* node) {
-	mtx.lock();
+	//mtx.lock();
 	retransmission_list->remove(node);
-	mtx.unlock();
+	//mtx.unlock();
 }
 
 ADD_MODULE(DyscoAgentOut, "dysco_agent_out", "processes packets outcoming from host")
