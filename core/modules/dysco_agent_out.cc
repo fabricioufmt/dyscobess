@@ -6,7 +6,7 @@ const Commands DyscoAgentOut::cmds = {
 	{"setup", "DyscoAgentArg", MODULE_CMD_FUNC(&DyscoAgentOut::CommandSetup), Command::THREAD_UNSAFE}
 };
 
-void timer_worker(DyscoAgentOut* agent) {
+void timer_worker(DyscoAgentOut*) {
 	uint64_t now_ts;
 	LNode<Packet>* aux;
 	LNode<Packet>* node;
