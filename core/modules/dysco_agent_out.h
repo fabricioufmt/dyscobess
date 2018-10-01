@@ -80,4 +80,8 @@ public:
 	bool processLockingSignalPacket(Packet*, Ethernet*, Ipv4*, Tcp*, DyscoHashOut*);
 };
 
+inline LinkedList<Packet>* DyscoAgentOut::getRetransmissionList() {
+	return retransmission_list;
+}
+
 #endif //BESS_MODULES_DYSCOAGENTOUT_H_
