@@ -95,9 +95,9 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 #endif
 			newpkt = processLockingSignalPacket(pkt, eth, ip, tcp, cb_in);
 			if(newpkt) {
-				//agent->forward(newpkt, true);
+				agent->forward(newpkt, true);
 				createAckLockingSignalPacket(pkt, eth, ip, tcp);
-				//agent->forward(pkt);
+				agent->forward(pkt);
 				
 				continue;
 			}
@@ -107,7 +107,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 #endif
 			newpkt = processLockingPacket(pkt, eth, ip, tcp);
 			if(newpkt) {
-				//agent->forward(newpkt, true);
+				agent->forward(newpkt, true);
 				
 				continue;
 			}
@@ -150,7 +150,7 @@ bool DyscoAgentIn::processReceivedPacket(Tcp* tcp) {
 #ifdef DEBUG
 		fprintf(stderr, "I found the packet and I'm going to remove it.\n");
 #endif
-		//agent->remove(node);
+		agent->remove(node);
 		received_hash->erase(key);
 		mtx.unlock();
 		return true;
@@ -992,7 +992,7 @@ bool DyscoAgentIn::control_reconfig_in(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp
 
 		new_out->state = DYSCO_SYN_RECEIVED;
 
-		//agent->forward(pkt, true);
+		agent->forward(pkt, true);
 		
 		return false;
 	}
@@ -1224,7 +1224,7 @@ bool DyscoAgentIn::control_input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp,
 				}
 			}
 
-			//agent->forward(pkt);
+			agent->forward(pkt);
 			
 			return false;
 		} else {
@@ -1732,7 +1732,8 @@ Packet* DyscoAgentIn::createSynReconfig(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 	fprintf(stderr, "type: %u\n", newcmsg->type);
 #endif
 
-	LNode<Packet>* node = agent->getRetransmissionList()->insertTail(*newpkt, tsc_to_ns(rdtsc()));
+	//LNode<Packet>* node = agent->getRetransmissionList()->insertTail(*newpkt, tsc_to_ns(rdtsc()));
+	LNode<Packet>* node = agent->add(*newpkt, tsc_to_ns(rdtsc()));
 	if(!node) {
 #ifdef DEBUG
 		fprintf(stderr, "error to insert into retransmission list... dropping\n");
@@ -2159,7 +2160,7 @@ Packet* DyscoAgentIn::processAckLocking(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 #ifdef DEBUG
 					fprintf(stderr, "I found the packet and I'm going to remove it\n");
 #endif
-					//agent->remove(node);
+					agent->remove(node);
 					mtx.lock();
 					received_hash->erase(key);
 					mtx.unlock();
@@ -2272,7 +2273,7 @@ void DyscoAgentIn::createAckLocking(Packet*, Ethernet* eth, Ipv4* ip, Tcp* tcp, 
 	
 	fix_csum(ip, tcp);
 
-	//agent->forward(pkt);
+	agent->forward(pkt);
 }
 
 bool DyscoAgentIn::updateReceivedHash(uint32_t i, LNode<Packet>* node) {

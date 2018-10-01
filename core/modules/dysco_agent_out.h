@@ -33,7 +33,8 @@ public:
 	}
 
 	LinkedList<Packet>* getRetransmissionList();
-	
+
+	LNode<Packet>* add(Packet&, uint64_t);
 	void remove(LNode<Packet>*);
 	
  private:
@@ -82,6 +83,55 @@ public:
 
 inline LinkedList<Packet>* DyscoAgentOut::getRetransmissionList() {
 	return retransmission_list;
+}
+
+inline LNode<Packet>* DyscoAgentOut::add(Packet& pkt, uint64_t ns) {
+	mtx.lock();
+	LNode<Packet>* node = retransmission_list->insertTail(pkt, ns);
+	mtx.unlock();
+
+	return node;
+}
+
+inline void DyscoAgentOut::remove(LNode<Packet>* node) {
+	mtx.lock();
+	retransmission_list->remove(node);
+	mtx.unlock();
+}
+
+inline bool DyscoAgentOut::forward(Packet* pkt, bool reliable) {
+	if(!reliable) {
+		PacketBatch out;
+		out.clear();
+		out.add(pkt);
+		RunChooseModule(1, &out);
+
+		return true;
+	}
+
+	if(!timer)
+		timer = new thread(timer_worker, this);
+
+	mtx.lock();
+	LNode<Packet>* node = retransmission_list->insertTail(*pkt, tsc_to_ns(rdtsc()));
+	if(!node) {
+		mtx.unlock();
+		
+		return false;
+	}
+	
+	uint32_t i = getValueToAck(pkt);
+
+	bool updated = agent->updateReceivedHash(i, node);
+
+#ifdef DEBUG
+	if(updated)
+		fprintf(stderr, "I expected to received a packet with %X ACK\n", i);
+#endif
+
+	mtx.unlock();
+	
+	return updated;
 }
 
 #endif //BESS_MODULES_DYSCOAGENTOUT_H_
