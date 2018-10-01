@@ -1,7 +1,6 @@
 #ifndef BESS_MODULES_DYSCOAGENTIN_H_
 #define BESS_MODULES_DYSCOAGENTIN_H_
 
-#include <mutex>
 #include <stdio.h>
 #include <unistd.h>
 #include <signal.h>
@@ -29,8 +28,6 @@ enum CONTROL_RETURN {
 	NONE,
 	LOCK_SUCCESSFUL,
 };
-
-using std::mutex;
 
 class DyscoAgentOut;
 
