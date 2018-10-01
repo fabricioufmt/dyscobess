@@ -85,9 +85,9 @@ inline LinkedList<Packet>* DyscoAgentOut::getRetransmissionList() {
 	return retransmission_list;
 }
 
-inline LNode<Packet>* DyscoAgentOut::add(Packet& pkt, uint64_t ns) {
+inline LNode<Packet>* DyscoAgentOut::add(Packet& pkt, uint64_t ts) {
 	mtx.lock();
-	LNode<Packet>* node = retransmission_list->insertTail(pkt, ns);
+	LNode<Packet>* node = retransmission_list->insertTail(pkt, ts);
 	mtx.unlock();
 
 	return node;
