@@ -32,9 +32,7 @@ public:
 		return ns.c_str();
 	}
 
-	LinkedList<Packet>* getRetransmissionList() {
-		return retransmission_list;
-	}
+	LinkedList<Packet>* getRetransmissionList();
 	
 	void remove(LNode<Packet>*);
 	
