@@ -29,7 +29,7 @@ enum CONTROL_RETURN {
 	LOCK_SUCCESSFUL,
 };
 
-//class DyscoAgentOut;
+class DyscoAgentOut;
 
 class DyscoAgentIn final : public Module {
  public:
