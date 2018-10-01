@@ -1024,6 +1024,41 @@ bool DyscoAgentOut::processLockingSignalPacket(Packet* pkt, Ethernet* eth, Ipv4*
 	return true;	
 }
 
+bool DyscoAgentOut::forward(Packet* pkt, bool reliable) {
+	if(!reliable) {
+		PacketBatch out;
+		out.clear();
+		out.add(pkt);
+		RunChooseModule(1, &out);
+
+		return true;
+	}
+
+	if(!timer)
+		timer = new thread(timer_worker, this);
+
+	mtx.lock();
+	LNode<Packet>* node = retransmission_list->insertTail(*pkt, tsc_to_ns(rdtsc()));
+	if(!node) {
+		mtx.unlock();
+		
+		return false;
+	}
+	
+	uint32_t i = getValueToAck(pkt);
+
+	bool updated = agent->updateReceivedHash(i, node);
+
+#ifdef DEBUG
+	if(updated)
+		fprintf(stderr, "I expected to received a packet with %X ACK\n", i);
+#endif
+
+	mtx.unlock();
+	
+	return updated;
+}
+
 ADD_MODULE(DyscoAgentOut, "dysco_agent_out", "processes packets outcoming from host")
 
 
