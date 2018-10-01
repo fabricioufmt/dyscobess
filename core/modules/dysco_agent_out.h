@@ -8,13 +8,13 @@
 
 #include "dysco_util.h"
 #include "dysco_center.h"
-//#include "dysco_agent_in.h"
+#include "dysco_agent_in.h"
 
-//class DyscoAgentIn;
+class DyscoAgentIn;
 
 class DyscoAgentOut final : public Module {
 public:
-	//mutex mtx;
+	mutex mtx;
 	static uint64_t timeout;
 	static const Commands cmds;
 	static const gate_idx_t kNumIGates = 1;

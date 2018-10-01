@@ -47,7 +47,7 @@ class DyscoAgentIn final : public Module {
 	bool updateReceivedHash(uint32_t, LNode<Packet>*);
 	
  private:
-	//mutex mtx;
+	mutex mtx;
 	string ns;
 	thread* timer;
 	uint32_t devip;
