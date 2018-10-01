@@ -1,7 +1,6 @@
 #ifndef BESS_MODULES_DYSCOAGENTOUT_H_
 #define BESS_MODULES_DYSCOAGENTOUT_H_
 
-#include <mutex>
 #include <stdio.h>
 #include <unistd.h>
 #include <signal.h>
@@ -10,8 +9,6 @@
 #include "dysco_util.h"
 #include "dysco_center.h"
 #include "dysco_agent_in.h"
-
-using std::mutex;
 
 class DyscoAgentIn;
 
