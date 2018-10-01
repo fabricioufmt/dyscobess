@@ -60,6 +60,7 @@ os.system('ip netns exec m2 route add -net 10.0.1.0/24 gw 10.0.7.1 > /dev/null')
 os.system('ip netns exec m2 route add default gw 10.0.8.1 > /dev/null')
 os.system('ip netns exec m2 arp -s 10.0.7.1 00:00:00:00:00:71 > /dev/null')
 os.system('ip netns exec m2 arp -s 10.0.8.1 00:00:00:00:00:81 > /dev/null')
+os.system('ip netns exec m2 sh disable_rp_filter.sh > /dev/null')
 
 os.system('ip netns exec R arp -s 10.0.3.2 00:00:00:00:00:32 > /dev/null')
 os.system('ip netns exec R arp -s 10.0.4.2 00:00:00:00:00:42 > /dev/null')
@@ -185,8 +186,7 @@ fib:1 -> din1
 fib:2 -> din4
 fib:3 -> din2
 fib:4 -> DyscoPortOut(port=R_3)
-#fib:5 -> din5 for NAT
-fib:5 -> PortOut(port=nat_ext) #NAT
+fib:5 -> PortOut(port=nat_ext)
 fib:6 -> DyscoPortOut(port=R_4)
 fib:7 -> din6
 fib:8 -> r5::DyscoPortOut(port=R_5)
@@ -201,13 +201,6 @@ fib:15 -> din10
 fib:16 -> PortOut(port=nat_int)
 fib:17 -> din5
 
+dyscocenter.add(priority=2, sc_len=4, chain=['10.0.1.1', '10.0.5.2', '10.0.4.2', '10.0.2.2'], filter='dst port 5001', ns='/var/run/netns/c1')
 dyscocenter.add(priority=1, sc_len=2, chain=['10.0.1.1', '10.0.5.2'], filter='dst port 5002', ns='/var/run/netns/c1')
 dyscocenter.add(priority=1, sc_len=2, chain=['10.0.4.2', '10.0.2.2'], filter='dst port 5002', ns='/var/run/netns/m1')
-dyscocenter.add(priority=2, sc_len=4, chain=['10.0.1.1', '10.0.5.2', '10.0.4.2', '10.0.2.2'], filter='dst port 5001', ns='/var/run/netns/c1')
-
-#os.system('rm /home/fabricio/*.pcap 1>/dev/null')
-#os.system('ip netns exec m1 tcpdump -i m1-0 -w /home/fabricio/m1-0.pcap & 2>/dev/null')
-#os.system('ip netns exec m2 tcpdump -i m2-0 -w /home/fabricio/m2-0.pcap & 2>/dev/null')
-#os.system('ip netns exec nat tcpdump -i nat-ext -w /home/fabricio/nat-ext.pcap & 2>/dev/null')
-os.system('ip netns exec s1 ./srv 5001 10000000 & ')
-os.system('ip netns exec m1 ./tcp_proxy 5001 10.0.2.2 5001 5 & ')
