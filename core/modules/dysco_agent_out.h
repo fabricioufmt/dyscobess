@@ -1,10 +1,10 @@
 #ifndef BESS_MODULES_DYSCOAGENTOUT_H_
 #define BESS_MODULES_DYSCOAGENTOUT_H_
 
+#include <mutex>
 #include <stdio.h>
 #include <unistd.h>
 #include <signal.h>
-#include <mutex.h>
 #include <netinet/tcp.h>
 
 #include "dysco_util.h"
