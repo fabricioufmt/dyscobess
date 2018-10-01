@@ -2272,7 +2272,9 @@ void DyscoAgentIn::createAckLocking(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* t
 	
 	fix_csum(ip, tcp);
 
-	agent->forward(pkt);
+	bool ret = agent->forward(pkt);
+	if(ret)
+		fprintf(stderr, "saiur ret\n");
 }
 
 bool DyscoAgentIn::updateReceivedHash(uint32_t i, LNode<Packet>* node) {
