@@ -6,30 +6,29 @@ const Commands DyscoAgentOut::cmds = {
 	{"setup", "DyscoAgentArg", MODULE_CMD_FUNC(&DyscoAgentOut::CommandSetup), Command::THREAD_UNSAFE}
 };
 
-void timer_worker(DyscoAgentOut*) {
+void timer_worker(DyscoAgentOut* agent) {
 	uint64_t now_ts;
 	LNode<Packet>* aux;
 	LNode<Packet>* node;
 	LNode<Packet>* tail;
 	LinkedList<Packet>* list = 0;
 	PacketBatch batch;
-	//PacketBatch* batch = new PacketBatch();
 	
 	while(1) {
 		batch.clear();
 		usleep(SLEEPTIME);
 
-		//agent->mtx.lock();
-		//list = agent->getRetransmissionList();
+		agent->mtx.lock();
+		list = agent->getRetransmissionList();
 		if(!list) {
-			//agent->mtx.unlock();
+			agent->mtx.unlock();
 			continue;
 		}
 
-		/*#ifdef DEBUG
+#ifdef DEBUG
 		if(list->size())
 			fprintf(stderr, "[%s]Retransmission List size: %u\n", agent->getNs(), list->size());
-#endif*/
+#endif
 		
 		tail = list->getTail();
 		now_ts = tsc_to_ns(rdtsc());
@@ -45,7 +44,7 @@ void timer_worker(DyscoAgentOut*) {
 					aux = node->next;
 					list->remove(node);
 					node = aux;
-					//agent->mtx.unlock();
+					agent->mtx.unlock();
 					continue;
 				}
 				
@@ -60,14 +59,14 @@ void timer_worker(DyscoAgentOut*) {
 			}
 		
 			node = node->next;
-			//agent->mtx.unlock();
+			agent->mtx.unlock();
 		}
 
 		if(batch.cnt()) {
-			/*#ifdef DEBUG
+#ifdef DEBUG
 			fprintf(stderr, "[%s][DyscoAgentOut] is going to retransmit %u packets.\n", agent->getNs(), batch.cnt());
 			agent->RunChooseModule(1, &batch);
-			#endif*/
+#endif
 		}
 	}
 }
@@ -106,7 +105,7 @@ CommandResponse DyscoAgentOut::CommandSetup(const bess::pb::DyscoAgentArg& arg) 
 	if(it2 == ModuleGraph::GetAllModules().end())
 		return CommandFailure(EINVAL, "ERROR: DyscoAgentIn is not available.");
 	
-	//agent = reinterpret_cast<DyscoAgentIn*>(it2->second);
+	agent = reinterpret_cast<DyscoAgentIn*>(it2->second);
 	
 	port = dysco_vport;
 	ns = dysco_vport->ns;
@@ -1048,8 +1047,7 @@ bool DyscoAgentOut::forward(Packet* pkt, bool reliable) {
 	
 	uint32_t i = getValueToAck(pkt);
 
-	bool updated = true;
-	//bool updated = agent->updateReceivedHash(i, node);
+	bool updated = agent->updateReceivedHash(i, node);
 
 #ifdef DEBUG
 	if(updated)

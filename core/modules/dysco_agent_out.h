@@ -45,7 +45,7 @@ public:
 	uint32_t index;
 	DyscoCenter* dc;
 	DyscoVPort* port;
-	//DyscoAgentIn* agent;
+	DyscoAgentIn* agent;
 	LinkedList<Packet>* retransmission_list;
 
 	/*
