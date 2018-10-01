@@ -47,11 +47,6 @@ class DyscoAgentIn final : public Module {
 	//CommandResponse Init(const bess::pb::DyscoAgentInArg&);
 	CommandResponse CommandSetup(const bess::pb::DyscoAgentArg&);
 
-	/*
-	  TCP Retransmission methods
-	*/
-	void retransmissionHandler();
-
 	bool updateReceivedHash(uint32_t, LNode<Packet>*);
 	
  private:
