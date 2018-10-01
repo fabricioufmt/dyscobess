@@ -118,4 +118,15 @@ class DyscoAgentIn final : public Module {
 	bool processReceivedPacket(Tcp*);
 };
 
+inline bool DyscoAgentIn::updateReceivedHash(uint32_t i, LNode<Packet>* node) {
+	if(!received_hash)
+		return false;
+	
+	mtx.lock();
+	received_hash->operator[](i) = node;
+	mtx.unlock();
+
+	return true;
+}
+
 #endif //BESS_MODULES_DYSCOAGENTIN_H_
