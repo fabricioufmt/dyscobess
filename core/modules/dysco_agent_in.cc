@@ -2284,6 +2284,8 @@ bool DyscoAgentIn::updateReceivedHash(uint32_t i, LNode<Packet>* node) {
 	mtx.lock();
 	received_hash->operator[](i) = node;
 	mtx.unlock();
+
+	return true;
 }
 
 ADD_MODULE(DyscoAgentIn, "dysco_agent_in", "processes packets incoming to host")
