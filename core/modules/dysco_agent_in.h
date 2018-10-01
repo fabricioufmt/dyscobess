@@ -54,7 +54,7 @@ class DyscoAgentIn final : public Module {
 	uint32_t index;
 	DyscoCenter* dc;
 	DyscoVPort* port;
-	//DyscoAgentOut* agent;
+	DyscoAgentOut* agent;
 	unordered_map<uint32_t, LNode<Packet>*>* received_hash;
 
 	/*
