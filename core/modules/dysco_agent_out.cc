@@ -1065,6 +1065,10 @@ void DyscoAgentOut::remove(LNode<Packet>* node) {
 	mtx.unlock();
 }
 
+LinkedList<Packet>* DyscoAgentOut::getRetransmissionList() {
+	return retransmission_list;
+}
+
 ADD_MODULE(DyscoAgentOut, "dysco_agent_out", "processes packets outcoming from host")
 
 
