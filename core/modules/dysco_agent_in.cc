@@ -2238,7 +2238,7 @@ Packet* DyscoAgentIn::createRequestAckLocking(Packet*, Ethernet* eth, Ipv4* ip, 
 	return newpkt;
 }
 
-void DyscoAgentIn::createAckLocking(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp, DyscoControlMessage* cmsg) {
+void DyscoAgentIn::createAckLocking(Packet*, Ethernet* eth, Ipv4* ip, Tcp* tcp, DyscoControlMessage* cmsg) {
 #ifdef DEBUG
 	fprintf(stderr, "I'm going to create an ACK for SYN+ACK (DYSCO_REQUEST_ACK_LOCK).\n");
 #endif
