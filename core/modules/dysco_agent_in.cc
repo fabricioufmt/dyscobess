@@ -144,7 +144,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 bool DyscoAgentIn::processReceivedPacket(Tcp* tcp) {
 	uint32_t key = tcp->ack_num.value();
 
-	mtx.lock();
+	//mtx.lock();
 	LNode<Packet>* node = received_hash->operator[](key);
 	if(node) {
 #ifdef DEBUG
@@ -152,10 +152,10 @@ bool DyscoAgentIn::processReceivedPacket(Tcp* tcp) {
 #endif
 		agent->remove(node);
 		received_hash->erase(key);
-		mtx.unlock();
+		//mtx.unlock();
 		return true;
 	}
-	mtx.unlock();
+	//mtx.unlock();
 	return false;
 }
 
@@ -1741,9 +1741,9 @@ Packet* DyscoAgentIn::createSynReconfig(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 	}
 
 	uint32_t j = newtcp->seq_num.value() + 1;
-	mtx.lock();
+	//mtx.lock();
 	received_hash->operator[](j) = node;
-	mtx.unlock();
+	//mtx.unlock();
 
 #ifdef DEBUG
 	fprintf(stderr, "I expected to received a packet with %X ACK\n", j);
@@ -2162,9 +2162,9 @@ Packet* DyscoAgentIn::processAckLocking(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 					//delete node;
 					//agent->getRetransmissionList()->remove(node);
 					agent->remove(node);
-					mtx.lock();
+					//mtx.lock();
 					received_hash->erase(key);
-					mtx.unlock();
+					//mtx.unlock();
 				}	
 			}
 		}
@@ -2281,9 +2281,9 @@ bool DyscoAgentIn::updateReceivedHash(uint32_t i, LNode<Packet>* node) {
 	if(!received_hash)
 		return false;
 	
-	mtx.lock();
+	//mtx.lock();
 	received_hash->operator[](i) = node;
-	mtx.unlock();
+	//mtx.unlock();
 
 	return true;
 }
