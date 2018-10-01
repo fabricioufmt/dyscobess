@@ -107,7 +107,6 @@ CommandResponse DyscoAgentOut::CommandSetup(const bess::pb::DyscoAgentArg& arg) 
 		return CommandFailure(EINVAL, "ERROR: DyscoAgentIn is not available.");
 	
 	//agent = reinterpret_cast<DyscoAgentIn*>(it2->second);
-	agent = 0;
 	
 	port = dysco_vport;
 	ns = dysco_vport->ns;
