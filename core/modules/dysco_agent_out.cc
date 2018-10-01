@@ -19,7 +19,7 @@ void timer_worker(DyscoAgentOut*) {
 		batch.clear();
 		usleep(SLEEPTIME);
 
-		agent->mtx.lock();
+		//agent->mtx.lock();
 		//list = agent->getRetransmissionList();
 		if(!list) {
 			//agent->mtx.unlock();
