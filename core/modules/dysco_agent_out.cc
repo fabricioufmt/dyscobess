@@ -19,10 +19,10 @@ void timer_worker(DyscoAgentOut* agent) {
 		batch.clear();
 		usleep(SLEEPTIME);
 
-		agent->mutex.lock();
+		agent->mtx.lock();
 		list = agent->getRetransmissionList();
 		if(!list) {
-			agent->mutex.unlock();
+			agent->mtx.unlock();
 			continue;
 		}
 
@@ -68,7 +68,7 @@ void timer_worker(DyscoAgentOut* agent) {
 			agent->RunChooseModule(1, &batch);
 #endif
 		}
-		agent->mutex.unlock();
+		agent->mtx.unlock();
 	}
 }
 
