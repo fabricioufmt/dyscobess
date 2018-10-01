@@ -1732,7 +1732,7 @@ Packet* DyscoAgentIn::createSynReconfig(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 	fprintf(stderr, "type: %u\n", newcmsg->type);
 #endif
 
-	LLNode<Packet>* node = 0;
+	LNode<Packet>* node = 0;
 	//LNode<Packet>* node = agent->getRetransmissionList()->insertTail(*newpkt, tsc_to_ns(rdtsc()));
 	if(!node) {
 #ifdef DEBUG
