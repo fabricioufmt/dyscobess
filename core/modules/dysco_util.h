@@ -36,6 +36,8 @@
 //#include "dysco_agent_in.h"
 //#include "dysco_agent_out.h"
 
+using namespace std;
+
 using std::mutex;
 using std::string;
 using std::size_t;

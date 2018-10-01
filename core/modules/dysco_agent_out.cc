@@ -11,7 +11,7 @@ void timer_worker(DyscoAgentOut* agent) {
 	LNode<Packet>* aux;
 	LNode<Packet>* node;
 	LNode<Packet>* tail;
-	LinkedList<Packet>* list;
+	LinkedList<Packet>* list = 0;
 	PacketBatch batch;
 	//PacketBatch* batch = new PacketBatch();
 	
@@ -20,16 +20,16 @@ void timer_worker(DyscoAgentOut* agent) {
 		usleep(SLEEPTIME);
 
 		//agent->mtx.lock();
-		list = agent->getRetransmissionList();
+		//list = agent->getRetransmissionList();
 		if(!list) {
 			//agent->mtx.unlock();
 			continue;
 		}
 
-#ifdef DEBUG
+		/*#ifdef DEBUG
 		if(list->size())
 			fprintf(stderr, "[%s]Retransmission List size: %u\n", agent->getNs(), list->size());
-#endif
+#endif*/
 		
 		tail = list->getTail();
 		now_ts = tsc_to_ns(rdtsc());
@@ -64,10 +64,10 @@ void timer_worker(DyscoAgentOut* agent) {
 		}
 
 		if(batch.cnt()) {
-#ifdef DEBUG
+			/*#ifdef DEBUG
 			fprintf(stderr, "[%s][DyscoAgentOut] is going to retransmit %u packets.\n", agent->getNs(), batch.cnt());
 			agent->RunChooseModule(1, &batch);
-#endif
+			#endif*/
 		}
 	}
 }
@@ -1048,7 +1048,8 @@ bool DyscoAgentOut::forward(Packet* pkt, bool reliable) {
 	
 	uint32_t i = getValueToAck(pkt);
 
-	bool updated = agent->updateReceivedHash(i, node);
+	bool update = true;
+	//bool updated = agent->updateReceivedHash(i, node);
 
 #ifdef DEBUG
 	if(updated)

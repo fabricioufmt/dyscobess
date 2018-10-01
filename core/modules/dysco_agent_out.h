@@ -8,9 +8,9 @@
 
 #include "dysco_util.h"
 #include "dysco_center.h"
-#include "dysco_agent_in.h"
+//#include "dysco_agent_in.h"
 
-class DyscoAgentIn;
+//class DyscoAgentIn;
 
 class DyscoAgentOut final : public Module {
 public:
@@ -45,7 +45,7 @@ public:
 	uint32_t index;
 	DyscoCenter* dc;
 	DyscoVPort* port;
-	DyscoAgentIn* agent;
+	//DyscoAgentIn* agent;
 	LinkedList<Packet>* retransmission_list;
 
 	/*
