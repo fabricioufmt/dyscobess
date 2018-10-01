@@ -81,6 +81,8 @@ public:
 	bool processLockingSignalPacket(Packet*, Ethernet*, Ipv4*, Tcp*, DyscoHashOut*);
 };
 
+void timer_worker(DyscoAgentOut*);
+
 inline LinkedList<Packet>* DyscoAgentOut::getRetransmissionList() {
 	return retransmission_list;
 }
