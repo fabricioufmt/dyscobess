@@ -36,7 +36,7 @@ CommandResponse DyscoAgentIn::CommandSetup(const bess::pb::DyscoAgentArg& arg) {
 	if(it2 == ModuleGraph::GetAllModules().end())
 		return CommandFailure(EINVAL, "ERROR: DyscoAgentOut is not available.");
 	
-	//agent = reinterpret_cast<DyscoAgentOut*>(it2->second);
+	agent = reinterpret_cast<DyscoAgentOut*>(it2->second);
 
 	port = dysco_vport;
 	ns = dysco_vport->ns;
