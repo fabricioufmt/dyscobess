@@ -17,7 +17,9 @@ void timer_worker(DyscoAgentOut* agent) {
 	while(1) {
 		batch.clear();
 		usleep(SLEEPTIME);
-
+#ifdef DEBUG_RECONFIG
+		fprintf(stderr, "timer_worker for %s is working now...\n", agent->getNs());
+#endif
 		agent->mtx.lock();
 		list = agent->getRetransmissionList();
 		if(!list) {
