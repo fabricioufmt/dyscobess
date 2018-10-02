@@ -162,6 +162,9 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 
 			if(processLockingSignalPacket(pkt, eth, ip, tcp, cb_out)) {
 				forward(pkt, true);
+#ifdef DEBUG_RECONFIG
+				fprintf(stderr, "forward(reliable=True) is DONE\n");
+#endif
 				continue;
 			}
 		} else if(isReconfigPacketOut(ip, tcp, cb_out)) {
