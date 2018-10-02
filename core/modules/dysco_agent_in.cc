@@ -149,7 +149,7 @@ bool DyscoAgentIn::processReceivedPacket(Tcp* tcp) {
 	mtx.lock();
 	LNode<Packet>* node = received_hash->operator[](key);
 	if(node) {
-#ifdef DEBUG
+#ifdef DEBUG_RECONFIG
 		fprintf(stderr, "I found the packet and I'm going to remove it.\n");
 #endif
 		agent->remove(node);
