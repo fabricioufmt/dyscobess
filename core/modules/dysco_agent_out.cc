@@ -1030,7 +1030,7 @@ bool DyscoAgentOut::processLockingSignalPacket(Packet* pkt, Ethernet* eth, Ipv4*
 bool DyscoAgentOut::forward(Packet* pkt, bool reliable) {
 	if(!reliable) {
 		PacketBatch out_gate;
-		//out_gate.clear();
+		out_gate.clear();
 		out_gate.add(pkt);
 		RunChooseModule(1, &out_gate);
 
