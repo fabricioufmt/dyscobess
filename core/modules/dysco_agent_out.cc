@@ -48,7 +48,7 @@ void timer_worker(DyscoAgentOut* agent) {
 					aux = node->next;
 					list->remove(node);
 					node = aux;
-					agent->mtx.unlock();
+					
 					continue;
 				}
 				
@@ -63,9 +63,10 @@ void timer_worker(DyscoAgentOut* agent) {
 			}
 		
 			node = node->next;
-			agent->mtx.unlock();
 		}
-
+		
+		agent->mtx.unlock();
+		
 		if(batch.cnt()) {
 #ifdef DEBUG_RECONFIG
 			fprintf(stderr, "[%s][DyscoAgentOut] is going to retransmit %u packets.\n", agent->getNs(), batch.cnt());
