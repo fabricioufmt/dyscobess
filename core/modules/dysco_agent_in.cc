@@ -84,9 +84,8 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 		ip_hlen = ip->header_length << 2;
 		tcp = reinterpret_cast<Tcp*>((uint8_t*)ip + ip_hlen);
 
-#ifdef DEBUG_RECONFIG
-		if(tcp->offset == 8)
-			fprintf(stderr, "[%s][DyscoAgentIn] receives %s [%X:%X] (tcp->offset: %u) (len: %u).\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.raw_value(), tcp->ack_num.raw_value(), tcp->offset, hasPayload(ip, tcp));
+#ifdef DEBUG
+		fprintf(stderr, "[%s][DyscoAgentIn] receives %s [%X:%X] (tcp->offset: %u) (len: %u).\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.raw_value(), tcp->ack_num.raw_value(), tcp->offset, hasPayload(ip, tcp));
 #endif
 
 		cb_in = dc->lookup_input(this->index, ip, tcp);
