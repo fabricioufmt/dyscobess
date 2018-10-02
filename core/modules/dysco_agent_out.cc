@@ -123,8 +123,8 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 	}
 
 	PacketBatch out_gates[2];
-	//out_gates[0].clear();
-	//out_gates[1].clear();
+	out_gates[0].clear();
+	out_gates[1].clear();
 
 	Tcp* tcp;
 	Ipv4* ip;
