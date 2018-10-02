@@ -1504,12 +1504,19 @@ Packet* DyscoAgentIn::createLockingPacket(Packet* pkt, Ethernet* eth, Ipv4* ip, 
 	fprintf(stderr, "\tCreating Locking Packet.\n");
 #endif
 
-	Packet* newpkt = Packet::copy(pkt);
+	//Packet* newpkt = Packet::copy(pkt);
+	Packet* newpkt = Packet::Alloc();
+	newpkt->set_data_off(SNBUF_HEADROOM);
+
+	uint16_t size = sizeof(Ethernet) + sizeof(Ipv4) + sizeof(Tcp) + sizeof(DyscoControlMessage);
+
+	newpkt->set_data_len(size);
+	newpkt->set_total_len(size);
 	
 	uint8_t rhop = tcpo->padding & 0xff;
 	
-	newpkt->trim(tcpo->len);
-	DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>(newpkt->append(sizeof(DyscoControlMessage)));
+	//newpkt->trim(tcpo->len);
+	//DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>(newpkt->append(sizeof(DyscoControlMessage)));
 
 	Ethernet* neweth = newpkt->head_data<Ethernet*>();
 	neweth->dst_addr = eth->src_addr;
@@ -1517,9 +1524,13 @@ Packet* DyscoAgentIn::createLockingPacket(Packet* pkt, Ethernet* eth, Ipv4* ip, 
 	neweth->ether_type = be16_t(Ethernet::Type::kIpv4);
 
 	Ipv4* newip = reinterpret_cast<Ipv4*>(neweth + 1);
+	newip->version = 4;
+	newip->header_length = 5;
+	newip->type_of_service = ip->type_of_service;
 	newip->length = ip->length - be16_t(tcpo->len) + be16_t(sizeof(DyscoControlMessage));
 	newip->id = be16_t(rand());
-	newip->ttl = 53;
+	newip->fragment_offset = be16_t(0);
+	newip->ttl = TTL;
 	newip->protocol = Ipv4::kTcp;
 	newip->src = ip->dst;
 	newip->dst = ip->src;
@@ -1530,12 +1541,16 @@ Packet* DyscoAgentIn::createLockingPacket(Packet* pkt, Ethernet* eth, Ipv4* ip, 
 	newtcp->seq_num = be32_t(rand());
 	newtcp->ack_num = be32_t(0);
 	newtcp->offset = 5;
+	newtcp->reserved = 0;
 	newtcp->flags = Tcp::kSyn;
 	newtcp->window = tcp->window;
+	newtcp->urgent_ptr = be16_t(0);
 
 	cb_in->dcb_out->is_LA = 1;
 	cb_in->dcb_out->lock_state = DYSCO_REQUEST_LOCK;
 
+	cmsg = reinterpret_cast<DyscoControlMessage*>(newtcp + 1);
+	
 	memset(cmsg, 0, sizeof(DyscoControlMessage));	
 	cmsg->type = DYSCO_LOCK;
 	cmsg->lock_state = DYSCO_REQUEST_LOCK;
