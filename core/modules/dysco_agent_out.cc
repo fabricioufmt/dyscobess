@@ -31,8 +31,7 @@ void timer_worker(DyscoAgentOut* agent) {
 		}
 
 #ifdef DEBUG_RECONFIG
-		if(list->size())
-			fprintf(stderr, "[%s]Retransmission List size: %u\n", agent->getNs(), list->size());
+		fprintf(stderr, "[%s]Retransmission List size: %u\n", agent->getNs(), list->size());
 #endif
 		
 		tail = list->getTail();
