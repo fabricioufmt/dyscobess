@@ -1499,7 +1499,7 @@ Packet* DyscoAgentIn::processLockingSignalPacket(Packet* pkt, Ethernet* eth, Ipv
 	return 0;
 }
 
-Packet* DyscoAgentIn::createLockingPacket(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp, DyscoTcpOption* tcpo, DyscoHashIn* cb_in) {
+Packet* DyscoAgentIn::createLockingPacket(Packet*, Ethernet* eth, Ipv4* ip, Tcp* tcp, DyscoTcpOption* tcpo, DyscoHashIn* cb_in) {
 #ifdef DEBUG_RECONFIG
 	fprintf(stderr, "\tCreating Locking Packet.\n");
 #endif
@@ -1549,7 +1549,7 @@ Packet* DyscoAgentIn::createLockingPacket(Packet* pkt, Ethernet* eth, Ipv4* ip, 
 	cb_in->dcb_out->is_LA = 1;
 	cb_in->dcb_out->lock_state = DYSCO_REQUEST_LOCK;
 
-	cmsg = reinterpret_cast<DyscoControlMessage*>(newtcp + 1);
+	DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>(newtcp + 1);
 	
 	memset(cmsg, 0, sizeof(DyscoControlMessage));	
 	cmsg->type = DYSCO_LOCK;
