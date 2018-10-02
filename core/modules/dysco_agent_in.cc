@@ -66,6 +66,8 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 	
 	for(int i = 0; i < batch->cnt(); i++) {
 		pkt = batch->pkts()[i];
+		if(!pkt)
+			continue;
 		
 		eth = pkt->head_data<Ethernet*>();
 		if(!isIP(eth)) {
