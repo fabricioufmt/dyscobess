@@ -618,6 +618,9 @@ int VPort::SendPackets(queue_t qid, bess::Packet **pkts, int cnt) {
 
     rte_prefetch0(rx_desc);
 
+    //TEST
+    fprintf(stderr, "snb=%p\n", snb);
+    
     paddr[i] = snb->paddr();
   }
 
