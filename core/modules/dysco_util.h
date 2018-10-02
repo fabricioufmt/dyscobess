@@ -695,7 +695,7 @@ inline void* getPayload(Tcp* tcp) {
 }
 
 inline bool isLockingSignalPacket(Tcp* tcp) {
-	if(tcp->offset < 6)
+	if(tcp->offset != ((sizeof(Tcp) + LOCKING_OPTION_LEN)/4))
 		return false;
 
 	DyscoTcpOption* tcpo = reinterpret_cast<DyscoTcpOption*>(tcp + 1);

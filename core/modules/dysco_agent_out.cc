@@ -1030,7 +1030,7 @@ bool DyscoAgentOut::processLockingSignalPacket(Packet* pkt, Ethernet* eth, Ipv4*
 	}
 
 #ifdef DEBUG_RECONFIG
-	fprintf(stderr, "Forwarding LockingSignal with tcp->offset: %u\n\n", tcp->offset);
+	fprintf(stderr, "Forwarding LockingSignal with tcp->offset: %u (seq: %X:%X]\n\n", tcp->offset, tcp.seq_num.raw_value(), tcp->ack_num.raw_value());
 #endif
 	
 	return true;	
