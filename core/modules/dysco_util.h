@@ -281,7 +281,7 @@ public:
 			return false;
 
 		n--;
-		delete node;
+		//delete node;
 
 		return true;
 	}

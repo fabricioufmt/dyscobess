@@ -17,20 +17,22 @@ void timer_worker(DyscoAgentOut* agent) {
 	while(1) {
 		batch.clear();
 		usleep(SLEEPTIME);
+		/*
 #ifdef DEBUG_RECONFIG
 		fprintf(stderr, "[%s] timer_worker is working now...\n", agent->getNs());
 #endif
+		*/
 		agent->mtx.lock();
 		list = agent->getRetransmissionList();
 		if(!list) {
 			agent->mtx.unlock();
 			continue;
 		}
-
+		/*
 #ifdef DEBUG_RECONFIG
 		fprintf(stderr, "[%s] retransmission_list(%p) size: %u\n", agent->getNs(), list, list->size());
 #endif
-
+*/
 		tail = list->getTail();
 		now_ts = tsc_to_ns(rdtsc());
 		node = list->getHead()->next;
