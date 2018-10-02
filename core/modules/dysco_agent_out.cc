@@ -43,6 +43,7 @@ void timer_worker(DyscoAgentOut* agent) {
 			} else {
 				if(node->cnt > CNTLIMIT) {
 					aux = node->next;
+					fprintf(stderr, "[%s] I'm going to remove from list, because reach CNTLIMIT\n", agent->getNs());
 					list->remove(node);
 					node = aux;
 					
