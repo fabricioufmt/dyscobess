@@ -53,7 +53,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 	}
 	
 	PacketBatch out;
-	out.clear();
+	//out.clear();
 
 	Tcp* tcp;
 	Ipv4* ip;
@@ -139,7 +139,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 		}
 	}
 	
-	batch->clear();
+	//batch->clear();
 	RunChooseModule(0, &out);
 }
 
@@ -1491,7 +1491,7 @@ Packet* DyscoAgentIn::processLockingSignalPacket(Packet* pkt, Ethernet* eth, Ipv
 #endif
 		
 		PacketBatch out;
-		out.clear();
+		//out.clear();
 		out.add(pkt);
 		cb_out->module->RunChooseModule(1, &out);
 	}
@@ -1929,7 +1929,7 @@ Packet* DyscoAgentIn::processRequestLocking(Packet* pkt, Ethernet* eth, Ipv4* ip
 			cb_in->dcb_out->lock_state = DYSCO_REQUEST_LOCK;
 			
 			PacketBatch out;
-			out.clear();
+			//out.clear();
 			out.add(pkt);
 			cb_out->module->RunChooseModule(1, &out);
 
@@ -2070,7 +2070,7 @@ Packet* DyscoAgentIn::processRequestAckLocking(Packet* pkt, Ethernet* eth, Ipv4*
 #endif
 
 			PacketBatch out;
-			out.clear();
+			//out.clear();
 			out.add(pkt);
 			cb_out->module->RunChooseModule(1, &out);
 			
@@ -2146,7 +2146,7 @@ Packet* DyscoAgentIn::processAckLocking(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 			fix_csum(ip, tcp); //increment checksum
 
 			PacketBatch out;
-			out.clear();
+			//out.clear();
 			out.add(pkt);
 			cb_out->module->RunChooseModule(1, &out);
 		} else {

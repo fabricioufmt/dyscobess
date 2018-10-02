@@ -15,7 +15,7 @@ void timer_worker(DyscoAgentOut* agent) {
 	PacketBatch batch;
 	
 	while(1) {
-		batch.clear();
+		//batch.clear();
 		usleep(SLEEPTIME);
 
 		agent->mtx.lock();
@@ -123,8 +123,8 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 	}
 
 	PacketBatch out_gates[2];
-	out_gates[0].clear();
-	out_gates[1].clear();
+	//out_gates[0].clear();
+	//out_gates[1].clear();
 
 	Tcp* tcp;
 	Ipv4* ip;
@@ -1030,7 +1030,7 @@ bool DyscoAgentOut::processLockingSignalPacket(Packet* pkt, Ethernet* eth, Ipv4*
 bool DyscoAgentOut::forward(Packet* pkt, bool reliable) {
 	if(!reliable) {
 		PacketBatch out;
-		out.clear();
+		//out.clear();
 		out.add(pkt);
 		RunChooseModule(1, &out);
 
