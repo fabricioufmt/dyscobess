@@ -1028,6 +1028,10 @@ bool DyscoAgentOut::processLockingSignalPacket(Packet* pkt, Ethernet* eth, Ipv4*
 		
 		dc->insert_locking_reconfig(this->index, dysco_locking);
 	}
+
+#ifdef DEBUG_RECONFIG
+	fprintf(stderr, "Forwarding LockingSignal with tcp->offset: %u\n\n", tcp->offset);
+#endif
 	
 	return true;	
 }
