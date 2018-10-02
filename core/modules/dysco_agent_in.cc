@@ -1592,9 +1592,12 @@ Packet* DyscoAgentIn::createSynReconfig(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 	fprintf(stderr, "I'm going to create a SYN for a reconfiguration.\n");
 #endif
 	
-	Packet* newpkt = Packet::copy(pkt);
-	if(!newpkt)
-		return 0;
+	//Packet* newpkt = Packet::copy(pkt);
+	Packet* newpkt = Packet::Alloc();
+	newpkt->set_data_off(SNBUF_HEADROOM);
+
+	newpkt->set_data_len(pkt->data_len());
+	newpkt->set_total_len(pkt->total_len());
 	
 	uint32_t sc_len = (hasPayload(ip, tcp) - sizeof(DyscoControlMessage))/sizeof(uint32_t);
 	
@@ -1621,31 +1624,29 @@ Packet* DyscoAgentIn::createSynReconfig(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 	Ethernet* neweth = newpkt->head_data<Ethernet*>();
 	neweth->src_addr = eth->dst_addr;
 	neweth->dst_addr = eth->src_addr;
-	//neweth->ether_type = eth->ether_type;
+	neweth->ether_type = eth->ether_type;
 
 	Ipv4* newip = reinterpret_cast<Ipv4*>(neweth + 1);
-	//newip->header_length = 5;
-	//newip->version = 4;
-	//newip->type_of_service = 0;
-	//newip->length = be16_t(len - sizeof(Ethernet));
+	newip->version = 4;
+	newip->header_length = 5;
+	newip->type_of_service = ip->type_of_service;
+	newip->length = ip->length;
 	newip->id = be16_t(rand());
-	//newip->fragment_offset = be16_t(0);
-	newip->ttl = 53;
+	newip->fragment_offset = be16_t(0);
+	newip->ttl = TTL;
 	newip->src = ip->dst;
 	newip->dst = be32_t(ntohl(sc[0]));
 
 	Tcp* newtcp = reinterpret_cast<Tcp*>(newip + 1);
 	newtcp->src_port = be16_t(40000 + (rand() % 10000));
 	newtcp->dst_port = be16_t(50000 + (rand() % 10000));
-	//newtcp->seq_num = be32_t(old_dcb->out_iseq);
-	//newtcp->ack_num = be32_t(old_dcb->out_iack);
 	newtcp->seq_num = be32_t(old_dcb->last_seq - 1);
 	newtcp->ack_num = be32_t(old_dcb->last_ack - 1);
-	//newtcp->reserved = 0;
-	//newtcp->offset = 5;
+	newtcp->offset = 5;
+	newtcp->reserved = 0;
 	newtcp->flags = Tcp::kSyn;
 	newtcp->window = tcp->window;
-	//newtcp->urgent_ptr = be16_t(0);
+	newtcp->urgent_ptr = be16_t(0);
 
 #ifdef DEBUG_RECONFIG
 	fprintf(stderr, "out_iseq=%X last_seq=%X\n", old_dcb->out_iseq, old_dcb->last_seq);
