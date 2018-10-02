@@ -1053,7 +1053,7 @@ bool DyscoAgentOut::forward(Packet* pkt, bool reliable) {
 
 #ifdef DEBUG_RECONFIG
 	if(updated)
-		fprintf(stderr, "[%s]I expected to received a packet with %X ACK\n", getNs(), i);
+		fprintf(stderr, "[%s]I expected to received a packet with %X ACK (list->size: %u)\n", getNs(), retransmission_list->size());
 #endif
 
 	mtx.unlock();
