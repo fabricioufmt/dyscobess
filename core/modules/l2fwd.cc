@@ -65,7 +65,7 @@ void L2FWD::ProcessBatch(bess::PacketBatch* batch) {
 			
 	}
 
-	batch->clear();
+	//batch->clear();
 	for(uint32_t i = 0; i < ngates; i++)
 		RunChooseModule(i, &(out_gates[i]));
 }
