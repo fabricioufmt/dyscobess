@@ -25,7 +25,7 @@ void timer_worker(DyscoAgentOut* agent) {
 			continue;
 		}
 
-#ifdef DEBUG
+#ifdef DEBUG_RECONFIG
 		if(list->size())
 			fprintf(stderr, "[%s]Retransmission List size: %u\n", agent->getNs(), list->size());
 #endif
@@ -49,7 +49,7 @@ void timer_worker(DyscoAgentOut* agent) {
 				}
 				
 				if(now_ts - node->ts > DyscoAgentOut::timeout) {
-#ifdef DEBUG
+#ifdef DEBUG_RECONFIG
 					fprintf(stderr, "%lu - %lu = %lu > %lu\n", now_ts, node->ts, now_ts-node->ts, DyscoAgentOut::timeout);
 #endif
 					node->cnt++;
@@ -63,7 +63,7 @@ void timer_worker(DyscoAgentOut* agent) {
 		}
 
 		if(batch.cnt()) {
-#ifdef DEBUG
+#ifdef DEBUG_RECONFIG
 			fprintf(stderr, "[%s][DyscoAgentOut] is going to retransmit %u packets.\n", agent->getNs(), batch.cnt());
 			agent->RunChooseModule(1, &batch);
 #endif
@@ -156,7 +156,7 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 		cb_out = dc->lookup_output(this->index, ip, tcp);
 		
 		if(isLockingSignalPacket(tcp)) {
-#ifdef DEBUG
+#ifdef DEBUG_RECONFIG
 			fprintf(stderr, "It's Locking Signal Packet.\n");
 #endif
 
@@ -166,7 +166,7 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 			}
 		} else if(isReconfigPacketOut(ip, tcp, cb_out)) {
 			//TODO verify
-#ifdef DEBUG
+#ifdef DEBUG_RECONFIG
 			fprintf(stderr, "It's reconfiguration packet, should be only SYN.\n");
 #endif
 			if(control_output(ip, tcp)) {
@@ -897,20 +897,20 @@ bool DyscoAgentOut::control_output(Ipv4* ip, Tcp* tcp) {
 
 bool DyscoAgentOut::processLockingSignalPacket(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) {
 	if(!cb_out) {
-#ifdef DEBUG
+#ifdef DEBUG_RECONFIG
 		fprintf(stderr, "There's not a entry on cb_out... dropping.\n");
 #endif
 		return false;
 	}
 
 	if(cb_out->lock_state != DYSCO_CLOSED_LOCK) {
-#ifdef DEBUG
+#ifdef DEBUG_RECONFIG
 		fprintf(stderr, "Lock State: either REQUEST, ACK, or NACK... dropping.\n");
 #endif
 		return false;
 	}
 
-#ifdef DEBUG
+#ifdef DEBUG_RECONFIG
 	fprintf(stderr, "cb_out->sub: %s.\n", printSS(cb_out->sub));
 	fprintf(stderr, "cb_out->sup: %s.\n", printSS(cb_out->sup));
 	if(cb_out->dcb_in) {
@@ -930,12 +930,12 @@ bool DyscoAgentOut::processLockingSignalPacket(Packet* pkt, Ethernet* eth, Ipv4*
 	cb_out->sc = new uint32_t[cb_out->sc_len];
 	memcpy(cb_out->sc, reinterpret_cast<uint32_t*>(cmsg + 1), sc_sz);
 
-#ifdef DEBUG
+#ifdef DEBUG_RECONFIG
 	fprintf(stderr, "setting up signaler and storing service chain\n");
 #endif
 			
 	if(isLeftAnchor(tcpo)) {
-#ifdef DEBUG
+#ifdef DEBUG_RECONFIG
 		fprintf(stderr, "I'm the LeftAnchor.\n");
 		fprintf(stderr, "Creating the Locking Packet.\n");
 #endif
@@ -976,11 +976,11 @@ bool DyscoAgentOut::processLockingSignalPacket(Packet* pkt, Ethernet* eth, Ipv4*
 		cmsg->lock_state = DYSCO_REQUEST_LOCK;
 				
 		fix_csum(ip, tcp);
-#ifdef DEBUG
+#ifdef DEBUG_RECONFIG
 		fprintf(stderr, "Forwarding to %s.\n\n", printSS(cb_out->sub));
 #endif
 	} else {
-#ifdef DEBUG
+#ifdef DEBUG_RECONFIG
 		fprintf(stderr, "I'm not the LeftAnchor.\n");
 		fprintf(stderr, "Changing seq_num from %X to %X.\n", tcp->seq_num.value(), cb_out->last_seq);
 		fprintf(stderr, "Changing ack_num from %X to %X.\n", tcp->ack_num.value(), cb_out->last_ack);
@@ -1005,7 +1005,7 @@ bool DyscoAgentOut::processLockingSignalPacket(Packet* pkt, Ethernet* eth, Ipv4*
 		DyscoLockingReconfig* dysco_locking = new DyscoLockingReconfig();
 		dysco_locking->cb_out_left = cb_out;
 		dysco_locking->cb_out_right = dc->lookup_output_by_ss(this->index, &cmsg->rightSS);
-#ifdef DEBUG
+#ifdef DEBUG_RECONFIG
 		if(dysco_locking->cb_out_right)
 			fprintf(stderr, "Looking output for %s... found\n", printSS(cmsg->rightSS));
 		else
@@ -1049,7 +1049,7 @@ bool DyscoAgentOut::forward(Packet* pkt, bool reliable) {
 
 	bool updated = agent->updateReceivedHash(i, node);
 
-#ifdef DEBUG
+#ifdef DEBUG_RECONFIG
 	if(updated)
 		fprintf(stderr, "I expected to received a packet with %X ACK\n", i);
 #endif
