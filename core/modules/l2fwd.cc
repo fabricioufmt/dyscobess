@@ -66,8 +66,10 @@ void L2FWD::ProcessBatch(bess::PacketBatch* batch) {
 	}
 
 	//batch->clear();
-	for(uint32_t i = 0; i < ngates; i++)
+	for(uint32_t i = 0; i < ngates; i++) {
+		fprintf(stderr, "sending to ogate=%u pkts=%u\n", i, out_gates[i].cnt());
 		RunChooseModule(i, &(out_gates[i]));
+	}
 }
 
 ADD_MODULE(L2FWD, "l2fwd", "simple ethernet switch")
