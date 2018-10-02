@@ -18,14 +18,11 @@ void timer_worker(DyscoAgentOut* agent) {
 		batch.clear();
 		usleep(SLEEPTIME);
 #ifdef DEBUG_RECONFIG
-		fprintf(stderr, "timer_worker for %s is working now...\n", agent->getNs());
+		fprintf(stderr, "[%s]timer_worker is working now...\n", agent->getNs());
 #endif
 		agent->mtx.lock();
 		list = agent->getRetransmissionList();
 		if(!list) {
-#ifdef DEBUG_RECONFIG
-			fprintf(stderr, "retransmission list is NULL\n");
-#endif
 			agent->mtx.unlock();
 			continue;
 		}
@@ -33,7 +30,7 @@ void timer_worker(DyscoAgentOut* agent) {
 #ifdef DEBUG_RECONFIG
 		fprintf(stderr, "[%s]Retransmission List size: %u\n", agent->getNs(), list->size());
 #endif
-		
+
 		tail = list->getTail();
 		now_ts = tsc_to_ns(rdtsc());
 		node = list->getHead()->next;
@@ -1042,9 +1039,6 @@ bool DyscoAgentOut::forward(Packet* pkt, bool reliable) {
 		return true;
 	}
 
-	if(!timer)
-		timer = new thread(timer_worker, this);
-
 	mtx.lock();
 	LNode<Packet>* node = retransmission_list->insertTail(*pkt, tsc_to_ns(rdtsc()));
 	if(!node) {
@@ -1059,10 +1053,13 @@ bool DyscoAgentOut::forward(Packet* pkt, bool reliable) {
 
 #ifdef DEBUG_RECONFIG
 	if(updated)
-		fprintf(stderr, "I expected to received a packet with %X ACK\n", i);
+		fprintf(stderr, "[%s]I expected to received a packet with %X ACK\n", getNs(), i);
 #endif
 
 	mtx.unlock();
+	
+	if(!timer)
+		timer = new thread(timer_worker, this);
 	
 	return updated;
 }
