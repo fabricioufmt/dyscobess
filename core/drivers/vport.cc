@@ -614,12 +614,14 @@ int VPort::SendPackets(queue_t qid, bess::Packet **pkts, int cnt) {
 
     struct sn_rx_desc *rx_desc;
 
+    //TEST
+    fprintf(stderr, "snb1=%p\n", snb);
     rx_desc = snb->scratchpad<struct sn_rx_desc *>();
 
     rte_prefetch0(rx_desc);
 
     //TEST
-    fprintf(stderr, "snb=%p\n", snb);
+    fprintf(stderr, "snb2=%p\n", snb);
     
     paddr[i] = snb->paddr();
   }
