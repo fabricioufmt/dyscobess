@@ -999,7 +999,7 @@ bool DyscoAgentOut::processLockingSignalPacket(Packet* pkt, Ethernet* eth, Ipv4*
 		
 #endif
 
-		tcp->seq_num = be32_t(cb_out->last_seq);
+		tcp->seq_num = be32_t(cb_out->last_seq + 1);
 		tcp->ack_num = be32_t(cb_out->last_ack);
 		hdr_rewrite(ip, tcp, &cb_out->sub);
 
