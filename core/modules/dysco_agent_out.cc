@@ -15,7 +15,7 @@ void timer_worker(DyscoAgentOut* agent) {
 	PacketBatch batch;
 	
 	while(1) {
-		//batch.clear();
+		batch.clear();
 		usleep(SLEEPTIME);
 
 		agent->mtx.lock();
