@@ -23,6 +23,9 @@ void timer_worker(DyscoAgentOut* agent) {
 		agent->mtx.lock();
 		list = agent->getRetransmissionList();
 		if(!list) {
+#ifdef DEBUG_RECONFIG
+			fprintf(stderr, "retransmission list is NULL\n");
+#endif
 			agent->mtx.unlock();
 			continue;
 		}
