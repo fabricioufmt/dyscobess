@@ -39,8 +39,8 @@ void L2FWD::ProcessBatch(bess::PacketBatch* batch) {
 	size_t ngates = ogates().size();
 	bess::PacketBatch out_gates[ngates];
 
-	//for(uint32_t i = 0; i < ngates; i++)
-	//	out_gates[i].clear();
+	for(uint32_t i = 0; i < ngates; i++)
+		out_gates[i].clear();
 
 	Ethernet* eth;
 	bess::Packet* pkt;
