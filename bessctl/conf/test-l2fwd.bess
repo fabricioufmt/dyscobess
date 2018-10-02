@@ -9,11 +9,9 @@ s1_0::VPort(ifname='s1-0', netns='/var/run/netns/s1', mac_addr='00:00:00:00:00:2
 os.system('ip netns exec c1 arp -s 10.0.2.2 00:00:00:00:00:22 > /dev/null')
 os.system('ip netns exec s1 arp -s 10.0.1.2 00:00:00:00:00:12 > /dev/null')
 
-l2::L2Forward()
-l2.add(entries=[
-	{'addr': '00:00:00:00:00:12', 'gate': 0},
-	{'addr': '00:00:00:00:00:22', 'gate': 1},
-])
+l2::L2FWD()
+l2.add(mac_addr='00:00:00:00:00:12', gate=0)
+l2.add(mac_addr='00:00:00:00:00:22', gate=1)
 
 PortInc(port=c1_0) -> l2
 PortInc(port=s1_0) -> l2
