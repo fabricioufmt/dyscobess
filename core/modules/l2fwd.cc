@@ -42,6 +42,8 @@ void L2FWD::ProcessBatch(bess::PacketBatch* batch) {
 	for(uint32_t i = 0; i < ngates; i++)
 		out_gates[i].clear();
 
+	fprintf(stderr, "batch->cnt: %d\n", batch->cnt());
+	
 	Ethernet* eth;
 	bess::Packet* pkt;
 	for(int i = 0; i < batch->cnt(); i++) {
@@ -62,11 +64,11 @@ void L2FWD::ProcessBatch(bess::PacketBatch* batch) {
 			if(isKnown(eth->dst_addr))
 				out_gates[_entries[eth->dst_addr]].add(pkt);
 		}
-			
 	}
 
 	batch->clear();
 	for(uint32_t i = 0; i < ngates; i++) {
+		fprintf(stderr, "gate: %u batch->cnt: %d\n", i, out_gates[i].cnt());
 		RunChooseModule(i, &(out_gates[i]));
 	}
 }
