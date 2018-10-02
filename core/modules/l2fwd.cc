@@ -41,8 +41,6 @@ void L2FWD::ProcessBatch(bess::PacketBatch* batch) {
 
 	for(uint32_t i = 0; i < ngates; i++)
 		out_gates[i].clear();
-
-	fprintf(stderr, "batch->cnt: %d\n", batch->cnt());
 	
 	Ethernet* eth;
 	bess::Packet* pkt;
@@ -68,7 +66,6 @@ void L2FWD::ProcessBatch(bess::PacketBatch* batch) {
 
 	batch->clear();
 	for(uint32_t i = 0; i < ngates; i++) {
-		fprintf(stderr, "gate: %u batch->cnt: %d\n", i, out_gates[i].cnt());
 		RunChooseModule(i, &(out_gates[i]));
 	}
 }
