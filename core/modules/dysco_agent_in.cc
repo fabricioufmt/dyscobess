@@ -2175,7 +2175,7 @@ Packet* DyscoAgentIn::processAckLocking(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 				LNode<Packet>* node = received_hash->operator[](key);
 				if(node) {
 #ifdef DEBUG_RECONFIG
-					fprintf(stderr, "I found the packet and I'm going to remove it\n");
+					fprintf(stderr, "[%s]I found the packet and I'm going to remove it\n", ns.c_str());
 #endif
 					agent->remove(node);
 					mtx.lock();
