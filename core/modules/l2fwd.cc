@@ -67,10 +67,7 @@ void L2FWD::ProcessBatch(bess::PacketBatch* batch) {
 
 	//batch->clear();
 	for(uint32_t i = 0; i < ngates; i++) {
-		if(!out_gates[i].empty()) {
-			fprintf(stderr, "sending to ogate=%u pkts=%u\n", i, out_gates[i].cnt());
-			RunChooseModule(i, &(out_gates[i]));
-		}
+		RunChooseModule(i, &(out_gates[i]));
 	}
 }
 
