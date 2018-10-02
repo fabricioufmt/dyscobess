@@ -60,12 +60,12 @@ void L2FWD::ProcessBatch(bess::PacketBatch* batch) {
 			}
 		} else {
 			if(isKnown(eth->dst_addr))
-				out_gates[_entries[eth->dst_addr]].add(bess::Packet::copy(pkt));
+				out_gates[_entries[eth->dst_addr]].add(pkt);
 		}
 			
 	}
 
-	//batch->clear();
+	batch->clear();
 	for(uint32_t i = 0; i < ngates; i++) {
 		RunChooseModule(i, &(out_gates[i]));
 	}
