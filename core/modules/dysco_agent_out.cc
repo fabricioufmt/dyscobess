@@ -18,7 +18,7 @@ void timer_worker(DyscoAgentOut* agent) {
 		batch.clear();
 		usleep(SLEEPTIME);
 #ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[%s]timer_worker is working now...\n", agent->getNs());
+		fprintf(stderr, "[%s] timer_worker is working now...\n", agent->getNs());
 #endif
 		agent->mtx.lock();
 		list = agent->getRetransmissionList();
@@ -28,7 +28,7 @@ void timer_worker(DyscoAgentOut* agent) {
 		}
 
 #ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[%s]Retransmission List size: %u\n", agent->getNs(), list->size());
+		fprintf(stderr, "[%s] retransmission_list(%p) size: %u\n", agent->getNs(), list, list->size());
 #endif
 
 		tail = list->getTail();
@@ -1053,7 +1053,7 @@ bool DyscoAgentOut::forward(Packet* pkt, bool reliable) {
 
 #ifdef DEBUG_RECONFIG
 	if(updated)
-		fprintf(stderr, "[%s]I expected to received a packet with %X ACK (list->size: %u)\n", getNs(), retransmission_list->size());
+		fprintf(stderr, "[%s]I expected to received a packet with %X ACK (list->size(%p): %u)\n", getNs(), retransmission_list, retransmission_list->size());
 #endif
 
 	mtx.unlock();
