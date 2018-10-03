@@ -146,7 +146,7 @@ static void init_eal(const char *prog_name, int mb_per_socket,
 
     // Unlink mapped hugepage files so that memory can be reclaimed as soon as
     // bessd terminates.
-    //rte_args.Append({"--huge-unlink"});
+    rte_args.Append({"--huge-unlink"});
   }
 
   if (!no_huge && multi_instance) {
