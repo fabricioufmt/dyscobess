@@ -199,7 +199,7 @@ void create_segment(struct iphdr* iph, struct tcphdr* tcph, uint16_t sport, uint
 	tcph->rst = 0;
 	tcph->psh = 0;
 	tcph->ack = 1;
-	tcph->urg = 0;
+	tcph->urg = 1;
 	tcph->window = htons(5840);
 	tcph->check = 0;
 	tcph->urg_ptr = 0;
