@@ -88,6 +88,12 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 		fprintf(stderr, "[%s][DyscoAgentIn] receives %s [%X:%X] (tcp->offset: %u) (len: %u).\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.raw_value(), tcp->ack_num.raw_value(), tcp->offset, hasPayload(ip, tcp));
 #endif
 
+#ifdef DEBUG_RECONFIG
+		if(tcp->flags == (Tcp::kAck | Tcp::kUrg)) {
+			fprintf(stderr, "[%s][DyscoAgentIn] receives %s [%X:%X] (tcp->offset: %u) (len: %u).\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.raw_value(), tcp->ack_num.raw_value(), tcp->offset, hasPayload(ip, tcp));
+		}
+#endif
+		
 		cb_in = dc->lookup_input(this->index, ip, tcp);
 		removed = processReceivedPacket(tcp);
 		

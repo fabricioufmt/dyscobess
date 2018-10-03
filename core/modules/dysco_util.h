@@ -705,6 +705,9 @@ inline bool isLockingSignalPacket(Tcp* tcp) {
 	if(tcp->offset != ((sizeof(Tcp) + LOCKING_OPTION_LEN)/4))
 		return false;
 
+	if(tcp->flags != (Tcp::kAck | Tcp::kUrg))
+		return false;
+	
 	DyscoTcpOption* tcpo = reinterpret_cast<DyscoTcpOption*>(tcp + 1);
 	
 	return tcpo->kind == LOCKING_OPTION;
