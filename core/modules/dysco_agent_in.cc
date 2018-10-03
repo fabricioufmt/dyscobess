@@ -148,7 +148,7 @@ bool DyscoAgentIn::processReceivedPacket(Tcp* tcp) {
 
 	mtx.lock();
 	LNode<Packet>* node = received_hash->operator[](key);
-	if(node) {
+	if(node && !node->isRemoved) {
 #ifdef DEBUG_RECONFIG
 		fprintf(stderr, "[%s]I found the packet and I'm going to remove it.\n", ns.c_str());
 #endif

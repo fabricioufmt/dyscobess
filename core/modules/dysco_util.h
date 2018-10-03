@@ -226,6 +226,8 @@ public:
 
 		if(next)
 			next->prev = prev;
+
+		isRemoved = true;
 	}
 
 	void setTs(uint64_t t) {
