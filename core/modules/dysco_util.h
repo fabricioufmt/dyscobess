@@ -282,6 +282,9 @@ public:
 		if(!node)
 			return false;
 
+		if(node->isRemoved)
+			return false;
+		
 		n--;
 		delete node;
 
