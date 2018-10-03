@@ -152,18 +152,19 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 bool DyscoAgentIn::processReceivedPacket(Tcp* tcp) {
 	uint32_t key = tcp->ack_num.value();
 
-	mtx.lock();
 	LNode<Packet>* node = received_hash->operator[](key);
 	if(node && !node->isRemoved) {
 #ifdef DEBUG_RECONFIG
 		fprintf(stderr, "[%s] I received the expected packet and I'm going to remove it from retransmission list and received hash.\n", ns.c_str());
 #endif
 		agent->remove(node);
+		mtx.lock();
 		received_hash->erase(key);
 		mtx.unlock();
+		
 		return true;
 	}
-	mtx.unlock();
+
 	return false;
 }
 

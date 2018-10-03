@@ -1032,7 +1032,7 @@ bool DyscoAgentOut::processLockingSignalPacket(Packet* pkt, Ethernet* eth, Ipv4*
 	}
 
 #ifdef DEBUG_RECONFIG
-	fprintf(stderr, "Forwarding LockingSignal with tcp->offset: %u (seq: %X:%X]\n\n", tcp->offset, tcp->seq_num.raw_value(), tcp->ack_num.raw_value());
+	fprintf(stderr, "Forwarding LockingSignal with tcp->flags: %u tcp->offset: %u (seq: %X:%X]\n\n", tcp->flags, tcp->offset, tcp->seq_num.raw_value(), tcp->ack_num.raw_value());
 #endif
 	
 	return true;	
@@ -1050,11 +1050,7 @@ bool DyscoAgentOut::forward(Packet* pkt, bool reliable) {
 
 	mtx.lock();
 	LNode<Packet>* node = retransmission_list->insertTail(*pkt, tsc_to_ns(rdtsc()));
-	if(!node) {
-		mtx.unlock();
-		
-		return false;
-	}
+	mtx.unlock();
 	
 	uint32_t i = getValueToAck(pkt);
 
@@ -1065,8 +1061,6 @@ bool DyscoAgentOut::forward(Packet* pkt, bool reliable) {
 		fprintf(stderr, "[%s] I expected to received a packet with %X ACK (list->size(%p): %u)\n", getNs(), i, retransmission_list, retransmission_list->size());
 #endif
 
-	mtx.unlock();
-	
 	if(!timer)
 		timer = new thread(timer_worker, this);
 	
