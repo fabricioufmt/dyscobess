@@ -150,7 +150,7 @@ bool DyscoAgentIn::processReceivedPacket(Tcp* tcp) {
 	LNode<Packet>* node = received_hash->operator[](key);
 	if(node && !node->isRemoved) {
 #ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[%s]I found the packet and I'm going to remove it.\n", ns.c_str());
+		fprintf(stderr, "[%s] I received the expected packet and I'm going to remove it from retransmission list and received hash.\n", ns.c_str());
 #endif
 		agent->remove(node);
 		received_hash->erase(key);
