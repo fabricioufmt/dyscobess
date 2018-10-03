@@ -221,13 +221,15 @@ public:
 	}
 	
 	~LNode() {
-		if(prev)
-			prev->next = next;
-
-		if(next)
-			next->prev = prev;
-
-		isRemoved = true;
+		if(!isRemoved) {
+			if(prev)
+				prev->next = next;
+			
+			if(next)
+				next->prev = prev;
+			
+			isRemoved = true;
+		}
 	}
 
 	void setTs(uint64_t t) {
