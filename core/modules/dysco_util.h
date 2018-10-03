@@ -288,6 +288,9 @@ public:
 			return false;
 		
 		n--;
+#ifdef DEBUG_RECONFIG
+		fprintf(stderr, "I'm going to call destructor of LNode=%p\n", node);
+#endif
 		delete node;
 
 		return true;
