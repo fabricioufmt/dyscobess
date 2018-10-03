@@ -227,9 +227,15 @@ public:
 			
 			if(next)
 				next->prev = prev;
-			
+
+#ifdef DEBUG_RECONFIG
+			fprintf(stderr, "changing node=%p to isRemoved=True\n", this);
+#endif
 			isRemoved = true;
 		}
+#ifdef DEBUG_RECONFIG
+		fprintf(stderr, "changing node=%p do nothing... isRemoved=%d\n", this, isRemoved);
+#endif
 	}
 
 	void setTs(uint64_t t) {
@@ -289,7 +295,7 @@ public:
 		
 		n--;
 #ifdef DEBUG_RECONFIG
-		fprintf(stderr, "I'm going to call destructor of LNode=%p\n", node);
+		fprintf(stderr, "I'm going to call destructor of LNode=%p (isRemoved=%d)\n", node, node->isRemoved);
 #endif
 		delete node;
 
