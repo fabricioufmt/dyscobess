@@ -598,12 +598,12 @@ void L2Forward::ProcessBatch(bess::PacketBatch *batch) {
 
     // read destination MAC address (first 6 bytes)
     // NOTE: assumes little endian
-    struct l2_table* l2tbl = &l2_table_;
-    uint64_t addr = *(snb->head_data<uint64_t *>()) & 0x0000ffffffffffff;
-    gate_idx_t* gate = &out_gates[i];
-    //l2_find(&l2_table_, *(snb->head_data<uint64_t *>()) & 0x0000ffffffffffff,
-    //        &out_gates[i]);
-    l2_find(l2tbl, addr, gate);
+    //struct l2_table* l2tbl = &l2_table_;
+    //uint64_t addr = *(snb->head_data<uint64_t *>()) & 0x0000ffffffffffff;
+    //gate_idx_t* gate = &out_gates[i];
+    //l2_find(l2tbl, addr, gate);
+    l2_find(&l2_table_, *(snb->head_data<uint64_t *>()) & 0x0000ffffffffffff,
+            &out_gates[i]);
   }
 
   RunSplit(out_gates, batch);
