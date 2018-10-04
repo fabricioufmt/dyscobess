@@ -942,7 +942,7 @@ bool DyscoAgentIn::control_reconfig_in(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp
 	uint32_t payload_sz = ip->length.value() - (ip->header_length << 2) - tcp_hlen;
 		
 	if(isToRightAnchor(ip, cmsg)) {
-#ifdef DEBUG
+#ifdef DEBUG_RECONFIG
 		fprintf(stderr, "It's the right anchor.\n");
 #endif	
 		cb_in = new DyscoHashIn();
@@ -980,7 +980,7 @@ bool DyscoAgentIn::control_reconfig_in(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp
 		createSynAck(pkt, eth, ip, tcp, cb_out->out_iseq);
 		
 		if(!control_config_rightA(rcb, cmsg, cb_in, cb_out)) {
-#ifdef DEBUG
+#ifdef DEBUG_RECONFIG
 			fprintf(stderr, "control_config_rightA returns false\n");
 #endif
 			return false;
@@ -1006,7 +1006,7 @@ bool DyscoAgentIn::control_reconfig_in(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp
 		return false;
 	}
 
-#ifdef DEBUG
+#ifdef DEBUG_RECONFIG
 	fprintf(stderr, "It isn't the right anchor.\n");
 #endif
 
@@ -1032,7 +1032,7 @@ bool DyscoAgentIn::control_reconfig_in(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp
 	uint32_t sc_len = (payload_sz - sizeof(DyscoControlMessage))/sizeof(uint32_t);
 	
 	if(sc_len > 1) {
-#ifdef DEBUG
+#ifdef DEBUG_RECONFIG
 		fprintf(stderr, "I am not last one on service chain.\n");
 #endif	
 		cb_out = new DyscoHashOut();
@@ -1150,7 +1150,7 @@ bool DyscoAgentIn::control_input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp,
 	size_t tcp_hlen = tcp->offset << 2;
 
 	if(isTCPSYN(tcp, true)) {
-#ifdef DEBUG
+#ifdef DEBUG_RECONFIG
 		fprintf(stderr, "DYSCO_SYN message.\n");
 #endif
 
@@ -1159,7 +1159,7 @@ bool DyscoAgentIn::control_input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp,
 
 		rcb = dc->lookup_reconfig_by_ss(this->index, &cmsg->rightSS); 
 		if(rcb) {
-#ifdef DEBUG
+#ifdef DEBUG_RECONFIG
 			fprintf(stderr, "It's retransmission of SYN.\n\n");
 #endif
 			return false;
@@ -1173,7 +1173,7 @@ bool DyscoAgentIn::control_input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp,
 		return control_reconfig_in(pkt, eth, ip, tcp, payload, rcb, cmsg);
 		
 	} else if(isTCPSYN(tcp) && isTCPACK(tcp)) {
-#ifdef DEBUG
+#ifdef DEBUG_RECONFIG
 		fprintf(stderr, "DYSCO_SYN_ACK message.\n");
 #endif
 
@@ -1187,7 +1187,7 @@ bool DyscoAgentIn::control_input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp,
 		}
 
 		if(ip->dst.value() == ntohl(cmsg->leftA)) {
-#ifdef DEBUG
+#ifdef DEBUG_RECONFIG
 			fprintf(stderr, "It's the left anchor.\n");
 #endif
 			
@@ -1197,7 +1197,7 @@ bool DyscoAgentIn::control_input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp,
 			}
 
 			if(cb_out->state == DYSCO_ESTABLISHED) {
-#ifdef DEBUG
+#ifdef DEBUG_RECONFIG
 				fprintf(stderr, "Is a retransmission packet (already ESTABLISHED state)\n");
 #endif
 				createAck(pkt, eth, ip, tcp);
@@ -1237,7 +1237,7 @@ bool DyscoAgentIn::control_input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp,
 			
 			return false;
 		} else {
-#ifdef DEBUG
+#ifdef DEBUG_RECONFIG
 			fprintf(stderr, "It isn't left anchor.\n");
 #endif		
 			set_ack_number_out(tcp, cb_in);
@@ -1246,13 +1246,13 @@ bool DyscoAgentIn::control_input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp,
 			return true;
 		}
 	} else if(isTCPACK(tcp, true)) {
-#ifdef DEBUG
+#ifdef DEBUG_RECONFIG
 		fprintf(stderr, "DYSCO_ACK message.\n");
 #endif
 
 		cmsg = &cb_in->cmsg;
 		if(!cmsg) {
-#ifdef DEBUG
+#ifdef DEBUG_RECONFIG
 			fprintf(stderr, "cmsg ERROR\n");
 #endif
 			return false;
@@ -1260,18 +1260,18 @@ bool DyscoAgentIn::control_input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp,
 		cb_in->is_reconfiguration = 0;
 		
 		if(isToRightAnchor(ip, cmsg)) {
-#ifdef DEBUG
+#ifdef DEBUG_RECONFIG
 			fprintf(stderr, "It's the right anchor.\n");
 #endif
 			
 			rcb = dc->lookup_reconfig_by_ss(this->index, &cb_in->my_sup);
 			if(!rcb) {
-#ifdef DEBUG
+#ifdef DEBUG_RECONFIG
 				fprintf(stderr, "Looking for %s on hash_reconfig, NOT FOUND.\n", printSS(cb_in->my_sup));
 #endif
 				rcb = dc->lookup_reconfig_by_ss(this->index, &cb_in->neigh_sup);
 				if(!rcb) {
-#ifdef DEBUG
+#ifdef DEBUG_RECONFIG
 					fprintf(stderr, "Looking for %s on hash_reconfig, NOT FOUND.\n", printSS(cb_in->neigh_sup));
 #endif
 					return false;
@@ -1304,7 +1304,7 @@ bool DyscoAgentIn::control_input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp,
 				new_out->state = DYSCO_ESTABLISHED;
 			
 			if(!old_out->state_t) {
-#ifdef DEBUG
+#ifdef DEBUG_RECONFIG
 				fprintf(stderr, "setting onto %s %s to ack_cutoff: %x.\n", printSS(old_out->sup), printSS(old_out->sub), old_out_ack_cutoff);
 #endif
 				old_out->ack_cutoff = old_out_ack_cutoff;
@@ -1313,7 +1313,7 @@ bool DyscoAgentIn::control_input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp,
 
 			return false;
 		}
-#ifdef DEBUG
+#ifdef DEBUG_RECONFIG
 		fprintf(stderr, "It isn't the right anchor.\n");
 #endif
 		set_ack_number_out(tcp, cb_in);
