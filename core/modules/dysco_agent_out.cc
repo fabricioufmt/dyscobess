@@ -40,7 +40,8 @@ void timer_worker(DyscoAgentOut* agent) {
 		while(node != tail) {
 			if(node->cnt == 0) {
 				node->cnt++;
-				batch.add(&node->element);
+				//batch.add(&node->element);
+				batch.add(Packet::copy(&node->element));
 				node->ts = now_ts;
 			} else {
 				if(node->cnt > CNTLIMIT) {
@@ -59,7 +60,8 @@ void timer_worker(DyscoAgentOut* agent) {
 					fprintf(stderr, "%lu - %lu = %lu > %lu\n", now_ts, node->ts, now_ts-node->ts, DyscoAgentOut::timeout);
 #endif
 					node->cnt++;
-					batch.add(&node->element);
+					//batch.add(&node->element);
+					batch.add(Packet::copy(&node->element));
 					node->ts = now_ts;
 				}
 			}
