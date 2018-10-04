@@ -46,9 +46,9 @@ void timer_worker(DyscoAgentOut* agent) {
 				if(node->cnt > CNTLIMIT) {
 					aux = node->next;
 #ifdef DEBUG_RECONFIG
-					fprintf(stderr, "[%s] I'm going to remove from list, because reach CNTLIMIT\n", agent->getNs());
+					//fprintf(stderr, "[%s] I am not retransmit because CNTLIMIT\n", agent->getNs());
 #endif
-					list->remove(node);
+					//list->remove(node);
 					node = aux;
 					
 					continue;
@@ -1049,7 +1049,8 @@ bool DyscoAgentOut::forward(Packet* pkt, bool reliable) {
 	}
 
 	mtx.lock();
-	LNode<Packet>* node = retransmission_list->insertTail(*pkt, tsc_to_ns(rdtsc()));
+	//LNode<Packet>* node = retransmission_list->insertTail(*pkt, tsc_to_ns(rdtsc()));
+	LNode<Packet>* node = retransmission_list->insertTail(*Packet::copy(pkt), tsc_to_ns(rdtsc()));
 	mtx.unlock();
 	
 	uint32_t i = getValueToAck(pkt);
