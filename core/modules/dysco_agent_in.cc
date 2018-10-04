@@ -1097,8 +1097,16 @@ bool DyscoAgentIn::control_reconfig_in(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp
 	//uint32_t* sc = (uint32_t*)(payload + sizeof(DyscoControlMessage));
 		
 	if(ntohs(cmsg->semantic) == NOSTATE_TRANSFER || sc_len < 2) {
+#ifdef DEBUG_RECONFIG
+		fprintf(stderr, "NOSTATE_TRANSFER or sc_len < 2\n");
+#endif
 		remove_sc(pkt, ip, payload_sz);
 		insert_tag(pkt, ip, tcp);
+
+#ifdef DEBUG_RECONFIG
+		fprintf(stderr, "I'm going to change session from %s to %s\n",
+			printPacketSS(ip, tcp), printSS(cb_in->my_sup));
+#endif
 		hdr_rewrite_full_csum(ip, tcp, &cb_in->my_sup);
 	
 		return true;
@@ -1656,6 +1664,7 @@ Packet* DyscoAgentIn::createSynReconfig(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 	newtcp->urgent_ptr = be16_t(0);
 
 #ifdef DEBUG_RECONFIG
+	fprintf(stderr, "newip->src=%s newip->dst=%s\n", printIP(newip->src.value()), printIP(newip->dst.value()));
 	fprintf(stderr, "out_iseq=%X last_seq=%X\n", old_dcb->out_iseq, old_dcb->last_seq);
 	fprintf(stderr, "out_iack=%X last_ack=%X\n", old_dcb->out_iack, old_dcb->last_ack);
 #endif
