@@ -1678,7 +1678,8 @@ Packet* DyscoAgentIn::createSynReconfig(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 	newip->version = 4;
 	newip->header_length = 5;
 	newip->type_of_service = ip->type_of_service;
-	newip->length = ip->length;
+	//newip->length = ip->length;
+	newip->length = ip->length + be16_t(4);
 	newip->id = be16_t(rand());
 	newip->fragment_offset = be16_t(0);
 	newip->ttl = TTL;
