@@ -78,7 +78,7 @@ void timer_worker(DyscoAgentOut* agent) {
 		if(batch.cnt()) {
 #ifdef DEBUG_RECONFIG
 			fprintf(stderr, "[%s][DyscoAgentOut] is going to retransmit %u packets.\n", agent->getNs(), batch.cnt());
-			agent->RunChooseModule(1, &batch);
+			agent->RunChooseModule(0, &batch);
 #endif
 		}
 	}
