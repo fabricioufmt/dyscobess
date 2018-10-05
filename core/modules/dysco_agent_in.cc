@@ -645,7 +645,7 @@ bool DyscoAgentIn::input(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
 	
 	if(!cb_in) {
 #ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[%s]cb_in is null inside input function\n", ns.c_str());
+		fprintf(stderr, "[%s]cb_in is null inside input function (packetss: %s)\n", ns.c_str(), printPacketSS(ip, tcp));
 #endif
 		if(isTCPSYN(tcp, true) && payload_sz)
 			rx_initiation_new(pkt, ip, tcp, payload_sz);
@@ -1072,6 +1072,9 @@ bool DyscoAgentIn::control_reconfig_in(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp
 		memcpy(&cb_out->cmsg, cmsg, sizeof(DyscoControlMessage));
 		
 		if(!dc->insert_pending_reconfig(this->index, cb_out)) {
+#ifdef DEBUG_RECONFIG
+			fprintf(stderr, "[%s] insert_pending_reconfig returns false\n", ns.c_str());
+#endif
 			dc->remove_hash_input(this->index, cb_in);
 			delete cb_in;
 			dc->remove_hash_output(this->index, cb_out);
@@ -1082,6 +1085,9 @@ bool DyscoAgentIn::control_reconfig_in(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp
 	}
 
 	if(!dc->insert_hash_input(this->index, cb_in)) {
+#ifdef DEBUG_RECONFIG
+		fprintf(stderr, "[%s] insert_hash_input returns false\n", ns.c_str());
+#endif
 		dc->remove_hash_input(this->index, cb_in);
 		delete cb_in;
 
