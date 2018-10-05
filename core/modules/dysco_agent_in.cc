@@ -95,7 +95,8 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 #endif
 		
 		cb_in = dc->lookup_input(this->index, ip, tcp);
-		removed = processReceivedPacket(tcp);
+		//removed = processReceivedPacket(tcp);
+		removed = false;
 		
 		if(isLockingSignalPacket(tcp)) {
 #ifdef DEBUG_RECONFIG
