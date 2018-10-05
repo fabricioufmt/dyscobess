@@ -195,7 +195,7 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 			out_gates[1].add(pkt);
 #ifdef DEBUG_RECONFIG
 			if(strcmp(ns.c_str(), "/var/run/netns/LA") == 0) {
-				fprintf("dst: %s src: %s\n", eth->dst_addr.ToString().c_str(), eth->src_addr.ToString().c_str());
+				fprintf(stderr, "dst: %s src: %s\n", eth->dst_addr.ToString().c_str(), eth->src_addr.ToString().c_str());
 			}
 #endif
 		} else
