@@ -645,7 +645,7 @@ bool DyscoAgentIn::input(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
 	
 	if(!cb_in) {
 #ifdef DEBUG_RECONFIG
-		fprintf(stderr, "cb_in is null inside input function\n");
+		fprintf(stderr, "[%s]cb_in is null inside input function\n", ns.c_str());
 #endif
 		if(isTCPSYN(tcp, true) && payload_sz)
 			rx_initiation_new(pkt, ip, tcp, payload_sz);
