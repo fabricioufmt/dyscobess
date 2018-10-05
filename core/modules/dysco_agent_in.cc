@@ -1705,7 +1705,7 @@ Packet* DyscoAgentIn::createSynReconfig(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 	uint8_t* ws = reinterpret_cast<uint8_t*>(newtcp + 1);
 	ws[0] = 3; //kind
 	ws[1] = 3; //length
-	ws[2] = 7; //multiplier
+	ws[2] = 14; //multiplier
 	ws[3] = 0; //padding
 	
 	//DyscoControlMessage* newcmsg = reinterpret_cast<DyscoControlMessage*>(newtcp + 1);
