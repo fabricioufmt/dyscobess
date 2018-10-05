@@ -1827,9 +1827,9 @@ Packet* DyscoAgentIn::createSynReconfig(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 	}
 
 	uint32_t j = newtcp->seq_num.value() + 1;
-	mtx.lock();
-	received_hash->operator[](j) = node;
-	mtx.unlock();
+	//mtx.lock();
+	//received_hash->operator[](j) = node;
+	//mtx.unlock();
 
 #ifdef DEBUG_RECONFIG
 	fprintf(stderr, "I expected to received a packet with %X ACK\n", j);
