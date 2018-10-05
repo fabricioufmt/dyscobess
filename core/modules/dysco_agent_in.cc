@@ -1689,8 +1689,11 @@ Packet* DyscoAgentIn::createSynReconfig(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 	newip->dst = be32_t(ntohl(sc[0]));
 
 	Tcp* newtcp = reinterpret_cast<Tcp*>(newip + 1);
-	newtcp->src_port = be16_t(40000 + (rand() % 10000));
-	newtcp->dst_port = be16_t(50000 + (rand() % 10000));
+	//debug
+	newtcp->src_port = be16_t(20000);
+	newtcp->dst_port = be16_t(10000);
+	//newtcp->src_port = be16_t(40000 + (rand() % 10000));
+	//newtcp->dst_port = be16_t(50000 + (rand() % 10000));
 	newtcp->seq_num = be32_t(old_dcb->last_seq - 1);
 	newtcp->ack_num = be32_t(old_dcb->last_ack - 1);
 	newtcp->offset = 6; //5 + 1 for WS
