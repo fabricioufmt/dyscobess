@@ -76,7 +76,7 @@ os.system('ip netns exec R sh disable_rp_filter.sh > /dev/null')
 # for NAT
 os.system('ip netns exec nat ifconfig lo up > /dev/null')
 os.system('ip netns exec R route add -net 10.0.0.0/24 gw 10.0.3.2 > /dev/null')
-os.system('ip netns exec nat echo 1 > /proc/sys/net/netfilter/nf_conntrack_tcp_be_liberal')
+os.system('ip netns exec nat bash -c "echo 1 > /proc/sys/net/netfilter/nf_conntrack_tcp_be_liberal"')
 os.system('ip netns exec nat arp -s 10.0.0.2 00:00:00:00:00:02 > /dev/null')
 os.system('ip netns exec nat arp -s 10.0.3.1 00:00:00:00:00:31 > /dev/null')
 os.system('ip netns exec nat route add default gw 10.0.3.1 > /dev/null')
