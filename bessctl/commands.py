@@ -729,6 +729,7 @@ def daemon_reset(cli):
 def _do_stop(cli):
     cli.bess.pause_all()
     cli.bess.kill()
+    os.system('sudo rmmod bess 2> /dev/null')
     if cli.interactive:
         cli.fout.write('Done.\n')
 
