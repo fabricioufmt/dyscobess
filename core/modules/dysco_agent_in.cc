@@ -176,9 +176,9 @@ bool DyscoAgentIn::processReceivedPacket(Tcp* tcp) {
 		fprintf(stderr, "[%s] I received the expected packet and I'm going to remove it from retransmission list and received hash.\n", ns.c_str());
 #endif
 		agent->remove(node);
-		mtx.lock();
+		//mtx.lock();
 		received_hash->erase(key);
-		mtx.unlock();
+		//mtx.unlock();
 		
 		return true;
 	}
