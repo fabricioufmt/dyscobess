@@ -1662,12 +1662,6 @@ Packet* DyscoAgentIn::createSynReconfig(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 	newtcp->flags = Tcp::kSyn;
 	newtcp->window = tcp->window;
 	newtcp->urgent_ptr = be16_t(0);
-
-#ifdef DEBUG_RECONFIG
-	fprintf(stderr, "newip->src=%s newip->dst=%s\n", printIP(newip->src.value()), printIP(newip->dst.value()));
-	fprintf(stderr, "out_iseq=%X last_seq=%X\n", old_dcb->out_iseq, old_dcb->last_seq);
-	fprintf(stderr, "out_iack=%X last_ack=%X\n", old_dcb->out_iack, old_dcb->last_ack);
-#endif
 	
 	DyscoControlMessage* newcmsg = reinterpret_cast<DyscoControlMessage*>(newtcp + 1);
 	newcmsg->my_sub.sip = newip->src.raw_value();
@@ -1686,7 +1680,16 @@ Packet* DyscoAgentIn::createSynReconfig(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 	newcmsg->sackOk = htonl(old_dcb->sack_ok);
 	newcmsg->type = DYSCO_RECONFIG;
 	newcmsg->leftA = ip->dst.raw_value();
+	newcmsg->rightA = cmsg->rightA;
 
+#ifdef DEBUG_RECONFIG
+	fprintf(stderr, "newip->src=%s newip->dst=%s\n", printIP(newip->src.value()), printIP(newip->dst.value()));
+	fprintf(stderr, "out_iseq=%X last_seq=%X\n", old_dcb->out_iseq, old_dcb->last_seq);
+	fprintf(stderr, "out_iack=%X last_ack=%X\n", old_dcb->out_iack, old_dcb->last_ack);
+	fprintf(stderr, "newcmsg->leftA=%s newcmsg->rightA=%s\n", printIP(ntohl(newcmsg->leftA)), printIP(ntohl(newcmsg->rightA)));
+	fprintf(stderr, "cmsg->leftA=%s cmsg->rightA=%s\n", printIP(ntohl(cmsg->leftA)), printIP(ntohl(cmsg->rightA)));
+#endif
+	
 	uint32_t* newsc = reinterpret_cast<uint32_t*>(newcmsg + 1);
 	for(uint32_t i = 0; i < sc_len; i++)
 		newsc[i] = sc[i];
