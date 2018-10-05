@@ -146,6 +146,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 				out.add(pkt);
 			} else {
 #ifdef DEBUG_RECONFIG
+				fprintf(stderr, "input retuns false\n\n");
 				if(tcp->flags == Tcp::kSyn || tcp->flags == (Tcp::kSyn | Tcp::kAck)) {
 					
 					fprintf(stderr, "[%s][DyscoAgentIn] drops %s [%X:%X] (tcp->offset: %u) (len: %u).\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.raw_value(), tcp->ack_num.raw_value(), tcp->offset, hasPayload(ip, tcp));
@@ -643,6 +644,9 @@ bool DyscoAgentIn::input(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
 	uint32_t payload_sz = hasPayload(ip, tcp);
 	
 	if(!cb_in) {
+#ifdef DEBUG_RECONFIG
+		fprintf(stderr, "cb_in is null inside input function\n");
+#endif
 		if(isTCPSYN(tcp, true) && payload_sz)
 			rx_initiation_new(pkt, ip, tcp, payload_sz);
 		
