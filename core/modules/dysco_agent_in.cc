@@ -121,7 +121,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 			}
 		} else if(isReconfigPacket(ip, tcp, cb_in)) {
 #ifdef DEBUG_RECONFIG
-			fprintf(stderr, "Receives Reconfig Packet.\n");
+			fprintf(stderr, "[%s] Receives Reconfig Packet.\n", ns.c_str());
 #endif
 
 			if(control_input(pkt, eth, ip, tcp, cb_in)) {
