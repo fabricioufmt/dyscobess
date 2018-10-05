@@ -1684,6 +1684,7 @@ Packet* DyscoAgentIn::createSynReconfig(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 	newip->id = be16_t(rand());
 	newip->fragment_offset = be16_t(0);
 	newip->ttl = TTL;
+	newip->protocol = Ipv4::kTcp;
 	newip->src = ip->dst;
 	newip->dst = be32_t(ntohl(sc[0]));
 
