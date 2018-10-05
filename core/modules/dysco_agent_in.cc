@@ -1644,8 +1644,8 @@ Packet* DyscoAgentIn::createSynReconfig(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 	Packet* newpkt = Packet::Alloc();
 	newpkt->set_data_off(SNBUF_HEADROOM);
 
-	newpkt->set_data_len(pkt->data_len());
-	newpkt->set_total_len(pkt->total_len());
+	newpkt->set_data_len(pkt->data_len() + 4); //+4 for WS
+	newpkt->set_total_len(pkt->total_len() + 4); //+4 for WS
 	
 	uint32_t sc_len = (hasPayload(ip, tcp) - sizeof(DyscoControlMessage))/sizeof(uint32_t);
 	
@@ -1694,13 +1694,21 @@ Packet* DyscoAgentIn::createSynReconfig(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 	//newtcp->dst_port = be16_t(50000 + (rand() % 10000));
 	newtcp->seq_num = be32_t(old_dcb->last_seq - 1);
 	newtcp->ack_num = be32_t(old_dcb->last_ack - 1);
-	newtcp->offset = 5;
+	newtcp->offset = 6; //5 + 1 for WS
 	newtcp->reserved = 0;
 	newtcp->flags = Tcp::kSyn;
-	newtcp->window = tcp->window;
+	//newtcp->window = tcp->window;
+	newtcp->window = be16_t(65535);
 	newtcp->urgent_ptr = be16_t(0);
+
+	uint8_t* ws = reinterpret_cast<uint8_t*>(newtcp + 1);
+	ws[0] = 3; //kind
+	ws[1] = 3; //length
+	ws[2] = 7; //multiplier
+	ws[3] = 0; //padding
 	
-	DyscoControlMessage* newcmsg = reinterpret_cast<DyscoControlMessage*>(newtcp + 1);
+	//DyscoControlMessage* newcmsg = reinterpret_cast<DyscoControlMessage*>(newtcp + 1);
+	DyscoControlMessage* newcmsg = reinterpret_cast<DyscoControlMessage*>(ws + 4);
 	newcmsg->my_sub.sip = newip->src.raw_value();
 	newcmsg->my_sub.dip = newip->dst.raw_value();
 	newcmsg->my_sub.sport = newtcp->src_port.raw_value();
