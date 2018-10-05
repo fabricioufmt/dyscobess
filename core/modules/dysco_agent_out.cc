@@ -193,6 +193,11 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 			continue;
 		} else if(output(pkt, ip, tcp, cb_out)) {
 			out_gates[1].add(pkt);
+#ifdef DEBUG_RECONFIG
+			if(strcmp(ns.c_str(), "/var/run/netns/LA") == 0) {
+				fprintf("dst: %s src: %s\n", eth->dst_addr.ToString().c_str(), eth->src_addr.ToString().c_str());
+			}
+#endif
 		} else
 			out_gates[0].add(pkt);
 
