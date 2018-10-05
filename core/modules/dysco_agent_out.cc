@@ -42,6 +42,9 @@ void timer_worker(DyscoAgentOut* agent) {
 				node->cnt++;
 				//batch.add(&node->element);
 				batch.add(Packet::copy(&node->element));
+#ifdef DEBUG_RECONFIG
+				fprintf(stderr, "cnt: %s\n", printPacket(&node->element));
+#endif
 				node->ts = now_ts;
 			} else {
 				if(node->cnt > CNTLIMIT) {
