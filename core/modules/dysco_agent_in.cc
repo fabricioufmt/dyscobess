@@ -1050,6 +1050,11 @@ bool DyscoAgentIn::control_reconfig_in(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp
 	cb_in->my_sup.dport = leftSS->dport;
 	
 	uint32_t sc_len = (payload_sz - sizeof(DyscoControlMessage))/sizeof(uint32_t);
+
+#ifdef DEBUG_RECONFIG
+	fprintf("neigh_supss: %s\n", printSS(cmsg->super));
+	fprintf("leftSS: %s\n", printSS(cmsg->leftSS));
+#endif
 	
 	if(sc_len > 1) {
 #ifdef DEBUG_RECONFIG
