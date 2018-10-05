@@ -22,10 +22,10 @@ void timer_worker(DyscoAgentOut* agent) {
 		fprintf(stderr, "[%s] timer_worker is working now...\n", agent->getNs());
 #endif
 		*/
-		//agent->mtx.lock();
+		agent->mtx.lock();
 		list = agent->getRetransmissionList();
 		if(!list) {
-			//agent->mtx.unlock();
+			agent->mtx.unlock();
 			continue;
 		}
 		/*
@@ -73,7 +73,7 @@ void timer_worker(DyscoAgentOut* agent) {
 			node = node->next;
 		}
 		
-		//agent->mtx.unlock();
+		agent->mtx.unlock();
 		
 		if(batch.cnt()) {
 #ifdef DEBUG_RECONFIG

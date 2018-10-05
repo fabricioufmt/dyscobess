@@ -176,9 +176,9 @@ bool DyscoAgentIn::processReceivedPacket(Tcp* tcp) {
 		fprintf(stderr, "[%s] I received the expected packet and I'm going to remove it from retransmission list and received hash.\n", ns.c_str());
 #endif
 		agent->remove(node);
-		//mtx.lock();
+		mtx.lock();
 		received_hash->erase(key);
-		//mtx.unlock();
+		mtx.unlock();
 		
 		return true;
 	}
@@ -1689,10 +1689,6 @@ Packet* DyscoAgentIn::createSynReconfig(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 	newip->dst = be32_t(ntohl(sc[0]));
 
 	Tcp* newtcp = reinterpret_cast<Tcp*>(newip + 1);
-	//DEBUG
-	//newtcp->src_port = be16_t(20000);
-	//newtcp->dst_port = be16_t(10000);
-	
 	newtcp->src_port = be16_t(40000 + (rand() % 10000));
 	newtcp->dst_port = be16_t(50000 + (rand() % 10000));
 	newtcp->seq_num = be32_t(old_dcb->last_seq - 1);
@@ -1829,9 +1825,9 @@ Packet* DyscoAgentIn::createSynReconfig(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 	}
 
 	uint32_t j = newtcp->seq_num.value() + 1;
-	//mtx.lock();
-	//received_hash->operator[](j) = node;
-	//mtx.unlock();
+	mtx.lock();
+	received_hash->operator[](j) = node;
+	mtx.unlock();
 
 #ifdef DEBUG_RECONFIG
 	fprintf(stderr, "I expected to received a packet with %X ACK\n", j);
