@@ -130,15 +130,31 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 			
 		} else {
 			if(removed) {
-#ifdef DEBUG
+#ifdef DEBUG_RECONFIG
 				fprintf(stderr, "dropping..\n");
 #endif
 				continue;
 			}
 			
 			if(input(pkt, ip, tcp, cb_in)) {
+#ifdef DEBUG_RECONFIG
+				if(tcp->flags == Tcp::kSyn || tcp->flags == (Tcp::kSyn | Tcp::kAck)) {
+					
+					fprintf(stderr, "[%s][DyscoAgentIn] forwards to host %s [%X:%X] (tcp->offset: %u) (len: %u).\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.raw_value(), tcp->ack_num.raw_value(), tcp->offset, hasPayload(ip, tcp));
+				}
+#endif				
 				out.add(pkt);
+			} else {
+#ifdef DEBUG_RECONFIG
+				if(tcp->flags == Tcp::kSyn || tcp->flags == (Tcp::kSyn | Tcp::kAck)) {
+					
+					fprintf(stderr, "[%s][DyscoAgentIn] drops %s [%X:%X] (tcp->offset: %u) (len: %u).\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.raw_value(), tcp->ack_num.raw_value(), tcp->offset, hasPayload(ip, tcp));
+				}
+#endif	
 			}
+
+
+			
 #ifdef DEBUG
 			fprintf(stderr, "[%s][DyscoAgentIn] forwards %s [%X:%X]\n\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.raw_value(), tcp->ack_num.raw_value());
 #endif
