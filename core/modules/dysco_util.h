@@ -92,7 +92,6 @@ enum {
 	// Locking protocol
 	DYSCO_CLOSED_LOCK = 0,
 	DYSCO_REQUEST_LOCK,
-	DYSCO_REQUEST_ACK_LOCK,
 	DYSCO_ACK_LOCK,
 	DYSCO_NACK_LOCK,
 	
@@ -644,9 +643,6 @@ inline bool isToLeftAnchor(Ipv4* ip, DyscoControlMessage* cmsg) {
 }
 
 inline bool isToRightAnchor(Ipv4* ip, DyscoControlMessage* cmsg) {
-#ifdef DEBUG_RECONFIG
-	fprintf(stderr, "I'm going to compare (RA) %s with %s\n", printIP(ip->dst.value()), printIP(ntohl(cmsg->rightA)));
-#endif
 	return ip->dst.raw_value() == cmsg->rightA;
 }
 
