@@ -212,9 +212,6 @@ bool DyscoAgentIn::isReconfigPacket(Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
 		if(!cb_in) {
 			if(payload_len) {
 				DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>(getPayload(tcp));
-#ifdef DEBUG_RECONFIG
-				fprintf(stderr, "[%s]comparing cmsg->type against DYSCO_RECONFIG\n", ns.c_str());
-#endif
 				return cmsg->type == DYSCO_RECONFIG;
 			}
 

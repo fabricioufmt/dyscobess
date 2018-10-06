@@ -227,14 +227,8 @@ public:
 			if(next)
 				next->prev = prev;
 
-#ifdef DEBUG_RECONFIG
-			fprintf(stderr, "changing node=%p to isRemoved=True\n", this);
-#endif
 			isRemoved = true;
 		}
-#ifdef DEBUG_RECONFIG
-		fprintf(stderr, "changing node=%p do nothing... isRemoved=%d\n", this, isRemoved);
-#endif
 	}
 
 	void setTs(uint64_t t) {
