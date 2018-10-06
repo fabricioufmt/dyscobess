@@ -139,7 +139,7 @@ enum {
 #define DYSCO_CLOSED                    DYSCO_CLOSED_OLD_PATH
 */
 #define DYSCOCENTER_MODULENAME          "dyscocenter"
-//#define DEBUG                           1
+#define DEBUG                           1
 #define DEBUG_RECONFIG                  1
 #define TTL                             32
 #define PORT_RANGE                      65536
@@ -227,6 +227,8 @@ public:
 			if(next)
 				next->prev = prev;
 
+			prev = 0;
+			next = 0;
 			isRemoved = true;
 		}
 	}
@@ -287,9 +289,6 @@ public:
 			return false;
 		
 		n--;
-#ifdef DEBUG_RECONFIG
-		fprintf(stderr, "I'm going to call destructor of LNode=%p (isRemoved=%d)\n", node, node->isRemoved);
-#endif
 		delete node;
 
 		return true;
