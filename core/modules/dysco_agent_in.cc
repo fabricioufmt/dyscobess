@@ -561,7 +561,7 @@ bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in, uint32_t 
 
 	if(!cb_out->old_path) {
 #ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[%s] in_two_paths_data_seg method.\n", ns.c_str());
+		fprintf(stderr, "[%s][%s] in_two_paths_data_seg method.\n", ns.c_str(), printSS(cb_out->sub));
 #endif
 		DyscoHashOut* old_out = cb_out->other_path;
 
@@ -569,7 +569,7 @@ bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in, uint32_t 
 			return false;
 
 #ifdef DEBUG_RECONFIG
-		fprintf(stderr, "old_out->state: %u\n", old_out->state);
+		fprintf(stderr, "[%s]old_out->state: %u\n", printSS(old_out->sub), old_out->state);
 #endif
 		
 		if(old_out->state == DYSCO_SYN_SENT || old_out->state == DYSCO_SYN_RECEIVED) {
@@ -607,7 +607,7 @@ bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in, uint32_t 
 		}
 	} else {
 #ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[%s] in_two_paths_data_seg method.\n", ns.c_str());
+		fprintf(stderr, "[%s][%s] in_two_paths_data_seg method.\n", ns.c_str(), printSS(cb_out->sub));
 		if(strcmp(ns.c_str(), "/var/run/netns/RA") == 0) {
 			fprintf(stderr, "[%s]update2 ack_cutoff from %X to %X\n", ns.c_str(), cb_out->ack_cutoff, tcp->seq_num.value() + payload_sz);
 		}
@@ -1329,9 +1329,6 @@ bool DyscoAgentIn::control_input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp,
 			fprintf(stderr, "new_out->out_iack=%X -- new_out->in_iack=%X.\n", new_out->out_iack, new_out->in_iack);
 			fprintf(stderr, "old_out->ack_cutoff=%X.\n", old_out->ack_cutoff);
 			fprintf(stderr, "old_out->lastAck=%X.\n", old_out->last_ack);
-			fprintf(stderr, "new_out->ack_cutoff=%X.\n", new_out->ack_cutoff);
-			fprintf(stderr, "new_out->lastAck=%X.\n", new_out->last_ack);
-			fprintf(stderr, "session: %s\n", printSS(old_out->sub));
 #endif
 
 			
