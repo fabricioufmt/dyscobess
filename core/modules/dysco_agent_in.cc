@@ -506,11 +506,17 @@ bool DyscoAgentIn::in_two_paths_ack(Tcp* tcp, DyscoHashIn* cb_in) {
 	}
 
 	if(cb_out->old_path) {
+#ifdef DEBUG_RECONFIG
+		fprintf(stderr, "cb_out is old path\n");
+#endif
 		if(cb_out->state_t) {
 			if(cb_out->state == DYSCO_ESTABLISHED) {
 				cb_in->two_paths = 0;
 			}
 		} else {
+#ifdef DEBUG_RECONFIG
+			fprintf(stderr, "cb_out->seq_cutoff=%X, ack_seq=%X, !after(cb_out->seq_cutoff, ack_seq)==%u\n", cb_out->seq_cutoff, ack_seq, !after(cb_out->seq_cutoff, ack_seq));
+#endif
 			if(!after(cb_out->seq_cutoff, ack_seq)) {
 #ifdef DEBUG_RECONFIG
 				fprintf(stderr, "setting (old_path) use_np_seq = 1.... because !after(cb_out->seq_cutoff, ack_seq) == %X, %X\n", cb_out->seq_cutoff, ack_seq);
@@ -524,10 +530,15 @@ bool DyscoAgentIn::in_two_paths_ack(Tcp* tcp, DyscoHashIn* cb_in) {
 		if(!cb_out) {
 			return false;
 		}
-
+#ifdef DEBUG_RECONFIG
+		fprintf(stderr, "cb_out is new path\n");
+#endif
 		if(cb_out->state_t && cb_out->state == DYSCO_ESTABLISHED) {
 			cb_in->two_paths = 0;
 		} else {
+#ifdef DEBUG_RECONFIG
+			fprintf(stderr, "cb_out->seq_cutoff=%X, ack_seq=%X, !after(cb_out->seq_cutoff, ack_seq)==%u\n", cb_out->seq_cutoff, ack_seq, !after(cb_out->seq_cutoff, ack_seq));
+#endif
 			if(!after(cb_out->seq_cutoff, ack_seq)) {
 #ifdef DEBUG_RECONFIG
 				fprintf(stderr, "setting (new_path) use_np_seq = 1.... because !after(cb_out->seq_cutoff, ack_seq) == %X, %X\n", cb_out->seq_cutoff, ack_seq);
