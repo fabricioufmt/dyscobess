@@ -606,13 +606,20 @@ bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in, uint32_t 
 			}
 		}
 	} else {
+		if(cb_out->other_path->state != DYSCO_ESTABLISHED) {
 #ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[%s][%s] in_two_paths_data_seg method.\n", ns.c_str(), printSS(cb_out->sub));
-		if(strcmp(ns.c_str(), "/var/run/netns/RA") == 0) {
-			fprintf(stderr, "[%s]update2 ack_cutoff from %X to %X\n", ns.c_str(), cb_out->ack_cutoff, tcp->seq_num.value() + payload_sz);
-		}
+			fprintf(stderr, "[%s][%s] in_two_paths_data_seg method.\n", ns.c_str(), printSS(cb_out->sub));
+			fprintf(stderr, "[%s][%s] not ESTABLISHED...\n", ns.c_str(), printSS(cb_out->other_path->sub));
+			if(strcmp(ns.c_str(), "/var/run/netns/RA") == 0) {
+				fprintf(stderr, "[%s]update2 ack_cutoff from %X to %X\n", ns.c_str(), cb_out->ack_cutoff, tcp->seq_num.value() + payload_sz);
+			}
 #endif
-		cb_in->dcb_out->ack_cutoff = tcp->seq_num.value() + payload_sz;
+			cb_in->dcb_out->ack_cutoff = tcp->seq_num.value() + payload_sz;
+		} else {
+#ifdef DEBUG_RECONFIG
+			fprintf(stderr, "[%s][%s] already ESTABLISHED...\n", ns.c_str(), printSS(cb_out->other_path->sub));
+#endif
+		}
 	}
 	
 	return true;
