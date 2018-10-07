@@ -601,15 +601,8 @@ bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in, uint32_t 
 				old_out->valid_ack_cut = 1;
 			}
 		}
-	} else {
-		//TEST
-		uint32_t seq = tcp->seq_num.value() + payload + 1;
-#ifdef DEBUG_RECONFIG
-		fprintf(stderr, "session3:%s, from ack_cutoff=%X to %X.\n", printSS(old_out->sub), old_out->ack_cutoff, seq);
-#endif
-		cb_out->ack_cutoff = seq;	
 	}
-
+	
 	return true;
 }
 
