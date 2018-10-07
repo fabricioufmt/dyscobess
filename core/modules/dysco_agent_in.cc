@@ -664,8 +664,8 @@ bool DyscoAgentIn::input(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
 			if(cb_in->dcb_out) {
 #ifdef DEBUG_RECONFIG
 				if(strcmp(ns.c_str(), "/var/run/netns/LA") == 0 || strcmp(ns.c_str(), "/var/run/netns/RA") == 0) {
-					fprintf(stderr, "update ack_cutoff from %X to %X\n", cb_in->dcb_out->ack_cutoff, tcp->seq_num.value() + payload_sz);
-					fprintf(stderr, "session: %s\n", printSS(cb_in->dcb_out->sub));
+					fprintf(stderr, "[%s]update ack_cutoff from %X to %X\n", ns.c_str(), cb_in->dcb_out->ack_cutoff, tcp->seq_num.value() + payload_sz);
+					fprintf(stderr, "[%s]session: %s\n", ns.c_str(), printSS(cb_in->dcb_out->sub));
 				}
 #endif
 				cb_in->dcb_out->ack_cutoff = tcp->seq_num.value() + payload_sz;
