@@ -1704,7 +1704,7 @@ Packet* DyscoAgentIn::createSynReconfig(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 	newcmsg->leftA = ip->dst.raw_value();
 	newcmsg->rightA = cmsg->rightA;
 #ifdef DEBUG_RECONFIG
-	fprintf(stderr, "old_dcb->seq_cutoff=%X, old_dcb->ack_cutoff, old_dcb->last_seq=%X, old_dcb->last_ack=%X.\n", old_dcb->seq_cutoff, old_dcb->ack_cutoff, old_dcb->last_seq, old_dcb->last_ack);
+	fprintf(stderr, "old_dcb->seq_cutoff=%X, old_dcb->ack_cutoff=%X, old_dcb->last_seq=%X, old_dcb->last_ack=%X.\n", old_dcb->seq_cutoff, old_dcb->ack_cutoff, old_dcb->last_seq, old_dcb->last_ack);
 #endif
 	/*
 #ifdef DEBUG_RECONFIG
