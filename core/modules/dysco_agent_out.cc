@@ -165,8 +165,8 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 		tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
 		
 #ifdef DEBUG
-		if(strcmp(ns.c_str(), "/var/run/netns/RA") == 0)
-			fprintf(stderr, "[%s][DyscoAgentOut] receives %s [%X:%X]\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.raw_value(), tcp->ack_num.raw_value());
+		//		if(strcmp(ns.c_str(), "/var/run/netns/RA") == 0)
+		fprintf(stderr, "[%s][DyscoAgentOut] receives %s [%X:%X]\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.raw_value(), tcp->ack_num.raw_value());
 #endif
 		cb_out = dc->lookup_output(this->index, ip, tcp);
 		
@@ -201,8 +201,8 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 			out_gates[0].add(pkt);
 
 #ifdef DEBUG
-		if(strcmp(ns.c_str(), "/var/run/netns/RA") == 0)
-			fprintf(stderr, "[%s][DyscoAgentOut] forwards %s [%X:%X]\n\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.raw_value(), tcp->ack_num.raw_value());
+		//		if(strcmp(ns.c_str(), "/var/run/netns/RA") == 0)
+		fprintf(stderr, "[%s][DyscoAgentOut] forwards %s [%X:%X]\n\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.raw_value(), tcp->ack_num.raw_value());
 #endif
 	}
 	
