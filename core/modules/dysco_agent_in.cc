@@ -580,13 +580,13 @@ bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in, uint32_t 
 			if(old_out->valid_ack_cut) {
 				if(before(seq, old_out->ack_cutoff)) {
 #ifdef DEBUG
-					fprintf(stderr, "setting onto %s %s ack_cutoff: %X.\n", printSS(old_out->sup), printSS(old_out->sub), seq);
+					fprintf(stderr, "setting1 onto %s %s ack_cutoff: %X.\n", printSS(old_out->sup), printSS(old_out->sub), seq);
 #endif
 					old_out->ack_cutoff = seq;
 				}
 			} else {
 #ifdef DEBUG
-				fprintf(stderr, "setting onto %s %s ack_cutoff: %X.\n", printSS(old_out->sup), printSS(old_out->sub), seq);
+				fprintf(stderr, "setting2 onto %s %s ack_cutoff: %X.\n", printSS(old_out->sup), printSS(old_out->sub), seq);
 #endif
 				old_out->ack_cutoff = seq;
 				old_out->valid_ack_cut = 1;
@@ -596,7 +596,7 @@ bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in, uint32_t 
 		//TEST
 		uint32_t seq = tcp->seq_num.value() + payload + 1;
 #ifdef DEBUG
-		fprintf(stderr, "setting onto %s %s ack_cutoff: %X.\n", printSS(cb_out->sup), printSS(cb_out->sub), seq);
+		fprintf(stderr, "setting3 onto %s %s ack_cutoff: %X.\n", printSS(cb_out->sup), printSS(cb_out->sub), seq);
 #endif
 		cb_out->ack_cutoff = seq;	
 	}
@@ -1298,7 +1298,7 @@ bool DyscoAgentIn::control_input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp,
 			
 			if(!old_out->state_t) {
 #ifdef DEBUG_RECONFIG
-				fprintf(stderr, "setting onto %s %s to ack_cutoff: %x.\n", printSS(old_out->sup), printSS(old_out->sub), old_out_ack_cutoff);
+				fprintf(stderr, "setting4 onto %s %s to ack_cutoff: %x.\n", printSS(old_out->sup), printSS(old_out->sub), old_out_ack_cutoff);
 #endif
 				old_out->ack_cutoff = old_out_ack_cutoff;
 				old_out->valid_ack_cut = 1;
