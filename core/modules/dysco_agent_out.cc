@@ -398,13 +398,14 @@ void DyscoAgentOut::out_translate(Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_
 	size_t tcp_hlen = tcp->offset << 2;
 	uint32_t seg_sz = ip->length.value() - ip_hlen - tcp_hlen;
 	uint32_t seq = tcp->seq_num.value() + seg_sz;
-
-	cb_out->last_seq = tcp->seq_num.value();
-	cb_out->last_ack = tcp->ack_num.value();
+	uint32_t ack = tcp->ack_num.value();
 	
 	DyscoHashOut* cb = cb_out;
 	DyscoHashOut* other_path = cb_out->other_path;
 	if(!other_path) {
+		cb_out->last_seq = tcp->seq_num.value();
+		cb_out->last_ack = tcp->ack_num.value();
+		
 		if(isTCPACK(tcp))
 			if(cb->state == DYSCO_SYN_SENT)
 				cb->state = DYSCO_ESTABLISHED;
@@ -413,19 +414,21 @@ void DyscoAgentOut::out_translate(Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_
 			if(cb->state == DYSCO_ESTABLISHED)
 				cb->state = DYSCO_FIN_WAIT_1;
 		
-		if(seg_sz > 0 && after(seq, cb_out->seq_cutoff))
-			cb_out->seq_cutoff = seq;
+		if(seg_sz > 0) {
+			if(after(seq, cb_out->seq_cutoff))
+				cb_out->seq_cutoff = seq;
+		} else {
+			if(after(ack, cb_out->ack_cutoff))
+				cb_out->ack_cutoff = ack;
+		}
 	} else {
-		other_path->last_seq = tcp->seq_num.value();
-		other_path->last_ack = tcp->ack_num.value();
-		
 		if(other_path->state == DYSCO_ESTABLISHED) {
 			if(isTCPFIN(tcp))
 				other_path->state = DYSCO_FIN_WAIT_1;
 			
-			if(seg_sz > 0)
+			if(seg_sz > 0) {
 				cb = other_path;
-			else {
+			} else {
 				cb = pick_path_ack(tcp, cb_out);
 			}
 		} else if(other_path->state == DYSCO_CLOSE_WAIT) {
