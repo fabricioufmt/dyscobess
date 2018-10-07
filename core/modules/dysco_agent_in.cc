@@ -541,7 +541,7 @@ bool DyscoAgentIn::in_two_paths_ack(Tcp* tcp, DyscoHashIn* cb_in) {
 #endif
 			if(!after(cb_out->seq_cutoff, ack_seq)) {
 #ifdef DEBUG_RECONFIG
-				fprintf(stderr, "setting (new_path) use_np_seq = 1.... because !after(cb_out->seq_cutoff, ack_seq) == %X, %X\n", cb_out->seq_cutoff, ack_seq);
+				fprintf(stderr, "[%s]setting (new_path) use_np_seq = 1.... because !after(cb_out->seq_cutoff, ack_seq) == %X, %X\n", ns.c_str(), cb_out->seq_cutoff, ack_seq);
 #endif
 				cb_out->use_np_seq = 1;
 				cb_in->two_paths = 0;
@@ -663,9 +663,8 @@ bool DyscoAgentIn::input(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
 		if(payload_sz) {
 			if(cb_in->dcb_out) {
 #ifdef DEBUG_RECONFIG
-				if(strcmp(ns.c_str(), "/var/run/netns/LA") == 0 || strcmp(ns.c_str(), "/var/run/netns/RA") == 0) {
+				if(strcmp(ns.c_str(), "/var/run/netns/RA") == 0) {
 					fprintf(stderr, "[%s]update ack_cutoff from %X to %X\n", ns.c_str(), cb_in->dcb_out->ack_cutoff, tcp->seq_num.value() + payload_sz);
-					fprintf(stderr, "[%s]session: %s\n", ns.c_str(), printSS(cb_in->dcb_out->sub));
 				}
 #endif
 				cb_in->dcb_out->ack_cutoff = tcp->seq_num.value() + payload_sz;
