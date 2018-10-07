@@ -571,7 +571,9 @@ bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in, uint32_t 
 		if(old_out->state == DYSCO_SYN_SENT || old_out->state == DYSCO_SYN_RECEIVED) {
 			uint32_t seq = tcp->seq_num.value();
 			uint32_t delta;
-
+#ifdef DEBUG_RECONFIG
+			fprintf(stderr, "delta=%X and seq=%X.\n", delta, seq);
+#endif
 			if(cb_out->in_iack < cb_out->out_iack) {
 				delta = cb_out->out_iack - cb_out->in_iack;
 				seq -= delta;
@@ -581,15 +583,19 @@ bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in, uint32_t 
 			}
 
 			if(old_out->valid_ack_cut) {
+#ifdef DEBUG_RECONFIG
+				fprintf(stderr, "before(seq, old_out->ack_cutoff)? [%X, %X]==%u\n", seq, old_out->ack_cutoff, before(seq, old_out->ack_cutoff));
+#endif
+				
 				if(before(seq, old_out->ack_cutoff)) {
-#ifdef DEBUG
-					fprintf(stderr, "setting1 onto %s %s ack_cutoff: %X.\n", printSS(old_out->sup), printSS(old_out->sub), seq);
+#ifdef DEBUG_RECONFIG
+					fprintf(stderr, "session1:%s, from ack_cutoff=%X to %X.\n", printSS(old_out->sub), old_out->ack_cutoff, seq);
 #endif
 					old_out->ack_cutoff = seq;
 				}
 			} else {
-#ifdef DEBUG
-				fprintf(stderr, "setting2 onto %s %s ack_cutoff: %X.\n", printSS(old_out->sup), printSS(old_out->sub), seq);
+#ifdef DEBUG_RECONFIG
+				fprintf(stderr, "session2:%s, from ack_cutoff=%X to %X.\n", printSS(old_out->sub), old_out->ack_cutoff, seq);
 #endif
 				old_out->ack_cutoff = seq;
 				old_out->valid_ack_cut = 1;
@@ -598,8 +604,8 @@ bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in, uint32_t 
 	} else {
 		//TEST
 		uint32_t seq = tcp->seq_num.value() + payload + 1;
-#ifdef DEBUG
-		fprintf(stderr, "setting3 onto %s %s ack_cutoff: %X.\n", printSS(cb_out->sup), printSS(cb_out->sub), seq);
+#ifdef DEBUG_RECONFIG
+		fprintf(stderr, "session3:%s, from ack_cutoff=%X to %X.\n", printSS(old_out->sub), old_out->ack_cutoff, seq);
 #endif
 		cb_out->ack_cutoff = seq;	
 	}
