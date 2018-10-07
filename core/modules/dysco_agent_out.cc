@@ -420,6 +420,7 @@ void DyscoAgentOut::out_translate(Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_
 	size_t tcp_hlen = tcp->offset << 2;
 	uint32_t seg_sz = ip->length.value() - ip_hlen - tcp_hlen;
 	uint32_t seq = tcp->seq_num.value() + seg_sz;
+	uint32_t ack = tcp->ack_num.value();
 	
 	DyscoHashOut* cb = cb_out;
 	DyscoHashOut* other_path = cb_out->other_path;
@@ -440,8 +441,14 @@ void DyscoAgentOut::out_translate(Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_
 			fprintf(stderr, "seg_sz=%u, seq=%X, cb_out->seq_cutoff=%X, after(seq, cb_out->seq_cutoff)=%u\n", seg_sz, seq, cb_out->seq_cutoff, after(seq, cb_out->seq_cutoff));
 		}
 #endif
-		if(seg_sz > 0 && after(seq, cb_out->seq_cutoff))
-			cb_out->seq_cutoff = seq;
+		if(seg_sz > 0) {
+			if(after(seq, cb_out->seq_cutoff))
+				cb_out->seq_cutoff = seq;
+		} else {
+			if(after(ack, cb_out->ack_cutoff))
+				cb_out->ack_cutoff = ack;
+		}
+		
 		
 	} else {
 		if(other_path->state == DYSCO_ESTABLISHED) {

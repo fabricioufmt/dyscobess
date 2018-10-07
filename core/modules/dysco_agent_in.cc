@@ -966,6 +966,7 @@ bool DyscoAgentIn::control_reconfig_in(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp
 		DyscoHashOut* old_out = rcb->old_dcb;
 		DyscoHashOut* new_out = rcb->new_dcb;
 		uint32_t seq_cutoff = old_out->seq_cutoff;
+		uint32_t seq_cutoff2 = ntohl(cmsg->seqCutoff);
 
 #ifdef DEBUG_RECONFIG
 		if(strcmp(ns.c_str(), "/var/run/netns/RA") == 0) {
@@ -974,6 +975,7 @@ bool DyscoAgentIn::control_reconfig_in(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp
 			fprintf(stderr, "new_out->in_iseq = %X and new_out->in_iack = %X\n", new_out->in_iseq, new_out->in_iack);
 			fprintf(stderr, "new_out->out_iseq = %X and new_out->out_iack = %X\n", new_out->out_iseq, new_out->out_iack);
 			fprintf(stderr, "old_out->seq_cutoff = %X\n", seq_cutoff);
+			fprintf(stderr, "cmsg->seqCutoff = %X\n", seq_cutoff2);
 		}
 #endif
 		
@@ -1703,6 +1705,8 @@ Packet* DyscoAgentIn::createSynReconfig(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 	newcmsg->type = DYSCO_RECONFIG;
 	newcmsg->leftA = ip->dst.raw_value();
 	newcmsg->rightA = cmsg->rightA;
+
+	newcmsg->seqCutoff = htonl(old_dcb->seq_cutoff);
 #ifdef DEBUG_RECONFIG
 	fprintf(stderr, "old_dcb->seq_cutoff=%X, old_dcb->ack_cutoff=%X, old_dcb->last_seq=%X, old_dcb->last_ack=%X.\n", old_dcb->seq_cutoff, old_dcb->ack_cutoff, old_dcb->last_seq, old_dcb->last_ack);
 #endif
