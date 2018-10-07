@@ -615,13 +615,13 @@ inline bool isTCPFIN(Tcp* tcp, bool exclusive = false) {
 	return exclusive ? tcp->flags == Tcp::Flag::kFin : tcp->flags & Tcp::Flag::kFin;
 }
 
-inline bool before(uint32_t seq1, uint32_t seq2) {
+inline int32_t before(uint32_t seq1, uint32_t seq2) {
 	return (int32_t)(seq1 - seq2) < 0;
 }
-
-inline bool after(uint32_t seq2, uint32_t seq1) {
+#define after(seq2, seq1)     before(seq1, seq2)
+/*inline bool after(uint32_t seq2, uint32_t seq1) {
 	return before(seq1, seq2);
-}
+}*/
 
 inline bool isFromLeftAnchor(Ipv4* ip, DyscoControlMessage* cmsg) {
 	return ip->src.raw_value() == cmsg->leftA;
