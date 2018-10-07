@@ -1327,9 +1327,9 @@ bool DyscoAgentIn::control_input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp,
 
 #ifdef DEBUG_RECONFIG
 			fprintf(stderr, "new_out->out_iack=%X -- new_out->in_iack=%X.\n", new_out->out_iack, new_out->in_iack);
-			fprintf(stderr, "old_out->ack_cutoff=%X.\n", old_out_ack_cutoff);
+			fprintf(stderr, "old_out->ack_cutoff=%X.\n", old_out->ack_cutoff);
 			fprintf(stderr, "old_out->lastAck=%X.\n", old_out->last_ack);
-			fprintf(stderr, "new_out->ack_cutoff=%X.\n", new_out_ack_cutoff);
+			fprintf(stderr, "new_out->ack_cutoff=%X.\n", new_out->ack_cutoff);
 			fprintf(stderr, "new_out->lastAck=%X.\n", new_out->last_ack);
 			fprintf(stderr, "session: %s\n", printSS(old_out->sub));
 #endif
