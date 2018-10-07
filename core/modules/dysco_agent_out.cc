@@ -348,8 +348,23 @@ DyscoHashOut* DyscoAgentOut::pick_path_seq(DyscoHashOut* cb_out, uint32_t seq) {
 		}
 	} else if(cb_out->use_np_seq) {
 		cb = cb_out->other_path;
-	} else if(!before(seq, cb_out->seq_cutoff)) {
-		cb = cb_out->other_path;
+	} else {
+#ifdef DEBUG_RECONFIG
+		if(strcmp(ns.c_str(), "/var/run/netns/LA") == 0 || strcmp(ns.c_str(), "/var/run/netns/RA") == 0) {
+			fprintf(stderr, "[%s] pick_path_seq method\n", ns.c_str());
+			fprintf(stderr, "seq=%X, cb_out->seq_cutoff=%X, !before(seq, cb_out->seq_cutoff)=%u\n", seq, cb_out->seq_cutoff, !before(seq, cb_out->seq_cutoff));
+		}
+#endif
+		if(!before(seq, cb_out->seq_cutoff)) {
+			cb = cb_out->other_path;
+#ifdef DEBUG_RECONFIG
+			fprintf(stderr, "picking new path\n");
+#endif
+		} else {
+#ifdef DEBUG_RECONFIG
+			fprintf(stderr, "picking old path\n");
+#endif
+		}
 	}
 
 	return cb;
@@ -419,7 +434,11 @@ void DyscoAgentOut::out_translate(Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_
 		if(isTCPFIN(tcp))
 			if(cb->state == DYSCO_ESTABLISHED)
 				cb->state = DYSCO_FIN_WAIT_1;
-		
+#ifdef DEBUG_RECONFIG
+		if(strcmp(ns.c_str(), "/var/run/netns/LA") == 0 || strcmp(ns.c_str(), "/var/run/netns/RA") == 0) {
+			fprintf(stderr, "[%s] updating cb_out->seq_cutoff...", ns.c_str());
+			fprintf(stderr, "seg_sz=%u, seq=%X, cb_out->seq_cutoff=%X, after(seq, cb_out->seq_cutoff)\n", seg_sz, seq, cb_out->seq_cutoff);
+#endif
 		if(seg_sz > 0 && after(seq, cb_out->seq_cutoff))
 			cb_out->seq_cutoff = seq;
 		
