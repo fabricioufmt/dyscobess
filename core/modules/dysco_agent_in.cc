@@ -88,6 +88,15 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 		//		if(strcmp(ns.c_str(), "/var/run/netns/LA") == 0 || strcmp(ns.c_str(), "/var/run/netns/RA") == 0)
 		fprintf(stderr, "[%s][DyscoAgentIn] receives %s [%X:%X] (len: %u).\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.raw_value(), tcp->ack_num.raw_value(), hasPayload(ip, tcp));
 #endif
+
+#ifdef DEBUG_RECONFIG
+		if(strcmp(ns.c_str(), "/var/run/netns/RA") == 0) {
+			if(ip->src.raw_value() == inet_addr("10.0.6.2"))
+				fprintf(stderr, "[%s][DyscoAgentIn] receives %s [%X:%X] (len: %u).\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.raw_value(), tcp->ack_num.raw_value(), hasPayload(ip, tcp));
+			else if(ip->src.raw_value() == inet_addr("10.0.8.2"))
+				fprintf(stderr, "[%s][DyscoAgentIn] receives %s [%X:%X] (len: %u).\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.raw_value(), tcp->ack_num.raw_value(), hasPayload(ip, tcp));
+		}
+#endif
 		
 		cb_in = dc->lookup_input(this->index, ip, tcp);
 		removed = processReceivedPacket(tcp);
@@ -135,6 +144,15 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 			//			if(strcmp(ns.c_str(), "/var/run/netns/LA") == 0 || strcmp(ns.c_str(), "/var/run/netns/RA") == 0)
 			fprintf(stderr, "[%s][DyscoAgentIn] forwards %s [%X:%X]\n\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.raw_value(), tcp->ack_num.raw_value());
 #endif
+			
+#ifdef DEBUG_RECONFIG
+			if(strcmp(ns.c_str(), "/var/run/netns/RA") == 0) {
+				if(ip->dst.raw_value() == inet_addr("10.0.2.2"))
+					fprintf(stderr, "[%s][DyscoAgentIn] forwards %s [%X:%X] (len: %u).\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.raw_value(), tcp->ack_num.raw_value(), hasPayload(ip, tcp));
+			}
+#endif
+			
+			
 		}
 	}
 	
@@ -686,11 +704,13 @@ bool DyscoAgentIn::input(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
 	} else {
 		if(payload_sz) {
 			if(cb_in->dcb_out) {
+				/*
 #ifdef DEBUG_RECONFIG
 				if(strcmp(ns.c_str(), "/var/run/netns/RA") == 0) {
 					fprintf(stderr, "[%s]update ack_cutoff from %X to %X\n", ns.c_str(), cb_in->dcb_out->ack_cutoff, tcp->seq_num.value() + payload_sz);
 				}
 #endif
+				*/
 				cb_in->dcb_out->ack_cutoff = tcp->seq_num.value() + payload_sz;
 			}
 		}

@@ -168,6 +168,14 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 		//		if(strcmp(ns.c_str(), "/var/run/netns/RA") == 0)
 		fprintf(stderr, "[%s][DyscoAgentOut] receives %s [%X:%X]\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.raw_value(), tcp->ack_num.raw_value());
 #endif
+
+#ifdef DEBUG_RECONFIG
+		if(strcmp(ns.c_str(), "/var/run/netns/RA") == 0) {
+			if(ip->dst.raw_value() == inet_addr("10.0.2.2"))
+				fprintf(stderr, "[%s][DyscoAgentOut] receives %s [%X:%X] (len: %u).\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.raw_value(), tcp->ack_num.raw_value(), hasPayload(ip, tcp));
+		}
+#endif
+		
 		cb_out = dc->lookup_output(this->index, ip, tcp);
 		
 		if(isLockingSignalPacket(tcp)) {
@@ -203,6 +211,13 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 #ifdef DEBUG
 		//		if(strcmp(ns.c_str(), "/var/run/netns/RA") == 0)
 		fprintf(stderr, "[%s][DyscoAgentOut] forwards %s [%X:%X]\n\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.raw_value(), tcp->ack_num.raw_value());
+#endif
+
+#ifdef DEBUG_RECONFIG
+		if(strcmp(ns.c_str(), "/var/run/netns/RA") == 0) {
+			if(ip->dst.raw_value() == inet_addr("10.0.2.2"))
+				fprintf(stderr, "[%s][DyscoAgentOut] forwards %s [%X:%X] (len: %u).\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.raw_value(), tcp->ack_num.raw_value(), hasPayload(ip, tcp));
+		}
 #endif
 	}
 	
