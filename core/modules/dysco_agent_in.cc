@@ -472,9 +472,9 @@ DyscoHashOut* DyscoAgentIn::insert_cb_in_reverse(DyscoHashIn* cb_in, Ipv4* ip, T
 
 	cb_out->mac_sub.src_addr = cb_in->mac_sub.dst_addr;
 	cb_out->mac_sub.dst_addr = cb_in->mac_sub.src_addr;
-	
-	cb_out->in_iack = tcp->seq_num.value();
-	cb_out->out_iack = tcp->seq_num.value();
+
+	cb_out->in_iseq = tcp->seq_num.value();
+	cb_out->in_iack = tcp->ack_num.value();
 
 	cb_out->other_path = 0;
 	cb_out->old_path = 0;

@@ -580,6 +580,8 @@ bool DyscoAgentOut::output_syn(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb
 		dc->insert_hash_input(this->index, cb_out->dcb_in);
 	}
 	cb_out->module = this;
+	cb_out->out_iseq = tcp->seq_num.value();
+	cb_out->out_iack = tcp->ack_num.value();
 	cb_out->last_seq = tcp->seq_num.value();
 	cb_out->last_ack = tcp->ack_num.value();
 	cb_out->seq_cutoff = tcp->seq_num.value();
@@ -600,8 +602,10 @@ bool DyscoAgentOut::output_syn(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb
 
 		cb_out->in_iseq = cb_out->out_iseq = tcp->seq_num.value();
 		cb_out->in_iack = cb_out->out_iack = tcp->ack_num.value() - 1;
-		cb_in_aux->in_iseq = cb_in_aux->out_iseq = cb_out->out_iack;
-		cb_in_aux->in_iack = cb_in_aux->out_iack = cb_out->out_iseq;
+		//cb_in_aux->in_iseq = cb_in_aux->out_iseq = cb_out->out_iack;
+		//cb_in_aux->in_iack = cb_in_aux->out_iack = cb_out->out_iseq;
+		cb_in_aux->out_iseq = cb_out->out_iack;
+		cb_in_aux->out_iack = cb_out->out_iseq;
 		cb_in_aux->seq_delta = cb_in_aux->ack_delta = 0;
 
 		if(cb_out->ts_ok) {
