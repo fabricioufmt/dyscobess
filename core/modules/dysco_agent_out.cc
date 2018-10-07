@@ -438,6 +438,7 @@ void DyscoAgentOut::out_translate(Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_
 		if(strcmp(ns.c_str(), "/var/run/netns/LA") == 0 || strcmp(ns.c_str(), "/var/run/netns/RA") == 0) {
 			fprintf(stderr, "[%s] updating cb_out->seq_cutoff...", ns.c_str());
 			fprintf(stderr, "seg_sz=%u, seq=%X, cb_out->seq_cutoff=%X, after(seq, cb_out->seq_cutoff)\n", seg_sz, seq, cb_out->seq_cutoff);
+		}
 #endif
 		if(seg_sz > 0 && after(seq, cb_out->seq_cutoff))
 			cb_out->seq_cutoff = seq;
