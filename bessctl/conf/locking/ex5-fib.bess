@@ -1,14 +1,14 @@
 import os
 import scapy.all as scapy
 
-os.system('ip netns del R > /dev/null' 2>/dev/null)
-os.system('ip netns del LA > /dev/null' 2>/dev/null)
-os.system('ip netns del RA > /dev/null' 2>/dev/null)
-os.system('ip netns del c1 > /dev/null' 2>/dev/null)
-os.system('ip netns del s1 > /dev/null' 2>/dev/null)
-os.system('ip netns del m1 > /dev/null' 2>/dev/null)
-os.system('ip netns del m2 > /dev/null' 2>/dev/null)
-os.system('ip netns del nat > /dev/null' 2>/dev/null)
+os.system('ip netns del R > /dev/null 2>/dev/null')
+os.system('ip netns del LA > /dev/null 2>/dev/null')
+os.system('ip netns del RA > /dev/null 2>/dev/null')
+os.system('ip netns del c1 > /dev/null 2>/dev/null')
+os.system('ip netns del s1 > /dev/null 2>/dev/null')
+os.system('ip netns del m1 > /dev/null 2>/dev/null')
+os.system('ip netns del m2 > /dev/null 2>/dev/null')
+os.system('ip netns del nat > /dev/null 2>/dev/null')
 os.system('ip netns add R > /dev/null')
 os.system('ip netns add LA > /dev/null')
 os.system('ip netns add RA > /dev/null')
