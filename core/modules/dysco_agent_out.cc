@@ -445,6 +445,9 @@ void DyscoAgentOut::out_translate(Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_
 			//Should forward to other_path
 			cb = other_path;
 		}
+
+		cb->last_seq = tcp->seq_num.value();
+		cb->last_ack = tcp->ack_num.value();
 	}
 		
 		/*
