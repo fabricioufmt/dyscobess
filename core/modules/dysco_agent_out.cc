@@ -384,7 +384,7 @@ DyscoHashOut* DyscoAgentOut::pick_path_ack(Tcp* tcp, DyscoHashOut* cb_out) {
 		fprintf(stderr, "cb_out->sup: %s -- cb_out->sub: %s\n", printSS(cb_out->sup), printSS(cb_out->sub));
 		fprintf(stderr, "cb_out->valid_ack_cut: %d\n", cb_out->valid_ack_cut);
 		fprintf(stderr, "cb_out->use_np_ack: %d\n", cb_out->use_np_ack);
-		fprintf(stderr, "after(ack, cb_out->ack_cutoff)[%X, %X]: %d\n", cb_out->ack_cutoff, ack, after(ack, cb_out->ack_cutoff));
+		fprintf(stderr, "after(ack, cb_out->ack_cutoff)[%X, %X]: %d\n", ack, cb_out->ack_cutoff, after(ack, cb_out->ack_cutoff));
 #endif
 		if(cb_out->valid_ack_cut) {
 			if(cb_out->use_np_ack) {
