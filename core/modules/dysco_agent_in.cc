@@ -554,15 +554,15 @@ bool DyscoAgentIn::in_two_paths_ack(Tcp* tcp, DyscoHashIn* cb_in) {
 }
 
 //L.683
-bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in, uint32_t) {
-#ifdef DEBUG_RECONFIG
-	fprintf(stderr, "[%s] in_two_paths_data_seg method.\n", ns.c_str());
-#endif
+bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in, uint32_t payload_sz) {
 	DyscoHashOut* cb_out = cb_in->dcb_out;
 	if(!cb_out)
 		return false;
 
 	if(!cb_out->old_path) {
+#ifdef DEBUG_RECONFIG
+		fprintf(stderr, "[%s] in_two_paths_data_seg method.\n", ns.c_str());
+#endif
 		DyscoHashOut* old_out = cb_out->other_path;
 
 		if(!old_out)
@@ -605,6 +605,14 @@ bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in, uint32_t)
 				old_out->valid_ack_cut = 1;
 			}
 		}
+	} else {
+#ifdef DEBUG_RECONFIG
+		fprintf(stderr, "[%s] in_two_paths_data_seg method.\n", ns.c_str());
+		if(strcmp(ns.c_str(), "/var/run/netns/RA") == 0) {
+			fprintf(stderr, "[%s]update2 ack_cutoff from %X to %X\n", ns.c_str(), cb_out->ack_cutoff, tcp->seq_num.value() + payload_sz);
+		}
+#endif
+		cb_in->dcb_out->ack_cutoff = tcp->seq_num.value() + payload_sz;
 	}
 	
 	return true;
