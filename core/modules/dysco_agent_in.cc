@@ -560,24 +560,28 @@ bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in, uint32_t 
 		return false;
 
 	if(!cb_out->old_path) {
+		/*
 #ifdef DEBUG_RECONFIG
 		fprintf(stderr, "[%s][%s] in_two_paths_data_seg method.\n", ns.c_str(), printSS(cb_out->sub));
 #endif
+		*/
 		DyscoHashOut* old_out = cb_out->other_path;
 
 		if(!old_out)
 			return false;
-
+		/*
 #ifdef DEBUG_RECONFIG
 		fprintf(stderr, "[%s]old_out->state: %u\n", printSS(old_out->sub), old_out->state);
 #endif
-		
+		*/
 		if(old_out->state == DYSCO_SYN_SENT || old_out->state == DYSCO_SYN_RECEIVED) {
 			uint32_t seq = tcp->seq_num.value();
 			uint32_t delta;
+			/*
 #ifdef DEBUG_RECONFIG
 			fprintf(stderr, "delta=%X and seq=%X.\n", delta, seq);
 #endif
+			*/
 			if(cb_out->in_iack < cb_out->out_iack) {
 				delta = cb_out->out_iack - cb_out->in_iack;
 				seq -= delta;
@@ -607,6 +611,7 @@ bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in, uint32_t 
 		}
 	} else {
 		if(cb_out->other_path->state != DYSCO_ESTABLISHED) {
+			/*
 #ifdef DEBUG_RECONFIG
 			fprintf(stderr, "[%s][%s] in_two_paths_data_seg method.\n", ns.c_str(), printSS(cb_out->sub));
 			fprintf(stderr, "[%s][%s] not ESTABLISHED...\n", ns.c_str(), printSS(cb_out->other_path->sub));
@@ -614,12 +619,13 @@ bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in, uint32_t 
 				fprintf(stderr, "[%s]update2 ack_cutoff from %X to %X\n", ns.c_str(), cb_out->ack_cutoff, tcp->seq_num.value() + payload_sz);
 			}
 #endif
+			*/
 			cb_in->dcb_out->ack_cutoff = tcp->seq_num.value() + payload_sz;
-		} else {
+		}/* else {
 #ifdef DEBUG_RECONFIG
 			fprintf(stderr, "[%s][%s] already ESTABLISHED...\n", ns.c_str(), printSS(cb_out->other_path->sub));
 #endif
-		}
+}*/
 	}
 	
 	return true;
