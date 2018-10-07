@@ -568,6 +568,10 @@ bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in, uint32_t)
 		if(!old_out)
 			return false;
 
+#ifdef DEBUG_RECONFIG
+		fprintf(stderr, "old_out->state: %u\n", old_out->state);
+#endif
+		
 		if(old_out->state == DYSCO_SYN_SENT || old_out->state == DYSCO_SYN_RECEIVED) {
 			uint32_t seq = tcp->seq_num.value();
 			uint32_t delta;
