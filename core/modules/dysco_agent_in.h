@@ -90,7 +90,7 @@ class DyscoAgentIn final : public Module {
 	bool setup();
 	bool isEstablished(Packet*);
 	void createAck(Packet*, Ethernet*, Ipv4*, Tcp*);
-	void createSynAck(Packet*, Ethernet*, Ipv4*, Tcp*, uint32_t);
+	void createSynAck(Packet*, Ethernet*, Ipv4*, Tcp*);
 	void createFinAck(Packet*, Ipv4*, Tcp*);
 
 	/*

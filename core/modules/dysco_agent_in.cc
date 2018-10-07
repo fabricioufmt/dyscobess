@@ -923,10 +923,8 @@ bool DyscoAgentIn::control_reconfig_in(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp
 		cb_in = new DyscoHashIn();
 		cb_in->module = this;
 		cb_in->sub = rcb->sub_in;
-		cb_in->out_iseq = rcb->leftIack;
-		cb_in->out_iack = rcb->leftIseq;
-		//cb_in->out_iseq = rcb->leftIseq;
-		//cb_in->out_iack = rcb->leftIack;
+		//cb_in->out_iseq = rcb->leftIack;
+		//cb_in->out_iack = rcb->leftIseq;
 		cb_in->seq_delta = cb_in->ack_delta = 0;
 
 		cb_in->in_iseq = rcb->leftIseq;
@@ -952,7 +950,7 @@ bool DyscoAgentIn::control_reconfig_in(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp
 		
 		dc->insert_hash_input(this->index, cb_in);
 		
-		createSynAck(pkt, eth, ip, tcp, cb_out->out_iseq);
+		createSynAck(pkt, eth, ip, tcp);
 		
 		if(!control_config_rightA(rcb, cmsg, cb_in, cb_out)) {
 #ifdef DEBUG_RECONFIG
@@ -966,6 +964,16 @@ bool DyscoAgentIn::control_reconfig_in(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp
 		DyscoHashOut* new_out = rcb->new_dcb;
 		uint32_t seq_cutoff = old_out->seq_cutoff;
 
+#ifdef DEBUG_RECONFIG
+		if(strcmp(ns.c_str(), "/var/run/netns/RA") == 0) {
+			fprintf(stderr, "old_out->in_iseq = %X and old_out->in_iack = %X\n", old_out->in_iseq, old_out->in_iack);
+			fprintf(stderr, "old_out->out_iseq = %X and old_out->out_iack = %X\n", old_out->out_iseq, old_out->out_iack);
+			fprintf(stderr, "new_out->in_iseq = %X and new_out->in_iack = %X\n", new_out->in_iseq, new_out->in_iack);
+			fprintf(stderr, "new_out->out_iseq = %X and new_out->out_iack = %X\n", new_out->out_iseq, new_out->out_iack);
+			fprintf(stderr, "old_out->seq_cutoff = %X\n", seq_cutoff);
+		}
+#endif
+		
 		old_out->old_path = 1;
 		old_out->other_path = new_out;
 		
@@ -1377,7 +1385,7 @@ void DyscoAgentIn::createAck(Packet*, Ethernet* eth, Ipv4* ip, Tcp* tcp) {
 	fix_csum(ip, tcp);
 }
 
-void DyscoAgentIn::createSynAck(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp, uint32_t) {
+void DyscoAgentIn::createSynAck(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp) {
 	Ethernet::Address macswap = eth->dst_addr;
 	eth->dst_addr = eth->src_addr;
 	eth->src_addr = macswap;
