@@ -85,12 +85,12 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 		tcp = reinterpret_cast<Tcp*>((uint8_t*)ip + ip_hlen);
 
 #ifdef DEBUG
-		fprintf(stderr, "[%s][DyscoAgentIn] receives %s [%X:%X] (tcp->offset: %u) (len: %u).\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.raw_value(), tcp->ack_num.raw_value(), tcp->offset, hasPayload(ip, tcp));
+		fprintf(stderr, "[%s][DyscoAgentIn] receives %s [%X:%X] (len: %u).\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.raw_value(), tcp->ack_num.raw_value(), hasPayload(ip, tcp));
 #endif
 
 #ifdef DEBUG_RECONFIG
 		if(tcp->flags == Tcp::kSyn || tcp->flags == (Tcp::kSyn | Tcp::kAck) || tcp->flags == (Tcp::kAck | Tcp::kUrg)) {
-			fprintf(stderr, "[%s][DyscoAgentIn] receives %s [%X:%X] (tcp->offset: %u) (len: %u).\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.raw_value(), tcp->ack_num.raw_value(), tcp->offset, hasPayload(ip, tcp));
+			fprintf(stderr, "[%s][DyscoAgentIn] receives %s [%X:%X] (len: %u).\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.raw_value(), tcp->ack_num.raw_value(), hasPayload(ip, tcp));
 		}
 #endif
 		
@@ -141,7 +141,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 #ifdef DEBUG_RECONFIG
 				if(tcp->flags == Tcp::kSyn || tcp->flags == (Tcp::kSyn | Tcp::kAck)) {
 					
-					fprintf(stderr, "[%s][DyscoAgentIn] forwards to host %s [%X:%X] (tcp->offset: %u) (len: %u).\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.raw_value(), tcp->ack_num.raw_value(), tcp->offset, hasPayload(ip, tcp));
+					fprintf(stderr, "[%s][DyscoAgentIn] forwards to host %s [%X:%X] (len: %u).\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.raw_value(), tcp->ack_num.raw_value(), hasPayload(ip, tcp));
 				}
 #endif				
 				out.add(pkt);
@@ -150,7 +150,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 				fprintf(stderr, "input retuns false\n\n");
 				if(tcp->flags == Tcp::kSyn || tcp->flags == (Tcp::kSyn | Tcp::kAck)) {
 					
-					fprintf(stderr, "[%s][DyscoAgentIn] drops %s [%X:%X] (tcp->offset: %u) (len: %u).\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.raw_value(), tcp->ack_num.raw_value(), tcp->offset, hasPayload(ip, tcp));
+					fprintf(stderr, "[%s][DyscoAgentIn] drops %s [%X:%X] (len: %u).\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.raw_value(), tcp->ack_num.raw_value(), hasPayload(ip, tcp));
 				}
 #endif	
 			}
