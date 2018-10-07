@@ -163,8 +163,10 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 		
 		ip_hlen = ip->header_length << 2;
 		tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
+		
 #ifdef DEBUG
-		fprintf(stderr, "[%s][DyscoAgentOut] receives %s [%X:%X]\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.raw_value(), tcp->ack_num.raw_value());
+		if(strcmp(ns.c_str(), "/var/run/netns/LA") == 0 || strcmp(ns.c_str(), "/var/run/netns/m1") == 0 || strcmp(ns.c_str(), "/var/run/netns/m2") == 0 || strcmp(ns.c_str(), "/var/run/netns/RA") == 0)
+			fprintf(stderr, "[%s][DyscoAgentOut] receives %s [%X:%X]\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.raw_value(), tcp->ack_num.raw_value());
 #endif
 		cb_out = dc->lookup_output(this->index, ip, tcp);
 		
@@ -175,9 +177,7 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 
 			if(processLockingSignalPacket(pkt, eth, ip, tcp, cb_out)) {
 				forward(pkt, true);
-#ifdef DEBUG_RECONFIG
-				fprintf(stderr, "forward(reliable=True) is DONE\n");
-#endif
+				
 				continue;
 			}
 		} else if(isReconfigPacketOut(ip, tcp, cb_out)) {
@@ -201,7 +201,8 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 			out_gates[0].add(pkt);
 
 #ifdef DEBUG
-		fprintf(stderr, "[%s][DyscoAgentOut] forwards %s [%X:%X]\n\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.raw_value(), tcp->ack_num.raw_value());
+		if(strcmp(ns.c_str(), "/var/run/netns/LA") == 0 || strcmp(ns.c_str(), "/var/run/netns/m1") == 0 || strcmp(ns.c_str(), "/var/run/netns/m2") == 0 || strcmp(ns.c_str(), "/var/run/netns/RA") == 0)
+			fprintf(stderr, "[%s][DyscoAgentOut] forwards %s [%X:%X]\n\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.raw_value(), tcp->ack_num.raw_value());
 #endif
 	}
 	
@@ -1062,11 +1063,6 @@ bool DyscoAgentOut::forward(Packet* pkt, bool reliable) {
 	uint32_t i = getValueToAck(pkt);
 
 	bool updated = agent->updateReceivedHash(i, node);
-
-#ifdef DEBUG_RECONFIG
-	if(updated)
-		fprintf(stderr, "[%s] I expected to received a packet with %X ACK (list->size(%p): %u)\n", getNs(), i, retransmission_list, retransmission_list->size());
-#endif
 
 	if(!timer)
 		timer = new thread(timer_worker, this);

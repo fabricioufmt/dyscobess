@@ -85,22 +85,16 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 		tcp = reinterpret_cast<Tcp*>((uint8_t*)ip + ip_hlen);
 
 #ifdef DEBUG
-		fprintf(stderr, "[%s][DyscoAgentIn] receives %s [%X:%X] (len: %u).\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.raw_value(), tcp->ack_num.raw_value(), hasPayload(ip, tcp));
-#endif
-
-#ifdef DEBUG_RECONFIG
-		if(tcp->flags == Tcp::kSyn || tcp->flags == (Tcp::kSyn | Tcp::kAck) || tcp->flags == (Tcp::kAck | Tcp::kUrg)) {
+		if(strcmp(ns.c_str(), "/var/run/netns/LA") == 0 || strcmp(ns.c_str(), "/var/run/netns/m1") == 0 || strcmp(ns.c_str(), "/var/run/netns/m2") == 0 || strcmp(ns.c_str(), "/var/run/netns/RA") == 0)
 			fprintf(stderr, "[%s][DyscoAgentIn] receives %s [%X:%X] (len: %u).\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.raw_value(), tcp->ack_num.raw_value(), hasPayload(ip, tcp));
-		}
 #endif
 		
 		cb_in = dc->lookup_input(this->index, ip, tcp);
 		removed = processReceivedPacket(tcp);
-		removed = false;
 		
 		if(isLockingSignalPacket(tcp)) {
 #ifdef DEBUG_RECONFIG
-			fprintf(stderr, "Receives Locking Signal Packet.\n");
+			fprintf(stderr, "[%s] Receives Locking Signal Packet.\n", ns.c_str());
 #endif
 			newpkt = processLockingSignalPacket(pkt, eth, ip, tcp, cb_in);
 			if(newpkt) {
@@ -112,7 +106,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 			}
 		} else if(isLockingPacket(ip, tcp)) {
 #ifdef DEBUG_RECONFIG
-			fprintf(stderr, "Receives Locking Packet.\n");
+			fprintf(stderr, "[%s] Receives Locking Packet.\n", ns.c_str());
 #endif
 			newpkt = processLockingPacket(pkt, eth, ip, tcp);
 			if(newpkt) {
@@ -131,34 +125,15 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 			
 		} else {
 			if(removed) {
-#ifdef DEBUG_RECONFIG
-				fprintf(stderr, "dropping..\n");
-#endif
 				continue;
 			}
 			
 			if(input(pkt, ip, tcp, cb_in)) {
-#ifdef DEBUG_RECONFIG
-				if(tcp->flags == Tcp::kSyn || tcp->flags == (Tcp::kSyn | Tcp::kAck)) {
-					
-					fprintf(stderr, "[%s][DyscoAgentIn] forwards to host %s [%X:%X] (len: %u).\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.raw_value(), tcp->ack_num.raw_value(), hasPayload(ip, tcp));
-				}
-#endif				
 				out.add(pkt);
-			} else {
-#ifdef DEBUG_RECONFIG
-				fprintf(stderr, "input retuns false\n\n");
-				if(tcp->flags == Tcp::kSyn || tcp->flags == (Tcp::kSyn | Tcp::kAck)) {
-					
-					fprintf(stderr, "[%s][DyscoAgentIn] drops %s [%X:%X] (len: %u).\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.raw_value(), tcp->ack_num.raw_value(), hasPayload(ip, tcp));
-				}
-#endif	
 			}
-
-
-			
 #ifdef DEBUG
-			fprintf(stderr, "[%s][DyscoAgentIn] forwards %s [%X:%X]\n\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.raw_value(), tcp->ack_num.raw_value());
+			if(strcmp(ns.c_str(), "/var/run/netns/LA") == 0 || strcmp(ns.c_str(), "/var/run/netns/m1") == 0 || strcmp(ns.c_str(), "/var/run/netns/m2") == 0 || strcmp(ns.c_str(), "/var/run/netns/RA") == 0)
+				fprintf(stderr, "[%s][DyscoAgentIn] forwards %s [%X:%X]\n\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.raw_value(), tcp->ack_num.raw_value());
 #endif
 		}
 	}
@@ -173,7 +148,7 @@ bool DyscoAgentIn::processReceivedPacket(Tcp* tcp) {
 	LNode<Packet>* node = received_hash->operator[](key);
 	if(node && !node->isRemoved) {
 #ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[%s] I received the expected packet and I'm going to remove it from retransmission list and received hash.\n", ns.c_str());
+		fprintf(stderr, "[%s] Removes from retransmission list.\n", ns.c_str());
 #endif
 		agent->remove(node);
 		mtx.lock();
@@ -407,14 +382,14 @@ bool DyscoAgentIn::rx_initiation_new(Packet* pkt, Ipv4* ip, Tcp* tcp, uint32_t p
 	
 	if(neigh_subss->sip != cb_in->sub.sip || neigh_subss->sport != cb_in->sub.sport) {
 #ifdef DEBUG
-		fprintf(stderr, "[%s][DyscoAgentIn] NAT crossed.\n", ns.c_str());
+		fprintf(stderr, "[%s][DyscoAgentIn] There is a NAT.\n", ns.c_str());
 #endif
 		cb_in->my_sup = cb_in->sub;
 		cb_in->my_sup.dip = neigh_supss->dip;
 		cb_in->my_sup.dport = neigh_supss->dport;
 	} else {
 #ifdef DEBUG
-		fprintf(stderr, "[%s][DyscoAgentIn] not NAT crossed.\n", ns.c_str());
+		fprintf(stderr, "[%s][DyscoAgentIn] There is not a NAT.\n", ns.c_str());
 #endif
 		cb_in->my_sup.sip = neigh_supss->sip;
 		cb_in->my_sup.dip = neigh_supss->dip;
@@ -423,20 +398,10 @@ bool DyscoAgentIn::rx_initiation_new(Packet* pkt, Ipv4* ip, Tcp* tcp, uint32_t p
 	}
 
 	if(payload_sz > 2 * sizeof(DyscoTcpSession) + sizeof(uint32_t)) {
-#ifdef DEBUG
-		fprintf(stderr, "I am not last one on service chain.\n");
-#endif
 		uint32_t sc_len = (payload_sz - 2 * sizeof(DyscoTcpSession))/sizeof(uint32_t);
 
 		DyscoHashOut* cb_out = new DyscoHashOut();
-
-		/*
-		cb_out->sup.sip = neigh_supss->sip;
-		cb_out->sup.dip = neigh_supss->dip;
-		cb_out->sup.sport = neigh_supss->sport;
-		cb_out->sup.dport = neigh_supss->dport;
-		*/
-
+		
 		cb_out->sup = cb_in->my_sup;
 		
 		cb_out->dysco_tag = dc->get_dysco_tag(this->index);
@@ -484,7 +449,7 @@ DyscoHashOut* DyscoAgentIn::insert_cb_in_reverse(DyscoHashIn* cb_in, Ipv4* ip, T
 
 	if(!(cb_in->neigh_sup == cb_in->my_sup)) {
 #ifdef DEBUG
-		fprintf(stderr, "NAT crossed -- inserting a fake cb_out with neigh_sup\n");
+		fprintf(stderr, "NAT crossed -- inserting a fake cb_out with neigh_sup.\n");
 #endif
 
 		DyscoHashOut* cb_out_nat = new DyscoHashOut();
@@ -888,16 +853,12 @@ bool DyscoAgentIn::control_config_rightA(DyscoCbReconfig* rcb, DyscoControlMessa
 	local_ss.sport = cmsg->rightSS.dport;
 	local_ss.dport = cmsg->rightSS.sport;
 
-#ifdef DEBUG	
-	fprintf(stderr, "Looking for %s in hash_output... \n", printSS(local_ss));
-#endif
-
 	cb_in->my_sup = cmsg->rightSS;
 	
 	DyscoHashOut* old_out = dc->lookup_output_by_ss(this->index, &local_ss);
 	if(!old_out) {
 #ifdef DEBUG
-		fprintf(stderr, "Not found\n");
+		fprintf(stderr, "Looking for %s in hash_output... not found.\n", printSS(local_ss));
 #endif
 		dc->remove_hash_input(this->index, cb_in);
 		delete cb_in;
@@ -906,9 +867,6 @@ bool DyscoAgentIn::control_config_rightA(DyscoCbReconfig* rcb, DyscoControlMessa
 
 		return false;
 	} else {
-#ifdef DEBUG
-		fprintf(stderr, "Found\n");
-#endif
 		if(old_out->is_nat) {
 #ifdef DEBUG
 			fprintf(stderr, "is NAT and switching cb_outs\n");
@@ -1132,8 +1090,7 @@ bool DyscoAgentIn::control_reconfig_in(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp
 		insert_tag(pkt, ip, tcp);
 
 #ifdef DEBUG_RECONFIG
-		fprintf(stderr, "I'm going to change session from %s to %s\n",
-			printPacketSS(ip, tcp), printSS(cb_in->my_sup));
+		fprintf(stderr, "I'm going to change session from %s to %s\n", printPacketSS(ip, tcp), printSS(cb_in->my_sup));
 #endif
 		hdr_rewrite_full_csum(ip, tcp, &cb_in->my_sup);
 	
