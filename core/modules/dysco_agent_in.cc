@@ -989,9 +989,10 @@ bool DyscoAgentIn::control_reconfig_in(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp
 			fprintf(stderr, "cmsg->seqCutoff = %X\n", seq_cutoff2);
 		}
 #endif
-		
+
 		old_out->old_path = 1;
 		old_out->other_path = new_out;
+		old_out->dcb_in->two_paths = 1;
 		
 		if(new_out->seq_add)
 			seq_cutoff += new_out->seq_delta;
