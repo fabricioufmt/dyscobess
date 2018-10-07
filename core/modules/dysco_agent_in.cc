@@ -554,7 +554,7 @@ bool DyscoAgentIn::in_two_paths_ack(Tcp* tcp, DyscoHashIn* cb_in) {
 }
 
 //L.683
-bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in, uint32_t payload) {
+bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in, uint32_t) {
 #ifdef DEBUG_RECONFIG
 	fprintf(stderr, "[%s] in_two_paths_data_seg method.\n", ns.c_str());
 #endif
