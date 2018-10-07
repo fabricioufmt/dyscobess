@@ -379,11 +379,18 @@ DyscoHashOut* DyscoAgentOut::pick_path_ack(Tcp* tcp, DyscoHashOut* cb_out) {
 					if(isTCPFIN(tcp))
 						cb = cb_out->other_path;
 					else {
+#ifdef DEBUG_RECONFIG
+						fprintf(stderr, "I'm going to pick new path.\n");
+#endif
 						cb = cb_out->other_path;
 						cb_out->ack_ctr++;
 						if(cb_out->ack_ctr > 1)
 							cb_out->use_np_ack = 1;
 					}
+				} else {
+#ifdef DEBUG_RECONFIG
+					fprintf(stderr, "I'm going to pick old path.\n");
+#endif
 				}
 			}
 		}
