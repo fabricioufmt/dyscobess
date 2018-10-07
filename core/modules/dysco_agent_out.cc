@@ -418,8 +418,18 @@ void DyscoAgentOut::out_translate(Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_
 			if(after(seq, cb_out->seq_cutoff))
 				cb_out->seq_cutoff = seq;
 		} else {
-			if(after(ack, cb_out->ack_cutoff))
+#ifdef DEBUG_RECONFIG
+			if(strcmp(ns.c_str(), "/var/run/netns/RA") == 0)
+				fprintf(stderr, "(session %s) cb_out->ack_cutoff=%X\n", printSS(cb_out->sub), cb_out->ack_cutoff);
+#endif
+			if(after(ack, cb_out->ack_cutoff)) {
+#ifdef DEBUG_RECONFIG
+			if(strcmp(ns.c_str(), "/var/run/netns/RA") == 0)
+				fprintf(stderr, "setting cb_out->ack_cutoff to %X\n", ack);
+#endif
+		
 				cb_out->ack_cutoff = ack;
+			}
 		}
 	} else {
 		if(other_path->state == DYSCO_ESTABLISHED) {

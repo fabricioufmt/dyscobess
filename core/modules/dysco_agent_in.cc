@@ -1288,6 +1288,10 @@ bool DyscoAgentIn::control_input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp,
 
 			//old_out_ack_cutoff = cb_in->in_iseq;
 			old_out_ack_cutoff = old_out->ack_cutoff;
+
+#ifdef DEBUG_RECONFIG
+			fprintf(stderr, "new_out->out_iack=% -- new_out->in_iack=%X.\n", new_out->out_iack, new_out->in_iack);
+#endif
 			
 			if(new_out->in_iack < new_out->out_iack) {
 				uint32_t delta = new_out->out_iack - new_out->in_iack;
