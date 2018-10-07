@@ -659,6 +659,16 @@ bool DyscoAgentIn::input(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
 		else if(!in_two_paths_data_seg(tcp, cb_in, payload_sz))
 			return true;
 			
+	} else {
+		if(payload_sz) {
+			if(cb_in->dcb_out) {
+#ifdef DEBUG_RECONFIG
+				if(strcmp(ns.c_str(), "/var/run/netns/LA") == 0 || strcmp(ns.c_str(), "/var/run/netns/RA") == 0)
+					fprintf(stderr, "update ack_cutoff from %X to %X\n", cb_in->dcb_out->ack_cutoff, tcp->seq_num.value() + payload_sz);
+#endif
+				cb_in->dcb_out->ack_cutoff = tcp->seq_num.value() + payload_sz;
+			}
+		}
 	}
 	
 	in_hdr_rewrite_csum(ip, tcp, cb_in);
@@ -1299,7 +1309,7 @@ bool DyscoAgentIn::control_input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp,
 			
 			new_out = old_out->other_path;
 
-			old_out_ack_cutoff = old_out->last_ack;;
+			old_out_ack_cutoff = old_out->last_ack;
 			//old_out_ack_cutoff = old_out->ack_cutoff;
 
 #ifdef DEBUG_RECONFIG
