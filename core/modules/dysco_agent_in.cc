@@ -636,25 +636,13 @@ bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in, uint32_t 
 			}
 		}
 	} else {
-		if(cb_out->other_path->state != DYSCO_ESTABLISHED) {
-			/*
-#ifdef DEBUG_RECONFIG
-			fprintf(stderr, "[%s][%s] in_two_paths_data_seg method.\n", ns.c_str(), printSS(cb_out->sub));
-			fprintf(stderr, "[%s][%s] not ESTABLISHED...\n", ns.c_str(), printSS(cb_out->other_path->sub));
-			if(strcmp(ns.c_str(), "/var/run/netns/RA") == 0) {
-				fprintf(stderr, "[%s]update2 ack_cutoff from %X to %X\n", ns.c_str(), cb_out->ack_cutoff, tcp->seq_num.value() + payload_sz);
-			}
-#endif
-			*/
-			fprintf(stderr, "setting ack_cutoff=%X\n", tcp->seq_num.value() + payload_sz);
-			cb_in->dcb_out->ack_cutoff = tcp->seq_num.value() + payload_sz;
+		uint32_t ack = tcp->seq_num.value() + payload_sz;
+		if(after(ack, cb_out->ack_cutoff)) {
+			fprintf(stderr, "Adjusting ack_cutoff from %X to %X\n", cb_out->ack_cutoff, ack);
+			cb_out->ack_cutoff = ack;
 		} else 
-			fprintf(stderr, "[%s][%s] already ESTABLISHED... cb_out->other_path->ack_cutoff=%X\n", ns.c_str(), printSS(cb_out->other_path->sub), cb_out->other_path->ack_cutoff);
-		/* else {
-#ifdef DEBUG_RECONFIG
-			fprintf(stderr, "[%s][%s] already ESTABLISHED...\n", ns.c_str(), printSS(cb_out->other_path->sub));
-#endif
-}*/
+			fprintf(stderr, "ack(%X) is not after ack_cutoff(%X)\n", ack, cb_out->ack_cutoff);
+		
 	}
 	
 	return true;
