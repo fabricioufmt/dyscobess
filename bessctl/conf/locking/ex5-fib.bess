@@ -63,6 +63,10 @@ os.system('ip netns exec m2 arp -s 10.0.7.1 00:00:00:00:00:71 > /dev/null')
 os.system('ip netns exec m2 arp -s 10.0.8.1 00:00:00:00:00:81 > /dev/null')
 os.system('ip netns exec m2 sh disable_rp_filter.sh > /dev/null')
 
+#TEST
+os.system('ip netns exec c1 bash -c "echo 0 > /proc/sys/net/ipv4/tcp_sack"')
+os.system('ip netns exec s1 bash -c "echo 0 > /proc/sys/net/ipv4/tcp_sack"')
+
 os.system('ip netns exec R arp -s 10.0.3.2 00:00:00:00:00:32 > /dev/null')
 os.system('ip netns exec R arp -s 10.0.4.2 00:00:00:00:00:42 > /dev/null')
 os.system('ip netns exec R arp -s 10.0.5.2 00:00:00:00:00:52 > /dev/null')
