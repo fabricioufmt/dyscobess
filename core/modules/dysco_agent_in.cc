@@ -710,8 +710,10 @@ bool DyscoAgentIn::input(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
 				}
 #endif
 				*/
+#ifdef DEBUG_RECONFIG
 				if(strcmp(ns.c_str(), "/var/run/netns/RA") == 0)
 					fprintf(stderr, "[%s]setting123 ack_cutoff=%X\n", ns.c_str(), tcp->seq_num.value() + payload_sz);
+#endif
 				cb_in->dcb_out->ack_cutoff = tcp->seq_num.value() + payload_sz;
 			}
 		}
@@ -853,14 +855,14 @@ bool DyscoAgentIn::compute_deltas_out(DyscoHashOut* cb_out, DyscoHashOut* old_ou
 		cb_out->seq_delta = cb_out->in_iseq - cb_out->out_iseq;
 		cb_out->seq_add = 0;
 	}
-	//#ifdef DEBUG_RECONFIG
+#ifdef DEBUG_RECONFIG
 	if(strcmp(ns.c_str(), "/var/run/netns/RA") == 0) {
 		fprintf(stderr, "[%s] compute_deltas_out\n", ns.c_str());
 		fprintf(stderr, "[%s] cb_out->sub: %s\n", ns.c_str(), printSS(cb_out->sub));
 		fprintf(stderr, "[%s] cb_out->in_iack < cb_out->out_iack ?\n", ns.c_str());
 		fprintf(stderr, "[%s] %X < %X ?\n", ns.c_str(), cb_out->in_iack, cb_out->out_iack);
 	}
-	//#endif
+#endif
 	if(cb_out->in_iack < cb_out->out_iack) {
 		cb_out->ack_delta = cb_out->out_iack - cb_out->in_iack;
 		cb_out->ack_add = 1;
@@ -869,11 +871,11 @@ bool DyscoAgentIn::compute_deltas_out(DyscoHashOut* cb_out, DyscoHashOut* old_ou
 		cb_out->ack_add = 0;
 	}
 
-	//#ifdef DEBUG_RECONFIG
+#ifdef DEBUG_RECONFIG
 	if(strcmp(ns.c_str(), "/var/run/netns/RA") == 0) {
 		fprintf(stderr, "[%s] cb_out->ack_delta = %X (ack_add: %u)\n", ns.c_str(), cb_out->ack_delta, cb_out->ack_add);
 	}
-	//#endif
+#endif
 	
 	if(rcb->leftIts) {
 		cb_out->ts_ok = 1;
@@ -1393,9 +1395,9 @@ bool DyscoAgentIn::control_input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp,
 			
 			if(!old_out->state_t) {
 				
-				//#ifdef DEBUG_RECONFIG
+#ifdef DEBUG_RECONFIG
 				fprintf(stderr, "setting4 onto %s %s to ack_cutoff: %x.\n", printSS(old_out->sup), printSS(old_out->sub), old_out_ack_cutoff);
-				//#endif
+#endif
 				
 				old_out->ack_cutoff = old_out_ack_cutoff;
 				old_out->valid_ack_cut = 1;
