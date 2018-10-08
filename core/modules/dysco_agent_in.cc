@@ -1042,7 +1042,7 @@ bool DyscoAgentIn::control_reconfig_in(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp
 		DyscoHashOut* old_out = rcb->old_dcb;
 		DyscoHashOut* new_out = rcb->new_dcb;
 		uint32_t seq_cutoff = old_out->seq_cutoff;
-		uint32_t seq_cutoff2 = ntohl(cmsg->seqCutoff);
+		//uint32_t seq_cutoff2 = ntohl(cmsg->seqCutoff);
 
 #ifdef DEBUG_RECONFIG
 		if(strcmp(ns.c_str(), "/var/run/netns/RA") == 0) {
@@ -1051,7 +1051,7 @@ bool DyscoAgentIn::control_reconfig_in(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp
 			fprintf(stderr, "new_out->in_iseq = %X and new_out->in_iack = %X\n", new_out->in_iseq, new_out->in_iack);
 			fprintf(stderr, "new_out->out_iseq = %X and new_out->out_iack = %X\n", new_out->out_iseq, new_out->out_iack);
 			fprintf(stderr, "old_out->seq_cutoff = %X\n", seq_cutoff);
-			fprintf(stderr, "cmsg->seqCutoff = %X\n", seq_cutoff2);
+			//fprintf(stderr, "cmsg->seqCutoff = %X\n", seq_cutoff2);
 		}
 #endif
 
@@ -1387,7 +1387,7 @@ bool DyscoAgentIn::control_input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp,
 
 			
 			if(new_out->in_iack < new_out->out_iack) {
-				uint32_t delta = new_out->out_iack - new_out->in_iack;
+				//uint32_t delta = new_out->out_iack - new_out->in_iack;
 				//old_out_ack_cutoff += delta;
 #ifdef DEBUG_RECONFIG
 				fprintf(stderr, "new_out->out_iack - new_out->in_iack = delta.... [%X - %X = %X].\n", new_out->out_iack, new_out->in_iack, delta);
