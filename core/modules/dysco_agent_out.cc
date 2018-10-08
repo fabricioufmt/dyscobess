@@ -485,10 +485,10 @@ void DyscoAgentOut::out_translate(Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_
 #endif
 			if(after(seq, cb_out->seq_cutoff))
 				cb_out->seq_cutoff = seq;
-		} else {
+		}/* else {
 			if(after(ack, cb_out->ack_cutoff))
 				cb_out->ack_cutoff = ack;
-		}
+				}*/
 		
 		
 	} else {
