@@ -471,6 +471,11 @@ void DyscoAgentOut::out_translate(Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_
 #endif
 		*/
 		if(seg_sz > 0) {
+#ifdef DEBUG_RECONFIG
+			if(strcmp(ns.c_str(), "/var/run/netns/LA") == 0) {
+				fprintf(stderr, "[%s] after(%X, %X) == %u\n", ns.c_str(), seq, cb_out->seq_cutoff, after(seq, cb_out->seq_cutoff));
+			}
+#endif
 			if(after(seq, cb_out->seq_cutoff))
 				cb_out->seq_cutoff = seq;
 		} else {
