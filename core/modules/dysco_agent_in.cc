@@ -122,9 +122,9 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 				continue;
 			}
 		} else if(isLockingPacket(ip, tcp)) {
-			//#ifdef DEBUG_RECONFIG
+#ifdef DEBUG_RECONFIG
 			fprintf(stderr, "[%s] Receives Locking Packet.\n", ns.c_str());
-			//#endif
+#endif
 			newpkt = processLockingPacket(pkt, eth, ip, tcp);
 			if(newpkt) {
 				agent->forward(newpkt);
@@ -1387,8 +1387,8 @@ bool DyscoAgentIn::control_input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp,
 
 			
 			if(new_out->in_iack < new_out->out_iack) {
-				//uint32_t delta = new_out->out_iack - new_out->in_iack;
-				//old_out_ack_cutoff += delta;
+				uint32_t delta = new_out->out_iack - new_out->in_iack;
+				old_out_ack_cutoff += delta;
 #ifdef DEBUG_RECONFIG
 				fprintf(stderr, "new_out->out_iack - new_out->in_iack = delta.... [%X - %X = %X].\n", new_out->out_iack, new_out->in_iack, delta);
 #endif
