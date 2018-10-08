@@ -774,16 +774,20 @@ inline DyscoTcpTs* get_ts_option(Tcp* tcp) {
 }
 
 inline bool tcp_sack(Tcp* tcp, uint32_t delta, uint8_t add) {
+	fprintf(stderr, "tcp_sack method\n");
+	
 	uint32_t len = (tcp->offset << 2) - sizeof(Tcp);
 	uint8_t* ptr = reinterpret_cast<uint8_t*>(tcp + 1);
 
 	uint32_t opcode;
 	uint32_t opsize;
+	uint32_t incremental = 0;
+	
 	while(len > 0) {
 		opcode = *ptr++;
 		switch(opcode) {
 		case TCPOPT_EOL:
-			return 0;
+			return false;
 
 		case TCPOPT_NOP:
 			len--;
@@ -792,10 +796,10 @@ inline bool tcp_sack(Tcp* tcp, uint32_t delta, uint8_t add) {
 		default:
 			opsize = *ptr++;
 			if(opsize < 2)
-				return 0;
+				return false;
 
 			if(opsize > len)
-				return 0;
+				return false;
 
 			if(opcode == TCPOPT_SACK) {
 				if((opsize >= (TCPOLEN_SACK_BASE + TCPOLEN_SACK_PERBLOCK))
@@ -816,8 +820,13 @@ inline bool tcp_sack(Tcp* tcp, uint32_t delta, uint8_t add) {
 							new_ack_r = htonl(ntohl(*right_edge) - delta);						
 						}
 
+						incremental  = ChecksumIncrement32(*left_edge, new_ack_l);
+						incremental += ChecksumIncrement32(*right_edge, new_ack_r);
+						
 						*left_edge = new_ack_l;
 						*right_edge = new_ack_r;
+
+						tcp->checksum = UpdateChecksumWithIncrement(tcp->checksum, incremental);
 
 						lptr += 8;
 						blen -= 8;
