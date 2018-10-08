@@ -720,7 +720,7 @@ bool DyscoAgentIn::input(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
 				}
 #endif
 				*/
-				fprintf(stderr, "setting123 ack_cutoff=%X\n", tcp->seq_num.value() + payload_sz);
+				fprintf(stderr, "[%s]setting123 ack_cutoff=%X\n", ns.c_str(), tcp->seq_num.value() + payload_sz);
 				cb_in->dcb_out->ack_cutoff = tcp->seq_num.value() + payload_sz;
 			}
 		}
