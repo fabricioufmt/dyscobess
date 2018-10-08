@@ -731,6 +731,7 @@ bool DyscoAgentOut::output_mb(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_
 	add_sc(pkt, ip, tcp, cb_out);
 	fix_csum(ip, tcp);
 
+	cb_out->seq_cutoff = tcp->seq_num.value();
 	cb_out->last_seq = tcp->seq_num.value();
 	cb_out->last_ack = tcp->ack_num.value();
 	
