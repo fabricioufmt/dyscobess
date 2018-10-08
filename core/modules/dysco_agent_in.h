@@ -53,8 +53,7 @@ class DyscoAgentIn final : public Module {
 
 	/*
 	  Dysco methods
-	 */
-	bool tcp_sack(Tcp*, DyscoHashIn*);
+	*/
 	
 	void remove_sc(Packet*, Ipv4*, uint32_t);
 	uint32_t in_rewrite_seq(Tcp*, DyscoHashIn*);
