@@ -864,7 +864,7 @@ bool DyscoAgentIn::compute_deltas_out(DyscoHashOut* cb_out, DyscoHashOut* old_ou
 	if(strcmp(ns.c_str(), "/var/run/netns/RA") == 0) {
 		fprintf(stderr, "[%s] compute_deltas_out\n", ns.c_str());
 		fprintf(stderr, "[%s] cb_out->sub: %s\n", ns.c_str(), printSS(cb_out->sub));
-		fprintf(stderr, "[%s] cb_out->in_iack < cb_out->out_iack ?\n", ns_c.str());
+		fprintf(stderr, "[%s] cb_out->in_iack < cb_out->out_iack ?\n", ns.c_str());
 		fprintf(stderr, "[%s] %X < %X ?\n", ns.c_str(), cb_out->in_iack, cb_out->out_iack);
 	}
 #endif
