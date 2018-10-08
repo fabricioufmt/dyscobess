@@ -860,7 +860,14 @@ bool DyscoAgentIn::compute_deltas_out(DyscoHashOut* cb_out, DyscoHashOut* old_ou
 		cb_out->seq_delta = cb_out->in_iseq - cb_out->out_iseq;
 		cb_out->seq_add = 0;
 	}
-
+#ifdef DEBUG_RECONFIG
+	if(strcmp(ns.c_str(), "/var/run/netns/RA") == 0) {
+		fprintf(stderr, "[%s] compute_deltas_out\n", ns.c_str());
+		fprintf(stderr, "[%s] cb_out->sub: %s\n", ns_c.str(), printSS(cb_out->sub));
+		fprintf(stderr, "[%s] cb_out->in_iack < cb_out->out_iack ?\n", ns_c.str());
+		fprintf(stderr, "[%s] %X < %X ?\n", ns.c_str());
+	}
+#endif
 	if(cb_out->in_iack < cb_out->out_iack) {
 		cb_out->ack_delta = cb_out->out_iack - cb_out->in_iack;
 		cb_out->ack_add = 1;
@@ -869,6 +876,12 @@ bool DyscoAgentIn::compute_deltas_out(DyscoHashOut* cb_out, DyscoHashOut* old_ou
 		cb_out->ack_add = 0;
 	}
 
+#ifdef DEBUG_RECONFIG
+	if(strcmp(ns.c_str(), "/var/run/netns/RA") == 0) {
+		fprintf(stderr, "[%s] cb_out->ack_delta = %X (ack_add: %u)\n", ns.c_str(), cb_out->ack_delta, cb_out->ack_add);
+	}
+#endif
+	
 	if(rcb->leftIts) {
 		cb_out->ts_ok = 1;
 		cb_out->ts_in = old_out->ts_in;
