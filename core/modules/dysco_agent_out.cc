@@ -411,7 +411,7 @@ DyscoHashOut* DyscoAgentOut::pick_path_ack(Tcp* tcp, DyscoHashOut* cb_out) {
 			cb = cb_out->other_path;
 		}
 	} else {
-		//#ifdef DEBUG_RECONFIG
+#ifdef DEBUG_RECONFIG
 		if(strcmp(ns.c_str(), "/var/run/netns/RA") == 0) {
 			fprintf(stderr, "pick_path_ack\n");
 			fprintf(stderr, "b_out->sub: %s\n", printSS(cb_out->sub));
@@ -419,7 +419,7 @@ DyscoHashOut* DyscoAgentOut::pick_path_ack(Tcp* tcp, DyscoHashOut* cb_out) {
 			fprintf(stderr, "cb_out->use_np_ack: %d\n", cb_out->use_np_ack);
 			fprintf(stderr, "after(ack, cb_out->ack_cutoff)[%X, %X]: %d\n", ack, cb_out->ack_cutoff, after(ack, cb_out->ack_cutoff));
 		}
-		//#endif
+		#endif
 		if(cb_out->valid_ack_cut) {
 			if(cb_out->use_np_ack) {
 				cb = cb_out->other_path;

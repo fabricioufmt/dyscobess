@@ -622,15 +622,15 @@ bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in, uint32_t 
 #endif
 				
 				if(before(seq, old_out->ack_cutoff)) {
-					//#ifdef DEBUG_RECONFIG
+#ifdef DEBUG_RECONFIG
 					fprintf(stderr, "session1:%s, from ack_cutoff=%X to %X.\n", printSS(old_out->sub), old_out->ack_cutoff, seq);
-					//#endif
+#endif
 					old_out->ack_cutoff = seq;
 				}
 			} else {
-				//#ifdef DEBUG_RECONFIG
+#ifdef DEBUG_RECONFIG
 				fprintf(stderr, "session2:%s, from ack_cutoff=%X to %X.\n", printSS(old_out->sub), old_out->ack_cutoff, seq);
-				//#endif
+#endif
 				old_out->ack_cutoff = seq;
 				old_out->valid_ack_cut = 1;
 			}
@@ -638,11 +638,11 @@ bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in, uint32_t 
 	} else {
 		uint32_t ack = tcp->seq_num.value() + payload_sz;
 		if(after(ack, cb_out->ack_cutoff)) {
+#ifdef DEBUG_RECONFIG
 			fprintf(stderr, "Adjusting ack_cutoff from %X to %X\n", cb_out->ack_cutoff, ack);
+#endif
 			cb_out->ack_cutoff = ack;
-		} else 
-			fprintf(stderr, "ack(%X) is not after ack_cutoff(%X)\n", ack, cb_out->ack_cutoff);
-		
+		}
 	}
 	
 	return true;
