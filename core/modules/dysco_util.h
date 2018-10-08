@@ -867,8 +867,8 @@ inline bool parse_tcp_syn_opt_s(Tcp* tcp, DyscoHashOut* cb_out) {
 			if(opsize > len)
 				return false;
 
-			fprintf(stderr, "switching: %u\n", opsize);
-			switch(opsize) {
+			fprintf(stderr, "switching: %u\n", opcode);
+			switch(opcode) {
 			case TCPOPT_WINDOW:
 				if(opsize == TCPOLEN_WINDOW) {
 					fprintf(stderr, "it's TCPOPT_WINDOW\n");
