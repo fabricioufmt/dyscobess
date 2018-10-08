@@ -649,7 +649,7 @@ bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in, uint32_t 
 			fprintf(stderr, "setting ack_cutoff=%X\n", tcp->seq_num.value() + payload_sz);
 			cb_in->dcb_out->ack_cutoff = tcp->seq_num.value() + payload_sz;
 		} else 
-			fprintf(stderr, "[%s][%s] already ESTABLISHED... cb_out->other_path->ack_cutoff=%X\n", ns.c_str(), printSS(cb_out->other_path->sub, cb_out->other_path->ack_cutoff)
+			fprintf(stderr, "[%s][%s] already ESTABLISHED... cb_out->other_path->ack_cutoff=%X\n", ns.c_str(), printSS(cb_out->other_path->sub), cb_out->other_path->ack_cutoff);
 		/* else {
 #ifdef DEBUG_RECONFIG
 			fprintf(stderr, "[%s][%s] already ESTABLISHED...\n", ns.c_str(), printSS(cb_out->other_path->sub));
