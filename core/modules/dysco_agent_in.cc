@@ -1388,7 +1388,7 @@ bool DyscoAgentIn::control_input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp,
 			fprintf(stderr, "old_out->lastAck=%X.\n", old_out->last_ack);
 #endif
 
-			
+			/*
 			if(new_out->in_iack < new_out->out_iack) {
 				uint32_t delta = new_out->out_iack - new_out->in_iack;
 				old_out_ack_cutoff += delta;
@@ -1396,6 +1396,7 @@ bool DyscoAgentIn::control_input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp,
 				fprintf(stderr, "new_out->out_iack - new_out->in_iack = delta.... [%X - %X = %X].\n", new_out->out_iack, new_out->in_iack, delta);
 #endif
 			}
+			*/
 			
 			if(new_out->state == DYSCO_SYN_RECEIVED)
 				new_out->state = DYSCO_ESTABLISHED;
