@@ -904,13 +904,15 @@ inline bool parse_tcp_syn_opt_s(Tcp* tcp, DyscoHashOut* cb_out) {
 				
 			case TCPOPT_SACK_PERMITTED:
 				fprintf(stderr, "it's SACK_PERMITTED\n");
+				fprintf(stderr, "it's opsize == TCPOLEN_SACK_PERMITTED?\n");
+				fprintf(stderr, "%u == %u\n", opsize,TCPOLEN_SACK_PERMITTED);
 				if(opsize == TCPOLEN_SACK_PERMITTED)
 					cb_out->sack_ok = 1;
 				
 				break;
 
 			case DYSCO_TCP_OPTION:
-				fprintf(stderr, "it's SACK_PERMITTED\n");
+				fprintf(stderr, "it's DYSCO_TCP_OPTION\n");
 				cb_out->tag_ok = 1;
 				cb_out->dysco_tag = *(uint32_t*)ptr;
 				
