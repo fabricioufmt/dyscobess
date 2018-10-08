@@ -411,12 +411,15 @@ DyscoHashOut* DyscoAgentOut::pick_path_ack(Tcp* tcp, DyscoHashOut* cb_out) {
 			cb = cb_out->other_path;
 		}
 	} else {
-#ifdef DEBUG_RECONFIG
-		fprintf(stderr, "cb_out->sup: %s -- cb_out->sub: %s\n", printSS(cb_out->sup), printSS(cb_out->sub));
-		fprintf(stderr, "cb_out->valid_ack_cut: %d\n", cb_out->valid_ack_cut);
-		fprintf(stderr, "cb_out->use_np_ack: %d\n", cb_out->use_np_ack);
-		fprintf(stderr, "after(ack, cb_out->ack_cutoff)[%X, %X]: %d\n", ack, cb_out->ack_cutoff, after(ack, cb_out->ack_cutoff));
-#endif
+		//#ifdef DEBUG_RECONFIG
+		if(strcmp(ns.c_str(), "/var/run/netns/RA") == 0) {
+			fprintf(stderr, "pick_path_ack\n");
+			fprintf(stderr, "b_out->sub: %s\n", printSS(cb_out->sub));
+			fprintf(stderr, "cb_out->valid_ack_cut: %d\n", cb_out->valid_ack_cut);
+			fprintf(stderr, "cb_out->use_np_ack: %d\n", cb_out->use_np_ack);
+			fprintf(stderr, "after(ack, cb_out->ack_cutoff)[%X, %X]: %d\n", ack, cb_out->ack_cutoff, after(ack, cb_out->ack_cutoff));
+		}
+		//#endif
 		if(cb_out->valid_ack_cut) {
 			if(cb_out->use_np_ack) {
 				cb = cb_out->other_path;
@@ -522,46 +525,6 @@ void DyscoAgentOut::out_translate(Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_
 		cb->last_ack = tcp->ack_num.value();
 	}
 		
-		/*
-		if(cb_out->state == DYSCO_ESTABLISHED) {
-			if(seg_sz > 0)
-				cb = pick_path_seq(cb_out, seq);
-			else {
-				cb = pick_path_ack(tcp, cb_out);
-				fprintf(stderr, "ack: %X (", tcp->ack_num.raw_value());
-				if(cb == other_path)
-					fprintf(stderr, "new)\n");
-				else
-					fprintf(stderr, "old)\n");
-				fprintf(stderr, "%d\n", other_path->state);
-			}
-		} else if(cb_out->state == DYSCO_SYN_SENT) {
-			fprintf(stderr, "SYN_SENT\n");
-			if(seg_sz > 0) {
-				if(dc->after(seq, cb_out->seq_cutoff))
-					cb_out->seq_cutoff = seq;
-			} else
-				cb = pick_path_ack(tcp, cb_out);
-		} else if(cb_out->state == DYSCO_SYN_RECEIVED) {
-			fprintf(stderr, "SYN_RECEIVED\n");
-			if(seg_sz > 0) {
-				cb = pick_path_seq(cb_out, seq);
-				//if(!cb_out->old_path)
-
-			} else
-				cb = pick_path_ack(tcp, cb_out);
-		} else if(cb_out->state == DYSCO_CLOSED) {
-			//TEST
-			//Should forward to other_path
-			if(cb_out->other_path)
-				cb = cb_out->other_path;
-		} else {
-			fprintf(stderr, "and now?????\n");
-		}
-	}
-		*/
-
-	
 	hdr_rewrite_csum(ip, tcp, &cb->sub);
 
 	uint32_t incremental = 0;
