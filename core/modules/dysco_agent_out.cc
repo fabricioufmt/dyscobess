@@ -176,12 +176,6 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 		}
 #endif
 		*/
-#ifdef DEBUG_RECONFIG
-		if(strcmp(ns.c_str(), "/var/run/netns/LA") == 0) {
-			if(ip->dst.raw_value() == inet_addr("10.0.5.2"))
-				fprintf(stderr, "[%s][DyscoAgentOut] receives %s [%X:%X] (len: %u).\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.raw_value(), tcp->ack_num.raw_value(), hasPayload(ip, tcp));
-		}
-#endif
 
 		cb_out = dc->lookup_output(this->index, ip, tcp);
 		

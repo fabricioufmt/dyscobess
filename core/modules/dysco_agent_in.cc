@@ -161,12 +161,6 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 			}
 #endif
 			*/
-#ifdef DEBUG_RECONFIG
-			if(strcmp(ns.c_str(), "/var/run/netns/LA") == 0) {
-				if(ip->dst.raw_value() == inet_addr("10.0.1.2"))
-					fprintf(stderr, "[%s][DyscoAgentIn] forwards %s [%X:%X] (len: %u).\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.raw_value(), tcp->ack_num.raw_value(), hasPayload(ip, tcp));
-			}
-#endif
 		}
 	}
 	
