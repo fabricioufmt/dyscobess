@@ -417,14 +417,14 @@ DyscoHashOut* DyscoAgentOut::pick_path_ack(Tcp* tcp, DyscoHashOut* cb_out) {
 			fprintf(stderr, "b_out->sub: %s\n", printSS(cb_out->sub));
 			fprintf(stderr, "cb_out->valid_ack_cut: %d\n", cb_out->valid_ack_cut);
 			fprintf(stderr, "cb_out->use_np_ack: %d\n", cb_out->use_np_ack);
-			fprintf(stderr, "!after(cb_out->ack_cutoff, ack)[%X, %X]: %d\n", cb_out->ack_cutoff, ack, !after(cb_out->ack_cutoff, ack));
+			fprintf(stderr, "after(ack, cb_out->ack_cutoff)[%X, %X]: %d\n", cb_out->ack_cutoff, ack, after(ack, cb_out->ack_cutoff));
 		}
 		//#endif
 		if(cb_out->valid_ack_cut) {
 			if(cb_out->use_np_ack) {
 				cb = cb_out->other_path;
 			} else {
-				if(!after(cb_out->ack_cutoff, ack)) {
+				if(after(ack, cb_out->ack_cutoff)) {
 					if(isTCPFIN(tcp))
 						cb = cb_out->other_path;
 					else {
