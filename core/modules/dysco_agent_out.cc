@@ -454,7 +454,7 @@ void DyscoAgentOut::out_translate(Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_
 	size_t tcp_hlen = tcp->offset << 2;
 	uint32_t seg_sz = ip->length.value() - ip_hlen - tcp_hlen;
 	uint32_t seq = tcp->seq_num.value() + seg_sz;
-	uint32_t ack = tcp->ack_num.value();
+	//uint32_t ack = tcp->ack_num.value();
 	
 	DyscoHashOut* cb = cb_out;
 	DyscoHashOut* other_path = cb_out->other_path;
