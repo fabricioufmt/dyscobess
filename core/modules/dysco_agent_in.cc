@@ -98,7 +98,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 		}
 #endif
 		*/
-		#ifdef DEBUG_RECONFIG
+#ifdef DEBUG_RECONFIG
 		if(strcmp(ns.c_str(), "/var/run/netns/LA") == 0) {
 			if(ip->src.raw_value() == inet_addr("10.0.5.2"))
 				fprintf(stderr, "[%s][DyscoAgentIn] receives %s [%X:%X] (len: %u).\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.raw_value(), tcp->ack_num.raw_value(), hasPayload(ip, tcp));
@@ -110,9 +110,9 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 		removed = processReceivedPacket(tcp);
 		
 		if(isLockingSignalPacket(tcp)) {
-#ifdef DEBUG_RECONFIG
+			//#ifdef DEBUG_RECONFIG
 			fprintf(stderr, "[%s] Receives Locking Signal Packet.\n", ns.c_str());
-#endif
+			//#endif
 			newpkt = processLockingSignalPacket(pkt, eth, ip, tcp, cb_in);
 			if(newpkt) {
 				agent->forward(newpkt, true);
@@ -122,9 +122,9 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 				continue;
 			}
 		} else if(isLockingPacket(ip, tcp)) {
-#ifdef DEBUG_RECONFIG
+			//#ifdef DEBUG_RECONFIG
 			fprintf(stderr, "[%s] Receives Locking Packet.\n", ns.c_str());
-#endif
+			//#endif
 			newpkt = processLockingPacket(pkt, eth, ip, tcp);
 			if(newpkt) {
 				agent->forward(newpkt);
