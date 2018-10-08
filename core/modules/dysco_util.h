@@ -867,11 +867,9 @@ inline bool parse_tcp_syn_opt_s(Tcp* tcp, DyscoHashOut* cb_out) {
 			if(opsize > len)
 				return false;
 
-			fprintf(stderr, "switching: %u\n", opcode);
 			switch(opcode) {
 			case TCPOPT_WINDOW:
 				if(opsize == TCPOLEN_WINDOW) {
-					fprintf(stderr, "it's TCPOPT_WINDOW\n");
 					uint8_t snd_wscale = *(uint8_t*)ptr;
 					
 					cb_out->ws_ok = 1;
@@ -886,7 +884,6 @@ inline bool parse_tcp_syn_opt_s(Tcp* tcp, DyscoHashOut* cb_out) {
 				
 			case TCPOPT_TIMESTAMP:
 				if(opsize == TCPOLEN_TIMESTAMP) {
-					fprintf(stderr, "it's TCPOLEN_TIMESTAMP\n");
 					if(tcp->flags & Tcp::kAck) {
 						uint32_t ts, tsr;
 						
@@ -903,9 +900,6 @@ inline bool parse_tcp_syn_opt_s(Tcp* tcp, DyscoHashOut* cb_out) {
 				break;
 				
 			case TCPOPT_SACK_PERMITTED:
-				fprintf(stderr, "it's SACK_PERMITTED\n");
-				fprintf(stderr, "it's opsize == TCPOLEN_SACK_PERMITTED?\n");
-				fprintf(stderr, "%u == %u\n", opsize,TCPOLEN_SACK_PERMITTED);
 				if(opsize == TCPOLEN_SACK_PERMITTED)
 					cb_out->sack_ok = 1;
 				
@@ -923,7 +917,7 @@ inline bool parse_tcp_syn_opt_s(Tcp* tcp, DyscoHashOut* cb_out) {
 			len -= opsize;
 		}
 	}
-	fprintf(stderr, "DONE parse_tcp_syn_opt_s\n");
+
 	return true;
 }
 
@@ -936,6 +930,7 @@ inline bool parse_tcp_syn_opt_r(Tcp* tcp, DyscoHashIn* cb_in) {
 	uint32_t opcode, opsize;
 	while(len > 0) {
 		opcode = *ptr++;
+		
 		switch(opcode) {
 		case TCPOPT_EOL:
 			return false;
@@ -952,7 +947,7 @@ inline bool parse_tcp_syn_opt_r(Tcp* tcp, DyscoHashIn* cb_in) {
 			if(opsize > len)
 				return false;
 			
-			switch(opsize) {
+			switch(opcode) {
 			case TCPOPT_WINDOW:
 				if(opsize == TCPOLEN_WINDOW) {
 					uint8_t snd_wscale = *(uint8_t*)ptr;
