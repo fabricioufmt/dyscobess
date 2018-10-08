@@ -1,7 +1,7 @@
 #ifndef BESS_MODULES_DYSCOUTIL_H_
 #define BESS_MODULES_DYSCOUTIL_H_
 
-//#include <netinet/tcp.h>
+#include <netinet/tcp.h>
 
 #include <mutex>
 #include <string>
