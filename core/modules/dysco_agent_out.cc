@@ -471,8 +471,12 @@ void DyscoAgentOut::out_translate(Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_
 				cb->state = DYSCO_FIN_WAIT_1;
 		
 		if(seg_sz > 0 && after(seq, cb_out->seq_cutoff)) {
-			if(strcmp(ns.c_str(), "/var/run/netns/LA") == 0 || strcmp(ns.c_str(), "/var/run/netns/RA") == 0) {
-				fprintf(stderr, "[%s][%s] cb_out->seq_cutoff: %X, seq: %X (not old)\n", ns.c_str(), printSS(cb_out->sub), cb_out->seq_cutoff, seq);
+			if(strcmp(ns.c_str(), "/var/run/netns/LA") == 0) {
+				if(ip->src.raw_value() == inet_addr("10.0.0.2"))
+					fprintf(stderr, "[%s][%s] cb_out->seq_cutoff: %X, seq: %X (not old)\n", ns.c_str(), printSS(cb_out->sub), cb_out->seq_cutoff, seq);
+			} else if(strcmp(ns.c_str(), "/var/run/netns/RA") == 0) {
+				if(ip->src.raw_value() == inet_addr("10.0.4.2"))
+					fprintf(stderr, "[%s][%s] cb_out->seq_cutoff: %X, seq: %X (not old)\n", ns.c_str(), printSS(cb_out->sub), cb_out->seq_cutoff, seq);
 			}
 			cb_out->seq_cutoff = seq;
 		}
@@ -489,8 +493,12 @@ void DyscoAgentOut::out_translate(Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_
 		} else if(other_path->state == DYSCO_SYN_SENT) {
 			if(seg_sz > 0) {
 				if(after(seq, cb_out->seq_cutoff)) {
-					if(strcmp(ns.c_str(), "/var/run/netns/LA") == 0 || strcmp(ns.c_str(), "/var/run/netns/RA") == 0) {
-						fprintf(stderr, "[%s][%s] cb_out->seq_cutoff: %X, seq: %X (state=DYSCO_SYN_SENT)\n", ns.c_str(), printSS(cb_out->sub), cb_out->seq_cutoff, seq);
+					if(strcmp(ns.c_str(), "/var/run/netns/LA") == 0) {
+						if(ip->src.raw_value() == inet_addr("10.0.0.2"))
+							fprintf(stderr, "[%s][%s] cb_out->seq_cutoff: %X, seq: %X (state=DYSCO_SYN_SENT)\n", ns.c_str(), printSS(cb_out->sub), cb_out->seq_cutoff, seq);
+					} else if(strcmp(ns.c_str(), "/var/run/netns/RA") == 0) {
+						if(ip->src.raw_value() == inet_addr("10.0.4.2"))
+							fprintf(stderr, "[%s][%s] cb_out->seq_cutoff: %X, seq: %X (state=DYSCO_SYN_SENT)\n", ns.c_str(), printSS(cb_out->sub), cb_out->seq_cutoff, seq);
 					}
 					cb_out->seq_cutoff = seq;
 				}
