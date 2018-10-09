@@ -474,9 +474,6 @@ void DyscoAgentOut::out_translate(Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_
 			if(strcmp(ns.c_str(), "/var/run/netns/LA") == 0) {
 				if(ip->src.raw_value() == inet_addr("10.0.1.2"))
 					fprintf(stderr, "[%s][%s] cb_out->seq_cutoff: %X, seq: %X (not old)\n", ns.c_str(), printSS(cb_out->sub), cb_out->seq_cutoff, seq);
-			} else if(strcmp(ns.c_str(), "/var/run/netns/RA") == 0) {
-				if(ip->src.raw_value() == inet_addr("10.0.2.2"))
-					fprintf(stderr, "[%s][%s] cb_out->seq_cutoff: %X, seq: %X (not old)\n", ns.c_str(), printSS(cb_out->sub), cb_out->seq_cutoff, seq);
 			}
 			cb_out->seq_cutoff = seq;
 		}
@@ -487,17 +484,22 @@ void DyscoAgentOut::out_translate(Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_
 			
 			if(seg_sz > 0) {
 				cb = other_path;
+				if(strcmp(ns.c_str(), "/var/run/netns/LA") == 0) {
+					if(ip->src.raw_value() == inet_addr("10.0.1.2"))
+						fprintf(stderr, "[%s][%s] cb_out->seq_cutoff: %X, seq: %X (going to %s)\n", ns.c_str(), printSS(cb_out->sub), cb_out->seq_cutoff, seq, cb_out == cb ? "old path" : "new path");
+				}
 			} else {
 				cb = pick_path_ack(tcp, cb_out);
+				if(strcmp(ns.c_str(), "/var/run/netns/RA") == 0) {
+					if(ip->src.raw_value() == inet_addr("10.0.2.2"))
+						fprintf(stderr, "[%s][%s] cb_out->seq_cutoff: %X, seq: %X (going to %s)\n", ns.c_str(), printSS(cb_out->sub), cb_out->seq_cutoff, seq, cb_out == cb ? "old path" : "new path");
+				}
 			}
 		} else if(other_path->state == DYSCO_SYN_SENT) {
 			if(seg_sz > 0) {
 				if(after(seq, cb_out->seq_cutoff)) {
 					if(strcmp(ns.c_str(), "/var/run/netns/LA") == 0) {
 						if(ip->src.raw_value() == inet_addr("10.0.1.2"))
-							fprintf(stderr, "[%s][%s] cb_out->seq_cutoff: %X, seq: %X (state=DYSCO_SYN_SENT)\n", ns.c_str(), printSS(cb_out->sub), cb_out->seq_cutoff, seq);
-					} else if(strcmp(ns.c_str(), "/var/run/netns/RA") == 0) {
-						if(ip->src.raw_value() == inet_addr("10.0.2.2"))
 							fprintf(stderr, "[%s][%s] cb_out->seq_cutoff: %X, seq: %X (state=DYSCO_SYN_SENT)\n", ns.c_str(), printSS(cb_out->sub), cb_out->seq_cutoff, seq);
 					}
 					cb_out->seq_cutoff = seq;
