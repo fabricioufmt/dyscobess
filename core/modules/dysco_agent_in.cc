@@ -579,7 +579,7 @@ bool DyscoAgentIn::in_two_paths_ack(Tcp* tcp, DyscoHashIn* cb_in) {
 }
 
 //L.683
-bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in, uint32_t payload_sz) {
+bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in, uint32_t) {
 	DyscoHashOut* cb_out = cb_in->dcb_out;
 	if(!cb_out)
 		return false;
