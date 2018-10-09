@@ -1447,16 +1447,19 @@ bool DyscoAgentIn::control_input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp,
 /*
   Auxiliary methods
  */
-void DyscoAgentIn::createAck(Packet*, Ethernet* eth, Ipv4* ip, Tcp* tcp) {
+void DyscoAgentIn::createAck(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp) {
 	Ethernet::Address macswap = eth->dst_addr;
 	eth->dst_addr = eth->src_addr;
 	eth->src_addr = macswap;
-		
+
+	uint32_t tcp_opt_len = (tcp->offset << 2) - sizeof(Tcp);
+	
 	be32_t ipswap = ip->dst;
 	ip->dst = ip->src;
 	ip->src = ipswap;
 	ip->ttl = TTL;
 	ip->id = be16_t(rand() % PORT_RANGE);
+	ip->length -= be16_t(tcp_opt_len);
 	
 	be16_t pswap = tcp->src_port;
 	tcp->src_port = tcp->dst_port;
@@ -1466,6 +1469,9 @@ void DyscoAgentIn::createAck(Packet*, Ethernet* eth, Ipv4* ip, Tcp* tcp) {
 	tcp->seq_num = be32_t(tcp->ack_num.value());
 	tcp->ack_num = be32_t(seqswap.value() + 1);
 	tcp->flags = Tcp::kAck;
+	tcp->offset = 5;
+
+	pkt->trim(tcp_opt_len);
 
 	//Could be incremental
 	fix_csum(ip, tcp);
