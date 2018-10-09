@@ -514,7 +514,7 @@ void DyscoAgentOut::out_translate(Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_
 				cb = pick_path_ack(tcp, cb_out);
 				if(strcmp(ns.c_str(), "/var/run/netns/RA") == 0) {
 					if(ip->src.raw_value() == inet_addr("10.0.2.2"))
-						fprintf(stderr, "\n[%s][%s] cb_out->ack_cutoff: %X, ack: %X (going to %s)\n\n", ns.c_str(), printSS(cb->sub), cb_out->ack_cutoff, tcp->ack_num.value(), cb_out == cb ? "old path" : "new path");
+						fprintf(stderr, "\n[%s][%s] cb_out->ack_cutoff: %X, ack: %X (going to %s) (state=DYSCO_SYN_RECEIVED)\n\n", ns.c_str(), printSS(cb->sub), cb_out->ack_cutoff, tcp->ack_num.value(), cb_out == cb ? "old path" : "new path");
 				}
 			}
 		}
