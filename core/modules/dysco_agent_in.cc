@@ -1018,6 +1018,8 @@ bool DyscoAgentIn::control_reconfig_in(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp
 			return false;
 		}
 
+		parse_tcp_syn_opt_r(tcp, cb_in);
+		
 		cb_in->dcb_out = cb_out;
 		cb_out->dcb_in = cb_in;
 		
@@ -1058,6 +1060,8 @@ bool DyscoAgentIn::control_reconfig_in(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp
 		else
 			seq_cutoff -= new_out->seq_delta;
 
+		parse_tcp_syn_opt_s(tcp, new_out);
+		
 		new_out->state = DYSCO_SYN_RECEIVED;
 
 		agent->forward(pkt, true);
@@ -1695,8 +1699,8 @@ Packet* DyscoAgentIn::createSynReconfig(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 	Packet* newpkt = Packet::Alloc();
 	newpkt->set_data_off(SNBUF_HEADROOM);
 
-	newpkt->set_data_len(pkt->data_len() + 4); //+4 for WS
-	newpkt->set_total_len(pkt->total_len() + 4); //+4 for WS
+	newpkt->set_data_len(pkt->data_len() + 8); //+4 for WS, +2 for NOP, +2 for SACK 
+	newpkt->set_total_len(pkt->total_len() + 8); //+4 for WS, +2 for NOP, +2 for SACK
 	
 	uint32_t sc_len = (hasPayload(ip, tcp) - sizeof(DyscoControlMessage))/sizeof(uint32_t);
 	
@@ -1730,7 +1734,7 @@ Packet* DyscoAgentIn::createSynReconfig(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 	newip->header_length = 5;
 	newip->type_of_service = ip->type_of_service;
 	//newip->length = ip->length;
-	newip->length = ip->length + be16_t(4);
+	newip->length = ip->length + be16_t(8); //+8 for TCP Options
 	newip->id = be16_t(rand());
 	newip->fragment_offset = be16_t(0);
 	newip->ttl = TTL;
@@ -1739,29 +1743,33 @@ Packet* DyscoAgentIn::createSynReconfig(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 	newip->dst = be32_t(ntohl(sc[0]));
 
 	Tcp* newtcp = reinterpret_cast<Tcp*>(newip + 1);
-	//debug
-	//newtcp->src_port = be16_t(20000);
-	//newtcp->dst_port = be16_t(10000);
 	newtcp->src_port = be16_t(40000 + (rand() % 10000));
 	newtcp->dst_port = be16_t(50000 + (rand() % 10000));
 	newtcp->seq_num = be32_t(old_dcb->last_seq - 1);
 	newtcp->ack_num = be32_t(old_dcb->last_ack - 1);
 	//newtcp->seq_num = be32_t(old_dcb->out_iseq);
 	//newtcp->ack_num = be32_t(old_dcb->out_iack);
-	newtcp->offset = 6; //5 + 1 for WS
+	newtcp->offset = 7; //5 + 2 for WS,NOP,SACK
 	newtcp->reserved = 0;
 	newtcp->flags = Tcp::kSyn;
 	newtcp->window = be16_t(65535);
 	newtcp->urgent_ptr = be16_t(0);
 
 	uint8_t* ws = reinterpret_cast<uint8_t*>(newtcp + 1);
-	ws[0] = 3; //kind
-	ws[1] = 3; //length
-	ws[2] = 14; //multiplier
-	ws[3] = 0; //padding
+	//Window Scaling
+	ws[0] = 3;   //kind 
+	ws[1] = 3;   //length
+	ws[2] = 14;  //multiplier
+	//NOP -- for alignment
+	ws[3] = 1;
+	ws[4] = 1;
+	ws[5] = 1;
+	//SACK
+	ws[6] = 4;
+	ws[7] = 2;
 	
 	//DyscoControlMessage* newcmsg = reinterpret_cast<DyscoControlMessage*>(newtcp + 1);
-	DyscoControlMessage* newcmsg = reinterpret_cast<DyscoControlMessage*>(ws + 4);
+	DyscoControlMessage* newcmsg = reinterpret_cast<DyscoControlMessage*>(ws + 8);
 	newcmsg->my_sub.sip = newip->src.raw_value();
 	newcmsg->my_sub.dip = newip->dst.raw_value();
 	newcmsg->my_sub.sport = newtcp->src_port.raw_value();
