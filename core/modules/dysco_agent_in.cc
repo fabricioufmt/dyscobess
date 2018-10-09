@@ -748,6 +748,8 @@ DyscoCbReconfig* DyscoAgentIn::insert_rcb_control_input(Ipv4* ip, Tcp* tcp, Dysc
 	rcb->leftIws = ntohl(cmsg->leftIws);
 	rcb->leftIwsr = ntohl(cmsg->leftIwsr);
 	rcb->sack_ok = ntohl(cmsg->sackOk);
+
+	fprintf(stderr, "[%s] receives %X as cutoff at DYSCO_SYN message.\n", ns.c_str(), ntohl(cmsg->seqCutoff));
 	
 	if(!dc->insert_hash_reconfig(this->index, rcb)) {
 		delete rcb;
@@ -854,14 +856,14 @@ bool DyscoAgentIn::compute_deltas_out(DyscoHashOut* cb_out, DyscoHashOut* old_ou
 		cb_out->seq_delta = cb_out->in_iseq - cb_out->out_iseq;
 		cb_out->seq_add = 0;
 	}
-#ifdef DEBUG_RECONFIG
+	
 	if(strcmp(ns.c_str(), "/var/run/netns/RA") == 0) {
 		fprintf(stderr, "[%s] compute_deltas_out\n", ns.c_str());
 		fprintf(stderr, "[%s] cb_out->sub: %s\n", ns.c_str(), printSS(cb_out->sub));
 		fprintf(stderr, "[%s] cb_out->in_iack < cb_out->out_iack ?\n", ns.c_str());
 		fprintf(stderr, "[%s] %X < %X ?\n", ns.c_str(), cb_out->in_iack, cb_out->out_iack);
 	}
-#endif
+	
 	if(cb_out->in_iack < cb_out->out_iack) {
 		cb_out->ack_delta = cb_out->out_iack - cb_out->in_iack;
 		cb_out->ack_add = 1;
