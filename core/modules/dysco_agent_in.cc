@@ -1306,6 +1306,8 @@ bool DyscoAgentIn::control_input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp,
 			
 			cb_out->state = DYSCO_ESTABLISHED;
 
+			fprintf(stderr, "[%s] new reconfiguration state is ESTABLISHED now.\n", ns.c_str());
+			
 			cb_in->is_reconfiguration = 0;
 			
 			if(!rcb->old_dcb->state_t) {
@@ -1393,8 +1395,10 @@ bool DyscoAgentIn::control_input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp,
 			}
 			*/
 			
-			if(new_out->state == DYSCO_SYN_RECEIVED)
+			if(new_out->state == DYSCO_SYN_RECEIVED) {
+				fprintf(stderr, "[%s] new reconfiguration state is ESTABLISHED now.\n", ns.c_str());
 				new_out->state = DYSCO_ESTABLISHED;
+			}
 			
 			if(!old_out->state_t) {
 				
