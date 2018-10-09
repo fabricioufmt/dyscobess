@@ -773,9 +773,7 @@ inline DyscoTcpTs* get_ts_option(Tcp* tcp) {
 	return 0;
 }
 
-inline bool tcp_sack(Tcp* tcp, uint32_t delta, uint8_t add) {
-	fprintf(stderr, "tcp_sack method\n");
-	
+inline bool tcp_sack(Tcp* tcp, uint32_t delta, uint8_t add) {	
 	uint32_t len = (tcp->offset << 2) - sizeof(Tcp);
 	uint8_t* ptr = reinterpret_cast<uint8_t*>(tcp + 1);
 
@@ -906,7 +904,6 @@ inline bool parse_tcp_syn_opt_s(Tcp* tcp, DyscoHashOut* cb_out) {
 				break;
 
 			case DYSCO_TCP_OPTION:
-				fprintf(stderr, "it's DYSCO_TCP_OPTION\n");
 				cb_out->tag_ok = 1;
 				cb_out->dysco_tag = *(uint32_t*)ptr;
 				

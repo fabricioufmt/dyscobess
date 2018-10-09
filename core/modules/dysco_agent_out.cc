@@ -476,6 +476,9 @@ void DyscoAgentOut::out_translate(Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_
 				fprintf(stderr, "[%s] after(%X, %X) == %u\n", ns.c_str(), seq, cb_out->seq_cutoff, after(seq, cb_out->seq_cutoff));
 			}
 #endif
+			if(strcmp(ns.c_str(), "/var/run/netns/LA") == 0 || strcmp(ns.c_str(), "/var/run/netns/RA") == 0) {
+				fprintf(stderr, "[%s] cb_out->seq_cutoff: %X, seq=%X\n", ns.c_str(), htonl(cb_out->seq_cutoff), htonl(seq));
+			}
 			cb_out->seq_cutoff = seq;
 		}
 	} else {
@@ -491,11 +494,9 @@ void DyscoAgentOut::out_translate(Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_
 		} else if(other_path->state == DYSCO_SYN_SENT) {
 			if(seg_sz > 0) {
 				if(after(seq, cb_out->seq_cutoff)) {
-#ifdef DEBUG_RECONFIG
 					if(strcmp(ns.c_str(), "/var/run/netns/LA") == 0 || strcmp(ns.c_str(), "/var/run/netns/RA") == 0) {
-						fprintf(stderr, "[%s] after(%X, %X) == %u\n", ns.c_str(), seq, cb_out->seq_cutoff, after(seq, cb_out->seq_cutoff));
+						fprintf(stderr, "[%s] cb_out->seq_cutoff: %X, seq=%X\n", ns.c_str(), cb_out->seq_cutoff, seq);
 					}
-#endif
 					cb_out->seq_cutoff = seq;
 				}
 			} else {
