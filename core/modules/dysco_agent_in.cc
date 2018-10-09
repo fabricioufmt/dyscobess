@@ -585,28 +585,16 @@ bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in, uint32_t 
 		return false;
 
 	if(!cb_out->old_path) {
-		/*
-#ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[%s][%s] in_two_paths_data_seg method.\n", ns.c_str(), printSS(cb_out->sub));
-#endif
-		*/
 		DyscoHashOut* old_out = cb_out->other_path;
 
 		if(!old_out)
 			return false;
-		/*
-#ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[%s]old_out->state: %u\n", printSS(old_out->sub), old_out->state);
-#endif
-		*/
+		
 		if(old_out->state == DYSCO_SYN_SENT || old_out->state == DYSCO_SYN_RECEIVED) {
+			fprintf(stderr, "[%s] old_out->state either SYN_SENT or SYN_RECEIVED\n", ns.c_str());
 			uint32_t seq = tcp->seq_num.value();
 			uint32_t delta;
-			/*
-#ifdef DEBUG_RECONFIG
-			fprintf(stderr, "delta=%X and seq=%X.\n", delta, seq);
-#endif
-			*/
+			
 			if(cb_out->in_iack < cb_out->out_iack) {
 				delta = cb_out->out_iack - cb_out->in_iack;
 				seq -= delta;
@@ -615,32 +603,36 @@ bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in, uint32_t 
 				seq += delta;
 			}
 
-			if(old_out->valid_ack_cut) {
-#ifdef DEBUG_RECONFIG
-				fprintf(stderr, "before(seq, old_out->ack_cutoff)? [%X, %X]==%u\n", seq, old_out->ack_cutoff, before(seq, old_out->ack_cutoff));
-#endif
-				
+			if(old_out->valid_ack_cut) {				
 				if(before(seq, old_out->ack_cutoff)) {
-#ifdef DEBUG_RECONFIG
-					fprintf(stderr, "session1:%s, from ack_cutoff=%X to %X.\n", printSS(old_out->sub), old_out->ack_cutoff, seq);
-#endif
 					old_out->ack_cutoff = seq;
 				}
 			} else {
-#ifdef DEBUG_RECONFIG
-				fprintf(stderr, "session2:%s, from ack_cutoff=%X to %X.\n", printSS(old_out->sub), old_out->ack_cutoff, seq);
-#endif
 				old_out->ack_cutoff = seq;
 				old_out->valid_ack_cut = 1;
 			}
-		}
-	} else {
-		uint32_t ack = tcp->seq_num.value() + payload_sz;
-		if(after(ack, cb_out->ack_cutoff)) {
-#ifdef DEBUG_RECONFIG
-			fprintf(stderr, "Adjusting ack_cutoff from %X to %X\n", cb_out->ack_cutoff, ack);
-#endif
-			cb_out->ack_cutoff = ack;
+		} else {
+			uint32_t seq = tcp->seq_num.value();
+			uint32_t delta;
+			
+			if(cb_out->in_iack < cb_out->out_iack) {
+				delta = cb_out->out_iack - cb_out->in_iack;
+				seq -= delta;
+			} else {
+				delta = cb_out->in_iack - cb_out->out_iack;
+				seq += delta;
+			}
+
+			if(old_out->valid_ack_cut) {				
+				if(before(seq, old_out->ack_cutoff)) {
+					fprintf(stderr, "[%s] adjusting1 ack_cutoff from %X to %X.\n", ns.c_str(), old_out->ack_cutoff, seq);
+					old_out->ack_cutoff = seq;
+				}
+			} else {
+				fprintf(stderr, "[%s] adjusting2 ack_cutoff from %X to %X.\n", ns.c_str(), old_out->ack_cutoff, seq);
+				old_out->ack_cutoff = seq;
+				old_out->valid_ack_cut = 1;
+			}
 		}
 	}
 	
@@ -699,24 +691,13 @@ bool DyscoAgentIn::input(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
 		else if(!in_two_paths_data_seg(tcp, cb_in, payload_sz))
 			return true;
 			
-	} else {
+	}/* else {
 		if(payload_sz) {
 			if(cb_in->dcb_out) {
-				/*
-#ifdef DEBUG_RECONFIG
-				if(strcmp(ns.c_str(), "/var/run/netns/RA") == 0) {
-					fprintf(stderr, "[%s]update ack_cutoff from %X to %X\n", ns.c_str(), cb_in->dcb_out->ack_cutoff, tcp->seq_num.value() + payload_sz);
-				}
-#endif
-				*/
-#ifdef DEBUG_RECONFIG
-				if(strcmp(ns.c_str(), "/var/run/netns/RA") == 0)
-					fprintf(stderr, "[%s]setting123 ack_cutoff=%X\n", ns.c_str(), tcp->seq_num.value() + payload_sz);
-#endif
 				cb_in->dcb_out->ack_cutoff = tcp->seq_num.value() + payload_sz;
 			}
 		}
-	}
+		}*/
 	
 	in_hdr_rewrite_csum(ip, tcp, cb_in);
 
@@ -1056,6 +1037,9 @@ bool DyscoAgentIn::control_reconfig_in(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp
 		old_out->old_path = 1;
 		old_out->other_path = new_out;
 		old_out->dcb_in->two_paths = 1;
+
+		//TEST
+		cb_in->two_paths = 1;
 		
 		if(new_out->seq_add)
 			seq_cutoff += new_out->seq_delta;
