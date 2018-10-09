@@ -1459,7 +1459,7 @@ void DyscoAgentIn::createAck(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp) {
 	ip->src = ipswap;
 	ip->ttl = TTL;
 	ip->id = be16_t(rand() % PORT_RANGE);
-	ip->length -= be16_t(tcp_opt_len);
+	ip->length = ip->length - be16_t(tcp_opt_len);
 	
 	be16_t pswap = tcp->src_port;
 	tcp->src_port = tcp->dst_port;
