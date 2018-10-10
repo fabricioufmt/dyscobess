@@ -711,7 +711,7 @@ DyscoCbReconfig* DyscoAgentIn::insert_rcb_control_input(Ipv4* ip, Tcp* tcp, Dysc
 	rcb->leftIwsr = ntohl(cmsg->leftIwsr);
 	rcb->sack_ok = ntohl(cmsg->sackOk);
 
-	fprintf(stderr, "[%s] receives %X as cutoff at DYSCO_SYN message.\n", ns.c_str(), ntohl(cmsg->seqCutoff));
+	//fprintf(stderr, "[%s] receives %X as cutoff at DYSCO_SYN message.\n", ns.c_str(), ntohl(cmsg->seqCutoff));
 	
 	if(!dc->insert_hash_reconfig(this->index, rcb)) {
 		delete rcb;
@@ -1363,7 +1363,7 @@ bool DyscoAgentIn::control_input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp,
 			*/
 			
 			if(new_out->state == DYSCO_SYN_RECEIVED) {
-				fprintf(stderr, "[%s] new reconfiguration state is ESTABLISHED now.\n", ns.c_str());
+				//fprintf(stderr, "[%s] new reconfiguration state is ESTABLISHED now.\n", ns.c_str());
 				new_out->state = DYSCO_ESTABLISHED;
 			}
 			
