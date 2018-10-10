@@ -602,15 +602,15 @@ bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in, uint32_t)
 				seq += delta;
 			}
 
-			fprintf(stderr, "[%s] cb_out->in_iack=%X cb_out->out_iack=%X (seq=%X)\n", ns.c_str(), cb_out->in_iack, cb_out->out_iack, seq);
+			//fprintf(stderr, "[%s] cb_out->in_iack=%X cb_out->out_iack=%X (seq=%X)\n", ns.c_str(), cb_out->in_iack, cb_out->out_iack, seq);
 			
 			if(old_out->valid_ack_cut) {				
 				if(before(seq, old_out->ack_cutoff)) {
-					fprintf(stderr, "[%s] adjusting1 ack_cutoff from %X to %X.\n", ns.c_str(), old_out->ack_cutoff, seq);
+					//fprintf(stderr, "[%s] adjusting1 ack_cutoff from %X to %X.\n", ns.c_str(), old_out->ack_cutoff, seq);
 					old_out->ack_cutoff = seq;
 				}
 			} else {
-				fprintf(stderr, "[%s] adjusting2 ack_cutoff from %X to %X.\n", ns.c_str(), old_out->ack_cutoff, seq);
+				//fprintf(stderr, "[%s] adjusting2 ack_cutoff from %X to %X.\n", ns.c_str(), old_out->ack_cutoff, seq);
 				old_out->ack_cutoff = seq;
 				old_out->valid_ack_cut = 1;
 			}	
@@ -818,14 +818,14 @@ bool DyscoAgentIn::compute_deltas_out(DyscoHashOut* cb_out, DyscoHashOut* old_ou
 		cb_out->seq_delta = cb_out->in_iseq - cb_out->out_iseq;
 		cb_out->seq_add = 0;
 	}
-	
+	/*
 	if(strcmp(ns.c_str(), "/var/run/netns/RA") == 0) {
 		fprintf(stderr, "[%s] compute_deltas_out\n", ns.c_str());
 		fprintf(stderr, "[%s] cb_out->sub: %s\n", ns.c_str(), printSS(cb_out->sub));
 		fprintf(stderr, "[%s] cb_out->in_iack < cb_out->out_iack ?\n", ns.c_str());
 		fprintf(stderr, "[%s] %X < %X ?\n", ns.c_str(), cb_out->in_iack, cb_out->out_iack);
 	}
-	
+	*/
 	if(cb_out->in_iack < cb_out->out_iack) {
 		cb_out->ack_delta = cb_out->out_iack - cb_out->in_iack;
 		cb_out->ack_add = 1;
@@ -1273,7 +1273,7 @@ bool DyscoAgentIn::control_input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp,
 			
 			cb_out->state = DYSCO_ESTABLISHED;
 
-			fprintf(stderr, "[%s] new reconfiguration state is ESTABLISHED now.\n", ns.c_str());
+			//fprintf(stderr, "[%s] new reconfiguration state is ESTABLISHED now.\n", ns.c_str());
 			
 			cb_in->is_reconfiguration = 0;
 			
