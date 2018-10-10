@@ -122,9 +122,9 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 				continue;
 			}
 		} else if(isLockingPacket(ip, tcp)) {
-			//#ifdef DEBUG_RECONFIG
+#ifdef DEBUG_RECONFIG
 			fprintf(stderr, "[%s] Receives Locking Packet.\n", ns.c_str());
-			//#endif
+#endif
 			newpkt = processLockingPacket(pkt, eth, ip, tcp);
 			if(newpkt) {
 				agent->forward(newpkt);
