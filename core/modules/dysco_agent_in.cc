@@ -953,10 +953,8 @@ bool DyscoAgentIn::control_config_rightA(DyscoCbReconfig* rcb, DyscoControlMessa
 		old_out->state_t = 1;
 	else {
 		uint32_t new_cutoff = ntohl(cmsg->seqCutoff);
-		if(cb_out->ack_add) {
-			new_cutoff += cb_out->ack_delta;
-		} else
-			new_cutoff -= cb_out->ack_delta;
+		uint32_t delta = new_cutoff - cb_out->out_iack;
+		new_cutoff = cb_out->in_iack + delta;
 
 		fprintf(stderr, "[%s][cmsg->seqCutoff=%X] setting ack_cutoff from %X to %X (receiving SYN message)\n", ns.c_str(), ntohl(cmsg->seqCutoff), old_out->ack_cutoff, new_cutoff);
 		
