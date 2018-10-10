@@ -490,7 +490,6 @@ void DyscoAgentOut::out_translate(Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_
 					if(ip->src.raw_value() == inet_addr("10.0.2.2"))
 						fprintf(stderr, "\n[%s][%s] cb_out->ack_cutoff: %X, ack: %X (going to %s)\n\n", ns.c_str(), printSS(cb->sub), cb_out->ack_cutoff, tcp->ack_num.value(), cb_out == cb ? "old path" : "new path");
 				*/
-				}
 			}
 		} else if(other_path->state == DYSCO_SYN_SENT) {
 			if(seg_sz > 0) {
@@ -516,7 +515,6 @@ void DyscoAgentOut::out_translate(Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_
 					if(ip->src.raw_value() == inet_addr("10.0.2.2"))
 						fprintf(stderr, "\n[%s][%s] cb_out->ack_cutoff: %X, ack: %X (going to %s) (state=DYSCO_SYN_RECEIVED)\n\n", ns.c_str(), printSS(cb->sub), cb_out->ack_cutoff, tcp->ack_num.value(), cb_out == cb ? "old path" : "new path");
 				*/
-				}
 			}
 		}
 		/*else if(other_path->state == DYSCO_CLOSE_WAIT) {
