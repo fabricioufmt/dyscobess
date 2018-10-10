@@ -589,33 +589,10 @@ bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in, uint32_t)
 
 		if(!old_out)
 			return false;
-		
-		if(old_out->state == DYSCO_SYN_SENT || old_out->state == DYSCO_SYN_RECEIVED) {
-			fprintf(stderr, "[%s] old_out->state either SYN_SENT or SYN_RECEIVED\n", ns.c_str());
+
+		if(cb_out->state != DYSCO_CLOSED) {
 			uint32_t seq = tcp->seq_num.value();
 			uint32_t delta;
-			
-			if(cb_out->in_iack < cb_out->out_iack) {
-				delta = cb_out->out_iack - cb_out->in_iack;
-				seq -= delta;
-			} else {
-				delta = cb_out->in_iack - cb_out->out_iack;
-				seq += delta;
-			}
-
-			if(old_out->valid_ack_cut) {				
-				if(before(seq, old_out->ack_cutoff)) {
-					old_out->ack_cutoff = seq;
-				}
-			} else {
-				old_out->ack_cutoff = seq;
-				old_out->valid_ack_cut = 1;
-			}
-		} else {
-			uint32_t seq = tcp->seq_num.value();
-			uint32_t delta;
-
-			fprintf(stderr, "[%s] seq was %X\n", ns.c_str(), seq);
 			
 			if(cb_out->in_iack < cb_out->out_iack) {
 				delta = cb_out->out_iack - cb_out->in_iack;
@@ -636,7 +613,7 @@ bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in, uint32_t)
 				fprintf(stderr, "[%s] adjusting2 ack_cutoff from %X to %X.\n", ns.c_str(), old_out->ack_cutoff, seq);
 				old_out->ack_cutoff = seq;
 				old_out->valid_ack_cut = 1;
-			}
+			}	
 		}
 	}
 	
@@ -951,16 +928,7 @@ bool DyscoAgentIn::control_config_rightA(DyscoCbReconfig* rcb, DyscoControlMessa
 	
 	if(ntohl(cmsg->semantic) == STATE_TRANSFER)
 		old_out->state_t = 1;
-	else {
-		uint32_t new_cutoff = ntohl(cmsg->seqCutoff);
-		uint32_t delta = new_cutoff - cb_out->out_iack;
-		new_cutoff = cb_out->in_iack + delta;
 
-		fprintf(stderr, "[%s][cmsg->seqCutoff=%X] setting ack_cutoff from %X to %X (receiving SYN message)\n", ns.c_str(), ntohl(cmsg->seqCutoff), old_out->ack_cutoff, new_cutoff);
-		
-		old_out->ack_cutoff = new_cutoff; 
-	}
-	
 	return true;
 }
 
