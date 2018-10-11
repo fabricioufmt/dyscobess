@@ -1081,7 +1081,7 @@ bool DyscoAgentOut::forward(Packet* pkt, bool reliable) {
  * This method should process packets when they leave a host.
  */
 
-bool doProcess(Packet* pkt, Ethernet* eth, Ipv4* ip, size_t ip_hlen, Tcp* tcp, size_t tcp_hlen, DyscoHashOut* cb_out, ProcessBatch* out_gates) {
+bool doProcess(Packet* pkt, Ethernet* eth, Ipv4* ip, size_t ip_hlen, Tcp* tcp, size_t tcp_hlen, DyscoHashOut* cb_out, PacketBatch* out_gates) {
 	/*
 	 * The packet is either LockingSignal or not. Control packets are processed by DyscoAgentIn.
 	 */
