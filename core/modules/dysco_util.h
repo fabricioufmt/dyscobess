@@ -720,18 +720,20 @@ inline bool isLockingSignalPacket(Tcp* tcp) {
 }
 
 inline bool isLockingPacket(Ipv4* ip, Tcp* tcp) {
+	uint32_t tcp_hlen = tcp->offset << 2;
+	uint32_t ip_tlen = ip->length().value();
 	uint32_t payload_len = hasPayload(ip, tcp);
 
 	if(isTCPSYN(tcp) && payload_len) {
 		if(payload_len >= sizeof(DyscoControlMessage)) {
-			DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>(tcp + 1);
+			DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>((uint8_t*)tcp + tcp_hlen);
 			return cmsg->type == DYSCO_LOCK;
 		}
 	}
 
 	if(isTCPACK(tcp, true) && payload_len) {
 		if(payload_len >= sizeof(DyscoControlMessage)) {
-			DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>(tcp + 1);
+			DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>((uint8_t*)tcp + tcp_hlen);
 			return cmsg->type == DYSCO_LOCK && cmsg->lock_state == DYSCO_ACK_LOCK;
 		}
 	}
