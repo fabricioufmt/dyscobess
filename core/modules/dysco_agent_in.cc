@@ -1987,9 +1987,9 @@ Packet* DyscoAgentIn::processRequestLocking(Packet* pkt, Ethernet* eth, Ipv4* ip
 	}
 			
 	if(!cb_out) {
-#ifdef DEBUG_RECONFIG
-		fprintf(stderr, "ERROR: cb_out not found... dropping.\n");
-#endif
+		//#ifdef DEBUG_RECONFIG
+		fprintf(stderr, "[%s] ERROR: cb_out not found... dropping.\n", ns.c_str());
+		//#endif
 		return 0;
 	}
 	/*
@@ -2022,16 +2022,19 @@ Packet* DyscoAgentIn::processRequestLocking(Packet* pkt, Ethernet* eth, Ipv4* ip
 			out.clear();
 			out.add(pkt);
 			cb_out->module->RunChooseModule(1, &out);
-
+			fprintf(stderr, "[%s] here 0... because cb_out->module..\n", ns.c_str());
 			return 0;
 		} else {
 			cb_out->is_RA = 1;
 			cb_out->lock_state = DYSCO_ACK_LOCK;
 
-			return createAckLocking(pkt, eth, ip, tcp, cmsg, cb_out);
+			Packet* tmp = createAckLocking(pkt, eth, ip, tcp, cmsg, cb_out);
+			if(!tmp)
+				fprintf(stderr, "[%s] processRequestLocking return 0 no CreateAck\n", ns.c_str());
+			return tmp;
 		}
 	}
-	
+	fprintf(stderr, "end of processRequestLocking\n");	
 	return 0;
 }
 
