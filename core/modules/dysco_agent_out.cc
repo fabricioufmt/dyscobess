@@ -1149,9 +1149,7 @@ bool DyscoAgentOut::doProcess(Packet* pkt, Ethernet* eth, Ipv4* ip, uint32_t ip_
 		cmsg->lock_state = DYSCO_REQUEST_LOCK;
 				
 		fix_csum(ip, tcp);
-	} else {
-		return true;
-		
+	} else {		
 		DyscoLockingReconfig* dysco_locking = new DyscoLockingReconfig();
 		dysco_locking->cb_out_left = cb_out;
 		dysco_locking->cb_out_right = dc->lookup_output_by_ss(this->index, &cmsg->rightSS);
