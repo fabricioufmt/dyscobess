@@ -74,7 +74,7 @@ void timer_worker(DyscoAgentOut* agent) {
 		
 			node = node->next;
 		}
-		fprintf(stderr, "[%s] timer_worker: unlock mtx mutex\n", ns.c_str());		
+		fprintf(stderr, "[%s] timer_worker: unlock mtx mutex\n", agent->getNs());		
 		agent->mtx.unlock();
 
 		if(batch.cnt() > 0) {
