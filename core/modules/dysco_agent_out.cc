@@ -1097,10 +1097,10 @@ bool DyscoAgentOut::doProcess(Packet* pkt, Ethernet* eth, Ipv4* ip, size_t ip_hl
 	}
 	
 	if(!cb_out)
-		return;
+		return false;
 	
 	if(cb_out->lock_state != DYSCO_CLOSED_LOCK)
-		return;
+		return false;
 	
 	uint32_t payload_len = ip_hlen - tcp_hlen;
 	uint32_t sc_sz = payload_len - sizeof(DyscoControlMessage);
@@ -1164,15 +1164,7 @@ bool DyscoAgentOut::doProcess(Packet* pkt, Ethernet* eth, Ipv4* ip, size_t ip_hl
 		DyscoLockingReconfig* dysco_locking = new DyscoLockingReconfig();
 		dysco_locking->cb_out_left = cb_out;
 		dysco_locking->cb_out_right = dc->lookup_output_by_ss(this->index, &cmsg->rightSS);
-#ifdef DEBUG_RECONFIG
-		if(dysco_locking->cb_out_right)
-			fprintf(stderr, "Looking output for %s... found\n", printSS(cmsg->rightSS));
-		else
-			fprintf(stderr, "Looking output for %s... not found\n", printSS(cmsg->rightSS));
-
-		fprintf(stderr, "cmsg->leftSS: %s\n", printSS(cmsg->leftSS));
-		fprintf(stderr, "cmsg->rightSS: %s\n", printSS(cmsg->rightSS));
-#endif
+		
 		dysco_locking->leftSS = cmsg->leftSS;
 		dysco_locking->rightSS = cmsg->rightSS;
 
@@ -1180,10 +1172,6 @@ bool DyscoAgentOut::doProcess(Packet* pkt, Ethernet* eth, Ipv4* ip, size_t ip_hl
 		dc->insert_locking_reconfig(this->index, dysco_locking);
 	}
 
-#ifdef DEBUG_RECONFIG
-	fprintf(stderr, "Forwarding LockingSignal with tcp->flags: %u tcp->offset: %u (seq: %X:%X]\n\n", tcp->flags, tcp->offset, tcp->seq_num.raw_value(), tcp->ack_num.raw_value());
-#endif
-	
 	return true;	
 }
 
