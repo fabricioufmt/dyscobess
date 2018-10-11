@@ -1039,7 +1039,6 @@ bool DyscoAgentOut::processLockingSignalPacket(Packet* pkt, Ethernet* eth, Ipv4*
 
 bool DyscoAgentOut::forward(Packet* pkt, bool reliable) {
 	if(!reliable) {
-		fprintf(stderr, "[%s]forwarding without reliable\n", ns.c_str());
 		PacketBatch out_gate;
 		out_gate.clear();
 		out_gate.add(pkt);
@@ -1047,9 +1046,10 @@ bool DyscoAgentOut::forward(Packet* pkt, bool reliable) {
 
 		return true;
 	}
-
+	fprintf(stderr, "[%s] forwarding with retransmission.\n", ns.c_str());
+	
 	mtx.lock();
-	//LNode<Packet>* node = retransmission_list->insertTail(*pkt, tsc_to_ns(rdtsc()));
+
 	LNode<Packet>* node = retransmission_list->insertTail(*Packet::copy(pkt), tsc_to_ns(rdtsc()));
 	mtx.unlock();
 	
@@ -1106,9 +1106,6 @@ bool DyscoAgentOut::doProcess(Packet* pkt, Ethernet* eth, Ipv4* ip, uint32_t ip_
 	DyscoTcpOption* tcpo = reinterpret_cast<DyscoTcpOption*>(tcp + 1);
 	DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>((uint8_t*)tcp + tcp_hlen);
 
-	fprintf(stderr, "tcp_hlen=%u\n", tcp_hlen);
-	fprintf(stderr, "tcpo->len=%u\n", tcpo->len);
-	
 	cb_out->is_signaler = 1;
 	cb_out->sc_len = sc_sz/sizeof(uint32_t);
 	cb_out->sc = new uint32_t[cb_out->sc_len];
@@ -1155,17 +1152,9 @@ bool DyscoAgentOut::doProcess(Packet* pkt, Ethernet* eth, Ipv4* ip, uint32_t ip_
 		DyscoLockingReconfig* dysco_locking = new DyscoLockingReconfig();
 		dysco_locking->cb_out_left = cb_out;
 		dysco_locking->cb_out_right = dc->lookup_output_by_ss(this->index, &cmsg->rightSS);
-
-		if(dysco_locking->cb_out_left)
-			fprintf(stderr, "[%s] dysco_locking->cb_out_left=%s\n", ns.c_str(), printSS(dysco_locking->cb_out_left->sub));
-		if(dysco_locking->cb_out_right)
-			fprintf(stderr, "[%s] dysco_locking->cb_out_right=%s\n", ns.c_str(), printSS(dysco_locking->cb_out_right->sub));
 		
 		dysco_locking->leftSS = cmsg->leftSS;
 		dysco_locking->rightSS = cmsg->rightSS;
-
-		fprintf(stderr, "[%s] dysco_locking->leftSS=%s\n", ns.c_str(), printSS(dysco_locking->leftSS));
-		fprintf(stderr, "[%s] dysco_locking->rightSS=%s\n", ns.c_str(), printSS(dysco_locking->rightSS));
 		
 		dc->insert_locking_reconfig(this->index, dysco_locking);
 		
