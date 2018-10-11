@@ -1104,7 +1104,7 @@ bool DyscoAgentOut::doProcess(Packet* pkt, Ethernet* eth, Ipv4* ip, uint32_t ip_
 	uint32_t payload_len = ip_tlen - ip_hlen - tcp_hlen;
 	uint32_t sc_sz = payload_len - sizeof(DyscoControlMessage);
 	DyscoTcpOption* tcpo = reinterpret_cast<DyscoTcpOption*>(tcp + 1);
-	DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>(tcp + tcp_hlen);
+	DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>((uint8_t*)tcp + tcp_hlen);
 
 	fprintf(stderr, "tcp_hlen=%u\n", tcp_hlen);
 	fprintf(stderr, "tcpo->len=%u\n", tcpo->len);
