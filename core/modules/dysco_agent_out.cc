@@ -7,16 +7,18 @@ const Commands DyscoAgentOut::cmds = {
 };
 
 void timer_worker(DyscoAgentOut* agent) {
+	uint32_t delta;
 	uint64_t now_ts;
+	PacketBatch batch;
 	LNode<Packet>* aux;
 	LNode<Packet>* node;
 	LNode<Packet>* tail;
-	LinkedList<Packet>* list = 0;
-	PacketBatch batch;
-	
+	LinkedList<Packet>* list;
+
+	delta = 0;
 	while(1) {
 		batch.clear();
-		usleep(SLEEPTIME);
+		usleep(SLEEPTIME + delta);
 
 		fprintf(stderr, "[%s] timer_worker: lock mtx mutex\n", agent->getNs());
 		
@@ -25,9 +27,11 @@ void timer_worker(DyscoAgentOut* agent) {
 		if(!list->size()) {
 			fprintf(stderr, "[%s] timer_worker: unlock mtx mutex\n", agent->getNs());
 			agent->mtx.unlock();
+			delta += 1000; //1ms
 			continue;
 		}
-		
+
+		delta = 0;
 		tail = list->getTail();
 		now_ts = tsc_to_ns(rdtsc());
 		node = list->getHead()->next;
@@ -70,8 +74,8 @@ DyscoAgentOut::DyscoAgentOut() : Module() {
 	dc = 0;
 	devip = 0;
 	index = 0;
-	timeout = DEFAULT_TIMEOUT;
 	timer = 0;
+	timeout = DEFAULT_TIMEOUT;
 	retransmission_list = new LinkedList<Packet>();
 }
 
