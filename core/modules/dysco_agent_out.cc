@@ -22,11 +22,11 @@ void timer_worker(DyscoAgentOut* agent) {
 		fprintf(stderr, "[%s] timer_worker is working now...\n", agent->getNs());
 #endif
 		*/
-		fprintf(stderr, "[%s] timer_worker: lock mtx mutex\n", ns.c_str());
+		fprintf(stderr, "[%s] timer_worker: lock mtx mutex\n", agent->getNs());
 		agent->mtx.lock();
 		list = agent->getRetransmissionList();
 		if(!list) {
-			fprintf(stderr, "[%s] timer_worker: unlock mtx mutex\n", ns.c_str());
+			fprintf(stderr, "[%s] timer_worker: unlock mtx mutex\n", agent->getNs());
 			agent->mtx.unlock();
 			continue;
 		}
