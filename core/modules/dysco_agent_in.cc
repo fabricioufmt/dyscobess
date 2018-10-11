@@ -112,9 +112,9 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 				fprintf(stderr, "[%s]processLockingPacket returns FALSE\n", ns.c_str());
 			}
 		} else if(isReconfigPacket(ip, tcp, cb_in)) {
-#ifdef DEBUG_RECONFIG
+			//#ifdef DEBUG_RECONFIG
 			fprintf(stderr, "[%s] Receives Reconfig Packet.\n", ns.c_str());
-#endif
+			//#endif
 
 			if(control_input(pkt, eth, ip, tcp, cb_in)) {
 				out.add(pkt);
