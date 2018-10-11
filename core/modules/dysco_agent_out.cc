@@ -74,9 +74,11 @@ void timer_worker(DyscoAgentOut* agent) {
 		}
 		
 		agent->mtx.unlock();
-		
-		fprintf(stderr, "[%s][DyscoAgentOut] is going to retransmit %u packets.\n", agent->getNs(), batch.cnt());
-		agent->RunChooseModule(1, &batch);
+
+		if(batch.cnt() > 0) {
+			fprintf(stderr, "[%s][DyscoAgentOut] is going to retransmit %u packets.\n", agent->getNs(), batch.cnt());
+			agent->RunChooseModule(1, &batch);
+		}
 	}
 }
 
