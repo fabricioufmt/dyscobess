@@ -144,6 +144,7 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 	Packet* pkt;
 	Ethernet* eth;
 	size_t ip_hlen;
+	size_t tcp_hlen;
 	DyscoHashOut* cb_out;
 
 	for(int i = 0; i < batch->cnt(); i++) {
@@ -163,78 +164,14 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 		
 		ip_hlen = ip->header_length << 2;
 		tcp = reinterpret_cast<Tcp*>(reinterpret_cast<uint8_t*>(ip) + ip_hlen);
-		
-#ifdef DEBUG
-		//		if(strcmp(ns.c_str(), "/var/run/netns/RA") == 0)
-		fprintf(stderr, "[%s][DyscoAgentOut] receives %s [%X:%X]\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.raw_value(), tcp->ack_num.raw_value());
-#endif
-		/*
-#ifdef DEBUG_RECONFIG
-		if(strcmp(ns.c_str(), "/var/run/netns/RA") == 0) {
-			if(ip->dst.raw_value() == inet_addr("10.0.2.2"))
-				fprintf(stderr, "[%s][DyscoAgentOut] receives %s [%X:%X] (len: %u).\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.raw_value(), tcp->ack_num.raw_value(), hasPayload(ip, tcp));
-		}
-#endif
-		*/
+		tcp_hlen = tcp->offset << 2;
 
 		cb_out = dc->lookup_output(this->index, ip, tcp);
 		
-		if(isLockingSignalPacket(tcp)) {
-#ifdef DEBUG_RECONFIG
-			fprintf(stderr, "It's Locking Signal Packet.\n");
-#endif
-
-			if(processLockingSignalPacket(pkt, eth, ip, tcp, cb_out)) {
-				forward(pkt, true);
-				
-				continue;
-			}
-		} else if(isReconfigPacketOut(ip, tcp, cb_out)) {
-			//TODO verify
-#ifdef DEBUG_RECONFIG
-			fprintf(stderr, "It's reconfiguration packet, should be only SYN.\n");
-#endif
-			if(control_output(ip, tcp)) {
-				forward(pkt, true);
-				//dc->add_retransmission(this->index, devip, pkt);
-			
-#ifdef DEBUG
-				fprintf(stderr, "[%s][DyscoAgentOut-Control] forwards to Retransmission %s [%X:%X]\n\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.raw_value(), tcp->ack_num.raw_value());
-#endif
-			}
-			
-			continue;
-		} else if(output(pkt, ip, tcp, cb_out)) {
-			out_gates[1].add(pkt);
-		} else
-			out_gates[0].add(pkt);
-
-#ifdef DEBUG
-		//		if(strcmp(ns.c_str(), "/var/run/netns/RA") == 0)
-		fprintf(stderr, "[%s][DyscoAgentOut] forwards %s [%X:%X]\n\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.raw_value(), tcp->ack_num.raw_value());
-#endif
-
-		/*
-#ifdef DEBUG_RECONFIG
-		if(strcmp(ns.c_str(), "/var/run/netns/RA") == 0) {
-			if(ip->dst.raw_value() == inet_addr("10.0.2.2"))
-				fprintf(stderr, "[%s][DyscoAgentOut] forwards %s [%X:%X] (len: %u).\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.raw_value(), tcp->ack_num.raw_value(), hasPayload(ip, tcp));
-		}
-#endif
-		*/
-#ifdef DEBUG_RECONFIG
-		if(strcmp(ns.c_str(), "/var/run/netns/LA") == 0) {
-			if(ip->dst.raw_value() == inet_addr("10.0.5.2"))
-				fprintf(stderr, "[%s][DyscoAgentOut] forwards %s [%X:%X] (len: %u).\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.raw_value(), tcp->ack_num.raw_value(), hasPayload(ip, tcp));
-			else if(ip->dst.raw_value() == inet_addr("10.0.7.2"))
-				fprintf(stderr, "[%s][DyscoAgentOut] forwards %s [%X:%X] (len: %u).\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.raw_value(), tcp->ack_num.raw_value(), hasPayload(ip, tcp));
-		}
-#endif
-
+		doProcess(pkt, eth, ip, ip_hlen, tcp, tcp_hlen, cb_out, out_gates);
 	}
 	
-	//batch->clear();
-	
+	batch->clear();
 	RunChooseModule(0, &out_gates[0]);
 	RunChooseModule(1, &out_gates[1]);
 }
@@ -1125,6 +1062,413 @@ bool DyscoAgentOut::forward(Packet* pkt, bool reliable) {
 		timer = new thread(timer_worker, this);
 	
 	return updated;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+ * This method should process packets when they leave a host.
+ */
+
+bool doProcess(Packet* pkt, Ethernet* eth, Ipv4* ip, size_t ip_hlen, Tcp* tcp, size_t tcp_hlen, DyscoHashOut* cb_out, ProcessBatch* out_gates) {
+	/*
+	 * The packet is either LockingSignal or not. Control packets are processed by DyscoAgentIn.
+	 */
+
+	if(likely(!isLockingSignalPacket(tcp))) {
+		if(output(pkt, ip, tcp, cb_out)) {
+			out_gates[1].add(pkt);
+		} else {
+			out_gates[0].add(pkt);			
+		}
+
+		return true;
+	}
+	
+	if(!cb_out)
+		return;
+	
+	if(cb_out->lock_state != DYSCO_CLOSED_LOCK)
+		return;
+	
+	uint32_t payload_len = ip_hlen - tcp_hlen;
+	uint32_t sc_sz = payload_len - sizeof(DyscoControlMessage);
+	DyscoTcpOption* tcpo = reinterpret_cast<DyscoTcpOption*>(tcp + 1);
+	DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>(tcp + tcp_hlen);
+
+	cb_out->is_signaler = 1;
+	cb_out->sc_len = sc_sz/sizeof(uint32_t);
+	cb_out->sc = new uint32_t[cb_out->sc_len];
+	memcpy(cb_out->sc, cmsg + 1, sc_sz);
+
+	if(isLeftAnchor(tcpo)) {
+		cb_out->is_LA = 1;
+
+		uint8_t old_rhop = cmsg->rhop;
+		DyscoTcpSession old_leftSS = cmsg->leftSS;
+		DyscoTcpSession old_rightSS = cmsg->rightSS;
+
+		ip->length = be16_t(ip->length.value() - tcpo->len - sc_sz);
+		pkt->trim(tcpo->len + sc_sz);
+		memcpy(tcpo, cmsg, sizeof(DyscoControlMessage));
+
+		eth->src_addr = cb_out->mac_sub.src_addr;
+		eth->dst_addr = cb_out->mac_sub.dst_addr;
+				
+		ip->id = be16_t(rand());
+		ip->ttl = TTL;
+		*((uint32_t*)(&ip->src)) = cb_out->sub.sip;
+		*((uint32_t*)(&ip->dst)) = cb_out->sub.dip;
+				
+		tcp->src_port = be16_t(rand());
+		tcp->dst_port = be16_t(rand());
+		tcp->seq_num = be32_t(rand());
+		tcp->ack_num = be32_t(0);
+		tcp->offset = 5;
+		tcp->flags = Tcp::kSyn;
+				
+		cb_out->lock_state = DYSCO_REQUEST_LOCK;
+
+		cmsg = reinterpret_cast<DyscoControlMessage*>(tcp + 1);
+		cmsg->lhop = old_rhop;
+		cmsg->type = DYSCO_LOCK;
+		cmsg->my_sub = cb_out->sub;
+		cmsg->leftSS = old_leftSS;
+		cmsg->rightSS = old_rightSS;
+		cmsg->lock_state = DYSCO_REQUEST_LOCK;
+				
+		fix_csum(ip, tcp);
+	} else {
+		tcp->seq_num = be32_t(cb_out->last_seq - 1);
+		tcp->ack_num = be32_t(cb_out->last_ack);
+		hdr_rewrite(ip, tcp, &cb_out->sub);
+
+		pkt->trim(payload_len);
+		ip->length = ip->length - be16_t(payload_len);
+		tcpo->tag = cb_out->sub.dip;
+		tcpo->sport = cb_out->sub.dport;
+		
+		fix_csum(ip, tcp);
+
+		DyscoLockingReconfig* dysco_locking = new DyscoLockingReconfig();
+		dysco_locking->cb_out_left = cb_out;
+		dysco_locking->cb_out_right = dc->lookup_output_by_ss(this->index, &cmsg->rightSS);
+#ifdef DEBUG_RECONFIG
+		if(dysco_locking->cb_out_right)
+			fprintf(stderr, "Looking output for %s... found\n", printSS(cmsg->rightSS));
+		else
+			fprintf(stderr, "Looking output for %s... not found\n", printSS(cmsg->rightSS));
+
+		fprintf(stderr, "cmsg->leftSS: %s\n", printSS(cmsg->leftSS));
+		fprintf(stderr, "cmsg->rightSS: %s\n", printSS(cmsg->rightSS));
+#endif
+		dysco_locking->leftSS = cmsg->leftSS;
+		dysco_locking->rightSS = cmsg->rightSS;
+
+		
+		dc->insert_locking_reconfig(this->index, dysco_locking);
+	}
+
+#ifdef DEBUG_RECONFIG
+	fprintf(stderr, "Forwarding LockingSignal with tcp->flags: %u tcp->offset: %u (seq: %X:%X]\n\n", tcp->flags, tcp->offset, tcp->seq_num.raw_value(), tcp->ack_num.raw_value());
+#endif
+	
+	return true;	
+}
+
+bool DyscoAgentOut::forward(Packet* pkt, bool reliable) {
+	if(!reliable) {
+		PacketBatch out_gate;
+		out_gate.clear();
+		out_gate.add(pkt);
+		RunChooseModule(1, &out_gate);
+
+		return true;
+	}
+
+	mtx.lock();
+	//LNode<Packet>* node = retransmission_list->insertTail(*pkt, tsc_to_ns(rdtsc()));
+	LNode<Packet>* node = retransmission_list->insertTail(*Packet::copy(pkt), tsc_to_ns(rdtsc()));
+	mtx.unlock();
+	
+	uint32_t i = getValueToAck(pkt);
+
+	bool updated = agent->updateReceivedHash(i, node);
+
+	if(!timer)
+		timer = new thread(timer_worker, this);
+	
+	return updated;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+ * This method should process packets when they leave a host.
+ */
+
+bool doProcess(Packet* pkt, Ethernet* eth, Ipv4* ip, size_t ip_hlen, Tcp* tcp, size_t tcp_hlen, DyscoHashOut* cb_out, ProcessBatch* out_gates) {
+	/*
+	 * The packet is either LockingSignal or not. Control packets are processed by DyscoAgentIn.
+	 */
+
+	if(likely(!isLockingSignalPacket(tcp))) {
+		if(output(pkt, ip, tcp, cb_out)) {
+			out_gates[1].add(pkt);
+		} else {
+			out_gates[0].add(pkt);			
+		}
+
+		return true;
+	}
+	
+	if(!cb_out)
+		return;
+	
+	if(cb_out->lock_state != DYSCO_CLOSED_LOCK)
+		return;
+	
+	uint32_t payload_len = ip_hlen - tcp_hlen;
+	uint32_t sc_sz = payload_len - sizeof(DyscoControlMessage);
+	DyscoTcpOption* tcpo = reinterpret_cast<DyscoTcpOption*>(tcp + 1);
+	DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>(tcp + tcp_hlen);
+
+	cb_out->is_signaler = 1;
+	cb_out->sc_len = sc_sz/sizeof(uint32_t);
+	cb_out->sc = new uint32_t[cb_out->sc_len];
+	memcpy(cb_out->sc, cmsg + 1, sc_sz);
+
+	if(isLeftAnchor(tcpo)) {
+		cb_out->is_LA = 1;
+
+		uint8_t old_rhop = cmsg->rhop;
+		DyscoTcpSession old_leftSS = cmsg->leftSS;
+		DyscoTcpSession old_rightSS = cmsg->rightSS;
+
+		ip->length = be16_t(ip->length.value() - tcpo->len - sc_sz);
+		pkt->trim(tcpo->len + sc_sz);
+		memcpy(tcpo, cmsg, sizeof(DyscoControlMessage));
+
+		eth->src_addr = cb_out->mac_sub.src_addr;
+		eth->dst_addr = cb_out->mac_sub.dst_addr;
+				
+		ip->id = be16_t(rand());
+		ip->ttl = TTL;
+		*((uint32_t*)(&ip->src)) = cb_out->sub.sip;
+		*((uint32_t*)(&ip->dst)) = cb_out->sub.dip;
+				
+		tcp->src_port = be16_t(rand());
+		tcp->dst_port = be16_t(rand());
+		tcp->seq_num = be32_t(rand());
+		tcp->ack_num = be32_t(0);
+		tcp->offset = 5;
+		tcp->flags = Tcp::kSyn;
+				
+		cb_out->lock_state = DYSCO_REQUEST_LOCK;
+
+		cmsg = reinterpret_cast<DyscoControlMessage*>(tcp + 1);
+		cmsg->lhop = old_rhop;
+		cmsg->type = DYSCO_LOCK;
+		cmsg->my_sub = cb_out->sub;
+		cmsg->leftSS = old_leftSS;
+		cmsg->rightSS = old_rightSS;
+		cmsg->lock_state = DYSCO_REQUEST_LOCK;
+				
+		fix_csum(ip, tcp);
+	} else {
+		tcp->seq_num = be32_t(cb_out->last_seq - 1);
+		tcp->ack_num = be32_t(cb_out->last_ack);
+		hdr_rewrite(ip, tcp, &cb_out->sub);
+
+		pkt->trim(payload_len);
+		ip->length = ip->length - be16_t(payload_len);
+		tcpo->tag = cb_out->sub.dip;
+		tcpo->sport = cb_out->sub.dport;
+		
+		fix_csum(ip, tcp);
+
+		DyscoLockingReconfig* dysco_locking = new DyscoLockingReconfig();
+		dysco_locking->cb_out_left = cb_out;
+		dysco_locking->cb_out_right = dc->lookup_output_by_ss(this->index, &cmsg->rightSS);
+#ifdef DEBUG_RECONFIG
+		if(dysco_locking->cb_out_right)
+			fprintf(stderr, "Looking output for %s... found\n", printSS(cmsg->rightSS));
+		else
+			fprintf(stderr, "Looking output for %s... not found\n", printSS(cmsg->rightSS));
+
+		fprintf(stderr, "cmsg->leftSS: %s\n", printSS(cmsg->leftSS));
+		fprintf(stderr, "cmsg->rightSS: %s\n", printSS(cmsg->rightSS));
+#endif
+		dysco_locking->leftSS = cmsg->leftSS;
+		dysco_locking->rightSS = cmsg->rightSS;
+
+		
+		dc->insert_locking_reconfig(this->index, dysco_locking);
+	}
+
+#ifdef DEBUG_RECONFIG
+	fprintf(stderr, "Forwarding LockingSignal with tcp->flags: %u tcp->offset: %u (seq: %X:%X]\n\n", tcp->flags, tcp->offset, tcp->seq_num.raw_value(), tcp->ack_num.raw_value());
+#endif
+	
+	return true;	
+}
+
+bool DyscoAgentOut::forward(Packet* pkt, bool reliable) {
+	if(!reliable) {
+		PacketBatch out_gate;
+		out_gate.clear();
+		out_gate.add(pkt);
+		RunChooseModule(1, &out_gate);
+
+		return true;
+	}
+
+	mtx.lock();
+	//LNode<Packet>* node = retransmission_list->insertTail(*pkt, tsc_to_ns(rdtsc()));
+	LNode<Packet>* node = retransmission_list->insertTail(*Packet::copy(pkt), tsc_to_ns(rdtsc()));
+	mtx.unlock();
+	
+	uint32_t i = getValueToAck(pkt);
+
+	bool updated = agent->updateReceivedHash(i, node);
+
+	if(!timer)
+		timer = new thread(timer_worker, this);
+	
+	return updated;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+ * This method should process packets when they leave a host.
+ */
+
+bool DyscoAgentOut::doProcess(Packet* pkt, Ethernet* eth, Ipv4* ip, size_t ip_hlen, Tcp* tcp, size_t tcp_hlen, DyscoHashOut* cb_out, PacketBatch* out_gates) {
+	/*
+	 * The packet is either LockingSignal or not. Control packets are processed by DyscoAgentIn.
+	 */
+
+	if(likely(!isLockingSignalPacket(tcp))) {
+		if(output(pkt, ip, tcp, cb_out)) {
+			out_gates[1].add(pkt);
+		} else {
+			out_gates[0].add(pkt);			
+		}
+
+		return true;
+	}
+	
+	if(!cb_out)
+		return;
+	
+	if(cb_out->lock_state != DYSCO_CLOSED_LOCK)
+		return;
+	
+	uint32_t payload_len = ip_hlen - tcp_hlen;
+	uint32_t sc_sz = payload_len - sizeof(DyscoControlMessage);
+	DyscoTcpOption* tcpo = reinterpret_cast<DyscoTcpOption*>(tcp + 1);
+	DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>(tcp + tcp_hlen);
+
+	cb_out->is_signaler = 1;
+	cb_out->sc_len = sc_sz/sizeof(uint32_t);
+	cb_out->sc = new uint32_t[cb_out->sc_len];
+	memcpy(cb_out->sc, cmsg + 1, sc_sz);
+
+	if(isLeftAnchor(tcpo)) {
+		cb_out->is_LA = 1;
+
+		uint8_t old_rhop = cmsg->rhop;
+		DyscoTcpSession old_leftSS = cmsg->leftSS;
+		DyscoTcpSession old_rightSS = cmsg->rightSS;
+
+		ip->length = be16_t(ip->length.value() - tcpo->len - sc_sz);
+		pkt->trim(tcpo->len + sc_sz);
+		memcpy(tcpo, cmsg, sizeof(DyscoControlMessage));
+
+		eth->src_addr = cb_out->mac_sub.src_addr;
+		eth->dst_addr = cb_out->mac_sub.dst_addr;
+				
+		ip->id = be16_t(rand());
+		ip->ttl = TTL;
+		*((uint32_t*)(&ip->src)) = cb_out->sub.sip;
+		*((uint32_t*)(&ip->dst)) = cb_out->sub.dip;
+				
+		tcp->src_port = be16_t(rand());
+		tcp->dst_port = be16_t(rand());
+		tcp->seq_num = be32_t(rand());
+		tcp->ack_num = be32_t(0);
+		tcp->offset = 5;
+		tcp->flags = Tcp::kSyn;
+				
+		cb_out->lock_state = DYSCO_REQUEST_LOCK;
+
+		cmsg = reinterpret_cast<DyscoControlMessage*>(tcp + 1);
+		cmsg->lhop = old_rhop;
+		cmsg->type = DYSCO_LOCK;
+		cmsg->my_sub = cb_out->sub;
+		cmsg->leftSS = old_leftSS;
+		cmsg->rightSS = old_rightSS;
+		cmsg->lock_state = DYSCO_REQUEST_LOCK;
+				
+		fix_csum(ip, tcp);
+	} else {
+		tcp->seq_num = be32_t(cb_out->last_seq - 1);
+		tcp->ack_num = be32_t(cb_out->last_ack);
+		hdr_rewrite(ip, tcp, &cb_out->sub);
+
+		pkt->trim(payload_len);
+		ip->length = ip->length - be16_t(payload_len);
+		tcpo->tag = cb_out->sub.dip;
+		tcpo->sport = cb_out->sub.dport;
+		
+		fix_csum(ip, tcp);
+
+		DyscoLockingReconfig* dysco_locking = new DyscoLockingReconfig();
+		dysco_locking->cb_out_left = cb_out;
+		dysco_locking->cb_out_right = dc->lookup_output_by_ss(this->index, &cmsg->rightSS);
+		
+		dysco_locking->leftSS = cmsg->leftSS;
+		dysco_locking->rightSS = cmsg->rightSS;
+
+		
+		dc->insert_locking_reconfig(this->index, dysco_locking);
+	}
+
+	return true;
 }
 
 ADD_MODULE(DyscoAgentOut, "dysco_agent_out", "processes packets outcoming from host")

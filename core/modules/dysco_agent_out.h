@@ -79,6 +79,18 @@ public:
 	bool isReconfigPacketOut(Ipv4*, Tcp*, DyscoHashOut*);
 
 	bool processLockingSignalPacket(Packet*, Ethernet*, Ipv4*, Tcp*, DyscoHashOut*);
+
+
+
+
+
+
+	bool doProcess(Packet*, Ethernet*, Ipv4*, size_t, Tcp*, size_t, DyscoHashOut*, PacketBatch*);
+
+
+
+
+	
 };
 
 void timer_worker(DyscoAgentOut*);

@@ -147,6 +147,11 @@ enum {
 #define SLEEPTIME                       100000  /* usec */  // 100 ms
 #define DEFAULT_TIMEOUT                 300000000 /* nsec */  // 300 ms
 
+/*
+ * To speed up
+ */
+#define OFFSET_OF_SIGNAL                (5 + (LOCKING_OPTION_LEN >> 2))
+
 /*********************************************************************
  *
  *	TCP classes
@@ -703,7 +708,7 @@ inline void* getPayload(Tcp* tcp) {
 }
 
 inline bool isLockingSignalPacket(Tcp* tcp) {
-	if(tcp->offset != ((sizeof(Tcp) + LOCKING_OPTION_LEN)/4))
+	if(tcp->offset != OFFSET_OF_SIGNAL)
 		return false;
 
 	if(tcp->flags != (Tcp::kAck | Tcp::kUrg))
