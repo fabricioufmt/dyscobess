@@ -1100,25 +1100,17 @@ bool DyscoAgentOut::doProcess(Packet* pkt, Ethernet* eth, Ipv4* ip, uint32_t ip_
 	
 	if(cb_out->lock_state != DYSCO_CLOSED_LOCK)
 		return false;
-	
-	uint32_t payload_len = ip_hlen - tcp_hlen;
+
+	uint32_t ip_tlen = ip->length.value();
+	uint32_t payload_len = ip_tlen - ip_hlen - tcp_hlen;
 	uint32_t sc_sz = payload_len - sizeof(DyscoControlMessage);
 	DyscoTcpOption* tcpo = reinterpret_cast<DyscoTcpOption*>(tcp + 1);
 	DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>(tcp + tcp_hlen);
 
-	fprintf(stderr, "ip_hlen: %u\n", ip_hlen);
-	fprintf(stderr, "tcp_hlen: %u\n", tcp_hlen);
-	fprintf(stderr, "payload_len: %u\n", payload_len);
-	fprintf(stderr, "sc_sz: %u\n", sc_sz);
-	fprintf(stderr, "tcpo: %p\n", tcpo);
-	fprintf(stderr, "cmsg: %p\n", cmsg);
-	
 	cb_out->is_signaler = 1;
 	cb_out->sc_len = sc_sz/sizeof(uint32_t);
 	cb_out->sc = new uint32_t[cb_out->sc_len];
 	memcpy(cb_out->sc, cmsg + 1, sc_sz);
-
-	fprintf(stderr, "allocating and memcpy'ed is DONE\n");
 	
 	if(isLeftAnchor(tcpo)) {
 		cb_out->is_LA = 1;
@@ -1127,7 +1119,7 @@ bool DyscoAgentOut::doProcess(Packet* pkt, Ethernet* eth, Ipv4* ip, uint32_t ip_
 		DyscoTcpSession old_leftSS = cmsg->leftSS;
 		DyscoTcpSession old_rightSS = cmsg->rightSS;
 
-		ip->length = be16_t(ip->length.value() - tcpo->len - sc_sz);
+		ip->length = be16_t(ip_tlen - tcpo->len - sc_sz);
 		pkt->trim(tcpo->len + sc_sz);
 		memcpy(tcpo, cmsg, sizeof(DyscoControlMessage));
 
@@ -1173,7 +1165,7 @@ bool DyscoAgentOut::doProcess(Packet* pkt, Ethernet* eth, Ipv4* ip, uint32_t ip_
 		hdr_rewrite(ip, tcp, &cb_out->sub);
 
 		pkt->trim(payload_len);
-		ip->length = ip->length - be16_t(payload_len);
+		ip->length = be16_t(ip_tlen - payload_len);
 		tcpo->tag = cb_out->sub.dip;
 		tcpo->sport = cb_out->sub.dport;
 		
