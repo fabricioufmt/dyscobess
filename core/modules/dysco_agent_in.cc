@@ -2093,9 +2093,8 @@ Packet* DyscoAgentIn::processAckLocking(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 		
 	case DYSCO_REQUEST_LOCK:
 		if(cb_out->is_LA) {
-#ifdef DEBUG_RECONFIG
 			fprintf(stderr, "I'm the LeftAnchor... starting reconfiguration.\n\n");
-#endif
+
 			tcp->checksum++; //due cmsg->lhop--
 			cb_out->lock_state = DYSCO_ACK_LOCK;
 			cb_in->dcb_out->lock_state = DYSCO_ACK_LOCK;
@@ -2104,9 +2103,7 @@ Packet* DyscoAgentIn::processAckLocking(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 
 			return 0;
 		} else {
-#ifdef DEBUG_RECONFIG
 			fprintf(stderr, "I'm not the LeftAnchor... forwarding the DYSCO_ACK_LOCK.\n\n");
-#endif
 
 			eth->src_addr = cb_out->mac_sub.src_addr;
 			eth->dst_addr = cb_out->mac_sub.dst_addr;
@@ -2123,9 +2120,8 @@ Packet* DyscoAgentIn::processAckLocking(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 
 				memcpy(sc, cb_out->sc, sc_sz);
 				ip->length = ip->length + be16_t(sc_sz);
-#ifdef DEBUG_RECONFIG
+				
 				fprintf(stderr, "I'm going to append %d ip addresses on SYN+ACK payload.\n", cb_out->sc_len);
-#endif
 
 				DyscoTcpSession ss;
 				ss.sip = cb_in->my_sup.dip;
@@ -2134,10 +2130,6 @@ Packet* DyscoAgentIn::processAckLocking(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 				ss.dport = cb_in->my_sup.sport;
 				cmsg->rightSS = ss;
 				cmsg->leftSS = cb_out->dcb_in->my_sup;
-#ifdef DEBUG_RECONFIG
-				fprintf(stderr, "leftSS: %s\n", printSS(cmsg->leftSS));
-				fprintf(stderr, "rightSS: %s\n", printSS(cmsg->rightSS));
-#endif
 			}
 
 			DyscoTcpSession neigh_sub = cb_out->dcb_in->neigh_sub;
