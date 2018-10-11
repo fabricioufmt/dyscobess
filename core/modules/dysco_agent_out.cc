@@ -1087,11 +1087,10 @@ bool DyscoAgentOut::doProcess(Packet* pkt, Ethernet* eth, Ipv4* ip, size_t ip_hl
 	 */
 
 	if(!isLockingSignalPacket(tcp)) {
-		if(output(pkt, ip, tcp, cb_out)) {
+		if(output(pkt, ip, tcp, cb_out))
 			out_gates[1].add(pkt);
-		} else {
+		 else
 			out_gates[0].add(pkt);			
-		}
 
 		return true;
 	}
@@ -1170,6 +1169,8 @@ bool DyscoAgentOut::doProcess(Packet* pkt, Ethernet* eth, Ipv4* ip, size_t ip_hl
 		fix_csum(ip, tcp);
 	}
 
+	forward(pkt, true);
+	
 	return true;	
 }
 
