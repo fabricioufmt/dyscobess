@@ -1086,7 +1086,7 @@ bool DyscoAgentOut::doProcess(Packet* pkt, Ethernet* eth, Ipv4* ip, size_t ip_hl
 	 * The packet is either LockingSignal or not. Control packets are processed by DyscoAgentIn.
 	 */
 
-	if(likely(!isLockingSignalPacket(tcp))) {
+	if(!isLockingSignalPacket(tcp)) {
 		if(output(pkt, ip, tcp, cb_out)) {
 			out_gates[1].add(pkt);
 		} else {
