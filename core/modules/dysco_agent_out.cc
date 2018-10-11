@@ -143,8 +143,8 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 	Ipv4* ip;
 	Packet* pkt;
 	Ethernet* eth;
-	size_t ip_hlen;
-	size_t tcp_hlen;
+	uint32_t ip_hlen;
+	uint32_t tcp_hlen;
 	DyscoHashOut* cb_out;
 
 	for(int i = 0; i < batch->cnt(); i++) {
@@ -1081,7 +1081,7 @@ bool DyscoAgentOut::forward(Packet* pkt, bool reliable) {
  * This method should process packets when they leave a host.
  */
 
-bool DyscoAgentOut::doProcess(Packet* pkt, Ethernet* eth, Ipv4* ip, size_t ip_hlen, Tcp* tcp, size_t tcp_hlen, DyscoHashOut* cb_out, PacketBatch* out_gates) {
+bool DyscoAgentOut::doProcess(Packet* pkt, Ethernet* eth, Ipv4* ip, uint32_t ip_hlen, Tcp* tcp, uint32_t tcp_hlen, DyscoHashOut* cb_out, PacketBatch* out_gates) {
 	/*
 	 * The packet is either LockingSignal or not. Control packets are processed by DyscoAgentIn.
 	 */

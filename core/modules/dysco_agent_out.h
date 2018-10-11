@@ -85,7 +85,7 @@ public:
 
 
 
-	bool doProcess(Packet*, Ethernet*, Ipv4*, size_t, Tcp*, size_t, DyscoHashOut*, PacketBatch*);
+	bool doProcess(Packet*, Ethernet*, Ipv4*, uint32_t, Tcp*, uint32_t, DyscoHashOut*, PacketBatch*);
 
 
 
