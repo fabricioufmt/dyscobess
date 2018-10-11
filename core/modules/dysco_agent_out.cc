@@ -1150,6 +1150,14 @@ bool DyscoAgentOut::doProcess(Packet* pkt, Ethernet* eth, Ipv4* ip, size_t ip_hl
 				
 		fix_csum(ip, tcp);
 	} else {
+		DyscoLockingReconfig* dysco_locking = new DyscoLockingReconfig();
+		dysco_locking->cb_out_left = cb_out;
+		dysco_locking->cb_out_right = dc->lookup_output_by_ss(this->index, &cmsg->rightSS);
+		
+		dysco_locking->leftSS = cmsg->leftSS;
+		dysco_locking->rightSS = cmsg->rightSS;
+		dc->insert_locking_reconfig(this->index, dysco_locking);
+		
 		tcp->seq_num = be32_t(cb_out->last_seq - 1);
 		tcp->ack_num = be32_t(cb_out->last_ack);
 		hdr_rewrite(ip, tcp, &cb_out->sub);
@@ -1160,16 +1168,6 @@ bool DyscoAgentOut::doProcess(Packet* pkt, Ethernet* eth, Ipv4* ip, size_t ip_hl
 		tcpo->sport = cb_out->sub.dport;
 		
 		fix_csum(ip, tcp);
-
-		DyscoLockingReconfig* dysco_locking = new DyscoLockingReconfig();
-		dysco_locking->cb_out_left = cb_out;
-		dysco_locking->cb_out_right = dc->lookup_output_by_ss(this->index, &cmsg->rightSS);
-		
-		dysco_locking->leftSS = cmsg->leftSS;
-		dysco_locking->rightSS = cmsg->rightSS;
-
-		
-		dc->insert_locking_reconfig(this->index, dysco_locking);
 	}
 
 	return true;	
