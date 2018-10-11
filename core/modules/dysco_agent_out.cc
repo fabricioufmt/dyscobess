@@ -254,25 +254,25 @@ bool DyscoAgentOut::doProcess(Packet* pkt, Ethernet* eth, Ipv4* ip, uint32_t ip_
 	return true;	
 }
 
-bool DyscoAgentOut::forward(Packet* pkt, bool reliable) {
+LNode<Packet>* DyscoAgentOut::forward(Packet* pkt, bool reliable) {
 	if(!reliable) {
 		PacketBatch out_gate;
 		out_gate.clear();
 		out_gate.add(pkt);
 		RunChooseModule(1, &out_gate);
 
-		return true;
+		return 0;
 	}
 	
 	uint32_t i = getValueToAck(pkt);
 	LNode<Packet>* node = add(*Packet::copy(pkt), tsc_to_ns(rdtsc()));
 	
-	bool updated = agent->updateReceivedHash(i, node);
+	agent->updateReceivedHash(i, node);
 
 	if(!timer)
 		timer = new thread(timer_worker, this);
 	
-	return updated;
+	return node;
 }
 
 /************************************************************************/

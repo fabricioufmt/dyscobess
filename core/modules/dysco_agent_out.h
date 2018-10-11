@@ -26,7 +26,7 @@ public:
 	CommandResponse CommandSetup(const bess::pb::DyscoAgentArg&);
 	
 	void ProcessBatch(PacketBatch*) override;
-	bool forward(Packet*, bool = false);
+	LNode<Packet>* forward(Packet*, bool = false);
 	
 	inline const char* getNs() {
 		return ns.c_str();

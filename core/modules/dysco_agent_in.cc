@@ -1839,7 +1839,8 @@ Packet* DyscoAgentIn::createSynReconfig(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 #endif
 	*/
 	//LNode<Packet>* node = agent->getRetransmissionList()->insertTail(*newpkt, tsc_to_ns(rdtsc()));
-	LNode<Packet>* node = agent->add(*newpkt, tsc_to_ns(rdtsc()));
+	//LNode<Packet>* node = agent->add(*newpkt, tsc_to_ns(rdtsc()));
+	LNode<Packet>* node = agent->forward(newpkt, true);
 
 	uint32_t j = newtcp->seq_num.value() + 1;
 	mtx.lock();
