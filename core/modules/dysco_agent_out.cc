@@ -1106,11 +1106,18 @@ bool DyscoAgentOut::doProcess(Packet* pkt, Ethernet* eth, Ipv4* ip, size_t ip_hl
 	DyscoTcpOption* tcpo = reinterpret_cast<DyscoTcpOption*>(tcp + 1);
 	DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>(tcp + tcp_hlen);
 
+	fprintf(stderr, "payload_len: %u\n", payload_len);
+	fprintf(stderr, "sc_sz: %u\n", sc_sz);
+	fprintf(stderr, "tcpo: %p\n", tcpo);
+	fprintf(stderr, "cmsg: %p\n", cmsg);
+	
 	cb_out->is_signaler = 1;
 	cb_out->sc_len = sc_sz/sizeof(uint32_t);
 	cb_out->sc = new uint32_t[cb_out->sc_len];
 	memcpy(cb_out->sc, cmsg + 1, sc_sz);
 
+	fprintf(stderr, "allocating and memcpy'ed is DONE\n");
+	
 	if(isLeftAnchor(tcpo)) {
 		cb_out->is_LA = 1;
 
