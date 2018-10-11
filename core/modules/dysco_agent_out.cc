@@ -1100,6 +1100,8 @@ bool DyscoAgentOut::doProcess(Packet* pkt, Ethernet* eth, Ipv4* ip, size_t ip_hl
 	
 	if(cb_out->lock_state != DYSCO_CLOSED_LOCK)
 		return false;
+	else
+		return true;
 	
 	uint32_t payload_len = ip_hlen - tcp_hlen;
 	uint32_t sc_sz = payload_len - sizeof(DyscoControlMessage);
