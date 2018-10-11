@@ -22,9 +22,11 @@ void timer_worker(DyscoAgentOut* agent) {
 		fprintf(stderr, "[%s] timer_worker is working now...\n", agent->getNs());
 #endif
 		*/
+		fprintf(stderr, "[%s] timer_worker: lock mtx mutex\n", ns.c_str());
 		agent->mtx.lock();
 		list = agent->getRetransmissionList();
 		if(!list) {
+			fprintf(stderr, "[%s] timer_worker: unlock mtx mutex\n", ns.c_str());
 			agent->mtx.unlock();
 			continue;
 		}
@@ -72,7 +74,7 @@ void timer_worker(DyscoAgentOut* agent) {
 		
 			node = node->next;
 		}
-		
+		fprintf(stderr, "[%s] timer_worker: unlock mtx mutex\n", ns.c_str());		
 		agent->mtx.unlock();
 
 		if(batch.cnt() > 0) {
@@ -1046,11 +1048,13 @@ bool DyscoAgentOut::forward(Packet* pkt, bool reliable) {
 
 		return true;
 	}
-	fprintf(stderr, "[%s] forwarding with retransmission.\n", ns.c_str());
 	
+	fprintf(stderr, "[%s] forwarding with retransmission.\n", ns.c_str());
+	fprintf(stderr, "[%s] forward: lock mtx mutex.\n", ns.c_str());
 	mtx.lock();
 
 	LNode<Packet>* node = retransmission_list->insertTail(*Packet::copy(pkt), tsc_to_ns(rdtsc()));
+	fprintf(stderr, "[%s] forward: unlock mtx mutex.\n", ns.c_str());
 	mtx.unlock();
 	
 	uint32_t i = getValueToAck(pkt);
