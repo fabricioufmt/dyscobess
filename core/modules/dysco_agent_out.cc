@@ -20,12 +20,9 @@ void timer_worker(DyscoAgentOut* agent) {
 		batch.clear();
 		usleep(SLEEPTIME + delta);
 
-		fprintf(stderr, "[%s] timer_worker: lock mtx mutex\n", agent->getNs());
-		
 		agent->mtx.lock();
 		list = agent->getRetransmissionList();
 		if(!list->size()) {
-			fprintf(stderr, "[%s] timer_worker: unlock mtx mutex\n", agent->getNs());
 			agent->mtx.unlock();
 			delta += 1000; //1ms
 			continue;
@@ -60,11 +57,9 @@ void timer_worker(DyscoAgentOut* agent) {
 			node = node->next;
 		}
 		
-		fprintf(stderr, "[%s] timer_worker: unlock mtx mutex\n", agent->getNs());
 		agent->mtx.unlock();
 
 		if(batch.cnt() > 0) {
-			fprintf(stderr, "[%s][DyscoAgentOut] is going to retransmit %u packets.\n", agent->getNs(), batch.cnt());
 			agent->RunChooseModule(1, &batch);
 		}
 	}
@@ -162,25 +157,122 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 	RunChooseModule(1, &out_gates[1]);
 }
 
-bool DyscoAgentOut::isReconfigPacketOut(Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out) {
-	if(ip->src.raw_value() != devip)
+/*
+ * This method should process packets when they leave a host.
+ * The packet is either LockingSignal or not.
+ * Control packets are processed by DyscoAgentIn.
+ */
+
+bool DyscoAgentOut::doProcess(Packet* pkt, Ethernet* eth, Ipv4* ip, uint32_t ip_hlen, Tcp* tcp, uint32_t tcp_hlen, DyscoHashOut* cb_out, PacketBatch* out_gates) {
+	if(!isLockingSignalPacket(tcp)) {
+		if(output(pkt, ip, tcp, cb_out))
+			out_gates[1].add(pkt);
+		 else
+			out_gates[0].add(pkt);			
+
+		return true;
+	}
+	
+	if(!cb_out)
 		return false;
 	
-	if(isTCPSYN(tcp, true)) {
-		if(!cb_out) {
-			uint32_t payload_len = hasPayload(ip, tcp);
-			if(payload_len) {
-				uint32_t tcp_hlen = tcp->offset << 2;
-				
-				if(((uint8_t*)tcp + tcp_hlen)[payload_len - 1] == 0xFF)
-					return true;
-			}
+	if(cb_out->lock_state != DYSCO_CLOSED_LOCK)
+		return false;
 
-			return false;
-		}
-	}
+	uint32_t ip_tlen = ip->length.value();
+	uint32_t payload_len = ip_tlen - ip_hlen - tcp_hlen;
+	uint32_t sc_sz = payload_len - sizeof(DyscoControlMessage);
+	DyscoTcpOption* tcpo = reinterpret_cast<DyscoTcpOption*>(tcp + 1);
+	DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>((uint8_t*)tcp + tcp_hlen);
+
+	cb_out->is_signaler = 1;
+	cb_out->sc_len = sc_sz/sizeof(uint32_t);
+	cb_out->sc = new uint32_t[cb_out->sc_len];
+	memcpy(cb_out->sc, cmsg + 1, sc_sz);
+	
+	if(isLeftAnchor(tcpo)) {
+		cb_out->is_LA = 1;
+
+		uint8_t old_rhop = cmsg->rhop;
+		DyscoTcpSession old_leftSS = cmsg->leftSS;
+		DyscoTcpSession old_rightSS = cmsg->rightSS;
+
+		ip->length = be16_t(ip_tlen - tcpo->len - sc_sz);
+		pkt->trim(tcpo->len + sc_sz);
+		memcpy(tcpo, cmsg, sizeof(DyscoControlMessage));
+
+		eth->src_addr = cb_out->mac_sub.src_addr;
+		eth->dst_addr = cb_out->mac_sub.dst_addr;
+				
+		ip->id = be16_t(rand());
+		ip->ttl = TTL;
+		*((uint32_t*)(&ip->src)) = cb_out->sub.sip;
+		*((uint32_t*)(&ip->dst)) = cb_out->sub.dip;
+				
+		tcp->src_port = be16_t(rand());
+		tcp->dst_port = be16_t(rand());
+		tcp->seq_num = be32_t(rand());
+		tcp->ack_num = be32_t(0);
+		tcp->offset = 5;
+		tcp->flags = Tcp::kSyn;
+				
+		cb_out->lock_state = DYSCO_REQUEST_LOCK;
+
+		cmsg = reinterpret_cast<DyscoControlMessage*>(tcp + 1);
+		cmsg->lhop = old_rhop;
+		cmsg->type = DYSCO_LOCK;
+		cmsg->my_sub = cb_out->sub;
+		cmsg->leftSS = old_leftSS;
+		cmsg->rightSS = old_rightSS;
+		cmsg->lock_state = DYSCO_REQUEST_LOCK;
+				
+		fix_csum(ip, tcp);
+	} else {		
+		DyscoLockingReconfig* dysco_locking = new DyscoLockingReconfig();
+		dysco_locking->cb_out_left = cb_out;
+		dysco_locking->cb_out_right = dc->lookup_output_by_ss(this->index, &cmsg->rightSS);
 		
-	return false;
+		dysco_locking->leftSS = cmsg->leftSS;
+		dysco_locking->rightSS = cmsg->rightSS;
+		
+		dc->insert_locking_reconfig(this->index, dysco_locking);
+		
+		tcp->seq_num = be32_t(cb_out->last_seq - 1);
+		tcp->ack_num = be32_t(cb_out->last_ack);
+		hdr_rewrite(ip, tcp, &cb_out->sub);
+
+		pkt->trim(payload_len);
+		ip->length = be16_t(ip_tlen - payload_len);
+		tcpo->tag = cb_out->sub.dip;
+		tcpo->sport = cb_out->sub.dport;
+		
+		fix_csum(ip, tcp);
+	}
+
+	forward(pkt, true);
+	
+	return true;	
+}
+
+bool DyscoAgentOut::forward(Packet* pkt, bool reliable) {
+	if(!reliable) {
+		PacketBatch out_gate;
+		out_gate.clear();
+		out_gate.add(pkt);
+		RunChooseModule(1, &out_gate);
+
+		return true;
+	}
+	
+	uint32_t i = getValueToAck(pkt);
+	LNode<Packet>* node = add(*Packet::copy(pkt), tsc_to_ns(rdtsc()));
+	
+	bool updated = agent->updateReceivedHash(i, node);
+
+	if(!timer)
+		timer = new thread(timer_worker, this);
+	
+	return updated;
 }
 
 /************************************************************************/
@@ -1021,146 +1113,6 @@ bool DyscoAgentOut::processLockingSignalPacket(Packet* pkt, Ethernet* eth, Ipv4*
 #ifdef DEBUG_RECONFIG
 	fprintf(stderr, "Forwarding LockingSignal with tcp->flags: %u tcp->offset: %u (seq: %X:%X]\n\n", tcp->flags, tcp->offset, tcp->seq_num.raw_value(), tcp->ack_num.raw_value());
 #endif
-	
-	return true;	
-}
-
-bool DyscoAgentOut::forward(Packet* pkt, bool reliable) {
-	if(!reliable) {
-		PacketBatch out_gate;
-		out_gate.clear();
-		out_gate.add(pkt);
-		RunChooseModule(1, &out_gate);
-
-		return true;
-	}
-	
-	fprintf(stderr, "[%s] forwarding with retransmission.\n", ns.c_str());
-	fprintf(stderr, "[%s] forward: lock mtx mutex.\n", ns.c_str());
-	mtx.lock();
-
-	LNode<Packet>* node = retransmission_list->insertTail(*Packet::copy(pkt), tsc_to_ns(rdtsc()));
-	fprintf(stderr, "[%s] forward: unlock mtx mutex.\n", ns.c_str());
-	mtx.unlock();
-	
-	uint32_t i = getValueToAck(pkt);
-
-	bool updated = agent->updateReceivedHash(i, node);
-
-	if(!timer)
-		timer = new thread(timer_worker, this);
-	
-	return updated;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
- * This method should process packets when they leave a host.
- */
-
-bool DyscoAgentOut::doProcess(Packet* pkt, Ethernet* eth, Ipv4* ip, uint32_t ip_hlen, Tcp* tcp, uint32_t tcp_hlen, DyscoHashOut* cb_out, PacketBatch* out_gates) {
-	/*
-	 * The packet is either LockingSignal or not. Control packets are processed by DyscoAgentIn.
-	 */
-
-	if(!isLockingSignalPacket(tcp)) {
-		if(output(pkt, ip, tcp, cb_out))
-			out_gates[1].add(pkt);
-		 else
-			out_gates[0].add(pkt);			
-
-		return true;
-	}
-	
-	if(!cb_out)
-		return false;
-	
-	if(cb_out->lock_state != DYSCO_CLOSED_LOCK)
-		return false;
-
-	uint32_t ip_tlen = ip->length.value();
-	uint32_t payload_len = ip_tlen - ip_hlen - tcp_hlen;
-	uint32_t sc_sz = payload_len - sizeof(DyscoControlMessage);
-	DyscoTcpOption* tcpo = reinterpret_cast<DyscoTcpOption*>(tcp + 1);
-	DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>((uint8_t*)tcp + tcp_hlen);
-
-	cb_out->is_signaler = 1;
-	cb_out->sc_len = sc_sz/sizeof(uint32_t);
-	cb_out->sc = new uint32_t[cb_out->sc_len];
-	memcpy(cb_out->sc, cmsg + 1, sc_sz);
-	
-	if(isLeftAnchor(tcpo)) {
-		cb_out->is_LA = 1;
-
-		uint8_t old_rhop = cmsg->rhop;
-		DyscoTcpSession old_leftSS = cmsg->leftSS;
-		DyscoTcpSession old_rightSS = cmsg->rightSS;
-
-		ip->length = be16_t(ip_tlen - tcpo->len - sc_sz);
-		pkt->trim(tcpo->len + sc_sz);
-		memcpy(tcpo, cmsg, sizeof(DyscoControlMessage));
-
-		eth->src_addr = cb_out->mac_sub.src_addr;
-		eth->dst_addr = cb_out->mac_sub.dst_addr;
-				
-		ip->id = be16_t(rand());
-		ip->ttl = TTL;
-		*((uint32_t*)(&ip->src)) = cb_out->sub.sip;
-		*((uint32_t*)(&ip->dst)) = cb_out->sub.dip;
-				
-		tcp->src_port = be16_t(rand());
-		tcp->dst_port = be16_t(rand());
-		tcp->seq_num = be32_t(rand());
-		tcp->ack_num = be32_t(0);
-		tcp->offset = 5;
-		tcp->flags = Tcp::kSyn;
-				
-		cb_out->lock_state = DYSCO_REQUEST_LOCK;
-
-		cmsg = reinterpret_cast<DyscoControlMessage*>(tcp + 1);
-		cmsg->lhop = old_rhop;
-		cmsg->type = DYSCO_LOCK;
-		cmsg->my_sub = cb_out->sub;
-		cmsg->leftSS = old_leftSS;
-		cmsg->rightSS = old_rightSS;
-		cmsg->lock_state = DYSCO_REQUEST_LOCK;
-				
-		fix_csum(ip, tcp);
-	} else {		
-		DyscoLockingReconfig* dysco_locking = new DyscoLockingReconfig();
-		dysco_locking->cb_out_left = cb_out;
-		dysco_locking->cb_out_right = dc->lookup_output_by_ss(this->index, &cmsg->rightSS);
-		
-		dysco_locking->leftSS = cmsg->leftSS;
-		dysco_locking->rightSS = cmsg->rightSS;
-		
-		dc->insert_locking_reconfig(this->index, dysco_locking);
-		
-		tcp->seq_num = be32_t(cb_out->last_seq - 1);
-		tcp->ack_num = be32_t(cb_out->last_ack);
-		hdr_rewrite(ip, tcp, &cb_out->sub);
-
-		pkt->trim(payload_len);
-		ip->length = be16_t(ip_tlen - payload_len);
-		tcpo->tag = cb_out->sub.dip;
-		tcpo->sport = cb_out->sub.dport;
-		
-		fix_csum(ip, tcp);
-	}
-
-	forward(pkt, true);
 	
 	return true;	
 }

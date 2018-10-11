@@ -76,21 +76,9 @@ public:
 	 */
 	bool setup();
 	void dysco_packet(Ethernet*);
-	bool isReconfigPacketOut(Ipv4*, Tcp*, DyscoHashOut*);
 
 	bool processLockingSignalPacket(Packet*, Ethernet*, Ipv4*, Tcp*, DyscoHashOut*);
-
-
-
-
-
-
 	bool doProcess(Packet*, Ethernet*, Ipv4*, uint32_t, Tcp*, uint32_t, DyscoHashOut*, PacketBatch*);
-
-
-
-
-	
 };
 
 void timer_worker(DyscoAgentOut*);
