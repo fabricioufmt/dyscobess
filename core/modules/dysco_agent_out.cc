@@ -1106,6 +1106,8 @@ bool DyscoAgentOut::doProcess(Packet* pkt, Ethernet* eth, Ipv4* ip, uint32_t ip_
 	DyscoTcpOption* tcpo = reinterpret_cast<DyscoTcpOption*>(tcp + 1);
 	DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>(tcp + tcp_hlen);
 
+	fprintf(stderr, "ip_hlen: %u\n", ip_hlen);
+	fprintf(stderr, "tcp_hlen: %u\n", tcp_hlen);
 	fprintf(stderr, "payload_len: %u\n", payload_len);
 	fprintf(stderr, "sc_sz: %u\n", sc_sz);
 	fprintf(stderr, "tcpo: %p\n", tcpo);
