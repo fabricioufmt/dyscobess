@@ -88,9 +88,9 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 		removed = processReceivedPacket(tcp);
 		
 		if(isLockingSignalPacket(tcp)) {
-			//#ifdef DEBUG_RECONFIG
+#ifdef DEBUG_RECONFIG
 			fprintf(stderr, "[%s] Receives Locking Signal Packet.\n", ns.c_str());
-			//#endif
+#endif
 			newpkt = processLockingSignalPacket(pkt, eth, ip, tcp, cb_in);
 			if(newpkt) {
 				agent->forward(newpkt, true);
@@ -100,9 +100,9 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 				continue;
 			}
 		} else if(isLockingPacket(ip, tcp)) {
-			//#ifdef DEBUG_RECONFIG
+#ifdef DEBUG_RECONFIG
 			fprintf(stderr, "[%s] Receives Locking Packet.\n", ns.c_str());
-			//#endif
+#endif
 			newpkt = processLockingPacket(pkt, eth, ip, tcp);
 			if(newpkt) {
 				agent->forward(newpkt);
@@ -110,9 +110,9 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 				continue;
 			}
 		} else if(isReconfigPacket(ip, tcp, cb_in)) {
-			//#ifdef DEBUG_RECONFIG
+#ifdef DEBUG_RECONFIG
 			fprintf(stderr, "[%s] Receives Reconfig Packet.\n", ns.c_str());
-			//#endif
+#endif
 
 			if(control_input(pkt, eth, ip, tcp, cb_in)) {
 				out.add(pkt);
@@ -2082,8 +2082,9 @@ Packet* DyscoAgentIn::processAckLocking(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 		
 	case DYSCO_REQUEST_LOCK:
 		if(cb_out->is_LA) {
+#ifdef DEBUG_RECONFIG
 			fprintf(stderr, "I'm the LeftAnchor... starting reconfiguration.\n\n");
-
+#endif
 			tcp->checksum++; //due cmsg->lhop--
 			cb_out->lock_state = DYSCO_ACK_LOCK;
 			cb_in->dcb_out->lock_state = DYSCO_ACK_LOCK;
@@ -2092,8 +2093,9 @@ Packet* DyscoAgentIn::processAckLocking(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 
 			return 0;
 		} else {
+#ifdef DEBUG_RECONFIG
 			fprintf(stderr, "I'm not the LeftAnchor... forwarding the DYSCO_ACK_LOCK.\n\n");
-
+#endif
 			eth->src_addr = cb_out->mac_sub.src_addr;
 			eth->dst_addr = cb_out->mac_sub.dst_addr;
 			*((uint32_t*)(&ip->src)) = cb_out->sub.sip;
@@ -2109,9 +2111,9 @@ Packet* DyscoAgentIn::processAckLocking(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 
 				memcpy(sc, cb_out->sc, sc_sz);
 				ip->length = ip->length + be16_t(sc_sz);
-				
+#ifdef DEBUG_RECONFIG
 				fprintf(stderr, "I'm going to append %d ip addresses on SYN+ACK payload.\n", cb_out->sc_len);
-
+#endif
 				DyscoTcpSession ss;
 				ss.sip = cb_in->my_sup.dip;
 				ss.dip = cb_in->my_sup.sip;
