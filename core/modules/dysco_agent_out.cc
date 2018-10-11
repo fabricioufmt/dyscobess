@@ -17,24 +17,17 @@ void timer_worker(DyscoAgentOut* agent) {
 	while(1) {
 		batch.clear();
 		usleep(SLEEPTIME);
-		/*
-#ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[%s] timer_worker is working now...\n", agent->getNs());
-#endif
-		*/
+
 		fprintf(stderr, "[%s] timer_worker: lock mtx mutex\n", agent->getNs());
+		
 		agent->mtx.lock();
 		list = agent->getRetransmissionList();
-		if(!list) {
+		if(!list->size()) {
 			fprintf(stderr, "[%s] timer_worker: unlock mtx mutex\n", agent->getNs());
 			agent->mtx.unlock();
 			continue;
 		}
-		/*
-#ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[%s] retransmission_list(%p) size: %u\n", agent->getNs(), list, list->size());
-#endif
-*/
+		
 		tail = list->getTail();
 		now_ts = tsc_to_ns(rdtsc());
 		node = list->getHead()->next;
@@ -42,31 +35,19 @@ void timer_worker(DyscoAgentOut* agent) {
 		while(node != tail) {
 			if(node->cnt == 0) {
 				node->cnt++;
-				//batch.add(&node->element);
 				batch.add(Packet::copy(&node->element));
-#ifdef DEBUG_RECONFIG
-				fprintf(stderr, "cnt: %s\n", printPacket(&node->element));
-#endif
 				node->ts = now_ts;
 			} else {
 				if(node->cnt > CNTLIMIT) {
 					aux = node->next;
-#ifdef DEBUG_RECONFIG
-					//fprintf(stderr, "[%s] I am not retransmit because CNTLIMIT\n", agent->getNs());
-#endif
-					//list->remove(node);
+					//list->remove(node); TODO
 					node = aux;
 					
 					continue;
 				}
 				
 				if(now_ts - node->ts > DyscoAgentOut::timeout) {
-#ifdef DEBUG_RECONFIG
-					fprintf(stderr, "%lu - %lu = %lu > %lu\n", now_ts, node->ts, now_ts-node->ts, DyscoAgentOut::timeout);
-					fprintf(stderr, "will: %s\n", printPacket(&node->element));
-#endif
 					node->cnt++;
-					//batch.add(&node->element);
 					batch.add(Packet::copy(&node->element));
 					node->ts = now_ts;
 				}
@@ -74,7 +55,8 @@ void timer_worker(DyscoAgentOut* agent) {
 		
 			node = node->next;
 		}
-		fprintf(stderr, "[%s] timer_worker: unlock mtx mutex\n", agent->getNs());		
+		
+		fprintf(stderr, "[%s] timer_worker: unlock mtx mutex\n", agent->getNs());
 		agent->mtx.unlock();
 
 		if(batch.cnt() > 0) {
