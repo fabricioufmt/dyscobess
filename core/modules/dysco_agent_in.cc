@@ -108,8 +108,6 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 				agent->forward(newpkt);
 				
 				continue;
-			} else {
-				fprintf(stderr, "[%s]processLockingPacket returns FALSE\n", ns.c_str());
 			}
 		} else if(isReconfigPacket(ip, tcp, cb_in)) {
 			//#ifdef DEBUG_RECONFIG
@@ -1927,7 +1925,6 @@ Packet* DyscoAgentIn::processLockingPacket(Packet* pkt, Ethernet* eth, Ipv4* ip,
 #ifdef DEBUG_RECONFIG
 			fprintf(stderr, "I'm looking for %s on input_hash... not found.\n", printSS(cmsg->neigh_sub));
 #endif
-			fprintf(stderr, "[%s] returns1 false here\n", ns.c_str());
 			return 0;
 		}
 	}
@@ -1939,20 +1936,14 @@ Packet* DyscoAgentIn::processLockingPacket(Packet* pkt, Ethernet* eth, Ipv4* ip,
 		fprintf(stderr, "processing Request Locking.\n");
 #endif
 
-		Packet* tmp = processRequestLocking(pkt, eth, ip, tcp, cmsg, cb_in);
-		if(!tmp)
-			fprintf(stderr, "[%s] returns2 false here\n", ns.c_str());
-		return tmp;
+		return processRequestLocking(pkt, eth, ip, tcp, cmsg, cb_in);
 	} else if(cmsg->lock_state == DYSCO_ACK_LOCK) {
 #ifdef DEBUG_RECONFIG
 		fprintf(stderr, "processing Ack Locking.\n");
 #endif
-		Packet* tmp = processAckLocking(pkt, eth, ip, tcp, cmsg, cb_in);
-		if(!tmp)
-			fprintf(stderr, "[%s] returns3 false here\n", ns.c_str());
-		return tmp;
+		return processAckLocking(pkt, eth, ip, tcp, cmsg, cb_in);
 	}
-	fprintf(stderr, "[%s] returns4 false here\n", ns.c_str());
+	
 	return 0;
 }
 
@@ -2022,19 +2013,16 @@ Packet* DyscoAgentIn::processRequestLocking(Packet* pkt, Ethernet* eth, Ipv4* ip
 			out.clear();
 			out.add(pkt);
 			cb_out->module->RunChooseModule(1, &out);
-			fprintf(stderr, "[%s] here 0... because cb_out->module..\n", ns.c_str());
+			fprintf(stderr, "[%s] Just forwarding the LockingRequest.\n", ns.c_str());
 			return 0;
 		} else {
 			cb_out->is_RA = 1;
 			cb_out->lock_state = DYSCO_ACK_LOCK;
 
-			Packet* tmp = createAckLocking(pkt, eth, ip, tcp, cmsg, cb_out);
-			if(!tmp)
-				fprintf(stderr, "[%s] processRequestLocking return 0 no CreateAck\n", ns.c_str());
-			return tmp;
+			return createAckLocking(pkt, eth, ip, tcp, cmsg, cb_out);
 		}
 	}
-	fprintf(stderr, "end of processRequestLocking\n");	
+	
 	return 0;
 }
 
