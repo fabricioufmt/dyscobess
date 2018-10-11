@@ -94,6 +94,7 @@ os.system('ip netns exec nat iptables -t filter -A FORWARD -i nat-int -o nat-ext
 os.system('ip netns exec nat bash -c "echo 1 > /proc/sys/net/netfilter/nf_conntrack_tcp_be_liberal"')
 
 dyscocenter::DyscoCenter()
+bess.pause_all()
 
 din1::DyscoAgentIn() -> DyscoPortOut(port=c1_0)
 din2::DyscoAgentIn() -> DyscoPortOut(port=s1_0)
@@ -170,3 +171,5 @@ DyscoPortInc(port=nat_ext) -> r3i::DyscoPortOut(port=R_3)
 dyscocenter.add(priority=1, sc_len=2, chain=['10.0.1.1', '10.0.5.2'], filter='dst port 5001', ns='/var/run/netns/c1')
 dyscocenter.add(priority=1, sc_len=2, chain=['10.0.4.2', '10.0.2.2'], filter='dst port 5001', ns='/var/run/netns/m1')
 dyscocenter.add(priority=2, sc_len=4, chain=['10.0.1.1', '10.0.5.2', '10.0.4.2', '10.0.2.2'], filter='dst port 5002', ns='/var/run/netns/c1')
+
+bess.resume_all()
