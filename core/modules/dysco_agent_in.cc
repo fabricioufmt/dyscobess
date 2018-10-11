@@ -1927,6 +1927,7 @@ Packet* DyscoAgentIn::processLockingPacket(Packet* pkt, Ethernet* eth, Ipv4* ip,
 #ifdef DEBUG_RECONFIG
 			fprintf(stderr, "I'm looking for %s on input_hash... not found.\n", printSS(cmsg->neigh_sub));
 #endif
+			fprintf(stderr, "[%s] returns1 false here\n");
 			return 0;
 		}
 	}
@@ -1938,15 +1939,20 @@ Packet* DyscoAgentIn::processLockingPacket(Packet* pkt, Ethernet* eth, Ipv4* ip,
 		fprintf(stderr, "processing Request Locking.\n");
 #endif
 
-		return processRequestLocking(pkt, eth, ip, tcp, cmsg, cb_in);
+		Packet* tmp = processRequestLocking(pkt, eth, ip, tcp, cmsg, cb_in);
+		if(!tmp)
+			fprintf(stderr, "[%s] returns2 false here\n");
+		return tmp;
 	} else if(cmsg->lock_state == DYSCO_ACK_LOCK) {
 #ifdef DEBUG_RECONFIG
 		fprintf(stderr, "processing Ack Locking.\n");
 #endif
-
-		return processAckLocking(pkt, eth, ip, tcp, cmsg, cb_in);
+		Packet* tmp = processAckLocking(pkt, eth, ip, tcp, cmsg, cb_in);
+		if(!tmp)
+			fprintf(stderr, "[%s] returns3 false here\n");
+		return tmp;
 	}
-
+	fprintf(stderr, "[%s] returns4 false here\n");
 	return 0;
 }
 
