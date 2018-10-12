@@ -987,9 +987,6 @@ bool DyscoAgentIn::control_reconfig_in(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp
 			ack_cutoff -= new_out->seq_delta;
 
 		old_out->ack_cutoff = ack_cutoff;
-
-		fprintf(stderr, "[%s][DYSCO_SYN] old_out=%s\n", ns.c_str(), printSS(old_out->sub));
-		fprintf(stderr, "[%s][DYSCO_SYN] new_out=%s\n", ns.c_str(), printSS(new_out->sub));
 		
 		parse_tcp_syn_opt_s(tcp, new_out);
 		
@@ -1162,8 +1159,9 @@ bool DyscoAgentIn::control_input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp,
 	size_t tcp_hlen = tcp->offset << 2;
 
 	if(isTCPSYN(tcp, true)) {
+#ifdef DEBUG_RECONFIG
 		fprintf(stderr, "[%s] DYSCO_SYN message.\n", ns.c_str());
-
+#endif
 		uint8_t* payload = reinterpret_cast<uint8_t*>(tcp) + tcp_hlen;
 		cmsg = reinterpret_cast<DyscoControlMessage*>(payload);
 
@@ -1183,8 +1181,9 @@ bool DyscoAgentIn::control_input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp,
 		return control_reconfig_in(pkt, eth, ip, tcp, payload, rcb, cmsg);
 		
 	} else if(isTCPSYN(tcp) && isTCPACK(tcp)) {
+#ifdef DEBUG_RECONFIG
 		fprintf(stderr, "[%s] DYSCO_SYN_ACK message.\n", ns.c_str());
-
+#endif
 		if(!cb_in) {
 			return false;
 		}
@@ -1227,9 +1226,6 @@ bool DyscoAgentIn::control_input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp,
 			old_dcb->other_path = new_dcb;
 			new_dcb->other_path = old_dcb;
 
-			fprintf(stderr, "[%s][DYSCO_SYN_ACK] old_dcb=%s\n", ns.c_str(), printSS(old_dcb->sub));
-			fprintf(stderr, "[%s][DYSCO_SYN_ACK] new_dcb=%s\n", ns.c_str(), printSS(new_dcb->sub));
-			
 			if(!old_dcb->valid_ack_cut) {
 				old_dcb->valid_ack_cut = 1;
 				old_dcb->use_np_ack = 1;
@@ -1259,8 +1255,9 @@ bool DyscoAgentIn::control_input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp,
 			return true;
 		}
 	} else if(isTCPACK(tcp, true)) {
+#ifdef DEBUG_RECONFIG
 		fprintf(stderr, "[%s] DYSCO_ACK message.\n", ns.c_str());
-
+#endif
 		cmsg = &cb_in->cmsg;
 		
 		cb_in->is_reconfiguration = 0;
@@ -1293,9 +1290,6 @@ bool DyscoAgentIn::control_input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp,
 			}
 
 			old_out->old_path = 1;
-
-			fprintf(stderr, "[%s][DYSCO_ACK] old_out=%s\n", ns.c_str(), printSS(old_out->sub));
-			fprintf(stderr, "[%s][DYSCO_ACK] new_out=%s\n", ns.c_str(), printSS(new_out->sub));
 			
 			//old_out_ack_cutoff = old_out->last_ack;
 			old_out_ack_cutoff = old_out->ack_cutoff;
