@@ -8,7 +8,6 @@ os.system('ip netns del c1 > /dev/null 2>/dev/null')
 os.system('ip netns del s1 > /dev/null 2>/dev/null')
 os.system('ip netns del m1 > /dev/null 2>/dev/null')
 os.system('ip netns del m2 > /dev/null 2>/dev/null')
-os.system('ip netns del nat > /dev/null 2>/dev/null')
 os.system('ip netns add R > /dev/null')
 os.system('ip netns add LA > /dev/null')
 os.system('ip netns add RA > /dev/null')
@@ -16,13 +15,10 @@ os.system('ip netns add c1 > /dev/null')
 os.system('ip netns add s1 > /dev/null')
 os.system('ip netns add m1 > /dev/null')
 os.system('ip netns add m2 > /dev/null')
-os.system('ip netns add nat > /dev/null')
+os.system('ifconfig lo up')
 os.system('echo 1 > /proc/sys/net/ipv4/ip_forward')
 
-nat_int::VPort(ifname='nat-int', netns='/var/run/netns/nat', mac_addr='00:00:00:00:00:01', ip_addrs=['10.0.0.1/24'])
-nat_ext::VPort(ifname='nat-ext', netns='/var/run/netns/nat', mac_addr='00:00:00:00:00:32', ip_addrs=['10.0.3.2/24'])
-
-LA_1::DyscoVPort(ifname='LA-1', netns='/var/run/netns/LA', mac_addr='00:00:00:00:00:02', ip_addrs=['10.0.0.2/24'])
+LA_1::DyscoVPort(ifname='LA-1', netns='/var/run/netns/LA', mac_addr='00:00:00:00:00:32', ip_addrs=['10.0.3.2/24'])
 RA_1::DyscoVPort(ifname='RA-1', netns='/var/run/netns/RA', mac_addr='00:00:00:00:00:42', ip_addrs=['10.0.4.2/24'])
 m1_0::DyscoVPort(ifname='m1-0', netns='/var/run/netns/m1', mac_addr='00:00:00:00:00:52', ip_addrs=['10.0.5.2/24'])
 m1_1::DyscoVPort(ifname='m1-1', netns='/var/run/netns/m1', mac_addr='00:00:00:00:00:62', ip_addrs=['10.0.6.2/24'])
@@ -41,28 +37,34 @@ R_6::DyscoVPort(ifname='R-6', netns='/var/run/netns/R', mac_addr='00:00:00:00:00
 R_7::DyscoVPort(ifname='R-7', netns='/var/run/netns/R', mac_addr='00:00:00:00:00:71', ip_addrs=['10.0.7.1/24'])
 R_8::DyscoVPort(ifname='R-8', netns='/var/run/netns/R', mac_addr='00:00:00:00:00:81', ip_addrs=['10.0.8.1/24'])
 
+os.system('ip netns exec c1 ifconfig lo up')
 os.system('ip netns exec c1 route add default gw 10.0.1.1 > /dev/null')
 os.system('ip netns exec c1 arp -s 10.0.1.1 00:00:00:00:00:11 > /dev/null')
+os.system('ip netns exec s1 ifconfig lo up')
 os.system('ip netns exec s1 route add default gw 10.0.2.1 > /dev/null')
 os.system('ip netns exec s1 arp -s 10.0.2.1 00:00:00:00:00:21 > /dev/null')
-os.system('ip netns exec LA route add default gw 10.0.0.1 > /dev/null')
+os.system('ip netns exec LA ifconfig lo up')
+os.system('ip netns exec LA route add default gw 10.0.3.1 > /dev/null')
 os.system('ip netns exec LA arp -s 10.0.1.2 00:00:00:00:00:12 > /dev/null')
-os.system('ip netns exec LA arp -s 10.0.0.1 00:00:00:00:00:01 > /dev/null')
+os.system('ip netns exec LA arp -s 10.0.3.1 00:00:00:00:00:31 > /dev/null')
+os.system('ip netns exec RA ifconfig lo up')
 os.system('ip netns exec RA route add default gw 10.0.4.1 > /dev/null')
 os.system('ip netns exec RA arp -s 10.0.2.2 00:00:00:00:00:22 > /dev/null')
 os.system('ip netns exec RA arp -s 10.0.4.1 00:00:00:00:00:41 > /dev/null')
+os.system('ip netns exec m1 ifconfig lo up')
 os.system('ip netns exec m1 route add -net 10.0.1.0/24 gw 10.0.5.1 > /dev/null')
 os.system('ip netns exec m1 route add -net 10.0.3.0/24 gw 10.0.5.1 > /dev/null')
 os.system('ip netns exec m1 route add default gw 10.0.6.1 > /dev/null')
 os.system('ip netns exec m1 arp -s 10.0.5.1 00:00:00:00:00:51 > /dev/null')
 os.system('ip netns exec m1 arp -s 10.0.6.1 00:00:00:00:00:61 > /dev/null')
+os.system('ip netns exec m2 ifconfig lo up')
 os.system('ip netns exec m2 route add -net 10.0.1.0/24 gw 10.0.7.1 > /dev/null')
-os.system('ip netns exec m2 route add -net 10.0.3.0/24 gw 10.0.7.1 > /dev/null')
 os.system('ip netns exec m2 route add default gw 10.0.8.1 > /dev/null')
 os.system('ip netns exec m2 arp -s 10.0.7.1 00:00:00:00:00:71 > /dev/null')
 os.system('ip netns exec m2 arp -s 10.0.8.1 00:00:00:00:00:81 > /dev/null')
 os.system('ip netns exec m2 sh disable_rp_filter.sh > /dev/null')
 
+os.system('ip netns exec R ifconfig lo up')
 os.system('ip netns exec R arp -s 10.0.3.2 00:00:00:00:00:32 > /dev/null')
 os.system('ip netns exec R arp -s 10.0.4.2 00:00:00:00:00:42 > /dev/null')
 os.system('ip netns exec R arp -s 10.0.5.2 00:00:00:00:00:52 > /dev/null')
@@ -73,19 +75,8 @@ os.system('ip netns exec R route add -net 10.0.1.0/24 gw 10.0.3.2 > /dev/null')
 os.system('ip netns exec R route add -net 10.0.2.0/24 gw 10.0.4.2 > /dev/null')
 os.system('ip netns exec R sh disable_rp_filter.sh > /dev/null')
 
-# for NAT
-os.system('ip netns exec nat ifconfig lo up > /dev/null')
-os.system('ip netns exec R route add -net 10.0.0.0/24 gw 10.0.3.2 > /dev/null')
-os.system('ip netns exec nat arp -s 10.0.0.2 00:00:00:00:00:02 > /dev/null')
-os.system('ip netns exec nat arp -s 10.0.3.1 00:00:00:00:00:31 > /dev/null')
-os.system('ip netns exec nat route add default gw 10.0.3.1 > /dev/null')
-os.system('ip netns exec nat route add -net 10.0.1.0/24 gw 10.0.0.2 > /dev/null')
-os.system('ip netns exec nat iptables -t nat -A POSTROUTING -o nat-ext -j MASQUERADE > /dev/null')
-os.system('ip netns exec nat iptables -t filter -A FORWARD -i nat-ext -o nat-int -m state --state RELATED,ESTABLISHED -j ACCEPT > /dev/null')
-os.system('ip netns exec nat iptables -t filter -A FORWARD -i nat-int -o nat-ext -j ACCEPT > /dev/null')
-os.system('ip netns exec nat bash -c "echo 1 > /proc/sys/net/netfilter/nf_conntrack_tcp_be_liberal"')
-
 dyscocenter::DyscoCenter()
+bess.pause_all()
 
 fib::L2Forward()
 fib.add(entries=[
@@ -105,10 +96,7 @@ fib.add(entries=[
 	{'addr': '00:00:00:00:00:72', 'gate': 13},
 	{'addr': '00:00:00:00:00:81', 'gate': 14},
 	{'addr': '00:00:00:00:00:82', 'gate': 15},	
-	# for NAT
-	{'addr': '00:00:00:00:00:01', 'gate': 16},
-	{'addr': '00:00:00:00:00:02', 'gate': 17},	
-])
+	])
 
 din1::DyscoAgentIn() -> DyscoPortOut(port=c1_0)
 din2::DyscoAgentIn() -> DyscoPortOut(port=s1_0)
@@ -173,36 +161,32 @@ dout9:0 -> fib
 dout9:1 -> fib
 dout10:0 -> fib
 dout10:1 -> fib
-r3o::DyscoPortInc(port=R_3) -> fib
-r4o::DyscoPortInc(port=R_4) -> fib
-r5o::DyscoPortInc(port=R_5) -> fib
-r6o::DyscoPortInc(port=R_6) -> fib
-r7o::DyscoPortInc(port=R_7) -> fib
-r8::DyscoPortInc(port=R_8) -> fib
-# for NAT
-PortInc(port=nat_int) -> fib
-PortInc(port=nat_ext) -> fib
+DyscoPortInc(port=R_3) -> fib
+DyscoPortInc(port=R_4) -> fib
+DyscoPortInc(port=R_5) -> fib
+DyscoPortInc(port=R_6) -> fib
+DyscoPortInc(port=R_7) -> fib
+DyscoPortInc(port=R_8) -> fib
 
 fib:0 -> din3
 fib:1 -> din1
 fib:2 -> din4
 fib:3 -> din2
-fib:4 -> r3i::DyscoPortOut(port=R_3)
-fib:5 -> PortOut(port=nat_ext)
-fib:6 -> r4i::DyscoPortOut(port=R_4)
+fib:4 -> DyscoPortOut(port=R_3)
+fib:5 -> din5
+fib:6 -> DyscoPortOut(port=R_4)
 fib:7 -> din6
-fib:8 -> r5i::DyscoPortOut(port=R_5)
+fib:8 -> DyscoPortOut(port=R_5)
 fib:9 -> din7
-fib:10 -> r6i::DyscoPortOut(port=R_6)
+fib:10 -> DyscoPortOut(port=R_6)
 fib:11 -> din8
-fib:12 -> r7i::DyscoPortOut(port=R_7)
+fib:12 -> DyscoPortOut(port=R_7)
 fib:13 -> din9
-fib:14 -> r8i::DyscoPortOut(port=R_8)
+fib:14 -> DyscoPortOut(port=R_8)
 fib:15 -> din10
-# for NAT
-fib:16 -> PortOut(port=nat_int)
-fib:17 -> din5
 
-dyscocenter.add(priority=1, sc_len=2, chain=['10.0.1.1', '10.0.5.2'], filter='dst port 5001', ns='/var/run/netns/c1')
-dyscocenter.add(priority=1, sc_len=2, chain=['10.0.4.2', '10.0.2.2'], filter='dst port 5001', ns='/var/run/netns/m1')
-dyscocenter.add(priority=2, sc_len=4, chain=['10.0.1.1', '10.0.5.2', '10.0.4.2', '10.0.2.2'], filter='dst port 5002', ns='/var/run/netns/c1')
+dyscocenter.add(priority=2, sc_len=4, chain=['10.0.1.1', '10.0.5.2', '10.0.4.2', '10.0.2.2'], filter='dst port 5001', ns='/var/run/netns/c1')
+dyscocenter.add(priority=1, sc_len=2, chain=['10.0.1.1', '10.0.5.2'], filter='dst port 5002', ns='/var/run/netns/c1')
+dyscocenter.add(priority=1, sc_len=2, chain=['10.0.4.2', '10.0.2.2'], filter='dst port 5002', ns='/var/run/netns/m1')
+
+bess.resume_all()

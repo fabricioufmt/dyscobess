@@ -1,13 +1,11 @@
 import os
 import scapy.all as scapy
 
-import os
-import scapy.all as scapy
-
-os.system('ip netns del c1 > /dev/null')
-os.system('ip netns del s1 > /dev/null')
+os.system('ip netns del c1 > /dev/null 2>/dev/null')
+os.system('ip netns del s1 > /dev/null 2>/dev/null')
 os.system('ip netns add c1 > /dev/null')
 os.system('ip netns add s1 > /dev/null')
+os.system('ifconfig lo up')
 os.system('echo 1 > /proc/sys/net/ipv4/ip_forward')
 
 c1_0::DyscoVPort(ifname='c1-0', netns='/var/run/netns/c1', mac_addr='00:00:00:00:00:12', ip_addrs=['10.0.1.2/16'])
@@ -23,6 +21,7 @@ fib.add(entries=[
 	])
 
 dyscocenter::DyscoCenter()
+bess.pause_all()
 
 din1::DyscoAgentIn() -> DyscoPortOut(port=c1_0)
 din2::DyscoAgentIn() -> DyscoPortOut(port=s1_0)
@@ -44,3 +43,5 @@ fib:0 -> din1
 fib:1 -> din2
 
 dyscocenter.add(priority=1, sc_len=1, chain=['10.0.2.2'], filter='dst port 5001', ns='/var/run/netns/c1')
+
+bess.resume_all()

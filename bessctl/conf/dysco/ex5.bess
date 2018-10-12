@@ -88,6 +88,7 @@ os.system('ip netns exec nat arp -s 10.0.0.2 00:00:00:00:00:02 > /dev/null')
 os.system('ip netns exec nat arp -s 10.0.3.1 00:00:00:00:00:31 > /dev/null')
 os.system('ip netns exec nat route add default gw 10.0.3.1 > /dev/null')
 os.system('ip netns exec nat route add -net 10.0.1.0/24 gw 10.0.0.2 > /dev/null')
+os.system('ip netns exec nat iptables -P FORWARD DROP > /dev/null')
 os.system('ip netns exec nat iptables -t nat -A POSTROUTING -o nat-ext -j MASQUERADE > /dev/null')
 os.system('ip netns exec nat iptables -t filter -A FORWARD -i nat-ext -o nat-int -m state --state RELATED,ESTABLISHED -j ACCEPT > /dev/null')
 os.system('ip netns exec nat iptables -t filter -A FORWARD -i nat-int -o nat-ext -j ACCEPT > /dev/null')
@@ -159,14 +160,14 @@ dout9:0 -> r7i::DyscoPortOut(port=R_7)
 dout9:1 -> r7i
 dout10:0 -> r8i::DyscoPortOut(port=R_8)
 dout10:1 -> r8i
-r3o::DyscoPortInc(port=R_3) -> PortOut(port=nat_ext)
-r4o::DyscoPortInc(port=R_4) -> din6
-r5o::DyscoPortInc(port=R_5) -> din7
-r6o::DyscoPortInc(port=R_6) -> din8
-r7o::DyscoPortInc(port=R_7) -> din9
-r8o::DyscoPortInc(port=R_8) -> din10
+DyscoPortInc(port=R_3) -> PortOut(port=nat_ext)
+DyscoPortInc(port=R_4) -> din6
+DyscoPortInc(port=R_5) -> din7
+DyscoPortInc(port=R_6) -> din8
+DyscoPortInc(port=R_7) -> din9
+DyscoPortInc(port=R_8) -> din10
 DyscoPortInc(port=nat_int) -> din5
-DyscoPortInc(port=nat_ext) -> r3i::DyscoPortOut(port=R_3)
+DyscoPortInc(port=nat_ext) -> DyscoPortOut(port=R_3)
 
 dyscocenter.add(priority=1, sc_len=2, chain=['10.0.1.1', '10.0.5.2'], filter='dst port 5001', ns='/var/run/netns/c1')
 dyscocenter.add(priority=1, sc_len=2, chain=['10.0.4.2', '10.0.2.2'], filter='dst port 5001', ns='/var/run/netns/m1')
