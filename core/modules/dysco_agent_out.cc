@@ -549,8 +549,6 @@ bool DyscoAgentOut::output(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out
 	}
 
 	if(cb_out) {
-		if(strcmp(ns.c_str(), "/var/run/netns/LA") == 0)
-			fprintf(stderr, "reach here\n");
 		cb_out->module = this;
 		out_translate(pkt, ip, tcp, cb_out);
 		return true;
