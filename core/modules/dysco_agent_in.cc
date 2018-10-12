@@ -975,8 +975,8 @@ bool DyscoAgentIn::control_reconfig_in(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp
 		//uint32_t seq_cutoff = old_out->seq_cutoff;
 		uint32_t ack_cutoff = ntohl(cmsg->seqCutoff);
 
-		old_out->old_path = 1;
-		old_out->other_path = new_out;
+		//old_out->old_path = 1;
+		//old_out->other_path = new_out;
 		old_out->dcb_in->two_paths = 1;
 
 		if(new_out->seq_add)
