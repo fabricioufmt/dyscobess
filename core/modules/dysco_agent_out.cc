@@ -465,9 +465,6 @@ void DyscoAgentOut::out_translate(Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_
 	DyscoHashOut* cb = cb_out;
 	DyscoHashOut* other_path = cb_out->other_path;
 	if(!other_path) {
-		cb_out->last_seq = tcp->seq_num.value();
-		cb_out->last_ack = tcp->ack_num.value();
-		
 		if(isTCPACK(tcp))
 			if(cb->state == DYSCO_SYN_SENT)
 				cb->state = DYSCO_ESTABLISHED;
@@ -477,15 +474,10 @@ void DyscoAgentOut::out_translate(Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_
 				cb->state = DYSCO_FIN_WAIT_1;
 		
 		if(seg_sz > 0 && after(seq, cb_out->seq_cutoff)) {
-			/*
-			if(strcmp(ns.c_str(), "/var/run/netns/LA") == 0) {
-				if(ip->src.raw_value() == inet_addr("10.0.1.2"))
-					fprintf(stderr, "[%s][%s] cb_out->seq_cutoff: %X, seq: %X (not old)\n", ns.c_str(), printSS(cb_out->sub), cb_out->seq_cutoff, seq);
-			}
-			*/
 			cb_out->seq_cutoff = seq;
 		}
 	} else {
+		fprintf(stderr, "[%s] is other_path with state=%d\n", ns.c_str(), other_path->state);
 		if(other_path->state == DYSCO_ESTABLISHED) {
 			if(isTCPFIN(tcp))
 				other_path->state = DYSCO_FIN_WAIT_1;
@@ -500,21 +492,10 @@ void DyscoAgentOut::out_translate(Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_
 					fprintf(stderr, "picking old path\n");
 			} else {
 				cb = pick_path_ack(tcp, cb_out);
-				/*
-				if(strcmp(ns.c_str(), "/var/run/netns/RA") == 0) {
-					if(ip->src.raw_value() == inet_addr("10.0.2.2"))
-						fprintf(stderr, "\n[%s][%s] cb_out->ack_cutoff: %X, ack: %X (going to %s)\n\n", ns.c_str(), printSS(cb->sub), cb_out->ack_cutoff, tcp->ack_num.value(), cb_out == cb ? "old path" : "new path");
-				*/
 			}
 		} else if(other_path->state == DYSCO_SYN_SENT) {
 			if(seg_sz > 0) {
 				if(after(seq, cb_out->seq_cutoff)) {
-					/*
-					if(strcmp(ns.c_str(), "/var/run/netns/LA") == 0) {
-						if(ip->src.raw_value() == inet_addr("10.0.1.2"))
-							fprintf(stderr, "[%s][%s] cb_out->seq_cutoff: %X, seq: %X (state=DYSCO_SYN_SENT)\n", ns.c_str(), printSS(cb_out->sub), cb_out->seq_cutoff, seq);
-					}
-					*/
 					cb_out->seq_cutoff = seq;
 				}
 			} else {
@@ -525,37 +506,13 @@ void DyscoAgentOut::out_translate(Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_
 				cb = pick_path_seq(cb_out, seq);
 			else {
 				cb = pick_path_ack(tcp, cb_out);
-				/*
-				if(strcmp(ns.c_str(), "/var/run/netns/RA") == 0) {
-					if(ip->src.raw_value() == inet_addr("10.0.2.2"))
-						fprintf(stderr, "\n[%s][%s] cb_out->ack_cutoff: %X, ack: %X (going to %s) (state=DYSCO_SYN_RECEIVED)\n\n", ns.c_str(), printSS(cb->sub), cb_out->ack_cutoff, tcp->ack_num.value(), cb_out == cb ? "old path" : "new path");
-				*/
 			}
 		}
-		/*else if(other_path->state == DYSCO_CLOSE_WAIT) {
-			if(isTCPFIN(tcp))
-				other_path->state = DYSCO_LAST_ACK;
-
-			// assumes
-			cb = other_path;
-
-		} else if(other_path->state == DYSCO_FIN_WAIT_2) {
-			if(isTCPACK(tcp))
-				other_path->state = DYSCO_CLOSED;
-
-			// assumes
-			cb = other_path;
-
-		} else if(cb_out->state == DYSCO_CLOSED) {
-			//TEST
-			//Should forward to other_path
-			cb = other_path;
-			}*/
-
-		cb->last_seq = tcp->seq_num.value();
-		cb->last_ack = tcp->ack_num.value();
 	}
-		
+
+	cb->last_seq = tcp->seq_num.value();
+	cb->last_ack = tcp->ack_num.value();
+	
 	hdr_rewrite_csum(ip, tcp, &cb->sub);
 
 	uint32_t incremental = 0;
