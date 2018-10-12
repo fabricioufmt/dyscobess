@@ -983,11 +983,14 @@ bool DyscoAgentIn::control_reconfig_in(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp
 		cb_in->two_paths = 1;
 		old_out->dcb_in->two_paths = 1;
 
-		if(new_out->seq_add)
-			ack_cutoff += new_out->seq_delta;
-		else
-			ack_cutoff -= new_out->seq_delta;
-
+		if(new_out->in_iack < new_out->out_iack) {
+			delta = new_out->out_iack - new_out->in_iack;
+			ack_cutoff -= delta;
+		} else {
+			delta = new__out->in_iack - new_out->out_iack;
+			ack_cutoff += delta;
+		}
+		
 		old_out->ack_cutoff = ack_cutoff;
 		
 		parse_tcp_syn_opt_s(tcp, new_out);
