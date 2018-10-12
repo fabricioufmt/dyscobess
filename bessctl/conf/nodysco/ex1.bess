@@ -1,10 +1,11 @@
 import os
 import scapy.all as scapy
 
-os.system('ip netns del c1 > /dev/null')
-os.system('ip netns del s1 > /dev/null')
+os.system('ip netns del c1 > /dev/null 2>/dev/null')
+os.system('ip netns del s1 > /dev/null 2>/dev/null')
 os.system('ip netns add c1 > /dev/null')
 os.system('ip netns add s1 > /dev/null')
+os.system('ifconfig lo up')
 os.system('echo 1 > /proc/sys/net/ipv4/ip_forward')
 
 c1_0::VPort(ifname='c1-0', netns='/var/run/netns/c1', mac_addr='00:00:00:00:00:12', ip_addrs=['10.0.1.2/16'])
@@ -13,5 +14,9 @@ s1_0::VPort(ifname='s1-0', netns='/var/run/netns/s1', mac_addr='00:00:00:00:00:2
 os.system('ip netns exec c1 arp -s 10.0.2.2 00:00:00:00:00:22 > /dev/null')
 os.system('ip netns exec s1 arp -s 10.0.1.2 00:00:00:00:00:12 > /dev/null')
 
+bess.pause_all()
+
 PortInc(port=c1_0) -> PortOut(port=s1_0)
 PortInc(port=s1_0) -> PortOut(port=c1_0)
+
+bess.resume_all()

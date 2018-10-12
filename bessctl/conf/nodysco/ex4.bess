@@ -1,13 +1,13 @@
 import os
 import scapy.all as scapy
 
-os.system('ip netns del R > /dev/null')
-os.system('ip netns del LA > /dev/null')
-os.system('ip netns del RA > /dev/null')
-os.system('ip netns del c1 > /dev/null')
-os.system('ip netns del s1 > /dev/null')
-os.system('ip netns del m1 > /dev/null')
-os.system('ip netns del m2 > /dev/null')
+os.system('ip netns del R > /dev/null 2>/dev/null')
+os.system('ip netns del LA > /dev/null 2>/dev/null')
+os.system('ip netns del RA > /dev/null 2>/dev/null')
+os.system('ip netns del c1 > /dev/null 2>/dev/null')
+os.system('ip netns del s1 > /dev/null 2>/dev/null')
+os.system('ip netns del m1 > /dev/null 2>/dev/null')
+os.system('ip netns del m2 > /dev/null 2>/dev/null')
 os.system('ip netns add R > /dev/null')
 os.system('ip netns add LA > /dev/null')
 os.system('ip netns add RA > /dev/null')
@@ -15,6 +15,7 @@ os.system('ip netns add c1 > /dev/null')
 os.system('ip netns add s1 > /dev/null')
 os.system('ip netns add m1 > /dev/null')
 os.system('ip netns add m2 > /dev/null')
+os.system('ifconfig lo up')
 os.system('echo 1 > /proc/sys/net/ipv4/ip_forward')
 
 LA_1::VPort(ifname='LA-1', netns='/var/run/netns/LA', mac_addr='00:00:00:00:00:32', ip_addrs=['10.0.3.2/24'])
@@ -36,26 +37,34 @@ R_6::VPort(ifname='R-6', netns='/var/run/netns/R', mac_addr='00:00:00:00:00:61',
 R_7::VPort(ifname='R-7', netns='/var/run/netns/R', mac_addr='00:00:00:00:00:71', ip_addrs=['10.0.7.1/24'])
 R_8::VPort(ifname='R-8', netns='/var/run/netns/R', mac_addr='00:00:00:00:00:81', ip_addrs=['10.0.8.1/24'])
 
+os.system('ip netns exec c1 ifconfig lo up')
 os.system('ip netns exec c1 route add default gw 10.0.1.1 > /dev/null')
 os.system('ip netns exec c1 arp -s 10.0.1.1 00:00:00:00:00:11 > /dev/null')
+os.system('ip netns exec s1 ifconfig lo up')
 os.system('ip netns exec s1 route add default gw 10.0.2.1 > /dev/null')
 os.system('ip netns exec s1 arp -s 10.0.2.1 00:00:00:00:00:21 > /dev/null')
+os.system('ip netns exec LA ifconfig lo up')
 os.system('ip netns exec LA route add default gw 10.0.3.1 > /dev/null')
 os.system('ip netns exec LA arp -s 10.0.1.2 00:00:00:00:00:12 > /dev/null')
 os.system('ip netns exec LA arp -s 10.0.3.1 00:00:00:00:00:31 > /dev/null')
+os.system('ip netns exec RA ifconfig lo up')
 os.system('ip netns exec RA route add default gw 10.0.4.1 > /dev/null')
 os.system('ip netns exec RA arp -s 10.0.2.2 00:00:00:00:00:22 > /dev/null')
 os.system('ip netns exec RA arp -s 10.0.4.1 00:00:00:00:00:41 > /dev/null')
+os.system('ip netns exec m1 ifconfig lo up')
 os.system('ip netns exec m1 route add -net 10.0.1.0/24 gw 10.0.5.1 > /dev/null')
 os.system('ip netns exec m1 route add -net 10.0.3.0/24 gw 10.0.5.1 > /dev/null')
 os.system('ip netns exec m1 route add default gw 10.0.6.1 > /dev/null')
 os.system('ip netns exec m1 arp -s 10.0.5.1 00:00:00:00:00:51 > /dev/null')
 os.system('ip netns exec m1 arp -s 10.0.6.1 00:00:00:00:00:61 > /dev/null')
+os.system('ip netns exec m2 ifconfig lo up')
 os.system('ip netns exec m2 route add -net 10.0.1.0/24 gw 10.0.7.1 > /dev/null')
 os.system('ip netns exec m2 route add default gw 10.0.8.1 > /dev/null')
 os.system('ip netns exec m2 arp -s 10.0.7.1 00:00:00:00:00:71 > /dev/null')
 os.system('ip netns exec m2 arp -s 10.0.8.1 00:00:00:00:00:81 > /dev/null')
+os.system('ip netns exec m2 sh disable_rp_filter.sh > /dev/null')
 
+os.system('ip netns exec R ifconfig lo up')
 os.system('ip netns exec R arp -s 10.0.3.2 00:00:00:00:00:32 > /dev/null')
 os.system('ip netns exec R arp -s 10.0.4.2 00:00:00:00:00:42 > /dev/null')
 os.system('ip netns exec R arp -s 10.0.5.2 00:00:00:00:00:52 > /dev/null')
@@ -85,6 +94,8 @@ fib.add(entries=[
 	{'addr': '00:00:00:00:00:81', 'gate': 14},
 	{'addr': '00:00:00:00:00:82', 'gate': 15},	
 	])
+
+bess.pause_all()
 
 PortInc(port=c1_0) -> fib
 PortInc(port=s1_0) -> fib
@@ -119,3 +130,5 @@ fib:12 -> PortOut(port=R_7)
 fib:13 -> PortOut(port=m2_0)
 fib:14 -> PortOut(port=R_8)
 fib:15 -> PortOut(port=m2_1)
+
+bess.resume_all()
