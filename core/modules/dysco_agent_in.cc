@@ -1232,6 +1232,9 @@ bool DyscoAgentIn::control_input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp,
 			old_dcb->old_path = 1;
 			old_dcb->other_path = new_dcb;
 			new_dcb->other_path = old_dcb;
+
+			fprintf(stderr, "[%s] old_dcb=%s\n", printSS(old_dcb->sub));
+			fprintf(stderr, "[%s] new_dcb=%s\n", printSS(new_dcb->sub));
 			
 			if(!old_dcb->valid_ack_cut) {
 				old_dcb->valid_ack_cut = 1;
@@ -1308,34 +1311,12 @@ bool DyscoAgentIn::control_input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp,
 
 			//old_out_ack_cutoff = old_out->last_ack;
 			old_out_ack_cutoff = old_out->ack_cutoff;
-
-#ifdef DEBUG_RECONFIG
-			fprintf(stderr, "new_out->out_iack=%X -- new_out->in_iack=%X.\n", new_out->out_iack, new_out->in_iack);
-			fprintf(stderr, "old_out->ack_cutoff=%X.\n", old_out->ack_cutoff);
-			fprintf(stderr, "old_out->lastAck=%X.\n", old_out->last_ack);
-#endif
-
-			/*
-			if(new_out->in_iack < new_out->out_iack) {
-				uint32_t delta = new_out->out_iack - new_out->in_iack;
-				old_out_ack_cutoff += delta;
-#ifdef DEBUG_RECONFIG
-				fprintf(stderr, "new_out->out_iack - new_out->in_iack = delta.... [%X - %X = %X].\n", new_out->out_iack, new_out->in_iack, delta);
-#endif
-			}
-			*/
 			
 			if(new_out->state == DYSCO_SYN_RECEIVED) {
-				//fprintf(stderr, "[%s] new reconfiguration state is ESTABLISHED now.\n", ns.c_str());
 				new_out->state = DYSCO_ESTABLISHED;
 			}
 			
 			if(!old_out->state_t) {
-				
-#ifdef DEBUG_RECONFIG
-				fprintf(stderr, "setting4 onto %s %s to ack_cutoff: %x.\n", printSS(old_out->sup), printSS(old_out->sub), old_out_ack_cutoff);
-#endif
-				
 				old_out->ack_cutoff = old_out_ack_cutoff;
 				old_out->valid_ack_cut = 1;
 			}
