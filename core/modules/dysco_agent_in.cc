@@ -1453,10 +1453,8 @@ bool DyscoAgentIn::isEstablished(Packet* pkt) {
  * Locking Signal methods
  */
 Packet* DyscoAgentIn::processLockingSignalPacket(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
-	if(!cb_in) {
-		fprintf(stderr, "[%s] does not found\n", ns.c_str());
+	if(!cb_in)
 		return 0;
-	}
 
 	DyscoTcpOption* tcpo = reinterpret_cast<DyscoTcpOption*>((uint8_t*)tcp + sizeof(Tcp));
 	uint8_t* lhop = (uint8_t*)(&tcpo->padding) + 1;
@@ -1894,28 +1892,28 @@ Packet* DyscoAgentIn::processRequestLocking(Packet* pkt, Ethernet* eth, Ipv4* ip
 	
 	cmsg->rhop--;
 	if(cmsg->rhop > 0) {
-#ifdef DEBUG_RECONFIG
-		fprintf(stderr, "I'm not the RightAnchor.\n");
-#endif
+		//#ifdef DEBUG_RECONFIG
+		fprintf(stderr, "[%s] I'm not the RightAnchor.\n", ns.c_str());
+		//#endif
 		cb_out = dc->lookup_output_by_ss(this->index, &cb_in->my_sup);
 		if(!cb_out) {
-#ifdef DEBUG_RECONFIG
-			fprintf(stderr, "Looking for %s on output_hash... not found.\n", printSS(cb_in->my_sup));
-#endif
+			//#ifdef DEBUG_RECONFIG
+			fprintf(stderr, "[%s] Looking for %s on output_hash... not found.\n", ns.c_str(), printSS(cb_in->my_sup));/
+				//#endif
 			DyscoLockingReconfig* dysco_locking = dc->lookup_locking_reconfig_by_ss(this->index, &cb_in->dcb_out->sup);
 
 			if(!dysco_locking) {
 #ifdef DEBUG_RECONFIG
-				fprintf(stderr, "Looking for %s on lockingreconfig_hash... not found.\n", printSS(cb_in->dcb_out->sup));
+				fprintf(stderr, "[%s] Trying to lookup for %s on lockingreconfig_hash... not found.\n", ns.c_str(), printSS(cb_in->dcb_out->sup));
 #endif
 			} else {
 				cb_out = dysco_locking->cb_out_right;
 			}
 		}
 	} else {
-#ifdef DEBUG_RECONFIG
-		fprintf(stderr, "I'm the RightAnchor.\n");
-#endif
+		//#ifdef DEBUG_RECONFIG
+		fprintf(stderr, "[%s] I'm the RightAnchor.\n", ns.c_str());
+		//#endif
 		cb_out = cb_in->dcb_out;
 	}
 			
