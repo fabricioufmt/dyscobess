@@ -482,8 +482,6 @@ void DyscoAgentOut::out_translate(Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_
 				other_path->state = DYSCO_FIN_WAIT_1;
 			
 			if(seg_sz > 0) {
-				fprintf(stderr, "[%s][seg_sz > 0] after(%X, %X) == %u\n",
-					ns.c_str(), seq, cb_out->seq_cutoff, after(seq, cb_out->seq_cutoff));
 				if(after(seq, cb_out->seq_cutoff))
 					cb = other_path;
 			} else {

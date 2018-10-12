@@ -586,7 +586,7 @@ bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in, uint32_t)
 			fprintf(stderr, "cb_out->in_iack=%X cb_out->out_iack=%X\n", cb_out->in_iack, cb_out->out_iack);
 			
 			if(old_out->valid_ack_cut) {
-				fprintf(stderr, "[%s] before(%X, old_out->ack_cutoff) == %u\n", ns.c_str(), seq, old_out->ack_cutoff);
+				fprintf(stderr, "[%s] before(%X, cut=%X) == %u\n", ns.c_str(), seq, old_out->ack_cutoff, before(seq, old_out->ack_cutoff));
 				if(before(seq, old_out->ack_cutoff)) {
 					old_out->ack_cutoff = seq;
 				}
