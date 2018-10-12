@@ -924,8 +924,6 @@ bool DyscoAgentIn::control_reconfig_in(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp
 #ifdef DEBUG_RECONFIG
 		fprintf(stderr, "It's the right anchor.\n");
 #endif
-
-		fprintf(stderr, "[%s] the cutoff received is %X.\n", ns.c_str(), ntohl(cmsg->seqCutoff));
 		
 		cb_in = new DyscoHashIn();
 		cb_in->module = this;
