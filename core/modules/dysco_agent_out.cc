@@ -173,8 +173,10 @@ bool DyscoAgentOut::doProcess(Packet* pkt, Ethernet* eth, Ipv4* ip, uint32_t ip_
 		return true;
 	}
 	
-	if(!cb_out)
+	if(!cb_out) {
+		fprintf(stderr, "[%s] cb_out no found by %s\n", ns.c_str(), printPacketSS(ip, tcp));
 		return false;
+	}
 	
 	if(cb_out->lock_state != DYSCO_CLOSED_LOCK)
 		return false;
