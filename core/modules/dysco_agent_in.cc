@@ -934,7 +934,10 @@ bool DyscoAgentIn::control_reconfig_in(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp
 	if(isToRightAnchor(ip, cmsg)) {
 #ifdef DEBUG_RECONFIG
 		fprintf(stderr, "It's the right anchor.\n");
-#endif	
+#endif
+
+		fprintf(stderr, "[%s] the cutoff receives is %X.\n", cmsg->seqCutoff);
+		
 		cb_in = new DyscoHashIn();
 		cb_in->module = this;
 		cb_in->sub = rcb->sub_in;
