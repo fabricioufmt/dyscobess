@@ -872,9 +872,6 @@ bool DyscoAgentIn::control_config_rightA(DyscoCbReconfig* rcb, DyscoControlMessa
 	
 	DyscoHashOut* old_out = dc->lookup_output_by_ss(this->index, &local_ss);
 	if(!old_out) {
-#ifdef DEBUG
-		fprintf(stderr, "Looking for %s in hash_output... not found.\n", printSS(local_ss));
-#endif
 		dc->remove_hash_input(this->index, cb_in);
 		delete cb_in;
 		dc->remove_hash_reconfig(this->index, rcb);
@@ -883,9 +880,6 @@ bool DyscoAgentIn::control_config_rightA(DyscoCbReconfig* rcb, DyscoControlMessa
 		return false;
 	} else {
 		if(old_out->is_nat) {
-#ifdef DEBUG
-			fprintf(stderr, "is NAT and switching cb_outs\n");
-#endif
 			old_out = old_out->other_path;
 			cb_in->my_sup.sip = old_out->sup.dip;
 			cb_in->my_sup.dip = old_out->sup.sip;
@@ -902,7 +896,7 @@ bool DyscoAgentIn::control_config_rightA(DyscoCbReconfig* rcb, DyscoControlMessa
 
 	rcb->new_dcb = cb_out;
 	rcb->old_dcb = old_out;
-	cb_out->other_path = old_out;
+	//cb_out->other_path = old_out;
 	
 	if(ntohl(cmsg->semantic) == STATE_TRANSFER)
 		old_out->state_t = 1;
@@ -941,14 +935,10 @@ bool DyscoAgentIn::control_reconfig_in(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp
 		cb_in = new DyscoHashIn();
 		cb_in->module = this;
 		cb_in->sub = rcb->sub_in;
-		//cb_in->out_iseq = rcb->leftIack;
-		//cb_in->out_iack = rcb->leftIseq;
 		cb_in->seq_delta = cb_in->ack_delta = 0;
 
 		cb_in->in_iseq = rcb->leftIseq;
 		cb_in->in_iack = rcb->leftIack;
-		//cb_in->in_iseq = tcp->seq_num.value();
-		//cb_in->in_iack = tcp->ack_num.value();
 				
 		cb_in->is_reconfiguration = 1;
 		memcpy(&cb_in->cmsg, cmsg, sizeof(DyscoControlMessage));
@@ -983,31 +973,22 @@ bool DyscoAgentIn::control_reconfig_in(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp
 		DyscoHashOut* old_out = rcb->old_dcb;
 		DyscoHashOut* new_out = rcb->new_dcb;
 		uint32_t seq_cutoff = old_out->seq_cutoff;
-		//uint32_t seq_cutoff2 = ntohl(cmsg->seqCutoff);
+		uint32_t ack_cutoff = ntohl(cmsg->seqCutoff);
 
-#ifdef DEBUG_RECONFIG
-		if(strcmp(ns.c_str(), "/var/run/netns/RA") == 0) {
-			fprintf(stderr, "old_out->in_iseq = %X and old_out->in_iack = %X\n", old_out->in_iseq, old_out->in_iack);
-			fprintf(stderr, "old_out->out_iseq = %X and old_out->out_iack = %X\n", old_out->out_iseq, old_out->out_iack);
-			fprintf(stderr, "new_out->in_iseq = %X and new_out->in_iack = %X\n", new_out->in_iseq, new_out->in_iack);
-			fprintf(stderr, "new_out->out_iseq = %X and new_out->out_iack = %X\n", new_out->out_iseq, new_out->out_iack);
-			fprintf(stderr, "old_out->seq_cutoff = %X\n", seq_cutoff);
-			//fprintf(stderr, "cmsg->seqCutoff = %X\n", seq_cutoff2);
-		}
-#endif
-
-		old_out->old_path = 1;
-		old_out->other_path = new_out;
+		//old_out->old_path = 1;
+		//old_out->other_path = new_out;
 		old_out->dcb_in->two_paths = 1;
 
-		//TEST
-		cb_in->two_paths = 1;
-		
 		if(new_out->seq_add)
-			seq_cutoff += new_out->seq_delta;
+			ack_cutoff += new_out->seq_delta;
 		else
-			seq_cutoff -= new_out->seq_delta;
+			ack_cutoff -= new_out->seq_delta;
 
+		old_out->ack_cutoff = ack_cutoff;
+
+		fprintf(stderr, "[%s] old_out->seq_cutoff=%X\n", ns.c_str(), old_out->seq_cutoff);
+		fprintf(stderr, "[%s] old_out->seq_cutoff=%X\n", ns.c_str(), old_out->ack_cutoff);
+		
 		parse_tcp_syn_opt_s(tcp, new_out);
 		
 		new_out->state = DYSCO_SYN_RECEIVED;
