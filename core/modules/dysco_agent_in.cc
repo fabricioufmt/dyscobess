@@ -1293,6 +1293,9 @@ bool DyscoAgentIn::control_input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp,
 			}
 
 			old_out->old_path = 1;
+
+			fprintf(stderr, "[%s] old_out=%s (old_path=%u)\n", ns.c_str(), printSS(old_out->sub), old_out->old_path);
+			fprintf(stderr, "[%s] new_out=%s (old_path=%u)\n", ns.c_str(), printSS(new_out->sub), new_out->old_path);
 			
 			//old_out_ack_cutoff = old_out->last_ack;
 			old_out_ack_cutoff = old_out->ack_cutoff;
