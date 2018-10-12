@@ -987,7 +987,7 @@ bool DyscoAgentIn::control_reconfig_in(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp
 		old_out->ack_cutoff = ack_cutoff;
 
 		fprintf(stderr, "[%s] old_out->seq_cutoff=%X\n", ns.c_str(), old_out->seq_cutoff);
-		fprintf(stderr, "[%s] old_out->seq_cutoff=%X\n", ns.c_str(), old_out->ack_cutoff);
+		fprintf(stderr, "[%s] old_out->ack_cutoff=%X\n", ns.c_str(), old_out->ack_cutoff);
 		
 		parse_tcp_syn_opt_s(tcp, new_out);
 		
@@ -1239,8 +1239,7 @@ bool DyscoAgentIn::control_input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp,
 			}
 			
 			cb_out->state = DYSCO_ESTABLISHED;
-
-			//fprintf(stderr, "[%s] new reconfiguration state is ESTABLISHED now.\n", ns.c_str());
+			new_dcb->state = DYSCO_ESTABLISHED; //the same, right?
 			
 			cb_in->is_reconfiguration = 0;
 			
