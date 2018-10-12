@@ -975,8 +975,8 @@ bool DyscoAgentIn::control_reconfig_in(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp
 		//uint32_t seq_cutoff = old_out->seq_cutoff;
 		uint32_t ack_cutoff = ntohl(cmsg->seqCutoff);
 
-		//old_out->old_path = 1;
-		//old_out->other_path = new_out;
+		old_out->old_path = 1;
+		old_out->other_path = new_out;
 		old_out->dcb_in->two_paths = 1;
 
 		if(new_out->seq_add)
@@ -1382,7 +1382,6 @@ void DyscoAgentIn::createAck(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp) {
 
 	pkt->trim(tcp_opt_len);
 
-	//Could be incremental
 	fix_csum(ip, tcp);
 }
 
@@ -1405,8 +1404,6 @@ void DyscoAgentIn::createSynAck(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp) 
 	
 	be32_t seqswap = tcp->seq_num;
 	tcp->seq_num = tcp->ack_num;
-	//tcp->seq_num = be32_t(ISN);
-	//tcp->ack_num = seqswap + be32_t(payload_len + 1);
 	tcp->ack_num = seqswap + be32_t(1);
 	tcp->flags |= Tcp::kAck;
 	pkt->trim(payload_len);
