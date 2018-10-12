@@ -492,6 +492,7 @@ void DyscoAgentOut::out_translate(Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_
 				} else
 					fprintf(stderr, "picking old path\n");
 			} else {
+				fprintf(stderr, "[%s] seg_sz <= 0\n", ns.c_str());
 				cb = pick_path_ack(tcp, cb_out);
 			}
 		} else if(other_path->state == DYSCO_SYN_SENT) {
