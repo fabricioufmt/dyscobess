@@ -1233,8 +1233,8 @@ bool DyscoAgentIn::control_input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp,
 			old_dcb->other_path = new_dcb;
 			new_dcb->other_path = old_dcb;
 
-			fprintf(stderr, "[%s] old_dcb=%s\n", printSS(old_dcb->sub));
-			fprintf(stderr, "[%s] new_dcb=%s\n", printSS(new_dcb->sub));
+			fprintf(stderr, "[%s] old_dcb=%s\n", ns.c_str(), printSS(old_dcb->sub));
+			fprintf(stderr, "[%s] new_dcb=%s\n", ns.c_str(), printSS(new_dcb->sub));
 			
 			if(!old_dcb->valid_ack_cut) {
 				old_dcb->valid_ack_cut = 1;
