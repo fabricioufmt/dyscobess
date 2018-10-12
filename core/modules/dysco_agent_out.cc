@@ -465,6 +465,7 @@ void DyscoAgentOut::out_translate(Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_
 	DyscoHashOut* cb = cb_out;
 	DyscoHashOut* other_path = cb_out->other_path;
 	if(!other_path) {
+		fprintf(stderr, "[%s] is not other_path with state=%d\n", ns.c_str(), cb_out->state);
 		if(isTCPACK(tcp))
 			if(cb->state == DYSCO_SYN_SENT)
 				cb->state = DYSCO_ESTABLISHED;
