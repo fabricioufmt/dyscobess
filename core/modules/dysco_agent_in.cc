@@ -977,6 +977,7 @@ bool DyscoAgentIn::control_reconfig_in(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp
 
 		//old_out->old_path = 1;
 		//old_out->other_path = new_out;
+		cb_in->two_paths = 1;
 		old_out->dcb_in->two_paths = 1;
 
 		if(new_out->seq_add)
@@ -1229,8 +1230,8 @@ bool DyscoAgentIn::control_input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp,
 			old_dcb->other_path = new_dcb;
 			new_dcb->other_path = old_dcb;
 
-			fprintf(stderr, "[%s] old_dcb=%s\n", ns.c_str(), printSS(old_dcb->sub));
-			fprintf(stderr, "[%s] new_dcb=%s\n", ns.c_str(), printSS(new_dcb->sub));
+			fprintf(stderr, "[%s][DYSCO_SYN_ACK] old_dcb=%s\n", ns.c_str(), printSS(old_dcb->sub));
+			fprintf(stderr, "[%s][DYSCO_SYN_ACK] new_dcb=%s\n", ns.c_str(), printSS(new_dcb->sub));
 			
 			if(!old_dcb->valid_ack_cut) {
 				old_dcb->valid_ack_cut = 1;
@@ -1264,12 +1265,7 @@ bool DyscoAgentIn::control_input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp,
 		fprintf(stderr, "[%s] DYSCO_ACK message.\n", ns.c_str());
 
 		cmsg = &cb_in->cmsg;
-		if(!cmsg) {
-#ifdef DEBUG_RECONFIG
-			fprintf(stderr, "cmsg ERROR\n");
-#endif
-			return false;
-		}
+		
 		cb_in->is_reconfiguration = 0;
 		
 		if(isToRightAnchor(ip, cmsg)) {
@@ -1303,6 +1299,9 @@ bool DyscoAgentIn::control_input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp,
 			old_out->other_path = new_out;
 			new_out->other_path = old_out;
 
+			fprintf(stderr, "[%s][DYSCO_ACK] old_out=%s\n", ns.c_str(), printSS(old_out->sub));
+			fprintf(stderr, "[%s][DYSCO_ACK] new_out=%s\n", ns.c_str(), printSS(old_out->sub));
+			
 			//old_out_ack_cutoff = old_out->last_ack;
 			old_out_ack_cutoff = old_out->ack_cutoff;
 			
