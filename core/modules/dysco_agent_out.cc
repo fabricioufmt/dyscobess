@@ -149,8 +149,6 @@ void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
 
 		cb_out = dc->lookup_output(this->index, ip, tcp);
 		
-		fprintf(stderr, "[%s][DyscoAgentOut] receives %s [%X:%X]\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.raw_value(), tcp->ack_num.raw_value());
-		
 		doProcess(pkt, eth, ip, ip_hlen, tcp, tcp_hlen, cb_out, out_gates);
 	}
 	

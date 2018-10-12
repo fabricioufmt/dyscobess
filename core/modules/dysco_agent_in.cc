@@ -1160,9 +1160,7 @@ bool DyscoAgentIn::control_input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp,
 	size_t tcp_hlen = tcp->offset << 2;
 
 	if(isTCPSYN(tcp, true)) {
-#ifdef DEBUG_RECONFIG
-		fprintf(stderr, "DYSCO_SYN message.\n");
-#endif
+		fprintf(stderr, "[%s] DYSCO_SYN message.\n", ns.c_str());
 
 		uint8_t* payload = reinterpret_cast<uint8_t*>(tcp) + tcp_hlen;
 		cmsg = reinterpret_cast<DyscoControlMessage*>(payload);
@@ -1183,9 +1181,7 @@ bool DyscoAgentIn::control_input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp,
 		return control_reconfig_in(pkt, eth, ip, tcp, payload, rcb, cmsg);
 		
 	} else if(isTCPSYN(tcp) && isTCPACK(tcp)) {
-#ifdef DEBUG_RECONFIG
-		fprintf(stderr, "DYSCO_SYN_ACK message.\n");
-#endif
+		fprintf(stderr, "[%s] DYSCO_SYN_ACK message.\n", ns.c_str());
 
 		if(!cb_in) {
 			return false;
@@ -1265,9 +1261,7 @@ bool DyscoAgentIn::control_input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp,
 			return true;
 		}
 	} else if(isTCPACK(tcp, true)) {
-#ifdef DEBUG_RECONFIG
-		fprintf(stderr, "DYSCO_ACK message.\n");
-#endif
+		fprintf(stderr, "[%s] DYSCO_ACK message.\n", ns.c_str());
 
 		cmsg = &cb_in->cmsg;
 		if(!cmsg) {
