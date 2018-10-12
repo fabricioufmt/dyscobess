@@ -972,7 +972,7 @@ bool DyscoAgentIn::control_reconfig_in(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp
 		//replace_cb_rightA method from control_output
 		DyscoHashOut* old_out = rcb->old_dcb;
 		DyscoHashOut* new_out = rcb->new_dcb;
-		uint32_t seq_cutoff = old_out->seq_cutoff;
+		//uint32_t seq_cutoff = old_out->seq_cutoff;
 		uint32_t ack_cutoff = ntohl(cmsg->seqCutoff);
 
 		//old_out->old_path = 1;
