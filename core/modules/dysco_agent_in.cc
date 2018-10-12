@@ -1294,20 +1294,17 @@ bool DyscoAgentIn::control_input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp,
 				}
 			}
 			
-			DyscoHashOut* old_out;
-			DyscoHashOut* new_out;
+			DyscoHashOut* old_out = rcb->old_dcb;
+			DyscoHashOut* new_out = rcb->new_dcb;
 			uint32_t old_out_ack_cutoff;
 			
-			if(!rcb->old_dcb) {
+			if(!old_out || !new_out) {
 				return false;
 			}
-			
-			old_out = rcb->old_dcb;
-			if(!old_out->other_path) {
-				return false;
-			}
-			
-			new_out = old_out->other_path;
+
+			old_out->old_path = 1;
+			old_out->other_path = new_out;
+			new_out->other_path = old_out;
 
 			//old_out_ack_cutoff = old_out->last_ack;
 			old_out_ack_cutoff = old_out->ack_cutoff;
