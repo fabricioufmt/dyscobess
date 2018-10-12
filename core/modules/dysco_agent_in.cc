@@ -1898,8 +1898,8 @@ Packet* DyscoAgentIn::processRequestLocking(Packet* pkt, Ethernet* eth, Ipv4* ip
 		cb_out = dc->lookup_output_by_ss(this->index, &cb_in->my_sup);
 		if(!cb_out) {
 			//#ifdef DEBUG_RECONFIG
-			fprintf(stderr, "[%s] Looking for %s on output_hash... not found.\n", ns.c_str(), printSS(cb_in->my_sup));/
-				//#endif
+			fprintf(stderr, "[%s] Looking for %s on output_hash... not found.\n", ns.c_str(), printSS(cb_in->my_sup));
+			//#endif
 			DyscoLockingReconfig* dysco_locking = dc->lookup_locking_reconfig_by_ss(this->index, &cb_in->dcb_out->sup);
 
 			if(!dysco_locking) {
