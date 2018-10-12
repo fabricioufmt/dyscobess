@@ -186,6 +186,7 @@ fib:14 -> DyscoPortOut(port=R_8)
 fib:15 -> din10
 
 dyscocenter.add(priority=2, sc_len=4, chain=['10.0.1.1', '10.0.5.2', '10.0.4.2', '10.0.2.2'], filter='dst port 5001', ns='/var/run/netns/c1')
+dyscocenter.add(priority=2, sc_len=4, chain=['10.0.2.1', '10.0.6.2', '10.0.3.2', '10.0.1.2'], filter='dst port 5001', ns='/var/run/netns/s1')
 dyscocenter.add(priority=1, sc_len=2, chain=['10.0.1.1', '10.0.5.2'], filter='dst port 5002', ns='/var/run/netns/c1')
 dyscocenter.add(priority=1, sc_len=2, chain=['10.0.4.2', '10.0.2.2'], filter='dst port 5002', ns='/var/run/netns/m1')
 
