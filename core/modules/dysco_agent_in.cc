@@ -572,8 +572,7 @@ bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in, uint32_t)
 			uint32_t seq = tcp->seq_num.value();
 			uint32_t delta;
 
-			fprintf(stderr, "[%s][in_two_paths_data_seg] old_out=%s [seq_cutoff: %X] [ack_cutoff: %X]\n", ns.c_str(), printSS(old_out->sub), old_out->seq_cutoff, old_out->ack_cutoff);
-			fprintf(stderr, "[%s][in_two_paths_data_seg] cb_out=%s [seq_cutoff: %X] [ack_cutoff: %X]\n", ns.c_str(), printSS(cb_out->sub), cb_out->seq_cutoff, cb_out->ack_cutoff);
+			fprintf(stderr, "[%s][in_two_paths_data_seg] seq=%X (before)\n", ns.c_str(), seq);
 			
 			if(cb_out->in_iack < cb_out->out_iack) {
 				delta = cb_out->out_iack - cb_out->in_iack;
@@ -583,15 +582,15 @@ bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in, uint32_t)
 				seq += delta;
 			}
 
-			//fprintf(stderr, "[%s] cb_out->in_iack=%X cb_out->out_iack=%X (seq=%X)\n", ns.c_str(), cb_out->in_iack, cb_out->out_iack, seq);
+			fprintf(stderr, "[%s][in_two_paths_data_seg] seq=%X (after)\n", ns.c_str(), seq);
+			fprintf(stderr, "cb_out->in_iack=%X cb_out->out_iack=%X\n", cb_out->in_iack, cb_out->out_iack);
 			
-			if(old_out->valid_ack_cut) {				
+			if(old_out->valid_ack_cut) {
+				fprintf(stderr, "[%s] before(%X, old_out->ack_cutoff) == %u\n", ns.c_str(), seq, old_out->ack_cutoff);
 				if(before(seq, old_out->ack_cutoff)) {
-					//fprintf(stderr, "[%s] adjusting1 ack_cutoff from %X to %X.\n", ns.c_str(), old_out->ack_cutoff, seq);
 					old_out->ack_cutoff = seq;
 				}
 			} else {
-				//fprintf(stderr, "[%s] adjusting2 ack_cutoff from %X to %X.\n", ns.c_str(), old_out->ack_cutoff, seq);
 				old_out->ack_cutoff = seq;
 				old_out->valid_ack_cut = 1;
 			}	
