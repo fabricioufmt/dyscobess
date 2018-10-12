@@ -976,7 +976,7 @@ bool DyscoAgentIn::control_reconfig_in(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp
 		uint32_t ack_cutoff = ntohl(cmsg->seqCutoff);
 
 		//old_out->old_path = 1;
-		//old_out->other_path = new_out;
+		old_out->other_path = new_out;
 		cb_in->two_paths = 1;
 		old_out->dcb_in->two_paths = 1;
 
@@ -1296,7 +1296,7 @@ bool DyscoAgentIn::control_input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp,
 			new_out->other_path = old_out;
 
 			fprintf(stderr, "[%s][DYSCO_ACK] old_out=%s\n", ns.c_str(), printSS(old_out->sub));
-			fprintf(stderr, "[%s][DYSCO_ACK] new_out=%s\n", ns.c_str(), printSS(old_out->sub));
+			fprintf(stderr, "[%s][DYSCO_ACK] new_out=%s\n", ns.c_str(), printSS(new_out->sub));
 			
 			//old_out_ack_cutoff = old_out->last_ack;
 			old_out_ack_cutoff = old_out->ack_cutoff;
