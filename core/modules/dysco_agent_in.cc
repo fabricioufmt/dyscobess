@@ -571,6 +571,9 @@ bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in, uint32_t)
 		if(cb_out->state != DYSCO_CLOSED) {
 			uint32_t seq = tcp->seq_num.value();
 			uint32_t delta;
+
+			fprintf(stderr, "[%s][in_two_paths_data_seg] old_out=%s [seq_cutoff: %X] [ack_cutoff: %X]\n", ns.c_str(), printSS(old_out->sub), old_out->seq_cutoff, old_out->ack_cutoff);
+			fprintf(stderr, "[%s][in_two_paths_data_seg] cb_out=%s [seq_cutoff: %X] [ack_cutoff: %X]\n", ns.c_str(), printSS(cb_out->sub), cb_out->seq_cutoff, cb_out->ack_cutoff);
 			
 			if(cb_out->in_iack < cb_out->out_iack) {
 				delta = cb_out->out_iack - cb_out->in_iack;
@@ -930,7 +933,7 @@ bool DyscoAgentIn::control_reconfig_in(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp
 		fprintf(stderr, "It's the right anchor.\n");
 #endif
 
-		fprintf(stderr, "[%s] the cutoff receives is %X.\n", ns.c_str(), cmsg->seqCutoff);
+		fprintf(stderr, "[%s] the cutoff received is %X.\n", ns.c_str(), ntohl(cmsg->seqCutoff));
 		
 		cb_in = new DyscoHashIn();
 		cb_in->module = this;
