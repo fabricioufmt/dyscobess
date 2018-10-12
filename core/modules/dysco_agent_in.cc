@@ -1453,8 +1453,10 @@ bool DyscoAgentIn::isEstablished(Packet* pkt) {
  * Locking Signal methods
  */
 Packet* DyscoAgentIn::processLockingSignalPacket(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
-	if(!cb_in)
+	if(!cb_in) {
+		fprintf(stderr, "[%s] does not found\n", ns.c_str());
 		return 0;
+	}
 
 	DyscoTcpOption* tcpo = reinterpret_cast<DyscoTcpOption*>((uint8_t*)tcp + sizeof(Tcp));
 	uint8_t* lhop = (uint8_t*)(&tcpo->padding) + 1;
