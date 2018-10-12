@@ -167,7 +167,7 @@ bool DyscoAgentOut::doProcess(Packet* pkt, Ethernet* eth, Ipv4* ip, uint32_t ip_
 	if(!isLockingSignalPacket(tcp)) {
 		if(output(pkt, ip, tcp, cb_out))
 			out_gates[1].add(pkt);
-		 else
+		else
 			out_gates[0].add(pkt);			
 
 		return true;
@@ -549,6 +549,8 @@ bool DyscoAgentOut::output(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_out
 	}
 
 	if(cb_out) {
+		if(strcmp(ns.c_str(), "/var/run/netns/LA") == 0)
+			fprintf(stderr, "reach here\n");
 		cb_out->module = this;
 		out_translate(pkt, ip, tcp, cb_out);
 		return true;
