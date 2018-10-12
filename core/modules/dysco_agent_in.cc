@@ -987,8 +987,8 @@ bool DyscoAgentIn::control_reconfig_in(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp
 
 		old_out->ack_cutoff = ack_cutoff;
 
-		fprintf(stderr, "[%s] old_out->seq_cutoff=%X\n", ns.c_str(), old_out->seq_cutoff);
-		fprintf(stderr, "[%s] old_out->ack_cutoff=%X\n", ns.c_str(), old_out->ack_cutoff);
+		fprintf(stderr, "[%s][DYSCO_SYN] old_out=%s\n", ns.c_str(), printSS(old_out->sub));
+		fprintf(stderr, "[%s][DYSCO_SYN] new_out=%s\n", ns.c_str(), printSS(new_out->sub));
 		
 		parse_tcp_syn_opt_s(tcp, new_out);
 		
@@ -1218,11 +1218,7 @@ bool DyscoAgentIn::control_input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp,
 			if(!rcb) {
 				return false;
 			}
-
-			if(!rcb->old_dcb) {
-				return false;
-			}
-
+			
 			DyscoHashOut* new_dcb = rcb->new_dcb;
 			DyscoHashOut* old_dcb = rcb->old_dcb;
 
