@@ -591,6 +591,8 @@ bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in, uint32_t)
 					old_out->ack_cutoff = seq;
 				}
 			} else {
+				fprintf(stderr, "[%s] old_out->valid_ack_cut == 0\n", ns.c_str());
+				fprintf(stderr, "[%s] adjusting ack_cutoff to %X\n", ns.c_str(), seq);
 				old_out->ack_cutoff = seq;
 				old_out->valid_ack_cut = 1;
 			}	
