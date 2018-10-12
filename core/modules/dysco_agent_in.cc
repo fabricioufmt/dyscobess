@@ -1241,9 +1241,14 @@ bool DyscoAgentIn::control_input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp,
 			if(!rcb->old_dcb) {
 				return false;
 			}
-			
+
+			DyscoHashOut* new_dcb = rcb->new_dcb;
 			DyscoHashOut* old_dcb = rcb->old_dcb;
 
+			old_dcb->old_path = 1;
+			old_dcb->other_path = new_dcb;
+			new_dcb->other_path = old_dcb;
+			
 			if(!old_dcb->valid_ack_cut) {
 				old_dcb->valid_ack_cut = 1;
 				old_dcb->use_np_ack = 1;
@@ -1650,7 +1655,6 @@ Packet* DyscoAgentIn::createSynReconfig(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 	fprintf(stderr, "I'm going to create a SYN for a reconfiguration.\n");
 #endif
 	
-	//Packet* newpkt = Packet::copy(pkt);
 	Packet* newpkt = Packet::Alloc();
 	newpkt->set_data_off(SNBUF_HEADROOM);
 
@@ -1805,8 +1809,8 @@ Packet* DyscoAgentIn::createSynReconfig(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 
 	new_dcb->sack_ok = rcb->sack_ok;
 
-	old_dcb->other_path = new_dcb;
-	new_dcb->other_path = old_dcb;
+	//old_dcb->other_path = new_dcb;
+	//new_dcb->other_path = old_dcb;
 	new_dcb->dcb_in = insert_cb_out_reverse(new_dcb, 1, newcmsg);
 	dc->insert_hash_input(this->index, new_dcb->dcb_in);
 
@@ -1815,7 +1819,7 @@ Packet* DyscoAgentIn::createSynReconfig(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 	memcpy(&new_dcb->cmsg, newcmsg, sizeof(DyscoControlMessage));
 	new_dcb->is_reconfiguration = 1;
 
-	old_dcb->old_path = 1;
+	//old_dcb->old_path = 1;
 	//TEST
 	if(old_dcb->dcb_in)
 		old_dcb->dcb_in->two_paths = 1;
@@ -2014,7 +2018,7 @@ Packet* DyscoAgentIn::processRequestLocking(Packet* pkt, Ethernet* eth, Ipv4* ip
 			out.clear();
 			out.add(pkt);
 			cb_out->module->RunChooseModule(1, &out);
-			fprintf(stderr, "[%s] Just forwarding the LockingRequest.\n", ns.c_str());
+
 			return 0;
 		} else {
 			cb_out->is_RA = 1;
