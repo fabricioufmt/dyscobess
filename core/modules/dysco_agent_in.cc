@@ -977,7 +977,7 @@ bool DyscoAgentIn::control_reconfig_in(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp
 		DyscoHashOut* old_out = rcb->old_dcb;
 		DyscoHashOut* new_out = rcb->new_dcb;
 		//uint32_t seq_cutoff = old_out->seq_cutoff;
-		uint32_t ack_cutoff = ntohl(cmsg->seqCutoff);
+		//uint32_t ack_cutoff = ntohl(cmsg->seqCutoff);
 
 		old_out->old_path = 1;
 		old_out->other_path = new_out;
@@ -985,6 +985,7 @@ bool DyscoAgentIn::control_reconfig_in(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp
 		cb_in->two_paths = 1;
 		old_out->dcb_in->two_paths = 1;
 
+		/*
 		uint32_t delta;
 		if(new_out->in_iack < new_out->out_iack) {
 			delta = new_out->out_iack - new_out->in_iack;
@@ -995,7 +996,7 @@ bool DyscoAgentIn::control_reconfig_in(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp
 		}
 		
 		old_out->ack_cutoff = ack_cutoff;
-		
+		*/
 		parse_tcp_syn_opt_s(tcp, new_out);
 		
 		new_out->state = DYSCO_SYN_RECEIVED;
@@ -1291,7 +1292,6 @@ bool DyscoAgentIn::control_input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp,
 			
 			DyscoHashOut* old_out = rcb->old_dcb;
 			DyscoHashOut* new_out = rcb->new_dcb;
-			uint32_t old_out_ack_cutoff;
 			
 			if(!old_out || !new_out) {
 				return false;
@@ -1299,21 +1299,16 @@ bool DyscoAgentIn::control_input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp,
 
 			old_out->old_path = 1;
 
-			fprintf(stderr, "[%s] old_out=%s (old_path=%u)\n", ns.c_str(), printSS(old_out->sub), old_out->old_path);
-			fprintf(stderr, "[%s] new_out=%s (old_path=%u)\n", ns.c_str(), printSS(new_out->sub), new_out->old_path);
-			
-			//old_out_ack_cutoff = old_out->last_ack;
-			old_out_ack_cutoff = old_out->ack_cutoff;
-			
 			if(new_out->state == DYSCO_SYN_RECEIVED) {
 				new_out->state = DYSCO_ESTABLISHED;
 			}
-			
+
+			/*
 			if(!old_out->state_t) {
 				old_out->ack_cutoff = old_out_ack_cutoff;
 				old_out->valid_ack_cut = 1;
 			}
-
+			*/
 			return false;
 		}
 #ifdef DEBUG_RECONFIG
