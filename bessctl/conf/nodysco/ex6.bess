@@ -94,25 +94,67 @@ os.system('ip netns exec nat iptables -t filter -A FORWARD -i nat-ext -o nat-int
 os.system('ip netns exec nat iptables -t filter -A FORWARD -i nat-int -o nat-ext -j ACCEPT > /dev/null')
 os.system('ip netns exec nat bash -c "echo 1 > /proc/sys/net/netfilter/nf_conntrack_tcp_be_liberal"')
 
+fib::L2Forward()
+fib.add(entries=[
+	{'addr': '00:00:00:00:00:11', 'gate': 0},
+	{'addr': '00:00:00:00:00:12', 'gate': 1},
+	{'addr': '00:00:00:00:00:21', 'gate': 2},
+	{'addr': '00:00:00:00:00:22', 'gate': 3},
+	{'addr': '00:00:00:00:00:31', 'gate': 4},
+	{'addr': '00:00:00:00:00:32', 'gate': 5},
+	{'addr': '00:00:00:00:00:41', 'gate': 6},
+	{'addr': '00:00:00:00:00:42', 'gate': 7},
+	{'addr': '00:00:00:00:00:51', 'gate': 8},
+	{'addr': '00:00:00:00:00:52', 'gate': 9},
+	{'addr': '00:00:00:00:00:61', 'gate': 10},
+	{'addr': '00:00:00:00:00:62', 'gate': 11},	
+	{'addr': '00:00:00:00:00:71', 'gate': 12},
+	{'addr': '00:00:00:00:00:72', 'gate': 13},
+	{'addr': '00:00:00:00:00:81', 'gate': 14},
+	{'addr': '00:00:00:00:00:82', 'gate': 15},
+	# For NAT
+	{'addr': '00:00:00:00:00:01', 'gate': 16},
+	{'addr': '00:00:00:00:00:02', 'gate': 17},
+	])
+
 bess.pause_all()
 
-PortInc(port=c1_0) -> PortOut(port=LA_0)
-PortInc(port=s1_0) -> PortOut(port=RA_0)
-PortInc(port=LA_0) -> PortOut(port=c1_0)
-PortInc(port=RA_0) -> PortOut(port=s1_0)
-PortInc(port=LA_1) -> PortOut(port=nat_int)
-PortInc(port=RA_1) -> PortOut(port=R_4)
-PortInc(port=m1_0) -> PortOut(port=R_5)
-PortInc(port=m1_1) -> PortOut(port=R_6)
-PortInc(port=m2_0) -> PortOut(port=R_7)
-PortInc(port=m2_1) -> PortOut(port=R_8)
-PortInc(port=R_3) -> PortOut(port=nat_ext)
-PortInc(port=R_4) -> PortOut(port=RA_1)
-PortInc(port=R_5) -> PortOut(port=m1_0)
-PortInc(port=R_6) -> PortOut(port=m1_1)
-PortInc(port=R_7) -> PortOut(port=m2_0)
-PortInc(port=R_8) -> PortOut(port=m2_1)
-PortInc(port=nat_int) -> PortOut(port=LA_1)
-PortInc(port=nat_ext) -> PortOut(port=R_3)
+PortInc(port=c1_0) -> fib
+PortInc(port=s1_0) -> fib
+PortInc(port=LA_0) -> fib
+PortInc(port=RA_0) -> fib
+PortInc(port=LA_1) -> fib
+PortInc(port=RA_1) -> fib
+PortInc(port=m1_0) -> fib
+PortInc(port=m1_1) -> fib
+PortInc(port=m2_0) -> fib
+PortInc(port=m2_1) -> fib
+PortInc(port=R_3) -> fib
+PortInc(port=R_4) -> fib
+PortInc(port=R_5) -> fib
+PortInc(port=R_6) -> fib
+PortInc(port=R_7) -> fib
+PortInc(port=R_8) -> fib
+PortInc(port=nat_int) -> fib
+PortInc(port=nat_ext) -> fib
+
+fib:0 -> PortOut(port=LA_0)
+fib:1 -> PortOut(port=c1_0)
+fib:2 -> PortOut(port=RA_0)
+fib:3 -> PortOut(port=s1_0)
+fib:4 -> DyscoPortOut(port=R_3)
+fib:5 -> PortOut(port=nat_ext)
+fib:6 -> PortOut(port=R_4)
+fib:7 -> PortOut(port=RA_1)
+fib:8 -> PortOut(port=R_5)
+fib:9 -> PortOut(port=m1_0)
+fib:10 -> PortOut(port=R_6)
+fib:11 -> PortOut(port=m1_1)
+fib:12 -> PortOut(port=R_7)
+fib:13 -> PortOut(port=m2_0)
+fib:14 -> PortOut(port=R_8)
+fib:15 -> PortOut(port=m2_1)
+fib:16 -> PortOut(port=nat_int)
+fib:17 -> PortOut(port=LA_1)
 
 bess.resume_all()
