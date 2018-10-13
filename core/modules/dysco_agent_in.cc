@@ -143,9 +143,9 @@ bool DyscoAgentIn::processReceivedPacket(Tcp* tcp) {
 	LNode<Packet>* node = received_hash->operator[](key);
 	if(node && !node->isRemoved) {
 		agent->remove(node);
-		mtx.lock();
+		//mtx.lock();
 		received_hash->erase(key);
-		mtx.unlock();
+		//mtx.unlock();
 		
 		return true;
 	}
@@ -1756,11 +1756,11 @@ Packet* DyscoAgentIn::createSynReconfig(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 	new_dcb->state = DYSCO_SYN_SENT;
 	
 	LNode<Packet>* node = agent->forward(newpkt, true);
-
+	fprintf(stderr, "[%s] calling agent->forward to SYN Reconfig\n", ns.c_str());
 	uint32_t j = newtcp->seq_num.value() + 1;
-	mtx.lock();
+	//mtx.lock();
 	received_hash->operator[](j) = node;
-	mtx.unlock();
+	//mtx.unlock();
 
 	return 0;
 }
