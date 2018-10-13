@@ -1582,9 +1582,7 @@ Packet* DyscoAgentIn::createLockingPacket(Packet*, Ethernet* eth, Ipv4* ip, Tcp*
 
 
 Packet* DyscoAgentIn::createSynReconfig(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp, DyscoControlMessage* cmsg) {
-#ifdef DEBUG_RECONFIG
 	fprintf(stderr, "I'm going to create a SYN for a reconfiguration.\n");
-#endif
 	
 	Packet* newpkt = Packet::Alloc();
 	newpkt->set_data_off(SNBUF_HEADROOM);
@@ -1597,15 +1595,13 @@ Packet* DyscoAgentIn::createSynReconfig(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 	DyscoHashIn* cb_in = dc->lookup_input_by_ss(this->index, &cmsg->my_sub);
 	
 	if(!cb_in) {
-#ifdef DEBUG_RECONFIG
 		fprintf(stderr, "I'm looking for %s on input_hash... not found.\n", printSS(cmsg->my_sub));
-#endif
+		
 		cb_in = dc->lookup_input_by_ss(this->index, &cmsg->neigh_sub);
 
 		if(!cb_in) {
-#ifdef DEBUG_RECONFIG
 			fprintf(stderr, "I'm looking for %s on input_hash... not found... now dropping.\n", printSS(cmsg->neigh_sub));
-#endif
+			
 			return 0;
 		}
 	}
@@ -2024,9 +2020,8 @@ Packet* DyscoAgentIn::processAckLocking(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 		
 	case DYSCO_REQUEST_LOCK:
 		if(cb_out->is_LA) {
-#ifdef DEBUG_RECONFIG
 			fprintf(stderr, "I'm the LeftAnchor... starting reconfiguration.\n\n");
-#endif
+
 			tcp->checksum++; //due cmsg->lhop--
 			cb_out->lock_state = DYSCO_ACK_LOCK;
 			cb_in->dcb_out->lock_state = DYSCO_ACK_LOCK;
@@ -2035,9 +2030,8 @@ Packet* DyscoAgentIn::processAckLocking(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 
 			return 0;
 		} else {
-#ifdef DEBUG_RECONFIG
 			fprintf(stderr, "I'm not the LeftAnchor... forwarding the DYSCO_ACK_LOCK.\n\n");
-#endif
+			
 			eth->src_addr = cb_out->mac_sub.src_addr;
 			eth->dst_addr = cb_out->mac_sub.dst_addr;
 			*((uint32_t*)(&ip->src)) = cb_out->sub.sip;
@@ -2053,9 +2047,9 @@ Packet* DyscoAgentIn::processAckLocking(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 
 				memcpy(sc, cb_out->sc, sc_sz);
 				ip->length = ip->length + be16_t(sc_sz);
-#ifdef DEBUG_RECONFIG
+
 				fprintf(stderr, "I'm going to append %d ip addresses on SYN+ACK payload.\n", cb_out->sc_len);
-#endif
+				
 				DyscoTcpSession ss;
 				ss.sip = cb_in->my_sup.dip;
 				ss.dip = cb_in->my_sup.sip;
