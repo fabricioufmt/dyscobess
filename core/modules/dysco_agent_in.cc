@@ -85,7 +85,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 		tcp = reinterpret_cast<Tcp*>((uint8_t*)ip + ip_hlen);
 
 		cb_in = dc->lookup_input(this->index, ip, tcp);
-		removed = processReceivedPacket(tcp);
+		removed = processReceivedPacket(ip, tcp);
 
 		if(tcp->flags == Tcp::kFin)
 			fprintf(stderr, "[%s][DyscoAgentIn] receives %s FIN segment [%X:%X]\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.value(), tcp->ack_num.value());

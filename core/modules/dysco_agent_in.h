@@ -112,7 +112,7 @@ class DyscoAgentIn final : public Module {
 	 */
 	Packet* createSynReconfig(Packet*, Ethernet*, Ipv4*, Tcp*, DyscoControlMessage*);
 
-	bool processReceivedPacket(Tcp*);
+	bool processReceivedPacket(Ipv4*, Tcp*);
 	Packet* createFinPacket(DyscoHashOut*);
 };
 
