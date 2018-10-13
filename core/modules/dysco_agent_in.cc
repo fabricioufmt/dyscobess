@@ -2019,9 +2019,9 @@ Packet* DyscoAgentIn::processAckLocking(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 
 				memcpy(sc, cb_out->sc, sc_sz);
 				ip->length = ip->length + be16_t(sc_sz);
-#ifdef DEBUG_RECONFIG
-				fprintf(stderr, "I'm going to append %d ip addresses on SYN+ACK payload.\n", cb_out->sc_len);
-#endif		
+				//#ifdef DEBUG_RECONFIG
+					fprintf(stderr, "I'm going to append %d ip addresses on SYN+ACK payload (sz=%X).\n", cb_out->sc_len, sc_sz);
+				//#endif		
 				DyscoTcpSession ss;
 				ss.sip = cb_in->my_sup.dip;
 				ss.dip = cb_in->my_sup.sip;
@@ -2091,7 +2091,7 @@ Packet* DyscoAgentIn::createAckLocking(Packet*, Ethernet* eth, Ipv4* ip, Tcp* tc
 	newtcp->src_port = tcp->dst_port;
 	newtcp->dst_port = tcp->src_port;
 	newtcp->seq_num = be32_t(rand());
-	newtcp->ack_num = tcp->seq_num + be32_t(hasPayload(ip, tcp) + 1);
+	newtcp->ack_num = be32_t(tcp->seq_num.value() + hasPayload(ip, tcp) + 1);
 	fprintf(stderr, "ack_num = %X\n", newtcp->ack_num.value());
 	newtcp->reserved = 0;
 	newtcp->offset = 5;
