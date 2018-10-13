@@ -2000,9 +2000,9 @@ Packet* DyscoAgentIn::processAckLocking(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 
 			return 0;
 		} else {
-			//#ifdef DEBUG_RECONFIG
-			fprintf(stderr, "I'm not the LeftAnchor... forwarding the DYSCO_ACK_LOCK ack=%X.\n\n", tcp->ack_num.value());
-			//#endif	
+#ifdef DEBUG_RECONFIG
+			fprintf(stderr, "I'm not the LeftAnchor... forwarding the DYSCO_ACK_LOCK.\n\n");
+#endif	
 			eth->src_addr = cb_out->mac_sub.src_addr;
 			eth->dst_addr = cb_out->mac_sub.dst_addr;
 			*((uint32_t*)(&ip->src)) = cb_out->sub.sip;
@@ -2044,6 +2044,8 @@ Packet* DyscoAgentIn::processAckLocking(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 			out.clear();
 			out.add(pkt);
 			cb_out->module->RunChooseModule(1, &out);
+
+			fprintf(stderr, "I'm not the LeftAnchor... forwarding the DYSCO_ACK_LOCK ack=%X (-payload = %X).\n\n", tcp->ack_num.value(), tcp->ack_num.value()-hasPayload(ip, tcp));
 			
 			return 0;
 		}
