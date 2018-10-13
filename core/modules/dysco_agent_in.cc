@@ -86,6 +86,9 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 
 		cb_in = dc->lookup_input(this->index, ip, tcp);
 		removed = processReceivedPacket(tcp);
+
+		if(tcp->flags == Tcp::kFin) {
+			fprintf(stderr, "[%s][DyscoAgentIn] receives FIN segments\n", ns.c_str());
 		
 		if(isLockingSignalPacket(tcp)) {
 			//fprintf(stderr, "[%s] Receives Locking Signal Packet.\n", ns.c_str());
@@ -1224,6 +1227,9 @@ bool DyscoAgentIn::control_input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp,
 			}
 
 			agent->forward(pkt);
+
+			Packet* finpkt = createFinPacket(old_dcb);
+			agent->forward(finpkt, true);
 			
 			return false;
 		} else {
@@ -1401,6 +1407,48 @@ void DyscoAgentIn::createFinAck(Packet* pkt, Ipv4* ip, Tcp* tcp) {
 	fix_csum(ip, tcp);
 }
 
+Packet* DyscoAgentIn::createFinPacket(DyscoHashOut* cb_out) {
+	Packet* pkt = Packet::Alloc();
+	pkt->set_data_off(SNBUF_HEADROOM);
+
+	uint16_t size = sizeof(Ethernet) + sizeof(Ipv4) + sizeof(Tcp);
+
+	pkt->set_data_len(size);
+	pkt->set_total_len(size);
+
+	Ethernet* eth = pkt->head_data<Ethernet*>();
+	eth->dst_addr = cb_out->mac_sub.dst_addr;
+	eth->src_addr = cb_out->mac_sub.src_addr;
+	eth->ether_type = be16_t(Ethernet::Type::kIpv4);
+
+	Ipv4* ip = reinterpret_cast<Ipv4*>(eth + 1);
+	ip->version = 4;
+	ip->header_length = 5;
+	ip->type_of_service = 0;
+	ip->length = be16_t(size - sizeof(Ethernet));
+	ip->id = be16_t(rand());
+	ip->fragment_offset = be16_t(0);
+	ip->ttl = TTL;
+	ip->protocol = Ipv4::kTcp;
+	*((uint32_t*)(&ip->src)) = cb_out->sub.sip;
+	*((uint32_t*)(&ip->dst)) = cb_out->sub.dip;
+
+	Tcp* tcp = reinterpret_cast<Tcp*>(ip + 1);
+	*((uint16_t*)(&tcp->src_port)) = cb_out->sub.sport;
+	*((uint16_t*)(&tcp->dst_port)) = cb_out->sub.dport;
+	tcp->seq_num = be32_t(cb_out->last_seq);
+	tcp->ack_num = be32_t(cb_out->last_ack);
+	newtcp->offset = 5;
+	newtcp->reserved = 0;
+	newtcp->flags = Tcp::kFin;
+	newtcp->window = be16_t(65535);
+	newtcp->urgent_ptr = be16_t(0);
+
+	fix_csum(ip, tcp);
+
+	return pkt;
+}
+
 /*
   - remove TCP Option
   - increase Packet buffer (sizeof(DyscoControlMessage))
@@ -1552,8 +1600,9 @@ Packet* DyscoAgentIn::createLockingPacket(Packet*, Ethernet* eth, Ipv4* ip, Tcp*
 
 
 Packet* DyscoAgentIn::createSynReconfig(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp, DyscoControlMessage* cmsg) {
+#ifdef DEBUG_RECONFIG
 	fprintf(stderr, "I'm going to create a SYN for a reconfiguration.\n");
-	
+#endif
 	Packet* newpkt = Packet::Alloc();
 	newpkt->set_data_off(SNBUF_HEADROOM);
 
@@ -1918,8 +1967,9 @@ Packet* DyscoAgentIn::processAckLocking(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 		
 	case DYSCO_REQUEST_LOCK:
 		if(cb_out->is_LA) {
+#ifdef DEBUG_RECONFIG
 			fprintf(stderr, "I'm the LeftAnchor... starting reconfiguration.\n\n");
-
+#endif
 			tcp->checksum++; //due cmsg->lhop--
 			cb_out->lock_state = DYSCO_ACK_LOCK;
 			cb_in->dcb_out->lock_state = DYSCO_ACK_LOCK;
@@ -1928,8 +1978,9 @@ Packet* DyscoAgentIn::processAckLocking(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 
 			return 0;
 		} else {
+#ifdef DEBUG_RECONFIG
 			fprintf(stderr, "I'm not the LeftAnchor... forwarding the DYSCO_ACK_LOCK.\n\n");
-			
+#endif	
 			eth->src_addr = cb_out->mac_sub.src_addr;
 			eth->dst_addr = cb_out->mac_sub.dst_addr;
 			*((uint32_t*)(&ip->src)) = cb_out->sub.sip;
@@ -1945,9 +1996,9 @@ Packet* DyscoAgentIn::processAckLocking(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 
 				memcpy(sc, cb_out->sc, sc_sz);
 				ip->length = ip->length + be16_t(sc_sz);
-
+#ifdef DEBUG_RECONFIG
 				fprintf(stderr, "I'm going to append %d ip addresses on SYN+ACK payload.\n", cb_out->sc_len);
-				
+#endif		
 				DyscoTcpSession ss;
 				ss.sip = cb_in->my_sup.dip;
 				ss.dip = cb_in->my_sup.sip;

@@ -503,7 +503,7 @@ void DyscoAgentOut::out_translate(Packet*, Ipv4* ip, Tcp* tcp, DyscoHashOut* cb_
 		}
 	}
 
-	cb->last_seq = tcp->seq_num.value();
+	cb->last_seq = seq;
 	cb->last_ack = tcp->ack_num.value();
 	
 	hdr_rewrite_csum(ip, tcp, &cb->sub);
