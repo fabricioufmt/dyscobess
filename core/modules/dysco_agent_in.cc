@@ -137,8 +137,14 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 	RunChooseModule(0, &out);
 }
 
-bool DyscoAgentIn::processReceivedPacket(Tcp* tcp) {
+bool DyscoAgentIn::processReceivedPacket(Ipv4* ip, Tcp* tcp) {
 	uint32_t key = tcp->ack_num.value();
+
+	if(tcp->flags == (Tcp::kSyn | Tcp::kAck) && hasPayload(ip, tcp)) {
+		DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>(getPayload(tcp));
+		if(cmsg->type == DYSCO_LOCK)
+			key -= hasPayload(ip, tcp);
+	}
 
 	LNode<Packet>* node = received_hash->operator[](key);
 	if(node && !node->isRemoved) {
