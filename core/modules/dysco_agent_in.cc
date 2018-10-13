@@ -88,7 +88,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 		removed = processReceivedPacket(tcp);
 
 		if(tcp->flags == Tcp::kFin)
-			fprintf(stderr, "[%s][DyscoAgentIn] receives FIN segments\n", ns.c_str());
+			fprintf(stderr, "[%s][DyscoAgentIn] receives %s FIN segment [%X:%X]\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.value(), tcp->ack_num.value());
 		
 		if(isLockingSignalPacket(tcp)) {
 			//fprintf(stderr, "[%s] Receives Locking Signal Packet.\n", ns.c_str());
@@ -125,6 +125,8 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 			if(input(pkt, ip, tcp, cb_in)) {
 				out.add(pkt);
 			}
+			if(tcp->flags == Tcp::kFin)
+				fprintf(stderr, "[%s][DyscoAgentIn] forwards %s FIN segment [%X:%X]\n\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.value(), tcp->ack_num.value());
 #ifdef DEBUG
 			fprintf(stderr, "[%s][DyscoAgentIn] forwards %s [%X:%X]\n\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.raw_value(), tcp->ack_num.raw_value());
 #endif
