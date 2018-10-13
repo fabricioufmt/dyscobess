@@ -29,7 +29,8 @@ void timer_worker(DyscoAgentOut* agent) {
 			//delta += 1000; //1ms
 			continue;
 		}
-
+		if(strcmp(agent->getNs(), "/var/run/netns/LA") == 0)
+			fprintf(stderr, "[/var/run/netns/LA] list: %u\n", list->size());
 		//delta = 0;
 		tail = list->getTail();
 		now_ts = tsc_to_ns(rdtsc());
