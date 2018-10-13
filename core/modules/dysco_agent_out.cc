@@ -231,13 +231,6 @@ bool DyscoAgentOut::doProcess(Packet* pkt, Ethernet* eth, Ipv4* ip, uint32_t ip_
 		DyscoLockingReconfig* dysco_locking = new DyscoLockingReconfig();
 		dysco_locking->cb_out_left = cb_out;
 		dysco_locking->cb_out_right = dc->lookup_output_by_ss(this->index, &cmsg->rightSS);
-
-		fprintf(stderr, "[%s][DyscoAgentOut] dysco_locking->cb_out_left = %s\n", ns.c_str(), printSS(cb_out->sub));
-		if(dysco_locking->cb_out_right)
-			fprintf(stderr, "[%s][DyscoAgentOut] dysco_locking->cb_out_right = %s\n", ns.c_str(), printSS(dysco_locking->cb_out_right->sub));
-
-		fprintf(stderr, "[%s][DyscoAgentOut] looking for %s to set for cb_out_right\n", ns.c_str(), printSS(cmsg->rightSS));
-		
 		dysco_locking->leftSS = cmsg->leftSS;
 		dysco_locking->rightSS = cmsg->rightSS;
 		

@@ -88,9 +88,8 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 		removed = processReceivedPacket(tcp);
 		
 		if(isLockingSignalPacket(tcp)) {
-#ifdef DEBUG_RECONFIG
 			fprintf(stderr, "[%s] Receives Locking Signal Packet.\n", ns.c_str());
-#endif
+			
 			newpkt = processLockingSignalPacket(pkt, eth, ip, tcp, cb_in);
 			if(newpkt) {
 				agent->forward(newpkt, true);
@@ -100,9 +99,8 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 				continue;
 			}
 		} else if(isLockingPacket(ip, tcp)) {
-#ifdef DEBUG_RECONFIG
 			fprintf(stderr, "[%s] Receives Locking Packet.\n", ns.c_str());
-#endif
+
 			newpkt = processLockingPacket(pkt, eth, ip, tcp);
 			if(newpkt) {
 				agent->forward(newpkt);
@@ -110,9 +108,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 				continue;
 			}
 		} else if(isReconfigPacket(ip, tcp, cb_in)) {
-#ifdef DEBUG_RECONFIG
 			fprintf(stderr, "[%s] Receives Reconfig Packet.\n", ns.c_str());
-#endif
 
 			if(control_input(pkt, eth, ip, tcp, cb_in)) {
 				out.add(pkt);
