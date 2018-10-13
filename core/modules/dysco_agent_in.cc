@@ -91,7 +91,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 			fprintf(stderr, "[%s][DyscoAgentIn] receives %s FIN segment [%X:%X]\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.value(), tcp->ack_num.value());
 		
 		if(isLockingSignalPacket(tcp)) {
-			//fprintf(stderr, "[%s] Receives Locking Signal Packet.\n", ns.c_str());
+			fprintf(stderr, "[%s] Receives Locking Signal Packet.\n", ns.c_str());
 			
 			newpkt = processLockingSignalPacket(pkt, eth, ip, tcp, cb_in);
 			if(newpkt) {
@@ -102,7 +102,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 				continue;
 			}
 		} else if(isLockingPacket(ip, tcp)) {
-			//fprintf(stderr, "[%s] Receives Locking Packet.\n", ns.c_str());
+			fprintf(stderr, "[%s] Receives Locking Packet.\n", ns.c_str());
 
 			newpkt = processLockingPacket(pkt, eth, ip, tcp);
 			if(newpkt) {
@@ -111,7 +111,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 				continue;
 			}
 		} else if(isReconfigPacket(ip, tcp, cb_in)) {
-			//fprintf(stderr, "[%s] Receives Reconfig Packet.\n", ns.c_str());
+			fprintf(stderr, "[%s] Receives Reconfig Packet.\n", ns.c_str());
 
 			if(control_input(pkt, eth, ip, tcp, cb_in)) {
 				out.add(pkt);
