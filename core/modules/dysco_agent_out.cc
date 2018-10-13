@@ -313,11 +313,7 @@ uint32_t DyscoAgentOut::out_rewrite_ack(Tcp* tcp, DyscoHashOut* cb_out) {
 
 		if(cb_out->sack_ok)
 			tcp_sack(tcp, cb_out->ack_delta, cb_out->ack_add);
-#ifdef DEBUG_RECONFIG
-		if(strcmp(ns.c_str(), "/var/run/netns/RA") == 0) {
-			fprintf(stderr, "[%s] rewrite_ack from %X to %X (ack_delta=%X)\n", ns.c_str(), ack, new_ack, cb_out->ack_delta);
-		}
-#endif
+		
 		tcp->ack_num = be32_t(new_ack);
 
 		return ChecksumIncrement32(htonl(ack), htonl(new_ack));

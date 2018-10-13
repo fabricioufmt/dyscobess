@@ -1448,6 +1448,11 @@ Packet* DyscoAgentIn::createFinPacket(DyscoHashOut* cb_out) {
 
 	fix_csum(ip, tcp);
 	fprintf(stderr, "[%s] created FIN segment\n", ns.c_str());
+	fprintf(stderr, "[%s] MAC_DST: %s -- MAC_SRC: %s\n", ns.c_str(), eth->dst_addr.ToString().c_str(), eth->src_addr.ToString().c_str());
+	fprintf(stderr, "[%s] PacketSS: %s\n", ns.c_str(), printPacketSS(ip, tcp));
+
+	
+	
 	return pkt;
 }
 
