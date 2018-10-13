@@ -123,18 +123,8 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 				out.add(pkt);
 			}
 #ifdef DEBUG
-			//			if(strcmp(ns.c_str(), "/var/run/netns/LA") == 0 || strcmp(ns.c_str(), "/var/run/netns/RA") == 0)
 			fprintf(stderr, "[%s][DyscoAgentIn] forwards %s [%X:%X]\n\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.raw_value(), tcp->ack_num.raw_value());
 #endif
-
-			/*
-#ifdef DEBUG_RECONFIG
-			if(strcmp(ns.c_str(), "/var/run/netns/RA") == 0) {
-				if(ip->dst.raw_value() == inet_addr("10.0.2.2"))
-					fprintf(stderr, "[%s][DyscoAgentIn] forwards %s [%X:%X] (len: %u).\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.raw_value(), tcp->ack_num.raw_value(), hasPayload(ip, tcp));
-			}
-#endif
-			*/
 		}
 	}
 	
@@ -147,9 +137,6 @@ bool DyscoAgentIn::processReceivedPacket(Tcp* tcp) {
 
 	LNode<Packet>* node = received_hash->operator[](key);
 	if(node && !node->isRemoved) {
-#ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[%s] Removes from retransmission list.\n", ns.c_str());
-#endif
 		agent->remove(node);
 		mtx.lock();
 		received_hash->erase(key);
@@ -1830,55 +1817,30 @@ Packet* DyscoAgentIn::processRequestLocking(Packet* pkt, Ethernet* eth, Ipv4* ip
 	
 	cmsg->rhop--;
 	if(cmsg->rhop > 0) {
-		//#ifdef DEBUG_RECONFIG
+#ifdef DEBUG_RECONFIG
 		fprintf(stderr, "[%s] I'm not the RightAnchor.\n", ns.c_str());
-		//#endif
+#endif
 		cb_out = dc->lookup_output_by_ss(this->index, &cb_in->my_sup);
 		if(!cb_out) {
-			//#ifdef DEBUG_RECONFIG
-			fprintf(stderr, "[%s] Looking for %s on output_hash... not found.\n", ns.c_str(), printSS(cb_in->my_sup));
-			//#endif
 			DyscoLockingReconfig* dysco_locking = dc->lookup_locking_reconfig_by_ss(this->index, &cb_in->dcb_out->sup);
 
-			if(!dysco_locking) {
-#ifdef DEBUG_RECONFIG
-				fprintf(stderr, "[%s] Trying to lookup for %s on lockingreconfig_hash... not found.\n", ns.c_str(), printSS(cb_in->dcb_out->sup));
-#endif
-			} else {
-				if(dysco_locking->cb_out_left)
-					fprintf(stderr, "[%s]dysco_locking->cb_out_left = %s\n",
-					ns.c_str(), printSS(dysco_locking->cb_out_left->sub));
-				if(dysco_locking->cb_out_right)
-					fprintf(stderr, "[%s]dysco_locking->cb_out_right = %s\n",
-					ns.c_str(), printSS(dysco_locking->cb_out_right->sub));
-				fprintf(stderr, "[%s] dysco_locking printed\n", ns.c_str());
+			if(dysco_locking)
 				cb_out = dysco_locking->cb_out_right;
-			}
 		}
 	} else {
-		//#ifdef DEBUG_RECONFIG
+#ifdef DEBUG_RECONFIG
 		fprintf(stderr, "[%s] I'm the RightAnchor.\n", ns.c_str());
-		//#endif
+#endif
 		cb_out = cb_in->dcb_out;
 	}
 			
 	if(!cb_out) {
-		//#ifdef DEBUG_RECONFIG
-		fprintf(stderr, "[%s] ERROR: cb_out not found... dropping.\n", ns.c_str());
-		//#endif
+#ifdef DEBUG_RECONFIG
+		fprintf(stderr, "[%s][processRequestLocking] ERROR: cb_out not found... dropping.\n", ns.c_str());
+#endif
 		return 0;
 	}
-	/*
-#ifdef DEBUG_RECONFIG
-	fprintf(stderr, "cmsg->lhop: %u\n", cmsg->lhop);
-	fprintf(stderr, "cmsg->rhop: %u\n", cmsg->rhop);
-	fprintf(stderr, "State: %d\n", cb_out->state);
-	fprintf(stderr, "Lock State: %d\n",  cb_out->lock_state);
-	fprintf(stderr, "cb_out->sup: %s\n", printSS(cb_out->sup));
-	fprintf(stderr, "cb_out->sub: %s\n", printSS(cb_out->sub));
-	fprintf(stderr, "cb_out->is_signaler: %u\n", cb_out->is_signaler);
-#endif
-	*/
+	
 	switch(cb_out->lock_state) {
 	case DYSCO_CLOSED_LOCK:
 	case DYSCO_REQUEST_LOCK:
@@ -1943,21 +1905,11 @@ Packet* DyscoAgentIn::processAckLocking(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 			
 	if(!cb_out) {
 #ifdef DEBUG_RECONFIG
-		fprintf(stderr, "ERROR: cb_out not found... dropping.\n");
+		fprintf(stderr, "[%s][processAckLocking] ERROR: cb_out not found... dropping.\n", ns.c_str());
 #endif
 		return 0;
 	}
-	/*
-#ifdef DEBUG_RECONFIG
-	fprintf(stderr, "cmsg->lhop: %u\n", cmsg->lhop);
-	fprintf(stderr, "cmsg->rhop: %u\n", cmsg->rhop);
-	fprintf(stderr, "State: %d\n", cb_out->state);
-	fprintf(stderr, "Lock State: %d\n",  cb_out->lock_state);
-	fprintf(stderr, "cb_out->sup: %s\n", printSS(cb_out->sup));
-	fprintf(stderr, "cb_out->sub: %s\n", printSS(cb_out->sub));
-	fprintf(stderr, "cb_out->is_signaler: %u\n", cb_out->is_signaler);
-#endif
-	*/
+	
 	switch(cb_out->lock_state) {
 	case DYSCO_CLOSED_LOCK:
 	case DYSCO_NACK_LOCK:
