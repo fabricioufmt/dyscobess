@@ -1760,7 +1760,8 @@ Packet* DyscoAgentIn::createSynReconfig(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 
 	new_dcb->state = DYSCO_SYN_SENT;
 	
-	LNode<Packet>* node = agent->forward(newpkt, true);
+	//LNode<Packet>* node = agent->forward(newpkt, true);
+	agent->forward(newpkt, true);
 	fprintf(stderr, "[%s] calling agent->forward to SYN Reconfig\n", ns.c_str());
 	//uint32_t j = newtcp->seq_num.value() + 1;
 	//mtx.lock();
