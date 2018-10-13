@@ -160,8 +160,7 @@ bool DyscoAgentIn::processReceivedPacket(Ipv4* ip, Tcp* tcp) {
 		
 		return true;
 	}
-	if(strcmp(ns.c_str(), "/var/run/netns/LA") == 0)
-		fprintf(stderr, "[%s] not found key=%X\n", ns.c_str(), key);
+
 	return false;
 }
 
@@ -2019,9 +2018,10 @@ Packet* DyscoAgentIn::processAckLocking(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 
 				memcpy(sc, cb_out->sc, sc_sz);
 				ip->length = ip->length + be16_t(sc_sz);
-				//#ifdef DEBUG_RECONFIG
-					fprintf(stderr, "I'm going to append %d ip addresses on SYN+ACK payload (sz=%X).\n", cb_out->sc_len, sc_sz);
-				//#endif		
+				tcp->ack_num = tcp->ack_num + be32_t(sc_sz);
+#ifdef DEBUG_RECONFIG
+					fprintf(stderr, "I'm going to append %d ip addresses on SYN+ACK payload.\n", cb_out->sc_len);
+#endif		
 				DyscoTcpSession ss;
 				ss.sip = cb_in->my_sup.dip;
 				ss.dip = cb_in->my_sup.sip;
