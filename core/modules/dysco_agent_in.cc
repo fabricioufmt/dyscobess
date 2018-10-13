@@ -1565,8 +1565,9 @@ Packet* DyscoAgentIn::createLockingPacket(Packet*, Ethernet* eth, Ipv4* ip, Tcp*
 	Ipv4* newip = reinterpret_cast<Ipv4*>(neweth + 1);
 	newip->version = 4;
 	newip->header_length = 5;
-	newip->type_of_service = ip->type_of_service;
-	newip->length = ip->length - be16_t(tcpo->len) + be16_t(sizeof(DyscoControlMessage));
+	newip->type_of_service = 0;
+	//newip->length = ip->length - be16_t(tcpo->len) + be16_t(sizeof(DyscoControlMessage));
+	newip->length = be16_t(size - sizeof(Ethernet));
 	newip->id = be16_t(rand());
 	newip->fragment_offset = be16_t(0);
 	newip->ttl = TTL;
