@@ -149,7 +149,9 @@ bool DyscoAgentIn::processReceivedPacket(Ipv4* ip, Tcp* tcp) {
 	}
 
 	LNode<Packet>* node = received_hash->operator[](key);
+
 	if(node && !node->isRemoved) {
+		fprintf(stderr, "[%s] found and removing key=%X\n", ns.c_str(), key);
 		agent->remove(node);
 		//mtx.lock();
 		received_hash->erase(key);
@@ -157,7 +159,7 @@ bool DyscoAgentIn::processReceivedPacket(Ipv4* ip, Tcp* tcp) {
 		
 		return true;
 	}
-
+	fprintf(stderr, "[%s] not found key=%X\n", ns.c_str(), key);
 	return false;
 }
 
