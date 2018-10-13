@@ -1955,9 +1955,9 @@ Packet* DyscoAgentIn::processAckLocking(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 	}
 			
 	if(!cb_out) {
-#ifdef DEBUG_RECONFIG
+		//#ifdef DEBUG_RECONFIG
 		fprintf(stderr, "[%s][processAckLocking] ERROR: cb_out not found... dropping.\n", ns.c_str());
-#endif
+		//#endif
 		return 0;
 	}
 	
@@ -1969,9 +1969,9 @@ Packet* DyscoAgentIn::processAckLocking(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 		
 	case DYSCO_REQUEST_LOCK:
 		if(cb_out->is_LA) {
-#ifdef DEBUG_RECONFIG
+			//#ifdef DEBUG_RECONFIG
 			fprintf(stderr, "I'm the LeftAnchor... starting reconfiguration.\n\n");
-#endif
+			//#endif
 			tcp->checksum++; //due cmsg->lhop--
 			cb_out->lock_state = DYSCO_ACK_LOCK;
 			cb_in->dcb_out->lock_state = DYSCO_ACK_LOCK;
