@@ -1575,7 +1575,6 @@ Packet* DyscoAgentIn::createLockingPacket(Packet*, Ethernet* eth, Ipv4* ip, Tcp*
 	newtcp->src_port = be16_t(rand());
 	newtcp->dst_port = be16_t(rand());
 	newtcp->seq_num = be32_t(rand());
-	fprintf(stderr, "new locking packet=%X\n", newtcp->seq_num.value());
 	newtcp->ack_num = be32_t(0);
 	newtcp->offset = 5;
 	newtcp->reserved = 0;
@@ -1772,7 +1771,7 @@ Packet* DyscoAgentIn::createSynReconfig(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 	
 	//LNode<Packet>* node = agent->forward(newpkt, true);
 	agent->forward(newpkt, true);
-	fprintf(stderr, "[%s] calling agent->forward to SYN Reconfig\n", ns.c_str());
+	fprintf(stderr, "[%s] called agent->forward to SYN Reconfig\n", ns.c_str());
 	fprintf(stderr, "[%s] Packet: %s\n", ns.c_str(), printPacketSS(newip, newtcp));
 	//uint32_t j = newtcp->seq_num.value() + 1;
 	//mtx.lock();
@@ -2087,7 +2086,6 @@ Packet* DyscoAgentIn::createAckLocking(Packet*, Ethernet* eth, Ipv4* ip, Tcp* tc
 	newtcp->dst_port = tcp->src_port;
 	newtcp->seq_num = be32_t(rand());
 	newtcp->ack_num = be32_t(tcp->seq_num.value() + hasPayload(ip, tcp) + 1);
-	fprintf(stderr, "ack_num = %X\n", newtcp->ack_num.value());
 	newtcp->reserved = 0;
 	newtcp->offset = 5;
 	newtcp->flags = (Tcp::kSyn|Tcp::kAck);
