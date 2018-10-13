@@ -1756,7 +1756,7 @@ Packet* DyscoAgentIn::createSynReconfig(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 	new_dcb->state = DYSCO_SYN_SENT;
 	
 	LNode<Packet>* node = agent->forward(newpkt, true);
-	fprintf(stderr, "[%s] calling agent->forward for SYN reconfig\n", ns.c_str());
+
 	uint32_t j = newtcp->seq_num.value() + 1;
 	mtx.lock();
 	received_hash->operator[](j) = node;
@@ -1969,9 +1969,9 @@ Packet* DyscoAgentIn::processAckLocking(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 		
 	case DYSCO_REQUEST_LOCK:
 		if(cb_out->is_LA) {
-			//#ifdef DEBUG_RECONFIG
+#ifdef DEBUG_RECONFIG
 			fprintf(stderr, "I'm the LeftAnchor... starting reconfiguration.\n\n");
-			//#endif
+#endif
 			tcp->checksum++; //due cmsg->lhop--
 			cb_out->lock_state = DYSCO_ACK_LOCK;
 			cb_in->dcb_out->lock_state = DYSCO_ACK_LOCK;
