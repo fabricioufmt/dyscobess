@@ -15,7 +15,7 @@ void timer_worker(DyscoAgentOut* agent) {
 	LNode<Packet>* tail;
 	LinkedList<Packet>* list;
 
-	delta = 0;
+	//delta = 0;
 	while(1) {
 		batch.clear();
 		//usleep(SLEEPTIME + delta);
