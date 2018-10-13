@@ -144,15 +144,12 @@ bool DyscoAgentIn::processReceivedPacket(Ipv4* ip, Tcp* tcp) {
 		DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>(getPayload(tcp));
 		if(cmsg->type == DYSCO_LOCK) {
 			key -= hasPayload(ip, tcp);
-			fprintf(stderr, "key = %X\n", key);
 		}
 	}
 
 	LNode<Packet>* node = received_hash->operator[](key);
 
 	if(node && !node->isRemoved) {
-		if(strcmp(ns.c_str(), "/var/run/netns/LA") == 0)
-		fprintf(stderr, "[%s] found and removing key=%X\n", ns.c_str(), key);
 		agent->remove(node);
 		//mtx.lock();
 		received_hash->erase(key);
@@ -1241,9 +1238,9 @@ bool DyscoAgentIn::control_input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp,
 
 			agent->forward(pkt);
 
-			//Packet* finpkt = createFinPacket(old_dcb);
-			//agent->forward(finpkt, true);
-			//fprintf(stderr, "[%s] calling agent->forward for FIN segment\n", ns.c_str());
+			Packet* finpkt = createFinPacket(old_dcb);
+			agent->forward(finpkt, true);
+			fprintf(stderr, "[%s] called agent->forward for FIN segment\n", ns.c_str());
 			return false;
 		} else {
 #ifdef DEBUG_RECONFIG
@@ -2045,9 +2042,7 @@ Packet* DyscoAgentIn::processAckLocking(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 			out.clear();
 			out.add(pkt);
 			cb_out->module->RunChooseModule(1, &out);
-
-			fprintf(stderr, "I'm not the LeftAnchor... forwarding the DYSCO_ACK_LOCK ack=%X (-payload = %X).\n\n", tcp->ack_num.value(), tcp->ack_num.value()-hasPayload(ip, tcp));
-			
+	
 			return 0;
 		}
 	}
