@@ -88,7 +88,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 		removed = processReceivedPacket(tcp);
 		
 		if(isLockingSignalPacket(tcp)) {
-			fprintf(stderr, "[%s] Receives Locking Signal Packet.\n", ns.c_str());
+			//fprintf(stderr, "[%s] Receives Locking Signal Packet.\n", ns.c_str());
 			
 			newpkt = processLockingSignalPacket(pkt, eth, ip, tcp, cb_in);
 			if(newpkt) {
@@ -99,7 +99,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 				continue;
 			}
 		} else if(isLockingPacket(ip, tcp)) {
-			fprintf(stderr, "[%s] Receives Locking Packet.\n", ns.c_str());
+			//fprintf(stderr, "[%s] Receives Locking Packet.\n", ns.c_str());
 
 			newpkt = processLockingPacket(pkt, eth, ip, tcp);
 			if(newpkt) {
@@ -108,7 +108,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 				continue;
 			}
 		} else if(isReconfigPacket(ip, tcp, cb_in)) {
-			fprintf(stderr, "[%s] Receives Reconfig Packet.\n", ns.c_str());
+			//fprintf(stderr, "[%s] Receives Reconfig Packet.\n", ns.c_str());
 
 			if(control_input(pkt, eth, ip, tcp, cb_in)) {
 				out.add(pkt);
@@ -1493,11 +1493,6 @@ Packet* DyscoAgentIn::processLockingSignalPacket(Packet* pkt, Ethernet* eth, Ipv
 }
 
 Packet* DyscoAgentIn::createLockingPacket(Packet*, Ethernet* eth, Ipv4* ip, Tcp* tcp, DyscoTcpOption* tcpo, DyscoHashIn* cb_in) {
-#ifdef DEBUG_RECONFIG
-	fprintf(stderr, "\tCreating Locking Packet.\n");
-#endif
-
-	//Packet* newpkt = Packet::copy(pkt);
 	Packet* newpkt = Packet::Alloc();
 	newpkt->set_data_off(SNBUF_HEADROOM);
 
@@ -1508,9 +1503,6 @@ Packet* DyscoAgentIn::createLockingPacket(Packet*, Ethernet* eth, Ipv4* ip, Tcp*
 	
 	uint8_t rhop = tcpo->padding & 0xff;
 	
-	//newpkt->trim(tcpo->len);
-	//DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>(newpkt->append(sizeof(DyscoControlMessage)));
-
 	Ethernet* neweth = newpkt->head_data<Ethernet*>();
 	neweth->dst_addr = eth->src_addr;
 	neweth->src_addr = eth->dst_addr;
@@ -1564,15 +1556,6 @@ Packet* DyscoAgentIn::createLockingPacket(Packet*, Ethernet* eth, Ipv4* ip, Tcp*
 	cmsg->lhop = rhop;
 	cmsg->rhop = rhop;
 
-	/*
-#ifdef DEBUG_RECONFIG
-	fprintf(stderr, "cb_in->sub: %s\n", printSS(cb_in->sub));
-	fprintf(stderr, "cb_in->my_sup: %s\n", printSS(cb_in->my_sup));
-	fprintf(stderr, "cb_in->neigh_sup: %s\n", printSS(cb_in->neigh_sup));
-	fprintf(stderr, "cb_in->dcb_out->sub: %s\n", printSS(cb_in->dcb_out->sub));
-	fprintf(stderr, "cb_in->dcb_out->sup: %s\n", printSS(cb_in->dcb_out->sup));
-#endif
-	*/
 	fix_csum(newip, newtcp);
 
 	return newpkt;
@@ -1595,13 +1578,9 @@ Packet* DyscoAgentIn::createSynReconfig(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 	DyscoHashIn* cb_in = dc->lookup_input_by_ss(this->index, &cmsg->my_sub);
 	
 	if(!cb_in) {
-		fprintf(stderr, "I'm looking for %s on input_hash... not found.\n", printSS(cmsg->my_sub));
-		
 		cb_in = dc->lookup_input_by_ss(this->index, &cmsg->neigh_sub);
 
 		if(!cb_in) {
-			fprintf(stderr, "I'm looking for %s on input_hash... not found... now dropping.\n", printSS(cmsg->neigh_sub));
-			
 			return 0;
 		}
 	}
@@ -1673,21 +1652,8 @@ Packet* DyscoAgentIn::createSynReconfig(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 	newcmsg->type = DYSCO_RECONFIG;
 	newcmsg->leftA = ip->dst.raw_value();
 	newcmsg->rightA = cmsg->rightA;
-
 	newcmsg->seqCutoff = htonl(old_dcb->seq_cutoff);
-#ifdef DEBUG_RECONFIG
-	fprintf(stderr, "old_dcb->sub: %s\n", printSS(old_dcb->sub));
-	fprintf(stderr, "old_dcb->seq_cutoff=%X, old_dcb->ack_cutoff=%X, old_dcb->last_seq=%X, old_dcb->last_ack=%X.\n", old_dcb->seq_cutoff, old_dcb->ack_cutoff, old_dcb->last_seq, old_dcb->last_ack);
-#endif
-	/*
-#ifdef DEBUG_RECONFIG
-	fprintf(stderr, "newip->src=%s newip->dst=%s\n", printIP(newip->src.value()), printIP(newip->dst.value()));
-	fprintf(stderr, "out_iseq=%X last_seq=%X\n", old_dcb->out_iseq, old_dcb->last_seq);
-	fprintf(stderr, "out_iack=%X last_ack=%X\n", old_dcb->out_iack, old_dcb->last_ack);
-	fprintf(stderr, "newcmsg->leftA=%s newcmsg->rightA=%s\n", printIP(ntohl(newcmsg->leftA)), printIP(ntohl(newcmsg->rightA)));
-	fprintf(stderr, "cmsg->leftA=%s cmsg->rightA=%s\n", printIP(ntohl(cmsg->leftA)), printIP(ntohl(cmsg->rightA)));
-#endif
-	*/
+	
 	uint32_t* newsc = reinterpret_cast<uint32_t*>(newcmsg + 1);
 	for(uint32_t i = 0; i < sc_len; i++)
 		newsc[i] = sc[i];
@@ -1696,7 +1662,6 @@ Packet* DyscoAgentIn::createSynReconfig(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 
 	DyscoCbReconfig* rcb = new DyscoCbReconfig();
 
-	//rcb->super = newcmsg->super;
 	rcb->super = cb_in->dcb_out->sup;
 	rcb->sub_out.sip = newip->src.raw_value();
 	rcb->sub_out.dip = newip->dst.raw_value();
@@ -1736,8 +1701,6 @@ Packet* DyscoAgentIn::createSynReconfig(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 
 	new_dcb->sack_ok = rcb->sack_ok;
 
-	//old_dcb->other_path = new_dcb;
-	//new_dcb->other_path = old_dcb;
 	new_dcb->dcb_in = insert_cb_out_reverse(new_dcb, 1, newcmsg);
 	dc->insert_hash_input(this->index, new_dcb->dcb_in);
 
@@ -1746,8 +1709,6 @@ Packet* DyscoAgentIn::createSynReconfig(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 	memcpy(&new_dcb->cmsg, newcmsg, sizeof(DyscoControlMessage));
 	new_dcb->is_reconfiguration = 1;
 
-	//old_dcb->old_path = 1;
-	//TEST
 	if(old_dcb->dcb_in)
 		old_dcb->dcb_in->two_paths = 1;
 
@@ -1755,22 +1716,7 @@ Packet* DyscoAgentIn::createSynReconfig(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 		old_dcb->state_t = 1;
 
 	new_dcb->state = DYSCO_SYN_SENT;
-	/*
-#ifdef DEBUG_RECONFIG
-	fprintf(stderr, "cb_in->my_sup: %s\n", printSS(cb_in->my_sup));
-	fprintf(stderr, "cb_in->dcb_out->sup: %s\n", printSS(cb_in->dcb_out->sup));
-	fprintf(stderr, "cb_in->dcb_out->sub: %s\n", printSS(cb_in->dcb_out->sub));
-	fprintf(stderr, "my_sub: %s\n", printSS(newcmsg->my_sub));
-	fprintf(stderr, "super: %s\n", printSS(newcmsg->super));
-	fprintf(stderr, "leftSS: %s\n", printSS(newcmsg->leftSS));
-	fprintf(stderr, "rightSS: %s\n", printSS(newcmsg->rightSS));
-	fprintf(stderr, "leftA: %s\n", printIP(newcmsg->leftA));
-	fprintf(stderr, "rightA: %s\n", printIP(newcmsg->rightA));
-	fprintf(stderr, "type: %u\n", newcmsg->type);
-#endif
-	*/
-	//LNode<Packet>* node = agent->getRetransmissionList()->insertTail(*newpkt, tsc_to_ns(rdtsc()));
-	//LNode<Packet>* node = agent->add(*newpkt, tsc_to_ns(rdtsc()));
+	
 	LNode<Packet>* node = agent->forward(newpkt, true);
 
 	uint32_t j = newtcp->seq_num.value() + 1;
