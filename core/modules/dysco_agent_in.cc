@@ -142,8 +142,10 @@ bool DyscoAgentIn::processReceivedPacket(Ipv4* ip, Tcp* tcp) {
 
 	if(tcp->flags == (Tcp::kSyn | Tcp::kAck) && hasPayload(ip, tcp)) {
 		DyscoControlMessage* cmsg = reinterpret_cast<DyscoControlMessage*>(getPayload(tcp));
-		if(cmsg->type == DYSCO_LOCK)
+		if(cmsg->type == DYSCO_LOCK) {
 			key -= hasPayload(ip, tcp);
+			fprintf(stderr, "key = %X\n", key);
+		}
 	}
 
 	LNode<Packet>* node = received_hash->operator[](key);
@@ -1572,6 +1574,7 @@ Packet* DyscoAgentIn::createLockingPacket(Packet*, Ethernet* eth, Ipv4* ip, Tcp*
 	newtcp->src_port = be16_t(rand());
 	newtcp->dst_port = be16_t(rand());
 	newtcp->seq_num = be32_t(rand());
+	fprintf(stderr, "new locking packet=%X\n", newtcp->seq_num.value());
 	newtcp->ack_num = be32_t(0);
 	newtcp->offset = 5;
 	newtcp->reserved = 0;
@@ -2082,6 +2085,7 @@ Packet* DyscoAgentIn::createAckLocking(Packet*, Ethernet* eth, Ipv4* ip, Tcp* tc
 	newtcp->dst_port = tcp->src_port;
 	newtcp->seq_num = be32_t(rand());
 	newtcp->ack_num = tcp->seq_num + be32_t(hasPayload(ip, tcp) + 1);
+	fprintf(stderr, "ack_num = %X\n", newtcp->ack_num.value());
 	newtcp->reserved = 0;
 	newtcp->offset = 5;
 	newtcp->flags = (Tcp::kSyn|Tcp::kAck);
