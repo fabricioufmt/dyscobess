@@ -7,7 +7,7 @@ const Commands DyscoAgentOut::cmds = {
 };
 
 void timer_worker(DyscoAgentOut* agent) {
-	uint32_t delta;
+	//uint32_t delta;
 	uint64_t now_ts;
 	PacketBatch batch;
 	LNode<Packet>* aux;
@@ -18,17 +18,18 @@ void timer_worker(DyscoAgentOut* agent) {
 	delta = 0;
 	while(1) {
 		batch.clear();
-		usleep(SLEEPTIME + delta);
+		//usleep(SLEEPTIME + delta);
+		usleep(SLEEPTIME);
 
-		agent->mtx.lock();
+		//agent->mtx.lock();
 		list = agent->getRetransmissionList();
 		if(!list->size()) {
-			agent->mtx.unlock();
+			//agent->mtx.unlock();
 			delta += 1000; //1ms
 			continue;
 		}
 
-		delta = 0;
+		//delta = 0;
 		tail = list->getTail();
 		now_ts = tsc_to_ns(rdtsc());
 		node = list->getHead()->next;
@@ -57,7 +58,7 @@ void timer_worker(DyscoAgentOut* agent) {
 			node = node->next;
 		}
 		
-		agent->mtx.unlock();
+		//agent->mtx.unlock();
 
 		if(batch.cnt() > 0) {
 			fprintf(stderr, "[%s] Sending %u packets\n", agent->getNs(), batch.cnt());

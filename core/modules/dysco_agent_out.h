@@ -88,17 +88,17 @@ inline LinkedList<Packet>* DyscoAgentOut::getRetransmissionList() {
 }
 
 inline LNode<Packet>* DyscoAgentOut::add(Packet& pkt, uint64_t ts) {
-	mtx.lock();
+	//mtx.lock();
 	LNode<Packet>* node = retransmission_list->insertTail(pkt, ts);
-	mtx.unlock();
+	//mtx.unlock();
 
 	return node;
 }
 
 inline void DyscoAgentOut::remove(LNode<Packet>* node) {
-	mtx.lock();
+	//mtx.lock();
 	retransmission_list->remove(node);
-	mtx.unlock();
+	//mtx.unlock();
 }
 
 #endif //BESS_MODULES_DYSCOAGENTOUT_H_
