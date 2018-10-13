@@ -1438,11 +1438,11 @@ Packet* DyscoAgentIn::createFinPacket(DyscoHashOut* cb_out) {
 	*((uint16_t*)(&tcp->dst_port)) = cb_out->sub.dport;
 	tcp->seq_num = be32_t(cb_out->last_seq);
 	tcp->ack_num = be32_t(cb_out->last_ack);
-	newtcp->offset = 5;
-	newtcp->reserved = 0;
-	newtcp->flags = Tcp::kFin;
-	newtcp->window = be16_t(65535);
-	newtcp->urgent_ptr = be16_t(0);
+	tcp->offset = 5;
+	tcp->reserved = 0;
+	tcp->flags = Tcp::kFin;
+	tcp->window = be16_t(65535);
+	tcp->urgent_ptr = be16_t(0);
 
 	fix_csum(ip, tcp);
 
