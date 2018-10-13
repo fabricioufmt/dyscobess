@@ -34,7 +34,6 @@ public:
 
 	LinkedList<Packet>* getRetransmissionList();
 
-	LNode<Packet>* add(Packet&, uint64_t);
 	void remove(LNode<Packet>*);
 	
  private:
@@ -85,14 +84,6 @@ void timer_worker(DyscoAgentOut*);
 
 inline LinkedList<Packet>* DyscoAgentOut::getRetransmissionList() {
 	return retransmission_list;
-}
-
-inline LNode<Packet>* DyscoAgentOut::add(Packet& pkt, uint64_t ts) {
-	//mtx.lock();
-	LNode<Packet>* node = retransmission_list->insertTail(pkt, ts);
-	//mtx.unlock();
-
-	return node;
 }
 
 inline void DyscoAgentOut::remove(LNode<Packet>* node) {

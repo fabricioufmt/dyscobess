@@ -264,9 +264,9 @@ LNode<Packet>* DyscoAgentOut::forward(Packet* pkt, bool reliable) {
 
 		return 0;
 	}
-	fprintf(stderr, "to forward\n");
+
 	uint32_t i = getValueToAck(pkt);
-	LNode<Packet>* node = add(*Packet::copy(pkt), tsc_to_ns(rdtsc()));
+	LNode<Packet>* node = retransmission_list->insertTail(*Packet::copy(pkt), tsc_to_ns(rdtsc()));
 	agent->updateReceivedHash(i, node);
 
 	if(!timer)
