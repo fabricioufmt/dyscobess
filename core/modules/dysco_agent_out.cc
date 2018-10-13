@@ -20,8 +20,6 @@ void timer_worker(DyscoAgentOut* agent) {
 		batch.clear();
 		//usleep(SLEEPTIME + delta);
 		usleep(SLEEPTIME);
-		if(strcmp(agent->getNs(), "/var/run/netns/LA") == 0)
-			fprintf(stderr, "[/var/run/netns/LA] timer thread woke up\n");
 		//agent->mtx.lock();
 		list = agent->getRetransmissionList();
 		if(!list->size()) {
@@ -30,7 +28,7 @@ void timer_worker(DyscoAgentOut* agent) {
 			continue;
 		}
 		if(strcmp(agent->getNs(), "/var/run/netns/LA") == 0)
-			fprintf(stderr, "[/var/run/netns/LA] list: %u\n", list->size());
+			fprintf(stderr, "[/var/run/netns/LA] retransmission list: %u\n", list->size());
 		//delta = 0;
 		tail = list->getTail();
 		now_ts = tsc_to_ns(rdtsc());

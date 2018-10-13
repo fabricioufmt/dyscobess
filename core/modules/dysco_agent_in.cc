@@ -1230,9 +1230,9 @@ bool DyscoAgentIn::control_input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp,
 
 			agent->forward(pkt);
 
-			Packet* finpkt = createFinPacket(old_dcb);
-			agent->forward(finpkt, true);
-			fprintf(stderr, "[%s] calling agent->forward for FIN segment\n", ns.c_str());
+			//Packet* finpkt = createFinPacket(old_dcb);
+			//agent->forward(finpkt, true);
+			//fprintf(stderr, "[%s] calling agent->forward for FIN segment\n", ns.c_str());
 			return false;
 		} else {
 #ifdef DEBUG_RECONFIG
