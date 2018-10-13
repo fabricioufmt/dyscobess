@@ -120,9 +120,9 @@ inline bool DyscoAgentIn::updateReceivedHash(uint32_t i, LNode<Packet>* node) {
 	if(!received_hash)
 		return false;
 	
-	mtx.lock();
+	//mtx.lock();
 	received_hash->operator[](i) = node;
-	mtx.unlock();
+	//mtx.unlock();
 
 	return true;
 }

@@ -653,10 +653,12 @@ inline uint32_t getValueToAck(Packet* pkt) {
 	Ipv4* ip = reinterpret_cast<Ipv4*>(eth + 1);
 	Tcp* tcp = reinterpret_cast<Tcp*>((uint8_t*) ip + (ip->header_length << 2));
 
-	uint32_t toAck = tcp->seq_num.value() + hasPayload(ip, tcp);
+	uint32_t toAck = tcp->seq_num.value();
 	if(isTCPSYN(tcp))
-	   toAck++;
-
+		toAck++;
+	else
+		toAck += hasPayload(ip, tcp);
+	
 	return toAck;
 }
 
