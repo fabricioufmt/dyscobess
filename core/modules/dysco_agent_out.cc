@@ -25,7 +25,7 @@ void timer_worker(DyscoAgentOut* agent) {
 		list = agent->getRetransmissionList();
 		if(!list->size()) {
 			//agent->mtx.unlock();
-			delta += 1000; //1ms
+			//delta += 1000; //1ms
 			continue;
 		}
 
