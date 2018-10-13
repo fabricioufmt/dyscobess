@@ -1232,7 +1232,7 @@ bool DyscoAgentIn::control_input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp,
 
 			Packet* finpkt = createFinPacket(old_dcb);
 			agent->forward(finpkt, true);
-			
+			fprintf(stderr, "[%s] calling agent->forward for FIN segment\n", ns.c_str());
 			return false;
 		} else {
 #ifdef DEBUG_RECONFIG
@@ -1447,7 +1447,7 @@ Packet* DyscoAgentIn::createFinPacket(DyscoHashOut* cb_out) {
 	tcp->urgent_ptr = be16_t(0);
 
 	fix_csum(ip, tcp);
-
+	fprintf(stderr, "[%s] created FIN segment\n", ns.c_str());
 	return pkt;
 }
 
