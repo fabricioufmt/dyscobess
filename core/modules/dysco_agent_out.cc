@@ -60,7 +60,7 @@ void timer_worker(DyscoAgentOut* agent) {
 		agent->mtx.unlock();
 
 		if(batch.cnt() > 0) {
-			fprintf(stderr, "[%s] Sending %u packets\n", ns.c_str(), batch.cnt());
+			fprintf(stderr, "[%s] Sending %u packets\n", agent->getNs(), batch.cnt());
 			agent->RunChooseModule(1, &batch);
 		}
 	}
