@@ -151,6 +151,7 @@ bool DyscoAgentIn::processReceivedPacket(Ipv4* ip, Tcp* tcp) {
 	LNode<Packet>* node = received_hash->operator[](key);
 
 	if(node && !node->isRemoved) {
+		if(strcmp(ns.c_str(), "/var/run/netns/LA") == 0)
 		fprintf(stderr, "[%s] found and removing key=%X\n", ns.c_str(), key);
 		agent->remove(node);
 		//mtx.lock();
@@ -159,7 +160,8 @@ bool DyscoAgentIn::processReceivedPacket(Ipv4* ip, Tcp* tcp) {
 		
 		return true;
 	}
-	fprintf(stderr, "[%s] not found key=%X\n", ns.c_str(), key);
+	if(strcmp(ns.c_str(), "/var/run/netns/LA") == 0)
+		fprintf(stderr, "[%s] not found key=%X\n", ns.c_str(), key);
 	return false;
 }
 
@@ -1998,9 +2000,9 @@ Packet* DyscoAgentIn::processAckLocking(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 
 			return 0;
 		} else {
-#ifdef DEBUG_RECONFIG
-			fprintf(stderr, "I'm not the LeftAnchor... forwarding the DYSCO_ACK_LOCK.\n\n");
-#endif	
+			//#ifdef DEBUG_RECONFIG
+			fprintf(stderr, "I'm not the LeftAnchor... forwarding the DYSCO_ACK_LOCK ack=%X.\n\n", tcp->ack_num.value());
+			//#endif	
 			eth->src_addr = cb_out->mac_sub.src_addr;
 			eth->dst_addr = cb_out->mac_sub.dst_addr;
 			*((uint32_t*)(&ip->src)) = cb_out->sub.sip;
