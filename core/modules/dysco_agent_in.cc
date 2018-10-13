@@ -1907,6 +1907,13 @@ Packet* DyscoAgentIn::processRequestLocking(Packet* pkt, Ethernet* eth, Ipv4* ip
 				fprintf(stderr, "[%s] Trying to lookup for %s on lockingreconfig_hash... not found.\n", ns.c_str(), printSS(cb_in->dcb_out->sup));
 #endif
 			} else {
+				if(dysco_locking->cb_out_left)
+					fprintf(stderr, "[%s]dysco_locking->cb_out_left = %s\n",
+					ns.c_str(), printSS(dysco_locking->cb_out_left->sub));
+				if(dysco_locking->cb_out_right)
+					fprintf(stderr, "[%s]dysco_locking->cb_out_right = %s\n",
+					ns.c_str(), printSS(dysco_locking->cb_out_right->sub));
+				fprintf(stderr, "[%s] dysco_locking printed\n", ns.c_str());
 				cb_out = dysco_locking->cb_out_right;
 			}
 		}
