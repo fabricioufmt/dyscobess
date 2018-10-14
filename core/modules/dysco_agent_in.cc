@@ -1090,13 +1090,13 @@ bool DyscoAgentIn::control_reconfig_in(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp
 	cb_in->dcb_out->is_reconfiguration = 1;
 	
 	memcpy(&cb_in->cmsg, cmsg, sizeof(DyscoControlMessage));
-
+	fprintf(stderr, "[%s] reach here\n", ns.c_str());
 	//uint32_t* sc = (uint32_t*)(payload + sizeof(DyscoControlMessage));
 		
 	if(ntohs(cmsg->semantic) == NOSTATE_TRANSFER || sc_len < 2) {
-#ifdef DEBUG_RECONFIG
+		//#ifdef DEBUG_RECONFIG
 		fprintf(stderr, "NOSTATE_TRANSFER or sc_len < 2\n");
-#endif
+		//#endif
 		remove_sc(pkt, ip, payload_sz);
 		insert_tag(pkt, ip, tcp);
 
@@ -1107,12 +1107,11 @@ bool DyscoAgentIn::control_reconfig_in(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp
 	
 		return true;
 	}
-	fprintf(stderr, "end of reconfig_in");
+
+	fprintf(stderr, "end of reconfig_in\n");
+
 	return false;
 }
-
-
-
 
 bool DyscoAgentIn::set_ack_number_out(Tcp* tcp, DyscoHashIn* cb_in) {
 	cb_in->in_iseq = cb_in->out_iseq = tcp->seq_num.value();
