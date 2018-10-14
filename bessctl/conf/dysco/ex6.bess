@@ -42,6 +42,10 @@ R_6::DyscoVPort(ifname='R-6', netns='/var/run/netns/R', mac_addr='00:00:00:00:00
 R_7::DyscoVPort(ifname='R-7', netns='/var/run/netns/R', mac_addr='00:00:00:00:00:71', ip_addrs=['10.0.7.1/24'])
 R_8::DyscoVPort(ifname='R-8', netns='/var/run/netns/R', mac_addr='00:00:00:00:00:81', ip_addrs=['10.0.8.1/24'])
 
+#TEST
+os.system('ip netns exec c1 bash -c "echo 0 > /proc/sys/net/ipv4/tcp_timestamps"')
+os.system('ip netns exec s1 bash -c "echo 0 > /proc/sys/net/ipv4/tcp_timestamps"')
+
 os.system('ip netns exec c1 ifconfig lo up')
 os.system('ip netns exec c1 route add default gw 10.0.1.1 > /dev/null')
 os.system('ip netns exec c1 arp -s 10.0.1.1 00:00:00:00:00:11 > /dev/null')
