@@ -132,7 +132,7 @@ struct task_result DyscoAgentOut::RunTask(void*) {
 	while(node != tail) {
 		if(node->cnt > CNTLIMIT) {
 			LNode<Packet>* aux = node->next;
-			list->remove(node);
+			retransmission_list->remove(node);
 			node = aux;
 					
 			continue;
