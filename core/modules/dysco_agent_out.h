@@ -88,9 +88,7 @@ inline LinkedList<Packet>* DyscoAgentOut::getRetransmissionList() {
 }
 
 inline void DyscoAgentOut::remove(LNode<Packet>* node) {
-	//mtx.lock();
 	retransmission_list->remove(node);
-	//mtx.unlock();
 }
 
 #endif //BESS_MODULES_DYSCOAGENTOUT_H_

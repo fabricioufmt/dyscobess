@@ -149,11 +149,9 @@ bool DyscoAgentIn::processReceivedPacket(Ipv4* ip, Tcp* tcp) {
 
 	LNode<Packet>* node = received_hash->operator[](key);
 
-	if(node && !node->isRemoved) {
-		agent->remove(node);
-		//mtx.lock();
+	if(node) {
 		received_hash->erase(key);
-		//mtx.unlock();
+		agent->remove(node);
 		
 		return true;
 	}
@@ -1240,7 +1238,7 @@ bool DyscoAgentIn::control_input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp,
 
 			Packet* finpkt = createFinPacket(old_dcb);
 			agent->forward(finpkt, true);
-			fprintf(stderr, "[%s] called agent->forward for FIN segment\n", ns.c_str());
+
 			return false;
 		} else {
 #ifdef DEBUG_RECONFIG
@@ -1455,12 +1453,7 @@ Packet* DyscoAgentIn::createFinPacket(DyscoHashOut* cb_out) {
 	tcp->urgent_ptr = be16_t(0);
 
 	fix_csum(ip, tcp);
-	fprintf(stderr, "[%s] created FIN segment\n", ns.c_str());
-	fprintf(stderr, "[%s] MAC_DST: %s -- MAC_SRC: %s\n", ns.c_str(), eth->dst_addr.ToString().c_str(), eth->src_addr.ToString().c_str());
-	fprintf(stderr, "[%s] PacketSS: %s\n", ns.c_str(), printPacketSS(ip, tcp));
 
-	
-	
 	return pkt;
 }
 
@@ -1771,8 +1764,6 @@ Packet* DyscoAgentIn::createSynReconfig(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 	
 	//LNode<Packet>* node = agent->forward(newpkt, true);
 	agent->forward(newpkt, true);
-	fprintf(stderr, "[%s] called agent->forward to SYN Reconfig\n", ns.c_str());
-	fprintf(stderr, "[%s] Packet: %s\n", ns.c_str(), printPacketSS(newip, newtcp));
 	//uint32_t j = newtcp->seq_num.value() + 1;
 	//mtx.lock();
 	//received_hash->operator[](j) = node;
