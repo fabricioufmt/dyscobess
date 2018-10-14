@@ -136,7 +136,7 @@ struct task_result DyscoAgentOut::RunTask(void*) {
 			node->ts = now_ts;
 		} else {
 			if(node->cnt > CNTLIMIT) {
-				aux = node->next;
+				LNode<Packet>* aux = node->next;
 				//list->remove(node); TODO
 				node = aux;
 					
