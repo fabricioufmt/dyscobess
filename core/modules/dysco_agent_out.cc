@@ -142,8 +142,12 @@ struct task_result DyscoAgentOut::RunTask(void*) {
 			cnt++;
 			node->cnt++;
 			total_len += node->element.total_len();
-			batch.add(Packet::copy(&node->element));
-			node->element = *Packet::copy(&node->element);
+			if(!node)
+				fprintf(stderr, "node is null\n");
+			else
+				fprintf(stderr, "node is not null\n");
+			Packet* pkt = Packet::copy(&node->element);
+			batch.add(pkt);
 			node->ts = now_ts;
 		} 
 
