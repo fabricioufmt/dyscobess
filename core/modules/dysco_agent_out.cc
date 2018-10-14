@@ -116,14 +116,16 @@ CommandResponse DyscoAgentOut::CommandSetup(const bess::pb::DyscoAgentArg& arg) 
 }
 
 struct task_result DyscoAgentOut::RunTask(void*) {
-	if(!list->size())
+	if(!retransmission_list->size())
 		return {.block = true, .packets = 0, .bits = 0};
 
 	uint32_t cnt = 0;
+	PacketBatch batch;
 	uint32_t total_len = 0;
-	LNode<Packet>* tail = list->getTail();
+	const uint32_t pkt_overhead = 24;
 	uint64_t now_ts = tsc_to_ns(rdtsc());
-	LNode<Packet>* node = list->getHead()->next;
+	LNode<Packet>* tail = retransmission_list->getTail();
+	LNode<Packet>* node = retransmission_list->getHead()->next;
 
 	while(node != tail) {
 		if(node->cnt == 0) {
