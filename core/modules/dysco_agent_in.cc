@@ -1706,6 +1706,7 @@ Packet* DyscoAgentIn::createSynReconfig(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 	newcmsg->leftA = ip->dst.raw_value();
 	newcmsg->rightA = cmsg->rightA;
 	newcmsg->seqCutoff = htonl(old_dcb->seq_cutoff);
+	newcmsg->semantic = htons(NOSTATE_TRANSFER);
 	
 	uint32_t* newsc = reinterpret_cast<uint32_t*>(newcmsg + 1);
 	for(uint32_t i = 0; i < sc_len; i++)
