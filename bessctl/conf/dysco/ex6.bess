@@ -217,17 +217,6 @@ fib:15 -> din10
 fib:16 -> PortOut(port=nat_int)
 fib:17 -> din5
 
-dout1.attach_task(wid=2)
-dout2.attach_task(wid=2)
-dout3.attach_task(wid=2)
-dout4.attach_task(wid=2)
-dout5.attach_task(wid=2)
-dout6.attach_task(wid=2)
-dout7.attach_task(wid=2)
-dout8.attach_task(wid=2)
-dout9.attach_task(wid=2)
-dout10.attach_task(wid=2)
-
 dyscocenter.add(priority=1, sc_len=2, chain=['10.0.1.1', '10.0.5.2'], filter='dst port 5001', ns='/var/run/netns/c1')
 dyscocenter.add(priority=1, sc_len=2, chain=['10.0.4.2', '10.0.2.2'], filter='dst port 5001', ns='/var/run/netns/m1')
 dyscocenter.add(priority=2, sc_len=4, chain=['10.0.1.1', '10.0.5.2', '10.0.4.2', '10.0.2.2'], filter='dst port 5002', ns='/var/run/netns/c1')
