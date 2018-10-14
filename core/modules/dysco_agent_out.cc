@@ -128,29 +128,21 @@ struct task_result DyscoAgentOut::RunTask(void*) {
 	LNode<Packet>* node = retransmission_list->getHead()->next;
 
 	while(node != tail) {
-		if(node->cnt == 0) {
+		if(node->cnt > CNTLIMIT) {
+			LNode<Packet>* aux = node->next;
+			list->remove(node);
+			node = aux;
+					
+			continue;
+		}
+		
+		if(node->cnt == 0 || now_ts - node->ts > DyscoAgentOut::timeout) {
 			cnt++;
 			node->cnt++;
 			total_len += node->element.total_len();
 			batch.add(Packet::copy(&node->element));
 			node->ts = now_ts;
-		} else {
-			if(node->cnt > CNTLIMIT) {
-				LNode<Packet>* aux = node->next;
-				//list->remove(node); TODO
-				node = aux;
-					
-				continue;
-			}
-
-			if(now_ts - node->ts > DyscoAgentOut::timeout) {
-				cnt++;
-				node->cnt++;
-				total_len += node->element.total_len();
-				batch.add(Packet::copy(&node->element));
-				node->ts = now_ts;
-			}
-		}
+		} 
 
 		node = node->next;
 	}
