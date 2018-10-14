@@ -114,7 +114,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 			fprintf(stderr, "[%s] Receives Reconfig Packet.\n", ns.c_str());
 
 			if(control_input(pkt, eth, ip, tcp, cb_in)) {
-				//out.add(pkt);
+				out.add(pkt);
 				fprintf(stderr, "[%s] control_input returns true.\n", ns.c_str());
 			} else
 				fprintf(stderr, "[%s] control_input returns false.\n", ns.c_str());
