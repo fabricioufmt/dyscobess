@@ -115,7 +115,10 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 
 			if(control_input(pkt, eth, ip, tcp, cb_in)) {
 				out.add(pkt);
+				fprintf(stderr, "[%s] control_input returns true.\n", ns.c_str());
 			}
+			else
+				fprintf(stderr, "[%s] control_input returns false.\n", ns.c_str());
 			
 		} else {
 			if(removed) {
