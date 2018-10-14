@@ -592,6 +592,9 @@ bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in, uint32_t)
 //L.753
 bool DyscoAgentIn::input(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
 	uint32_t payload_sz = hasPayload(ip, tcp);
+
+	if(isTCPSYN(tcp, true))
+		fprintf(stderr, "[%s] receives SYN segment on input method\n", ns.c_str());
 	
 	if(!cb_in) {
 		if(isTCPSYN(tcp, true) && payload_sz)
