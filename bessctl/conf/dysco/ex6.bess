@@ -96,9 +96,6 @@ os.system('ip netns exec nat iptables -t filter -A FORWARD -i nat-int -o nat-ext
 os.system('ip netns exec nat bash -c "echo 1 > /proc/sys/net/netfilter/nf_conntrack_tcp_be_liberal"')
 
 bess.add_worker(0, 0)
-bess.add_worker(1, 1)
-bess.add_worker(2, 2)
-bess.add_worker(3, 3)
 
 dyscocenter::DyscoCenter()
 bess.pause_all()
