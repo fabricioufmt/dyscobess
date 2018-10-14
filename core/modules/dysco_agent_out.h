@@ -38,8 +38,6 @@ public:
 	void remove(LNode<Packet>*);
 	
  private:
-	task_id_t tid;
-	
 	string ns;
 	thread* timer;
 	uint32_t devip;

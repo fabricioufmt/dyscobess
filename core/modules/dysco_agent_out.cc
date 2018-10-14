@@ -69,7 +69,6 @@ void timer_worker(DyscoAgentOut* agent) {
 
 DyscoAgentOut::DyscoAgentOut() : Module() {
 	dc = 0;
-	tid = 0;
 	devip = 0;
 	index = 0;
 	timer = 0;
@@ -78,10 +77,9 @@ DyscoAgentOut::DyscoAgentOut() : Module() {
 }
 
 CommandResponse DyscoAgentOut::CommandSetup(const bess::pb::DyscoAgentArg& arg) {
-	//task_id_t tid;
-	//tid = RegisterTask(nullptr);
-	//if(tid == INVALID_TASK_ID)
-	//	return CommandFailure(ENOMEM, "ERROR: Task creation failed.");
+	task_id_t tid = RegisterTask(nullptr);
+	if(tid == INVALID_TASK_ID)
+		return CommandFailure(ENOMEM, "ERROR: Task creation failed.");
 	
 	gate_idx_t igate_idx = 0;
 	if(!is_active_gate<bess::IGate>(igates(), igate_idx))
@@ -310,10 +308,6 @@ LNode<Packet>* DyscoAgentOut::forward(Packet* pkt, bool reliable) {
 	uint32_t i = getValueToAck(pkt);
 	LNode<Packet>* node = retransmission_list->insertTail(*Packet::copy(pkt), tsc_to_ns(rdtsc()));
 	agent->updateReceivedHash(i, node);
-
-	if(!tid)
-		tid = RegisterTask(nullptr);
-	//	timer = new thread(timer_worker, this);
 	
 	return node;
 }
