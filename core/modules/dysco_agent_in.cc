@@ -115,9 +115,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 
 			if(control_input(pkt, eth, ip, tcp, cb_in)) {
 				out.add(pkt);
-				fprintf(stderr, "[%s] control_input returns true.\n", ns.c_str());
-			} else
-				fprintf(stderr, "[%s] control_input returns false.\n", ns.c_str());
+			}
 			
 		} else {
 			if(removed) {
@@ -1169,10 +1167,7 @@ bool DyscoAgentIn::control_input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp,
 			return false;
 		}
 
-		bool ret = control_reconfig_in(pkt, eth, ip, tcp, payload, rcb, cmsg);
-		fprintf(stderr, "control_reconfig_in returns %d\n", ret);
-
-		return ret;
+		return control_reconfig_in(pkt, eth, ip, tcp, payload, rcb, cmsg);
 		
 	} else if(isTCPSYN(tcp) && isTCPACK(tcp)) {
 #ifdef DEBUG_RECONFIG
@@ -1657,7 +1652,8 @@ Packet* DyscoAgentIn::createSynReconfig(Packet* pkt, Ethernet* eth, Ipv4* ip, Tc
 	Tcp* newtcp = reinterpret_cast<Tcp*>(newip + 1);
 	newtcp->src_port = be16_t(40000 + (rand() % 10000));
 	newtcp->dst_port = be16_t(50000 + (rand() % 10000));
-	newtcp->seq_num = be32_t(old_dcb->last_seq - 1);
+	newtcp->seq_num = be32_t(old_dcb->seq_cutoff - 1); //TEST
+	//newtcp->seq_num = be32_t(old_dcb->last_seq - 1);
 	newtcp->ack_num = be32_t(old_dcb->last_ack - 1);
 	//newtcp->seq_num = be32_t(old_dcb->out_iseq);
 	//newtcp->ack_num = be32_t(old_dcb->out_iack);
