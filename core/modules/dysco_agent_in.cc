@@ -1154,26 +1154,30 @@ bool DyscoAgentIn::control_input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp,
 	size_t tcp_hlen = tcp->offset << 2;
 
 	if(isTCPSYN(tcp, true)) {
-#ifdef DEBUG_RECONFIG
+		//#ifdef DEBUG_RECONFIG
 		fprintf(stderr, "[%s] DYSCO_SYN message.\n", ns.c_str());
-#endif
+		//#endif
 		uint8_t* payload = reinterpret_cast<uint8_t*>(tcp) + tcp_hlen;
 		cmsg = reinterpret_cast<DyscoControlMessage*>(payload);
 
 		rcb = dc->lookup_reconfig_by_ss(this->index, &cmsg->rightSS); 
 		if(rcb) {
-#ifdef DEBUG_RECONFIG
+			//#ifdef DEBUG_RECONFIG
 			fprintf(stderr, "It's retransmission of SYN.\n\n");
-#endif
+			//#endif
 			return false;
 		}
 
 		rcb = insert_rcb_control_input(ip, tcp, cmsg);
 		if(!rcb) {
+			fprintf(stderr, "insert_rcb_control_input returns false\n");
 			return false;
 		}
 
-		return control_reconfig_in(pkt, eth, ip, tcp, payload, rcb, cmsg);
+		bool ret = control_reconfig_in(pkt, eth, ip, tcp, payload, rcb, cmsg);
+		fprintf(stderr, "control_reconfig_in returns %d\n", ret);
+
+		return ret;
 		
 	} else if(isTCPSYN(tcp) && isTCPACK(tcp)) {
 #ifdef DEBUG_RECONFIG
