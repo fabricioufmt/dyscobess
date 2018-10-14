@@ -992,9 +992,9 @@ bool DyscoAgentIn::control_reconfig_in(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp
 		return false;
 	}
 
-#ifdef DEBUG_RECONFIG
+	//#ifdef DEBUG_RECONFIG
 	fprintf(stderr, "It isn't the right anchor.\n");
-#endif
+	//#endif
 
 	cb_in = new DyscoHashIn();
 	cb_in->module = this;
@@ -1038,9 +1038,9 @@ bool DyscoAgentIn::control_reconfig_in(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp
 		memcpy(&cb_out->cmsg, cmsg, sizeof(DyscoControlMessage));
 		
 		if(!dc->insert_pending_reconfig(this->index, cb_out)) {
-#ifdef DEBUG_RECONFIG
+			//#ifdef DEBUG_RECONFIG
 			fprintf(stderr, "[%s] insert_pending_reconfig returns false\n", ns.c_str());
-#endif
+			//#endif
 			dc->remove_hash_input(this->index, cb_in);
 			delete cb_in;
 			dc->remove_hash_output(this->index, cb_out);
@@ -1051,9 +1051,9 @@ bool DyscoAgentIn::control_reconfig_in(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp
 	}
 
 	if(!dc->insert_hash_input(this->index, cb_in)) {
-#ifdef DEBUG_RECONFIG
+		//#ifdef DEBUG_RECONFIG
 		fprintf(stderr, "[%s] insert_hash_input returns false\n", ns.c_str());
-#endif
+		//#endif
 		dc->remove_hash_input(this->index, cb_in);
 		delete cb_in;
 
@@ -1107,7 +1107,7 @@ bool DyscoAgentIn::control_reconfig_in(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp
 	
 		return true;
 	}
-
+	fprintf(stderr, "end of reconfig_in");
 	return false;
 }
 
