@@ -35,7 +35,6 @@ class DyscoAgentIn final : public Module {
 	DyscoAgentIn();
 
 	void ProcessBatch(PacketBatch*) override;
-	struct task_result RunTask(void*) override;
 	//CommandResponse Init(const bess::pb::DyscoAgentInArg&);
 	CommandResponse CommandSetup(const bess::pb::DyscoAgentArg&);
 
