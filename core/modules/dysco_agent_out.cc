@@ -130,6 +130,7 @@ struct task_result DyscoAgentOut::RunTask(void*) {
 	fprintf(stderr, "[%s] retransmission_list->size()=%u\n", ns.c_str(), retransmission_list->size());
 	
 	while(node != tail) {
+		fprintf(stderr, "inside\n");
 		if(node->cnt > CNTLIMIT) {
 			LNode<Packet>* aux = node->next;
 			retransmission_list->remove(node);
@@ -144,6 +145,10 @@ struct task_result DyscoAgentOut::RunTask(void*) {
 			total_len += node->element.total_len();
 			fprintf(stderr, "node->element.total_len = %u.\n", node->element.total_len());
 			Packet* pkt = Packet::copy(&node->element);
+			if(!pkt)
+				fprintf(stderr, "pkt is NULL\n");
+			else
+				fprintf(stderr, "pkt is not NULL\n");
 			batch.add(pkt);
 			node->ts = now_ts;
 		} 
