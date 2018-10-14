@@ -593,9 +593,6 @@ bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in, uint32_t)
 bool DyscoAgentIn::input(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
 	uint32_t payload_sz = hasPayload(ip, tcp);
 
-	if(isTCPSYN(tcp, true))
-		fprintf(stderr, "[%s] receives SYN segment on input method\n", ns.c_str());
-	
 	if(!cb_in) {
 		if(isTCPSYN(tcp, true) && payload_sz)
 			rx_initiation_new(pkt, ip, tcp, payload_sz);
@@ -994,9 +991,9 @@ bool DyscoAgentIn::control_reconfig_in(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp
 		return false;
 	}
 
-	//#ifdef DEBUG_RECONFIG
+#ifdef DEBUG_RECONFIG
 	fprintf(stderr, "It isn't the right anchor.\n");
-	//#endif
+#endif
 
 	cb_in = new DyscoHashIn();
 	cb_in->module = this;
@@ -1040,9 +1037,9 @@ bool DyscoAgentIn::control_reconfig_in(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp
 		memcpy(&cb_out->cmsg, cmsg, sizeof(DyscoControlMessage));
 		
 		if(!dc->insert_pending_reconfig(this->index, cb_out)) {
-			//#ifdef DEBUG_RECONFIG
+#ifdef DEBUG_RECONFIG
 			fprintf(stderr, "[%s] insert_pending_reconfig returns false\n", ns.c_str());
-			//#endif
+#endif
 			dc->remove_hash_input(this->index, cb_in);
 			delete cb_in;
 			dc->remove_hash_output(this->index, cb_out);
@@ -1053,9 +1050,9 @@ bool DyscoAgentIn::control_reconfig_in(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp
 	}
 
 	if(!dc->insert_hash_input(this->index, cb_in)) {
-		//#ifdef DEBUG_RECONFIG
+#ifdef DEBUG_RECONFIG
 		fprintf(stderr, "[%s] insert_hash_input returns false\n", ns.c_str());
-		//#endif
+#endif
 		dc->remove_hash_input(this->index, cb_in);
 		delete cb_in;
 
@@ -1092,13 +1089,13 @@ bool DyscoAgentIn::control_reconfig_in(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp
 	cb_in->dcb_out->is_reconfiguration = 1;
 	
 	memcpy(&cb_in->cmsg, cmsg, sizeof(DyscoControlMessage));
-	fprintf(stderr, "[%s] reach here\n", ns.c_str());
+
 	//uint32_t* sc = (uint32_t*)(payload + sizeof(DyscoControlMessage));
 		
 	if(ntohs(cmsg->semantic) == NOSTATE_TRANSFER || sc_len < 2) {
-		//#ifdef DEBUG_RECONFIG
+#ifdef DEBUG_RECONFIG
 		fprintf(stderr, "NOSTATE_TRANSFER or sc_len < 2\n");
-		//#endif
+#endif
 		remove_sc(pkt, ip, payload_sz);
 		insert_tag(pkt, ip, tcp);
 
@@ -1109,8 +1106,6 @@ bool DyscoAgentIn::control_reconfig_in(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp
 	
 		return true;
 	}
-
-	fprintf(stderr, "end of reconfig_in\n");
 
 	return false;
 }
@@ -1155,23 +1150,22 @@ bool DyscoAgentIn::control_input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp,
 	size_t tcp_hlen = tcp->offset << 2;
 
 	if(isTCPSYN(tcp, true)) {
-		//#ifdef DEBUG_RECONFIG
+#ifdef DEBUG_RECONFIG
 		fprintf(stderr, "[%s] DYSCO_SYN message.\n", ns.c_str());
-		//#endif
+#endif
 		uint8_t* payload = reinterpret_cast<uint8_t*>(tcp) + tcp_hlen;
 		cmsg = reinterpret_cast<DyscoControlMessage*>(payload);
 
 		rcb = dc->lookup_reconfig_by_ss(this->index, &cmsg->rightSS); 
 		if(rcb) {
-			//#ifdef DEBUG_RECONFIG
+#ifdef DEBUG_RECONFIG
 			fprintf(stderr, "It's retransmission of SYN.\n\n");
-			//#endif
+#endif
 			return false;
 		}
 
 		rcb = insert_rcb_control_input(ip, tcp, cmsg);
 		if(!rcb) {
-			fprintf(stderr, "insert_rcb_control_input returns false\n");
 			return false;
 		}
 
