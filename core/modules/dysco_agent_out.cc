@@ -116,9 +116,48 @@ CommandResponse DyscoAgentOut::CommandSetup(const bess::pb::DyscoAgentArg& arg) 
 }
 
 struct task_result DyscoAgentOut::RunTask(void*) {
-	fprintf(stderr, "[%s] RunTask method\n", ns.c_str());
+	if(!list->size())
+		return {.block = true, .packets = 0, .bits = 0};
 
-	return {.block = true, .packets = 0, .bits = 0};
+	uint32_t cnt = 0;
+	uint32_t total_len = 0;
+	LNode<Packet>* tail = list->getTail();
+	uint64_t now_ts = tsc_to_ns(rdtsc());
+	LNode<Packet>* node = list->getHead()->next;
+
+	while(node != tail) {
+		if(node->cnt == 0) {
+			cnt++;
+			node->cnt++;
+			total_len += node->element.total_len();
+			batch.add(Packet::copy(&node->element));
+			node->ts = now_ts;
+		} else {
+			if(node->cnt > CNTLIMIT) {
+				aux = node->next;
+				//list->remove(node); TODO
+				node = aux;
+					
+				continue;
+			}
+
+			if(now_ts - node->ts > DyscoAgentOut::timeout) {
+				cnt++;
+				node->cnt++;
+				total_len += node->element.total_len();
+				batch.add(Packet::copy(&node->element));
+				node->ts = now_ts;
+			}
+		}
+
+		node = node->next;
+	}
+
+	if(batch.cnt() > 0) {
+		RunChooseModule(1, &batch);
+	}
+
+	return {.block = true, .packets = cnt, .bits = (total_len + cnt * pkt_overhead) * 8};
 }
 
 void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {
@@ -280,8 +319,8 @@ LNode<Packet>* DyscoAgentOut::forward(Packet* pkt, bool reliable) {
 	fprintf(stderr, "[%s] retransmission_list->size()=%u\n", ns.c_str(), retransmission_list->size());
 	agent->updateReceivedHash(i, node);
 
-	if(!timer)
-		timer = new thread(timer_worker, this);
+	//if(!timer)
+	//	timer = new thread(timer_worker, this);
 	
 	return node;
 }
