@@ -95,6 +95,11 @@ os.system('ip netns exec nat iptables -t filter -A FORWARD -i nat-ext -o nat-int
 os.system('ip netns exec nat iptables -t filter -A FORWARD -i nat-int -o nat-ext -j ACCEPT > /dev/null')
 os.system('ip netns exec nat bash -c "echo 1 > /proc/sys/net/netfilter/nf_conntrack_tcp_be_liberal"')
 
+bess.add_worker(0, 0)
+bess.add_worker(1, 1)
+bess.add_worker(2, 2)
+bess.add_worker(3, 3)
+
 dyscocenter::DyscoCenter()
 bess.pause_all()
 
@@ -163,6 +168,18 @@ din7.setup(agent="dout7")
 din8.setup(agent="dout8")
 din9.setup(agent="dout9")
 din10.setup(agent="dout10")
+
+dout0.attach_task(wid=1)
+dout1.attach_task(wid=1)
+dout2.attach_task(wid=1)
+dout3.attach_task(wid=1)
+dout4.attach_task(wid=1)
+dout5.attach_task(wid=1)
+dout6.attach_task(wid=1)
+dout7.attach_task(wid=1)
+dout8.attach_task(wid=1)
+dout9.attach_task(wid=1)
+dout10.attach_task(wid=1)
 
 dout1:0 -> fib
 dout1:1 -> fib
