@@ -77,8 +77,12 @@ DyscoAgentOut::DyscoAgentOut() : Module() {
 }
 
 CommandResponse DyscoAgentOut::CommandSetup(const bess::pb::DyscoAgentArg& arg) {
+	task_id_t tid;
+	tid = RegisterTask(nullptr);
+	if(tid == INVALID_TASK_ID)
+		return CommandFailure(ENOMEM, "ERROR: Task creation failed.");
+	
 	gate_idx_t igate_idx = 0;
-
 	if(!is_active_gate<bess::IGate>(igates(), igate_idx))
 		return CommandFailure(EINVAL, "ERROR: Input gate 0 is not active.");
 
@@ -109,6 +113,12 @@ CommandResponse DyscoAgentOut::CommandSetup(const bess::pb::DyscoAgentArg& arg) 
 	index = dc->get_index(ns, devip);
 	
 	return CommandSuccess();
+}
+
+struct task_result DyscoAgentOut::RunTask(void*) {
+	fprintf(stderr, "[%s] RunTask method\n", ns.c_str());
+
+	return {.block = true, .packets = 0, .bits = 0};
 }
 
 void DyscoAgentOut::ProcessBatch(PacketBatch* batch) {

@@ -33,8 +33,9 @@ class DyscoAgentIn final : public Module {
 	static const gate_idx_t kNumOGates = 1;
 
 	DyscoAgentIn();
-	
-	void ProcessBatch(bess::PacketBatch*) override;
+
+	void ProcessBatch(PacketBatch*) override;
+	struct task_result RunTask(void*) override;
 	//CommandResponse Init(const bess::pb::DyscoAgentInArg&);
 	CommandResponse CommandSetup(const bess::pb::DyscoAgentArg&);
 
