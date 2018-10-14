@@ -127,6 +127,8 @@ struct task_result DyscoAgentOut::RunTask(void*) {
 	LNode<Packet>* tail = retransmission_list->getTail();
 	LNode<Packet>* node = retransmission_list->getHead()->next;
 
+	fprintf(stderr, "[%s] retransmission_list->size()=%u\n", ns.c_str(), retransmission_list->size());
+	
 	while(node != tail) {
 		if(node->cnt > CNTLIMIT) {
 			LNode<Packet>* aux = node->next;
