@@ -81,8 +81,15 @@ int main(int argc, char** argv) {
 	} else
 		printf("Failed to create socket.\n");
 	*/
+	int i = 0;
 	int val;
 	while(1) {
+		i++;
+		if(i >= 5) {
+			close(sockfd);
+			break;
+
+		}
 		read(sockfd, &val, sizeof(int));
 	}
 	

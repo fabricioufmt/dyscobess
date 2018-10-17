@@ -654,7 +654,7 @@ inline uint32_t getValueToAck(Packet* pkt) {
 	Tcp* tcp = reinterpret_cast<Tcp*>((uint8_t*) ip + (ip->header_length << 2));
 
 	uint32_t toAck = tcp->seq_num.value();
-	if(isTCPSYN(tcp))
+	if(isTCPSYN(tcp) || isTCPFIN(tcp))
 		toAck++;
 	else
 		toAck += hasPayload(ip, tcp);

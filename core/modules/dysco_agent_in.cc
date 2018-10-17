@@ -89,6 +89,8 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 
 		if(tcp->flags == Tcp::kFin)
 			fprintf(stderr, "[%s][DyscoAgentIn] receives %s FIN segment [%X:%X]\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.value(), tcp->ack_num.value());
+		else if(tcp->flags == (Tcp::kFin | Tcp::kAck))
+			fprintf(stderr, "[%s][DyscoAgentIn] receives %s FIN+ACK segment [%X:%X]\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.value(), tcp->ack_num.value());
 		
 		if(isLockingSignalPacket(tcp)) {
 			fprintf(stderr, "[%s] Receives Locking Signal Packet.\n", ns.c_str());
@@ -522,6 +524,14 @@ bool DyscoAgentIn::in_two_paths_ack(Tcp* tcp, DyscoHashIn* cb_in) {
 				cb_in->two_paths = 0;
 			}
 		}
+
+		if(cb_out->state == DYSCO_ESTABLISHED && isTCPFIN(tcp)) {
+			fprintf(stderr, "[%s] receives FIN or FIN+ACK with ESTABLISHED state\n", ns.c_str());
+			fprintf(stderr, "[%s] should answer to a FIN+ACK too and change to DYSCO_CLOSED\n", ns.c_str());
+			Packet* finpkt = createFinAckPacket(cb_out);
+			agent->forward(finpkt, true);
+			old_dcb->state = DYSCO_CLOSED;
+		}
 	} else {
 		cb_out = cb_out->other_path;
 		if(!cb_out) {
@@ -638,8 +648,26 @@ bool DyscoAgentIn::input(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
 			in_two_paths_ack(tcp, cb_in);
 		else if(!in_two_paths_data_seg(tcp, cb_in, payload_sz))
 			return true;
+	}
+
+	if(cb_in->dcb_out->state == DYSCO_FIN_WAIT_1) {
+		fprintf(stderr, "[%s] state = DYSCO_FIN_WAIT_1.\n", ns.c_str());
+		if(tcp->flags & Tcp::kFin) {
+			if(tcp->flags == Tcp::kFin) {
+				fprintf(stderr, "[%s] changing to DYSCO_CLOSING.\n", ns.c_str());
+				cb_in->dcb_out->state = DYSCO_CLOSING;
+			} else {
+				fprintf(stderr, "[%s] changing to DYSCO_CLOSED.\n", ns.c_str());
+				cb_in->dcb_out->state = DYSCO_CLOSED;
+			}
 			
-	}/* else {
+			createAck(pkt, eth, ip, tcp);
+			agent->forward(pkt);
+
+			fprintf(stderr, "[%s] forwarding ACK for FIN or FIN+ACK.\n", ns.c_str());
+		}
+	}
+	/* else {
 		if(payload_sz) {
 			if(cb_in->dcb_out) {
 				cb_in->dcb_out->ack_cutoff = tcp->seq_num.value() + payload_sz;
@@ -1233,8 +1261,9 @@ bool DyscoAgentIn::control_input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp,
 
 			agent->forward(pkt);
 
-			Packet* finpkt = createFinPacket(old_dcb);
+			Packet* finpkt = createFinAckPacket(old_dcb);
 			agent->forward(finpkt, true);
+			old_dcb->state = DYSCO_FIN_WAIT_1;
 
 			return false;
 		} else {
@@ -1412,7 +1441,7 @@ void DyscoAgentIn::createFinAck(Packet* pkt, Ipv4* ip, Tcp* tcp) {
 	fix_csum(ip, tcp);
 }
 
-Packet* DyscoAgentIn::createFinPacket(DyscoHashOut* cb_out) {
+Packet* DyscoAgentIn::createFinAckPacket(DyscoHashOut* cb_out) {
 	Packet* pkt = Packet::Alloc();
 	pkt->set_data_off(SNBUF_HEADROOM);
 
