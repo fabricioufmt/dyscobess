@@ -120,7 +120,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 			}
 			
 		} else {
-			if(removed) {
+			if(removed && !isTCPFIN(tcp)) {
 				continue;
 			}
 			
