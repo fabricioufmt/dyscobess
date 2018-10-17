@@ -1296,7 +1296,7 @@ bool DyscoAgentIn::control_input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp,
 			}
 
 			agent->forward(pkt);
-
+			/*
 			Packet* finpkt = createFinAckPacketSS(old_dcb);
 			agent->forward(finpkt, true);
 			old_dcb->state = DYSCO_FIN_WAIT_1;
@@ -1304,7 +1304,7 @@ bool DyscoAgentIn::control_input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp,
 			Ipv4* newip = reinterpret_cast<Ipv4*>(finpkt->head_data<Ethernet*>() + 1);
 			Tcp* newtcp = reinterpret_cast<Tcp*>((uint8_t*)newip + (newip->header_length * 4));
 			fprintf(stderr, "[%s][DyscoAgentIn] forwards %s FIN+ACK [%X:%X]\n\n", ns.c_str(), printPacketSS(newip, newtcp), newtcp->seq_num.raw_value(), newtcp->ack_num.raw_value());
-			
+			*/
 			return false;
 		} else {
 #ifdef DEBUG_RECONFIG
