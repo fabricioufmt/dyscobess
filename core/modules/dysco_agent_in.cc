@@ -128,7 +128,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 				out.add(pkt);
 			}
 			if(tcp->flags == Tcp::kFin)
-				fprintf(stderr, "[%s][DyscoAgentIn] forwards %s FIN segment [%X:%X]\n\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.value(), tcp->ack_num.value());
+				fprintf(stderr, "[%s][DyscoAgentIn] forwards %s FIN segment [%X:%X]\n\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.raw_value(), tcp->ack_num.raw_value());
 #ifdef DEBUG
 			fprintf(stderr, "[%s][DyscoAgentIn] forwards %s [%X:%X]\n\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.raw_value(), tcp->ack_num.raw_value());
 #endif
@@ -670,7 +670,7 @@ bool DyscoAgentIn::input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp, DyscoHa
 
 		Ipv4* newip = reinterpret_cast<Ipv4*>(finpkt->head_data<Ethernet*>() + 1);
 		Tcp* newtcp = reinterpret_cast<Tcp*>((uint8_t*)newip + (newip->header_length * 4));
-		fprintf(stderr, "[%s][DyscoAgentIn] forwards %s [%X:%X]\n\n", ns.c_str(), printPacketSS(newip, newtcp), newtcp->seq_num.raw_value(), newtcp->ack_num.raw_value());
+		fprintf(stderr, "[%s][DyscoAgentIn] forwards %s FIN [%X:%X]\n\n", ns.c_str(), printPacketSS(newip, newtcp), newtcp->seq_num.raw_value(), newtcp->ack_num.raw_value());
 
 		return false;
 	}
@@ -1273,6 +1273,10 @@ bool DyscoAgentIn::control_input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp,
 			agent->forward(finpkt, true);
 			old_dcb->state = DYSCO_FIN_WAIT_1;
 
+			Ipv4* newip = reinterpret_cast<Ipv4*>(finpkt->head_data<Ethernet*>() + 1);
+			Tcp* newtcp = reinterpret_cast<Tcp*>((uint8_t*)newip + (newip->header_length * 4));
+			fprintf(stderr, "[%s][DyscoAgentIn] forwards %s FIN [%X:%X]\n\n", ns.c_str(), printPacketSS(newip, newtcp), newtcp->seq_num.raw_value(), newtcp->ack_num.raw_value());
+			
 			return false;
 		} else {
 #ifdef DEBUG_RECONFIG
