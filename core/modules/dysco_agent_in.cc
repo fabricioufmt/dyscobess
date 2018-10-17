@@ -641,7 +641,7 @@ bool DyscoAgentIn::input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp, DyscoHa
 		else if(!in_two_paths_data_seg(tcp, cb_in, payload_sz))
 			return true;
 	}
-	/*
+	
 	if(isTCPFIN(tcp)) {
 		fprintf(stderr, "[%s] DEBUB INFO:\n", ns.c_str());
 		fprintf(stderr, "[%s] cb_in->dcb_out->old_path = %u\n", ns.c_str(), cb_in->dcb_out->old_path);
@@ -649,7 +649,7 @@ bool DyscoAgentIn::input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp, DyscoHa
 		fprintf(stderr, "[%s] cb_in->dcb_out->is_RA = %u\n", ns.c_str(), cb_in->dcb_out->is_RA);
 		fprintf(stderr, "[%s] cb_in->dcb_out->state = %d\n", ns.c_str(), cb_in->dcb_out->state);
 	}
-	*/
+	
 	if(cb_in->dcb_out->old_path && (cb_in->dcb_out->is_LA || cb_in->dcb_out->is_RA) && cb_in->dcb_out->state == DYSCO_FIN_WAIT_1) {
 		fprintf(stderr, "[%s] state = DYSCO_FIN_WAIT_1.\n", ns.c_str());
 		if(tcp->flags & Tcp::kFin) {
