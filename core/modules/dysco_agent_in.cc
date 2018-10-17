@@ -1445,7 +1445,7 @@ Packet* DyscoAgentIn::createFinPacket(DyscoHashOut* cb_out) {
 	tcp->ack_num = be32_t(cb_out->last_ack);
 	tcp->offset = 5;
 	tcp->reserved = 0;
-	tcp->flags = Tcp::kFin;
+	tcp->flags = (Tcp::kFin | Tcp::kAck);
 	tcp->window = be16_t(65535);
 	tcp->urgent_ptr = be16_t(0);
 
