@@ -90,7 +90,6 @@ class DyscoAgentIn final : public Module {
 	bool isEstablished(Packet*);
 	void createAck(Packet*, Ethernet*, Ipv4*, Tcp*);
 	void createSynAck(Packet*, Ethernet*, Ipv4*, Tcp*);
-	void createFinAck(Packet*, Ipv4*, Tcp*);
 
 	/*
 	 * Locking Signal methods
@@ -113,16 +112,15 @@ class DyscoAgentIn final : public Module {
 	Packet* createSynReconfig(Packet*, Ethernet*, Ipv4*, Tcp*, DyscoControlMessage*);
 
 	bool processReceivedPacket(Ipv4*, Tcp*);
-	Packet* createFinAckPacket(DyscoHashOut*);
+	Packet* createFinAckPacket(Ethernet*, Ipv4*, Tcp*, uint32_t);
+	Packet* createFinAckPacketSS(DyscoHashOut*);
 };
 
 inline bool DyscoAgentIn::updateReceivedHash(uint32_t i, LNode<Packet>* node) {
 	if(!received_hash)
 		return false;
 	
-	//mtx.lock();
 	received_hash->operator[](i) = node;
-	//mtx.unlock();
 
 	return true;
 }

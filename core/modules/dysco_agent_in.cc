@@ -641,7 +641,7 @@ bool DyscoAgentIn::input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp, DyscoHa
 		else if(!in_two_paths_data_seg(tcp, cb_in, payload_sz))
 			return true;
 	}
-
+	/*
 	if(isTCPFIN(tcp)) {
 		fprintf(stderr, "[%s] DEBUB INFO:\n", ns.c_str());
 		fprintf(stderr, "[%s] cb_in->dcb_out->old_path = %u\n", ns.c_str(), cb_in->dcb_out->old_path);
@@ -649,7 +649,7 @@ bool DyscoAgentIn::input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp, DyscoHa
 		fprintf(stderr, "[%s] cb_in->dcb_out->is_RA = %u\n", ns.c_str(), cb_in->dcb_out->is_RA);
 		fprintf(stderr, "[%s] cb_in->dcb_out->state = %d\n", ns.c_str(), cb_in->dcb_out->state);
 	}
-	
+	*/
 	if(cb_in->dcb_out->old_path && (cb_in->dcb_out->is_LA || cb_in->dcb_out->is_RA) && cb_in->dcb_out->state == DYSCO_FIN_WAIT_1) {
 		fprintf(stderr, "[%s] state = DYSCO_FIN_WAIT_1.\n", ns.c_str());
 		if(tcp->flags & Tcp::kFin) {
@@ -671,16 +671,36 @@ bool DyscoAgentIn::input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp, DyscoHa
 
 	if(cb_in->dcb_out->old_path && (cb_in->dcb_out->is_LA || cb_in->dcb_out->is_RA) && cb_in->dcb_out->state == DYSCO_ESTABLISHED && isTCPFIN(tcp)) {
 		fprintf(stderr, "[%s][DyscoAgentIn] receives %s FIN segment on ESTABLISHED state [%X:%X].\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.raw_value(), tcp->ack_num.raw_value());
-		fprintf(stderr, "[%s] should answer to a FIN+ACK too and change to DYSCO_CLOSED\n", ns.c_str());
-		Packet* finpkt = createFinAckPacket(cb_in->dcb_out);
-		agent->forward(finpkt, true);
-		cb_in->dcb_out->state = DYSCO_CLOSED;
 
-		Ipv4* newip = reinterpret_cast<Ipv4*>(finpkt->head_data<Ethernet*>() + 1);
-		Tcp* newtcp = reinterpret_cast<Tcp*>((uint8_t*)newip + (newip->header_length * 4));
-		fprintf(stderr, "[%s][DyscoAgentIn] forwards %s FIN [%X:%X]\n\n", ns.c_str(), printPacketSS(newip, newtcp), newtcp->seq_num.raw_value(), newtcp->ack_num.raw_value());
+		if(payload_sz) {
+			fprintf(stderr, "[%s] there are data on packet, should remove FIN flag, forward to app and create a new Packet to answer FIN segment\n", ns.c_str());
 
-		return false;
+			tcp->flags -= Tcp::kFin;
+			tcp->checksum += Tcp::kFin;
+
+			fprintf(stderr, "[%s] should answer to a FIN+ACK and change to DYSCO_CLOSED\n", ns.c_str());
+			Packet* finpkt = createFinAckPacket(eth, ip, tcp, payload_sz);
+			agent->forward(finpkt, true);
+			cb_in->dcb_out->state = DYSCO_CLOSED;
+
+			Ipv4* newip = reinterpret_cast<Ipv4*>(finpkt->head_data<Ethernet*>() + 1);
+			Tcp* newtcp = reinterpret_cast<Tcp*>((uint8_t*)newip + (newip->header_length * 4));
+			fprintf(stderr, "[%s][DyscoAgentIn] forwards %s FIN [%X:%X]\n\n", ns.c_str(), printPacketSS(newip, newtcp), newtcp->seq_num.raw_value(), newtcp->ack_num.raw_value());
+
+			
+		} else {
+		
+			fprintf(stderr, "[%s] should answer to a FIN+ACK too and change to DYSCO_CLOSED\n", ns.c_str());
+			Packet* finpkt = createFinAckPacketSS(cb_in->dcb_out);
+			agent->forward(finpkt, true);
+			cb_in->dcb_out->state = DYSCO_CLOSED;
+
+			Ipv4* newip = reinterpret_cast<Ipv4*>(finpkt->head_data<Ethernet*>() + 1);
+			Tcp* newtcp = reinterpret_cast<Tcp*>((uint8_t*)newip + (newip->header_length * 4));
+			fprintf(stderr, "[%s][DyscoAgentIn] forwards %s FIN [%X:%X]\n\n", ns.c_str(), printPacketSS(newip, newtcp), newtcp->seq_num.raw_value(), newtcp->ack_num.raw_value());
+
+			return false;
+		}
 	}
 	
 	/* else {
@@ -1277,7 +1297,7 @@ bool DyscoAgentIn::control_input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp,
 
 			agent->forward(pkt);
 
-			Packet* finpkt = createFinAckPacket(old_dcb);
+			Packet* finpkt = createFinAckPacketSS(old_dcb);
 			agent->forward(finpkt, true);
 			old_dcb->state = DYSCO_FIN_WAIT_1;
 
@@ -1437,31 +1457,49 @@ void DyscoAgentIn::createSynAck(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp) 
 	fix_csum(ip, tcp);
 }
 
-void DyscoAgentIn::createFinAck(Packet* pkt, Ipv4* ip, Tcp* tcp) {
-	Ethernet* eth = pkt->head_data<Ethernet*>();
-	Ethernet::Address macswap = eth->dst_addr;
-	eth->dst_addr = eth->src_addr;
-	eth->src_addr = macswap;
-		
-	be32_t ipswap = ip->dst;
-	ip->dst = ip->src;
-	ip->src = ipswap;
-	ip->ttl = TTL;
-	ip->id = be16_t(rand() % PORT_RANGE);
+Packet* DyscoAgentIn::createFinAckPacket(Ethernet* eth, Ipv4* ip, Tcp* tcp, uint32_t payload) {
+	Packet* pkt = Packet::Alloc();
+	pkt->set_data_off(SNBUF_HEADROOM);
 
-	be16_t pswap = tcp->src_port;
-	tcp->src_port = tcp->dst_port;
-	tcp->dst_port = pswap;
-	be32_t seqswap = tcp->seq_num;
-	tcp->seq_num = tcp->ack_num;
-	tcp->ack_num = seqswap + be32_t(1);
-	tcp->flags |= Tcp::kAck;
+	uint16_t size = sizeof(Ethernet) + sizeof(Ipv4) + sizeof(Tcp);
 
-	//Could be incremental
-	fix_csum(ip, tcp);
+	pkt->set_data_len(size);
+	pkt->set_total_len(size);
+
+	Ethernet* neweth = pkt->head_data<Ethernet*>();
+	neweth->dst_addr = eth->src_addr;
+	neweth->src_addr = eth->dst_addr;
+	neweth->ether_type = be16_t(Ethernet::Type::kIpv4);
+
+	Ipv4* newip = reinterpret_cast<Ipv4*>(neweth + 1);
+	newip->version = 4;
+	newip->header_length = 5;
+	newip->type_of_service = 0;
+	newip->length = be16_t(size - sizeof(Ethernet));
+	newip->id = be16_t(rand());
+	newip->fragment_offset = be16_t(0);
+	newip->ttl = TTL;
+	newip->protocol = Ipv4::kTcp;
+	newip->src = ip->dst;
+	newip->dst = ip->src;
+
+	Tcp* newtcp = reinterpret_cast<Tcp*>(newip + 1);
+	newtcp->dst_port = tcp->src_port;
+	newtcp->src_port = tcp->dst_port;
+	newtcp->seq_num = tcp->ack_num;
+	newtcp->ack_num = tcp->seq_num + be32_t(payload + 1);
+	newtcp->offset = 5;
+	newtcp->reserved = 0;
+	newtcp->flags = (Tcp::kFin | Tcp::kAck);
+	newtcp->window = be16_t(65535);
+	newtcp->urgent_ptr = be16_t(0);
+
+	fix_csum(newip, newtcp);
+
+	return pkt;
 }
 
-Packet* DyscoAgentIn::createFinAckPacket(DyscoHashOut* cb_out) {
+Packet* DyscoAgentIn::createFinAckPacketSS(DyscoHashOut* cb_out) {
 	Packet* pkt = Packet::Alloc();
 	pkt->set_data_off(SNBUF_HEADROOM);
 
