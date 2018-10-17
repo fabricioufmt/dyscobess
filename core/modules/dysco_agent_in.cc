@@ -661,12 +661,12 @@ bool DyscoAgentIn::input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp, DyscoHa
 		}
 	}
 
-	if(cb_out->state == DYSCO_ESTABLISHED && isTCPFIN(tcp)) {
+	if(cb_in->dcb_out->state == DYSCO_ESTABLISHED && isTCPFIN(tcp)) {
 		fprintf(stderr, "[%s] receives FIN or FIN+ACK with ESTABLISHED state\n", ns.c_str());
 		fprintf(stderr, "[%s] should answer to a FIN+ACK too and change to DYSCO_CLOSED\n", ns.c_str());
-		Packet* finpkt = createFinAckPacket(cb_out);
+		Packet* finpkt = createFinAckPacket(cb_in->dcb_out);
 		agent->forward(finpkt, true);
-		cb_out->state = DYSCO_CLOSED;
+		cb_in->dcb_out->state = DYSCO_CLOSED;
 
 		return false;
 	}
