@@ -676,7 +676,10 @@ bool DyscoAgentIn::input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp, DyscoHa
 			fprintf(stderr, "[%s] there are data on packet, should remove FIN flag, forward to app and create a new Packet to answer FIN segment\n", ns.c_str());
 
 			tcp->flags -= Tcp::kFin;
-			tcp->checksum += Tcp::kFin;
+			//tcp->checksum += Tcp::kFin;
+			fprintf(stderr, "before ck: %X\n", tcp->checksum);
+			fix_csum(ip, tcp);
+			fprintf(stderr, "after ck: %X\n", tcp->checksum);
 
 			fprintf(stderr, "[%s] should answer to a FIN+ACK and change to DYSCO_CLOSED\n", ns.c_str());
 			Packet* finpkt = createFinAckPacket(eth, ip, tcp, payload_sz);
