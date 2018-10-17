@@ -88,9 +88,9 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 		removed = processReceivedPacket(ip, tcp);
 
 		if(tcp->flags == Tcp::kFin)
-			fprintf(stderr, "[%s][DyscoAgentIn] receives %s FIN segment [%X:%X]\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.value(), tcp->ack_num.value());
+			fprintf(stderr, "[%s][DyscoAgentIn] receives %s FIN segment [%X:%X]\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.raw_value(), tcp->ack_num.raw_value());
 		else if(tcp->flags == (Tcp::kFin | Tcp::kAck))
-			fprintf(stderr, "[%s][DyscoAgentIn] receives %s FIN+ACK segment [%X:%X]\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.value(), tcp->ack_num.value());
+			fprintf(stderr, "[%s][DyscoAgentIn] receives %s FIN+ACK segment [%X:%X]\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.raw_value(), tcp->ack_num.raw_value());
 		
 		if(isLockingSignalPacket(tcp)) {
 			fprintf(stderr, "[%s] Receives Locking Signal Packet.\n", ns.c_str());
@@ -642,7 +642,7 @@ bool DyscoAgentIn::input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp, DyscoHa
 			return true;
 	}
 
-	if(cb_in->dcb_out->old_path && cb_in->dcb_out->state == DYSCO_FIN_WAIT_1) {
+	if(cb_in->dcb_out->old_path && (cb_in->dcb_out->is_LA || cb_in->dcb_out->is_RA) && cb_in->dcb_out->state == DYSCO_FIN_WAIT_1) {
 		fprintf(stderr, "[%s] state = DYSCO_FIN_WAIT_1.\n", ns.c_str());
 		if(tcp->flags & Tcp::kFin) {
 			if(tcp->flags == Tcp::kFin) {
@@ -661,8 +661,8 @@ bool DyscoAgentIn::input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp, DyscoHa
 		}
 	}
 
-	if(cb_in->dcb_out->old_path && cb_in->dcb_out->state == DYSCO_ESTABLISHED && isTCPFIN(tcp)) {
-		fprintf(stderr, "[%s][DyscoAgentIn] receives %s FIN segment on ESTABLISHED state [%X:%X].\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.value(), tcp->ack_num.value());
+	if(cb_in->dcb_out->old_path && (cb_in->dcb_out->is_LA || cb_in->dcb_out->is_RA) && cb_in->dcb_out->state == DYSCO_ESTABLISHED && isTCPFIN(tcp)) {
+		fprintf(stderr, "[%s][DyscoAgentIn] receives %s FIN segment on ESTABLISHED state [%X:%X].\n", ns.c_str(), printPacketSS(ip, tcp), tcp->seq_num.raw_value(), tcp->ack_num.raw_value());
 		fprintf(stderr, "[%s] should answer to a FIN+ACK too and change to DYSCO_CLOSED\n", ns.c_str());
 		Packet* finpkt = createFinAckPacket(cb_in->dcb_out);
 		agent->forward(finpkt, true);
