@@ -524,14 +524,6 @@ bool DyscoAgentIn::in_two_paths_ack(Tcp* tcp, DyscoHashIn* cb_in) {
 				cb_in->two_paths = 0;
 			}
 		}
-
-		if(cb_out->state == DYSCO_ESTABLISHED && isTCPFIN(tcp)) {
-			fprintf(stderr, "[%s] receives FIN or FIN+ACK with ESTABLISHED state\n", ns.c_str());
-			fprintf(stderr, "[%s] should answer to a FIN+ACK too and change to DYSCO_CLOSED\n", ns.c_str());
-			Packet* finpkt = createFinAckPacket(cb_out);
-			agent->forward(finpkt, true);
-			cb_out->state = DYSCO_CLOSED;
-		}
 	} else {
 		cb_out = cb_out->other_path;
 		if(!cb_out) {
@@ -665,8 +657,20 @@ bool DyscoAgentIn::input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp, DyscoHa
 			agent->forward(pkt);
 
 			fprintf(stderr, "[%s] forwarding ACK for FIN or FIN+ACK.\n", ns.c_str());
+			return false;
 		}
 	}
+
+	if(cb_out->state == DYSCO_ESTABLISHED && isTCPFIN(tcp)) {
+		fprintf(stderr, "[%s] receives FIN or FIN+ACK with ESTABLISHED state\n", ns.c_str());
+		fprintf(stderr, "[%s] should answer to a FIN+ACK too and change to DYSCO_CLOSED\n", ns.c_str());
+		Packet* finpkt = createFinAckPacket(cb_out);
+		agent->forward(finpkt, true);
+		cb_out->state = DYSCO_CLOSED;
+
+		return false;
+	}
+	
 	/* else {
 		if(payload_sz) {
 			if(cb_in->dcb_out) {
