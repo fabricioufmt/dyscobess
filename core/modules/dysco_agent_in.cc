@@ -668,6 +668,10 @@ bool DyscoAgentIn::input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp, DyscoHa
 		agent->forward(finpkt, true);
 		cb_in->dcb_out->state = DYSCO_CLOSED;
 
+		Ipv4* newip = reinterpret_cast<Ipv4*>(finpkt->head_data<Ethernet*>() + 1);
+		Tcp* newtcp = reinterpret_cast<Tcp*>((uint8_t*)newip + (newip->header_length * 4));
+		fprintf(stderr, "[%s][DyscoAgentIn] forwards %s [%X:%X]\n\n", ns.c_str(), printPacketSS(newip, newtcp), newtcp->seq_num.raw_value(), newtcp->ack_num.raw_value());
+
 		return false;
 	}
 	
