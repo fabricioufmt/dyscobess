@@ -650,8 +650,8 @@ bool DyscoAgentIn::input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp, DyscoHa
 		fprintf(stderr, "[%s] cb_in->dcb_out->state = %d\n", ns.c_str(), cb_in->dcb_out->state);
 	}
 	
-	if(cb_in->dcb_out->old_path && (cb_in->dcb_out->is_LA || cb_in->dcb_out->is_RA) && cb_in->dcb_out->state == DYSCO_FIN_WAIT_1) {
-		fprintf(stderr, "[%s] state = DYSCO_FIN_WAIT_1.\n", ns.c_str());
+	if(cb_in->dcb_out->old_path && (cb_in->dcb_out->is_LA || cb_in->dcb_out->is_RA) && (cb_in->dcb_out->state == DYSCO_FIN_WAIT_1 || cb_in->dcb_out->state == DYSCO_CLOSING || cb_in->dcb_out->state == DYSCO_CLOSED)) {
+		fprintf(stderr, "[%s] state = DYSCO_FIN_WAIT_1, DYSCO_CLOSING or DYSCO_CLOSED.\n", ns.c_str());
 		if(tcp->flags & Tcp::kFin) {
 			if(tcp->flags == Tcp::kFin) {
 				fprintf(stderr, "[%s] changing to DYSCO_CLOSING.\n", ns.c_str());
@@ -676,10 +676,7 @@ bool DyscoAgentIn::input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp, DyscoHa
 			fprintf(stderr, "[%s] there are data on packet, should remove FIN flag, forward to app and create a new Packet to answer FIN segment\n", ns.c_str());
 
 			tcp->flags -= Tcp::kFin;
-			//tcp->checksum += Tcp::kFin;
-			fprintf(stderr, "before ck: %X\n", tcp->checksum);
-			fix_csum(ip, tcp);
-			fprintf(stderr, "after ck: %X\n", tcp->checksum);
+			tcp->checksum += htons(Tcp::kFin);
 
 			fprintf(stderr, "[%s] should answer to a FIN+ACK and change to DYSCO_CLOSED\n", ns.c_str());
 			Packet* finpkt = createFinAckPacket(eth, ip, tcp, payload_sz);
