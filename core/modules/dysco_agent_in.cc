@@ -124,7 +124,7 @@ void DyscoAgentIn::ProcessBatch(PacketBatch* batch) {
 				continue;
 			}
 			
-			if(input(pkt, ip, tcp, cb_in)) {
+			if(input(pkt, eth, ip, tcp, cb_in)) {
 				out.add(pkt);
 			}
 			if(tcp->flags == Tcp::kFin)
@@ -530,7 +530,7 @@ bool DyscoAgentIn::in_two_paths_ack(Tcp* tcp, DyscoHashIn* cb_in) {
 			fprintf(stderr, "[%s] should answer to a FIN+ACK too and change to DYSCO_CLOSED\n", ns.c_str());
 			Packet* finpkt = createFinAckPacket(cb_out);
 			agent->forward(finpkt, true);
-			old_dcb->state = DYSCO_CLOSED;
+			cb_out->state = DYSCO_CLOSED;
 		}
 	} else {
 		cb_out = cb_out->other_path;
@@ -598,7 +598,7 @@ bool DyscoAgentIn::in_two_paths_data_seg(Tcp* tcp, DyscoHashIn* cb_in, uint32_t)
 }
 
 //L.753
-bool DyscoAgentIn::input(Packet* pkt, Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
+bool DyscoAgentIn::input(Packet* pkt, Ethernet* eth, Ipv4* ip, Tcp* tcp, DyscoHashIn* cb_in) {
 	uint32_t payload_sz = hasPayload(ip, tcp);
 
 	if(!cb_in) {
