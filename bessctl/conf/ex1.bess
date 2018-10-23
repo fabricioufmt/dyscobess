@@ -7,12 +7,12 @@ import scapy.all as scapy
 num_ports = int($BESS_PORTS!'1')
 num_cores = int($BESS_CORES!'1')
 
-bess.add_worker(wid=0, core=0)
-bess.add_worker(wid=1, core=1)
-bess.add_worker(wid=2, core=2)
+#bess.add_worker(wid=0, core=0)
+#bess.add_worker(wid=1, core=1)
+#bess.add_worker(wid=2, core=2)
 
 #virtport = VPort(ifname='c1-0', netns='/var/run/netns/c1', ip_addrs=['192.168.57.2/24'])
-virtport = VPort(ifname='c1-0', ip_addrs=['192.168.57.2/24'])
+virtport = VPort(ifname='c1-0', ip_addrs=['192.168.1.2/24'])
 #virtport = VPort(ifname='c1-0', ip_addrs=['192.168.57.2/24'], rxq_cpus=[2])
 #dpdkports = [PMDPort(port_id=i, num_inc_q=num_cores, num_out_q=num_cores) \
 #         for i in range(num_ports)]
@@ -20,11 +20,11 @@ virtport = VPort(ifname='c1-0', ip_addrs=['192.168.57.2/24'])
 dpdkport0 = PMDPort(port_id=0, num_inc_q=1, num_out_q=1)
 #dpdkport0 = PMDPort(port_id=0, num_inc_q=3, num_out_q=3)
 
-pinc::PortInc(port=virtport) -> QueueOut(port=dpdkport0, qid=0)
+pinc::PortInc(port=virtport, prefetch=1) -> QueueOut(port=dpdkport0, qid=0)
 #pinc -> QueueOut(port=dpdkport0, qid=1)
-qinc0::QueueInc(port=dpdkport0, qid=0) -> pout::PortOut(port=virtport)
+qinc0::QueueInc(port=dpdkport0, qid=0, prefetch=1) -> pout::PortOut(port=virtport)
 #qinc1::QueueInc(port=dpdkport0, qid=1) -> pout
 
 #qinc0.attach_task(wid=0)
-qinc0.attach_task(wid=1)
-pinc.attach_task(wid=2)
+#qinc0.attach_task(wid=1)
+#pinc.attach_task(wid=2)
