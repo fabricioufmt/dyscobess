@@ -1,0 +1,26 @@
+import os
+import scapy.all as scapy
+
+num_ports = int($BESS_PORTS!'1')
+num_cores = int($BESS_CORES!'1')
+
+bess.add_worker(core=0, wid=0)
+bess.add_worker(core=1, wid=1)
+
+bess.pause_all()
+
+vport0 = VPort(ifname='veth0', ip_addrs=['192.168.1.4/24'])
+vport1 = VPort(ifname='veth1', ip_addrs=['192.168.2.4/24'])
+
+dpdkport0 = PMDPort(port_id=0, num_inc_q=1, num_out_q=1)
+dpdkport1 = PMDPort(port_id=1, num_inc_q=1, num_out_q=1)
+
+PortInc(port=vport0, prefetch=0) -> QueueOut(port=dpdkport0, qid=0)
+PortInc(port=vport1, prefetch=0) -> QueueOut(port=dpdkport1, qid=0)
+p0::QueueInc(port=dpdkport0, qid=0, prefetch=0) -> PortOut(port=vport0)
+p1::QueueInc(port=dpdkport1, qid=0, prefetch=0) -> PortOut(port=vport1)
+
+p0.attach_task(wid=0)
+p1.attach_task(wid=1)
+
+bess.resume_all()
