@@ -1,3 +1,7 @@
+echo "setting environment variables..."
+export RTE_SDK=/home/vagrant/dyscobess/deps/dpdk-17.05
+export RTE_TARGET=x86_64-native-linuxapp-gcc
+
 echo "turning down the interfaces..."
 sudo ifconfig enp0s8 down
 sudo ifconfig enp0s9 down
